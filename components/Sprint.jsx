@@ -35,7 +35,8 @@ var STEPS = [
 ];
 
 // Density Lock — global quality score that gates progression
-function computeDensityScore(bricks) {
+function computeDensityScore(bricks, cauchemars) {
+  var activeCauch = cauchemars || CAUCHEMARS_CIBLES;
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   if (validated.length === 0) return { score: 0, details: { brickCount: 0, blindedRatio: 0, cauchemarCoverage: 0, hasCicatrice: false, hasDecision: false }, unlocks: { forge: false, affutage: false, armement: false, sortie: false } };
 
@@ -62,8 +63,8 @@ function computeDensityScore(bricks) {
   var coveredKpis = {};
   validated.forEach(function(b) { if (b.kpi) coveredKpis[b.kpi] = true; });
   var coveredCauchemars = 0;
-  CAUCHEMARS_CIBLES.forEach(function(c) {
-    if (c.kpis.some(function(k) { return coveredKpis[k]; })) coveredCauchemars++;
+  activeCauch.forEach(function(c) {
+    if (c.kpis && c.kpis.some(function(k) { return coveredKpis[k]; })) coveredCauchemars++;
   });
   var cauchemarPoints = Math.round((coveredCauchemars / 3) * 25);
 
@@ -219,6 +220,252 @@ var KPI_REFERENCE = {
   },
 };
 
+/* ==============================
+   OFFRES DYNAMIQUES — Item 8
+   Templates de cauchemars par role + parsing d'offre
+   ============================== */
+
+var CAUCHEMAR_TEMPLATES_BY_ROLE = {
+  enterprise_ae: [
+    { kpis: ["Alignement Multi-décideurs"], kw: ["grand compte", "enterprise", "c-level", "comite", "multi", "stakeholder", "cycle long", "complexe", "key account", "strategic"], label: "Deals bloques en politique interne", nightmare: "4 decideurs. Aucun ne signe. Le commercial precedent a perdu 6 mois sur ce deal.", cost: [200000, 800000], context: "Cout du blocage politique : deals en stand-by, forecast non fiable, credibilite en chute." },
+    { kpis: ["Valeur Contractuelle (ACV)"], kw: ["arr", "mrr", "acv", "revenue", "chiffre d'affaires", "panier moyen", "deal size", "mid-market", "upsell"], label: "Valeur contractuelle en erosion", nightmare: "Le panier moyen baisse. Les deals se signent mais pour moins cher. Le board demande des comptes.", cost: [150000, 600000], context: "Erosion du ACV : pression concurrentielle + remises non-strategiques." },
+    { kpis: ["Taux de Conquete (Win Rate)"], kw: ["win rate", "taux de conversion", "closing", "concurrence", "competitif", "appel d'offre", "rfp", "benchmark"], label: "Win rate en chute libre", nightmare: "L'equipe perd 7 deals sur 10. La concurrence mange le pipeline. Le VP Sales ne dort plus.", cost: [300000, 1000000], context: "Chaque point de win rate perdu = pipeline entier devalue." },
+    { kpis: ["Vitesse du Cycle de Vente"], kw: ["cycle de vente", "time to close", "pipeline", "forecast", "velocite", "acceleration", "process", "structurer"], label: "Deals qui trainent 6 mois", nightmare: "Le CFO calcule le cout du cash immobilise. Les deals meurent de vieillesse dans le CRM.", cost: [100000, 500000], context: "Cash immobilise dans des deals non-clos + cout d'opportunite." },
+    { kpis: ["Volume de Prospection"], kw: ["prospection", "outbound", "lead", "sdr", "bdr", "generation", "cold call", "sequence", "mail"], label: "Pipeline vide en amont", nightmare: "Zero deal en entree de pipe. L'equipe attend. Le trimestre est deja perdu.", cost: [100000, 400000], context: "Pipeline sec = trimestre condamne. Chaque semaine sans lead est irreversible." },
+  ],
+  head_of_growth: [
+    { kpis: ["LTV / CAC Ratio"], kw: ["ltv", "cac", "ratio", "rentabilite", "payback", "unit economics", "marge", "burn"], label: "LTV/CAC desequilibre", nightmare: "Chaque client acquis coute plus qu'il ne rapporte. Le burn rate accelere. Les investisseurs voient rouge.", cost: [200000, 800000], context: "Desequilibre LTV/CAC : chaque euro depense en acquisition detruit de la valeur." },
+    { kpis: ["Taux d'Experimentation Reussie"], kw: ["a/b test", "experimentation", "test", "hypothese", "growth hack", "iteration", "data-driven", "growth"], label: "100 tests, zero signal", nightmare: "L'equipe teste tout. Rien ne scale. Le CEO demande ou passe le budget.", cost: [100000, 500000], context: "Tests sans these = bruit. Budget consomme sans apprentissage." },
+    { kpis: ["Retention (Cohortes)"], kw: ["retention", "cohorte", "churn", "engagement", "activation", "onboarding", "stickiness"], label: "Seau perce en activation", nightmare: "Le produit acquiert 1000 users par mois. 800 partent. La croissance est une illusion.", cost: [150000, 600000], context: "Chaque point de churn annule l'effort d'acquisition." },
+    { kpis: ["CPA (Cout par Acquisition)"], kw: ["cpa", "cout", "paid", "ads", "adwords", "facebook ads", "meta ads", "budget media", "roas", "roi"], label: "CPA qui explose", nightmare: "Le cout par lead a double en 6 mois. Le meme budget genere 2x moins de clients.", cost: [100000, 400000], context: "Inflation publicitaire + saturation des canaux." },
+    { kpis: ["Viralite / K-Factor"], kw: ["viralite", "referral", "organique", "bouche a oreille", "plg", "product-led", "k-factor", "nps"], label: "Croissance 100% achetee", nightmare: "Zero viralite. Chaque client vient de la pub. Le jour ou le budget coupe, la croissance meurt.", cost: [100000, 500000], context: "Dependance totale aux canaux payes = fragilite structurelle." },
+  ],
+  strategic_csm: [
+    { kpis: ["Net Revenue Retention (NRR)"], kw: ["nrr", "net revenue", "retention", "base installee", "renouvellement", "contrat", "expansion"], label: "Base qui retrecit", nightmare: "Le NRR passe sous 100%. La base installee fond. Chaque mois detruit du revenu recurrent.", cost: [200000, 800000], context: "NRR < 100% = entreprise qui retrecit meme en signant des nouveaux clients." },
+    { kpis: ["Expansion Revenue (Upsell)"], kw: ["upsell", "cross-sell", "expansion", "upgrade", "adoption", "usage", "croissance organique"], label: "Zero expansion sur la base", nightmare: "Les clients paient le minimum. Personne ne detecte les besoins latents. Le revenu est flat.", cost: [150000, 600000], context: "Upsell manque : chaque client sous-exploite est du revenu invisible." },
+    { kpis: ["Taux de Churn Predictif"], kw: ["churn", "attrition", "depart", "resiliation", "desengagement", "signal faible", "health score"], label: "Hemorragie de churn", nightmare: "Le churn bouffe la croissance. Chaque client perdu coute 5x. Personne ne voit les signaux.", cost: [150000, 600000], context: "Chaque point de churn = 5x le cout d'acquisition en revenus perdus." },
+    { kpis: ["Nombre de Tickets Support"], kw: ["support", "ticket", "escalade", "incident", "bug", "sla", "satisfaction"], label: "Equipe noyee sous les tickets", nightmare: "L'equipe passe 80% du temps en reactif. Zero temps pour l'upsell. Les clients strategiques attendent.", cost: [80000, 300000], context: "Reactif tue le proactif. L'equipe eteint des feux au lieu de construire." },
+    { kpis: ["NPS / CSAT"], kw: ["nps", "csat", "satisfaction", "feedback", "survey", "enquete", "voix du client"], label: "Satisfaction en chute silencieuse", nightmare: "Le NPS chute. Les clients ne se plaignent pas. Ils partent. Le signal arrive trop tard.", cost: [100000, 400000], context: "Satisfaction en baisse = churn futur. Le decalage temporel est le piege." },
+  ],
+  senior_pm: [
+    { kpis: ["ROI des Fonctionnalites"], kw: ["roi", "impact", "fonctionnalite", "feature", "valeur", "priorisation", "discovery", "outcome"], label: "Features sans impact", nightmare: "L'equipe livre 12 features par quarter. 10 ne bougent aucune metrique. Le roadmap est un catalogue.", cost: [150000, 500000], context: "Features sans ROI = dette produit. Chaque sprint gaspille detruit la confiance engineering." },
+    { kpis: ["Time-to-Market (Velocite)"], kw: ["time to market", "velocite", "sprint", "livraison", "agile", "scrum", "delivery", "release"], label: "Time-to-market en retard", nightmare: "La concurrence sort des features chaque semaine. L'equipe met 3 mois pour livrer. Le marche n'attend pas.", cost: [100000, 400000], context: "Retard de livraison = fenetre de marche ratee." },
+    { kpis: ["Adoption Rate (Usage)"], kw: ["adoption", "usage", "engagement", "activation", "dau", "mau", "retention produit"], label: "Produit lance, personne ne l'utilise", nightmare: "L'adoption stagne a 15%. Le CEO demande pourquoi les users n'accrochent pas.", cost: [100000, 400000], context: "Feature livree sans adoption = investissement perdu." },
+    { kpis: ["Redaction de User Stories"], kw: ["user story", "spec", "prd", "documentation", "brief", "cahier des charges"], label: "Specs floues, equipe perdue", nightmare: "L'engineering code dans le vide. Les specs changent en plein sprint. Le rework mange 40% du temps.", cost: [80000, 300000], context: "Specs instables = rework + frustration engineering." },
+    { kpis: ["Priorisation du Backlog"], kw: ["priorisation", "backlog", "roadmap", "strategie", "arbitrage", "stakeholder", "trade-off"], label: "Backlog sans arbitrage", nightmare: "50 demandes. Zero tri. Le produit dit oui a tout le monde et ne livre rien d'important.", cost: [100000, 400000], context: "Priorisation absente = produit mediocre sur tous les fronts." },
+  ],
+  ai_architect: [
+    { kpis: ["Reduction de la Latence Decisionnelle"], kw: ["decision", "latence", "automatisation", "workflow", "process", "temps", "efficacite"], label: "Decisions IA bloquees", nightmare: "Le projet IA est approuve depuis 6 mois. Personne n'avance. La concurrence deploie.", cost: [200000, 800000], context: "Chaque semaine de retard IA = avantage concurrentiel perdu." },
+    { kpis: ["Cout d'Infra / ROI IA"], kw: ["cout", "infra", "cloud", "gpu", "compute", "budget", "roi", "rentabilite"], label: "Budget IA sans ROI", nightmare: "La facture cloud explose. Le CFO demande le ROI. Personne ne sait le calculer.", cost: [150000, 600000], context: "Investissement IA sans mesure = gouffre financier." },
+    { kpis: ["Taux d'Erreur (Hallucination)"], kw: ["hallucination", "erreur", "precision", "qualite", "fiabilite", "guardrail", "eval"], label: "IA qui hallucine en prod", nightmare: "Le modele sort des reponses fausses. Les utilisateurs perdent confiance. Le projet risque l'arret.", cost: [100000, 500000], context: "Erreur en production = confiance detruite. Reconstruction lente." },
+    { kpis: ["Nombre de Prompts Crees"], kw: ["prompt", "llm", "modele", "fine-tuning", "rag", "embedding", "generation"], label: "Prompts sans strategie", nightmare: "100 prompts crees. Zero industrialise. L'equipe reinvente la roue chaque semaine.", cost: [80000, 300000], context: "Multiplication sans capitalisation = effort perdu." },
+    { kpis: ["Adoption Interne des Outils IA"], kw: ["adoption", "change management", "formation", "resistance", "transformation", "interne"], label: "Equipes qui refusent l'IA", nightmare: "L'outil est la. Personne ne l'utilise. Les equipes contournent et font a l'ancienne.", cost: [150000, 500000], context: "Investissement IA sans adoption = argent perdu." },
+  ],
+  engineering_manager: [
+    { kpis: ["Densité de Talent (Retention)"], kw: ["retention", "talent", "recrutement", "turn-over", "depart", "senior", "equipe", "culture"], label: "Fuite de talents", nightmare: "Le meilleur dev est parti. Le deuxieme negocie. Le troisieme attend une offre. L'equipe se vide.", cost: [200000, 800000], context: "Remplacement d'un dev senior : 6 mois de productivite perdue + cout de recrutement." },
+    { kpis: ["Cycle Time (Commit to Deploy)"], kw: ["cycle time", "deploy", "ci/cd", "release", "pipeline", "devops", "livraison"], label: "Cycle de deploy trop lent", nightmare: "Un commit met 3 semaines a atteindre la prod. La concurrence livre en 3 heures.", cost: [100000, 400000], context: "Cycle lent = feedback lent = produit deconnecte du marche." },
+    { kpis: ["Qualite du Code (Bugs/Dette)"], kw: ["bug", "dette technique", "qualite", "refactoring", "test", "coverage", "regression"], label: "Dette technique qui paralyse", nightmare: "Chaque feature prend 3x le temps prevu. La dette technique mange les sprints.", cost: [100000, 400000], context: "Dette technique = taxe invisible sur chaque livraison." },
+    { kpis: ["Lignes de Code Produites"], kw: ["productivite", "output", "velocite", "story point", "throughput"], label: "Productivite en chute", nightmare: "L'equipe travaille 60h mais le throughput baisse. Le probleme n'est pas l'effort.", cost: [80000, 300000], context: "Productivite en baisse = signal de management, pas d'effort." },
+    { kpis: ["Arbitrage Build vs Buy"], kw: ["build vs buy", "make or buy", "saas", "outil", "integration", "api", "vendor"], label: "Build inutile sur un probleme resolu", nightmare: "L'equipe construit en interne un outil qui existe a 50 euros par mois. 6 mois perdus.", cost: [150000, 500000], context: "Build par fierte detruit plus de valeur qu'il n'en cree." },
+  ],
+  management_consultant: [
+    { kpis: ["Taux d'Acceptation des Recommandations"], kw: ["recommandation", "presentation", "comite", "direction", "decision", "strategie", "accompagnement"], label: "Recommandations ignorees", nightmare: "Le deck est parfait. Le comite dit oui puis ne fait rien. L'impact est nul.", cost: [200000, 800000], context: "Recommandation acceptee sans execution = mission sans valeur." },
+    { kpis: ["Impact sur l'EBITDA"], kw: ["ebitda", "p&l", "resultat", "marge", "rentabilite", "cout", "economies"], label: "Mission sans impact financier", nightmare: "6 mois de mission. Le client ne sait pas chiffrer l'impact. Le renouvellement est compromis.", cost: [150000, 600000], context: "Impact non mesure = valeur non percue = client perdu." },
+    { kpis: ["Clarte du Diagnostic"], kw: ["diagnostic", "analyse", "audit", "etat des lieux", "transformation", "assessment"], label: "Diagnostic flou", nightmare: "Le diagnostic dit tout et ne tranche rien. Le client reste paralyse.", cost: [100000, 400000], context: "Diagnostic sans arbitrage = consultant remplacable par un LLM." },
+    { kpis: ["Nombre de Slides Produites"], kw: ["slide", "powerpoint", "deck", "presentation", "rapport", "deliverable"], label: "Livrables sans substance", nightmare: "80 slides. Zero insight. Le partner demande ou est la valeur ajoutee.", cost: [80000, 300000], context: "Slide-making sans pensee = commodite pure." },
+    { kpis: ["Vitesse de Resolution de Crise"], kw: ["crise", "urgence", "restructuration", "transformation", "turnaround", "cost cutting"], label: "Crise non resolue", nightmare: "La crise dure depuis 3 mois. Le consultant precedent a produit des slides. Rien n'a change.", cost: [300000, 1000000], context: "En crise, chaque semaine coute. Le TJM se justifie par la vitesse." },
+  ],
+  strategy_associate: [
+    { kpis: ["Precision des Signaux Faibles"], kw: ["signal", "veille", "marche", "tendance", "concurrence", "disruption", "analyse"], label: "Signaux faibles ignores", nightmare: "Le concurrent a vu la tendance 6 mois avant. Le Comex decouvre le probleme dans la presse.", cost: [200000, 800000], context: "Signal faible manque = decision strategique en retard." },
+    { kpis: ["Fiabilite des Modeles Financiers"], kw: ["modele", "financier", "forecast", "projection", "budget", "plan", "business plan"], label: "Modeles financiers non fiables", nightmare: "La projection etait fausse de 40%. Le board a pris une decision sur des chiffres errones.", cost: [150000, 600000], context: "Modele faux = decision fausse = capital mal alloue." },
+    { kpis: ["Alignement du Comex"], kw: ["comex", "board", "gouvernance", "alignement", "politique", "consensus", "arbitrage"], label: "Comex desaligne", nightmare: "Le CEO veut croissance. Le CFO veut profitabilite. Personne ne tranche. L'entreprise zigzague.", cost: [300000, 1000000], context: "Comex desaligne = paralysie strategique." },
+    { kpis: ["Synthese de Rapports Annuels"], kw: ["rapport", "synthese", "analyse", "data", "benchmark", "etude"], label: "Analyse sans synthese", nightmare: "200 pages de donnees. Zero recommandation. Le directeur strategie demande 'et alors ?'", cost: [80000, 300000], context: "Data sans sens = bruit couteux." },
+    { kpis: ["Impact M&A (Synergies)"], kw: ["m&a", "acquisition", "fusion", "synergie", "integration", "due diligence"], label: "Synergies M&A fantomes", nightmare: "L'acquisition est faite. Les synergies annoncees ne se materialisent pas. Le write-off approche.", cost: [500000, 2000000], context: "70% des fusions detruisent de la valeur. L'enjeu est dans l'execution." },
+  ],
+  operations_manager: [
+    { kpis: ["Reduction de la Charge Cognitive"], kw: ["charge", "cognitive", "simplification", "process", "procedure", "workflow", "automatisation"], label: "Equipes surchargees", nightmare: "Les equipes passent 60% du temps sur des taches admin. Le vrai travail se fait en heures sup.", cost: [100000, 400000], context: "Charge cognitive excessive = erreurs + burn-out + turnover." },
+    { kpis: ["Taux de Passage à l'Acte (Output)"], kw: ["execution", "output", "implementation", "deploiement", "mise en oeuvre", "projet"], label: "Idees sans execution", nightmare: "10 projets lances. 2 termines. Les autres meurent dans des spreadsheets.", cost: [100000, 400000], context: "Execution manquee = strategie inexistante." },
+    { kpis: ["Cout Operationnel Unitaire"], kw: ["cout", "operationnel", "efficience", "optimisation", "budget", "reduction"], label: "Couts operationnels qui derapent", nightmare: "Le cout par transaction double. La marge fond. Personne ne sait ou ca part.", cost: [100000, 400000], context: "Cout unitaire en hausse = rentabilite en erosion silencieuse." },
+    { kpis: ["Maintenance des Outils (SaaS)"], kw: ["outil", "saas", "stack", "integration", "api", "interoperabilite", "migration"], label: "Stack techno ingerable", nightmare: "15 outils. Aucun ne se parle. L'equipe copie-colle entre 3 interfaces. 4h par jour perdues.", cost: [80000, 300000], context: "Stack fragmentee = donnees en silo + temps perdu." },
+    { kpis: ["Indice de Friction Inter-services"], kw: ["friction", "silo", "transverse", "collaboration", "inter-equipe", "coordination", "communication"], label: "Guerre entre les services", nightmare: "Sales accuse Produit. Produit accuse Engineering. Le client attend au milieu.", cost: [150000, 500000], context: "Friction inter-services = retard client + turnover interne." },
+  ],
+  fractional_coo: [
+    { kpis: ["Acceleration du Runway"], kw: ["runway", "cash", "burn", "levee", "financement", "tresorerie", "survie", "serie"], label: "Runway qui fond", nightmare: "6 mois de cash. Pas de levee en vue. Chaque decision compte double.", cost: [300000, 1000000], context: "Chaque mois de runway gagne = une chance supplementaire de pivoter." },
+    { kpis: ["Alignement des Equipes N-1"], kw: ["equipe", "management", "n-1", "alignement", "organisation", "restructuration", "scale"], label: "Equipes N-1 desalignees", nightmare: "3 directors. 3 strategies. Le CEO arbitre a la journee. Zero coherence.", cost: [200000, 800000], context: "N-1 desaligne = execution chaotique = runway grille plus vite." },
+    { kpis: ["Mise en Place du Cadre (Governance)"], kw: ["gouvernance", "cadre", "process", "structure", "kpi", "reporting", "suivi"], label: "Zero cadre de gouvernance", nightmare: "Pas de process. Pas de KPI. Le CEO gere au feeling. Ca marchait a 10, ca casse a 50.", cost: [150000, 500000], context: "Absence de cadre = decisions par urgence, pas par strategie." },
+    { kpis: ["Reporting Hebdomadaire"], kw: ["reporting", "dashboard", "tableau de bord", "suivi", "visibilite", "data"], label: "Pilotage a l'aveugle", nightmare: "Le board demande les chiffres. Personne ne les a. Le CFO passe 2 jours a compiler.", cost: [80000, 300000], context: "Reporting manuel = donnees toujours en retard." },
+    { kpis: ["ROI du Temps de Direction"], kw: ["direction", "ceo", "cofondateur", "temps", "delegation", "focus", "priorite"], label: "CEO noye dans l'operationnel", nightmare: "Le CEO passe 70% du temps a eteindre des feux. Zero temps strategie. Zero temps produit.", cost: [200000, 800000], context: "Temps du CEO mal alloue = cout d'opportunite maximum." },
+  ],
+};
+
+/* Urgency boosters — keywords that increase cauchemar severity */
+var OFFER_URGENCY_KEYWORDS = ["urgent", "asap", "immédiat", "rapidement", "des que possible", "forte croissance", "hyper-croissance", "scale-up", "restructuration", "remplacement", "depart", "critique", "prioritaire", "creation de poste", "ouverture de poste"];
+
+/* Parse offer text and score cauchemar templates */
+function parseOfferSignals(offersText, roleId) {
+  if (!offersText || offersText.trim().length < 20) return null;
+  var lower = offersText.toLowerCase().replace(/[éèê]/g, "e").replace(/[àâ]/g, "a").replace(/[ùû]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i");
+  var templates = CAUCHEMAR_TEMPLATES_BY_ROLE[roleId] || CAUCHEMAR_TEMPLATES_BY_ROLE.enterprise_ae;
+
+  // Detect urgency
+  var urgencyScore = 0;
+  var urgencyHits = [];
+  OFFER_URGENCY_KEYWORDS.forEach(function(u) {
+    if (lower.indexOf(u) !== -1) { urgencyScore++; urgencyHits.push(u); }
+  });
+
+  // Score each template against offer text
+  var scored = templates.map(function(t, i) {
+    var hits = 0;
+    var matchedKw = [];
+    t.kw.forEach(function(k) {
+      var kNorm = k.replace(/[éèê]/g, "e").replace(/[àâ]/g, "a").replace(/[ùû]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i");
+      if (lower.indexOf(kNorm) !== -1) { hits++; matchedKw.push(k); }
+    });
+    return { template: t, hits: hits, matchedKw: matchedKw, index: i };
+  });
+
+  // Sort: most keyword hits first, then by template order (elastic first in KPI_REFERENCE)
+  scored.sort(function(a, b) {
+    if (b.hits !== a.hits) return b.hits - a.hits;
+    return a.index - b.index;
+  });
+
+  // Build top 3 cauchemars
+  var active = scored.slice(0, 3).map(function(s, i) {
+    var t = s.template;
+    var costStr = formatCost(t.cost[0]) + "-" + formatCost(t.cost[1]);
+    return {
+      id: i + 1,
+      label: t.label,
+      kpis: t.kpis,
+      nightmareShort: t.nightmare,
+      costRange: t.cost,
+      costUnit: "an",
+      costContext: t.context,
+      negoFrame: "La discussion ne porte pas sur ton salaire. Elle porte sur les " + costStr + " que ce probleme leur coute chaque annee.",
+      costSymbolique: "Le signal interne : si ce probleme persiste, la confiance du board s'erode. Les meilleurs partent vers des equipes qui avancent.",
+      costSystemique: "Effet domino : chaque mois sans resolution aggrave les problemes adjacents. Le cout reel depasse le perimetre visible.",
+      detected: s.hits > 0,
+      matchedKw: s.matchedKw,
+      hitCount: s.hits,
+    };
+  });
+
+  return {
+    cauchemars: active,
+    urgencyScore: urgencyScore,
+    urgencyHits: urgencyHits,
+    totalSignals: scored.reduce(function(sum, s) { return sum + s.hits; }, 0),
+  };
+}
+
+/* Build active cauchemars from parsed signals or fall back to defaults */
+function buildActiveCauchemars(parsedOffers, roleId) {
+  if (parsedOffers && parsedOffers.cauchemars && parsedOffers.cauchemars.length >= 3) {
+    return parsedOffers.cauchemars;
+  }
+  // Fallback: generate from role templates without offer matching
+  var templates = CAUCHEMAR_TEMPLATES_BY_ROLE[roleId] || CAUCHEMAR_TEMPLATES_BY_ROLE.enterprise_ae;
+  return templates.slice(0, 3).map(function(t, i) {
+    var costStr = formatCost(t.cost[0]) + "-" + formatCost(t.cost[1]);
+    return {
+      id: i + 1,
+      label: t.label,
+      kpis: t.kpis,
+      nightmareShort: t.nightmare,
+      costRange: t.cost,
+      costUnit: "an",
+      costContext: t.context,
+      negoFrame: "La discussion ne porte pas sur ton salaire. Elle porte sur les " + costStr + " que ce probleme leur coute chaque annee.",
+      costSymbolique: "",
+      costSystemique: "",
+      detected: false,
+      matchedKw: [],
+      hitCount: 0,
+    };
+  });
+}
+
+/* Merge signals from multiple offers into unified cauchemar list */
+function mergeOfferSignals(offersArray, roleId) {
+  if (!offersArray || offersArray.length === 0) return null;
+  var allScored = {};
+  var totalSignals = 0;
+  var allUrgencyHits = [];
+  var urgencyScore = 0;
+
+  offersArray.forEach(function(offer) {
+    var parsed = parseOfferSignals(offer.text, roleId);
+    if (!parsed) return;
+    totalSignals += parsed.totalSignals;
+    urgencyScore += parsed.urgencyScore;
+    parsed.urgencyHits.forEach(function(h) { if (allUrgencyHits.indexOf(h) === -1) allUrgencyHits.push(h); });
+    parsed.cauchemars.forEach(function(c) {
+      var key = c.label;
+      if (!allScored[key]) {
+        allScored[key] = { template: c, totalHits: 0, allKw: [], offerIds: [] };
+      }
+      allScored[key].totalHits += c.hitCount;
+      allScored[key].offerIds.push(offer.id);
+      c.matchedKw.forEach(function(kw) { if (allScored[key].allKw.indexOf(kw) === -1) allScored[key].allKw.push(kw); });
+    });
+  });
+
+  var merged = Object.keys(allScored).map(function(key) {
+    var s = allScored[key];
+    var c = Object.assign({}, s.template);
+    c.hitCount = s.totalHits;
+    c.matchedKw = s.allKw;
+    c.detected = s.totalHits > 0;
+    c.offerIds = s.offerIds;
+    return c;
+  });
+
+  merged.sort(function(a, b) { return b.hitCount - a.hitCount; });
+  var top3 = merged.slice(0, 3).map(function(c, i) { c.id = i + 1; return c; });
+
+  return {
+    cauchemars: top3,
+    urgencyScore: urgencyScore,
+    urgencyHits: allUrgencyHits,
+    totalSignals: totalSignals,
+  };
+}
+
+/* Detect sector dispersion across offers */
+var SECTOR_KEYWORDS = {
+  "SaaS/Tech": ["saas", "software", "tech", "cloud", "plateforme", "api", "startup"],
+  "Finance": ["banque", "finance", "assurance", "investissement", "trading", "fintech", "audit"],
+  "Conseil": ["conseil", "consulting", "cabinet", "strategie", "transformation", "big four"],
+  "Industrie": ["industrie", "manufacturing", "production", "supply chain", "logistique", "usine"],
+  "Santé": ["sante", "pharma", "medical", "biotech", "hopital", "clinique", "laboratoire"],
+  "Retail": ["retail", "commerce", "e-commerce", "distribution", "magasin", "marketplace"],
+  "Media": ["media", "agence", "communication", "publicite", "marketing digital", "contenu"],
+  "Education": ["education", "formation", "edtech", "ecole", "universite", "enseignement"],
+};
+
+function checkOfferCoherence(offersArray) {
+  if (!offersArray || offersArray.length < 2) return { coherent: true, sectors: [], message: null };
+  var detectedSectors = {};
+  offersArray.forEach(function(offer) {
+    var lower = offer.text.toLowerCase().replace(/[éèê]/g, "e").replace(/[àâ]/g, "a");
+    Object.keys(SECTOR_KEYWORDS).forEach(function(sector) {
+      var hits = 0;
+      SECTOR_KEYWORDS[sector].forEach(function(kw) { if (lower.indexOf(kw) !== -1) hits++; });
+      if (hits >= 1) {
+        if (!detectedSectors[sector]) detectedSectors[sector] = [];
+        detectedSectors[sector].push(offer.id);
+      }
+    });
+  });
+  var sectorList = Object.keys(detectedSectors);
+  if (sectorList.length >= 4) {
+    return { coherent: false, sectors: sectorList, message: "Tes offres ciblent " + sectorList.length + " secteurs différents. Ta densité se dilue. Concentre sur 1-2 secteurs." };
+  }
+  return { coherent: true, sectors: sectorList, message: null };
+}
+
 var TARGET_ROLES = Object.keys(KPI_REFERENCE).map(function(key) {
   return { id: key, role: KPI_REFERENCE[key].role, sector: KPI_REFERENCE[key].sector };
 });
@@ -367,10 +614,16 @@ var CAUCHEMARS_CIBLES = [
   { id: 3, label: "Deals qui traînent / outils morts", kpis: ["Cycle de vente", "Adoption outil"], nightmareShort: "Les deals traînent 6 mois. Le CRM coûte 200K et personne ne l'utilise.", costRange: [100000, 500000], costUnit: "an", costContext: "Coût du cycle long : cash immobilisé dans des deals non-clos + licence CRM sans adoption = destruction de valeur silencieuse.", negoFrame: "Le CFO calcule le coût du cash immobilisé. {cost} par an disparaissent dans des deals qui auraient dû closer 3 mois plus tôt.", costSymbolique: "L'équipe perd confiance dans les outils. Le management perd visibilité sur le pipeline. Les prévisions deviennent fiction.", costSystemique: "Sans données fiables, chaque décision d'allocation de ressources est un pari. Les recrutements sont retardés. La croissance est freinée par l'absence de visibilité." },
 ];
 
+/* Global active cauchemars — set by Sprint component, used by all utility functions */
+var _activeCauchemars = null;
+function getActiveCauchemars() { return _activeCauchemars || CAUCHEMARS_CIBLES; }
+function setActiveCauchemarsGlobal(c) { _activeCauchemars = c; }
+
 // Negotiation script generator
-function computeNegotiationBrief(bricks) {
+function computeNegotiationBrief(bricks, cauchemars) {
+  var activeCauch = cauchemars || CAUCHEMARS_CIBLES;
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
-  var coverage = computeCauchemarCoverage(bricks);
+  var coverage = computeCauchemarCoverage(bricks, cauchemars);
   var coveredCauchemars = coverage.filter(function(c) { return c.covered; });
   if (coveredCauchemars.length === 0) return null;
 
@@ -379,7 +632,7 @@ function computeNegotiationBrief(bricks) {
   var lines = [];
 
   coveredCauchemars.forEach(function(cc) {
-    var cauch = CAUCHEMARS_CIBLES.find(function(c) { return c.id === cc.id; });
+    var cauch = getActiveCauchemars().find(function(c) { return c.id === cc.id; });
     if (!cauch) return;
     totalCostLow += cauch.costRange[0];
     totalCostHigh += cauch.costRange[1];
@@ -403,7 +656,7 @@ function computeNegotiationBrief(bricks) {
       brickCount: coveringBricks.length, strength: strength, hasCicatrice: hasCicatrice,
     });
   });
-  return { totalCostLow: totalCostLow, totalCostHigh: totalCostHigh, lines: lines, coveredCount: coveredCauchemars.length, totalCount: CAUCHEMARS_CIBLES.length };
+  return { totalCostLow: totalCostLow, totalCostHigh: totalCostHigh, lines: lines, coveredCount: coveredCauchemars.length, totalCount: getActiveCauchemars().length };
 }
 
 function formatCost(n) {
@@ -419,7 +672,7 @@ function detectBluffRisk(bricks) {
   var risks = [];
   coverage.forEach(function(cc) {
     if (!cc.covered) return;
-    var cauch = CAUCHEMARS_CIBLES.find(function(c) { return c.id === cc.id; });
+    var cauch = getActiveCauchemars().find(function(c) { return c.id === cc.id; });
     if (!cauch) return;
     var coveringBricks = validated.filter(function(b) {
       return cauch.kpis.some(function(kpi) {
@@ -620,7 +873,7 @@ function generateAdaptiveSeeds(roleId) {
 
   // Map KPIs to cauchemars for nightmare text
   function findCauchemar(kpi) {
-    return CAUCHEMARS_CIBLES.find(function(c) {
+    return getActiveCauchemars().find(function(c) {
       return c.kpis.some(function(ck) { return kpi.name.toLowerCase().indexOf(ck.toLowerCase().slice(0, 6)) !== -1 || ck.toLowerCase().indexOf(kpi.name.toLowerCase().slice(0, 6)) !== -1; });
     }) || null;
   }
@@ -1007,9 +1260,9 @@ function generateCV(bricks, targetRoleId, trajectoryToggle) {
   cv += headerStats ? headerStats + ".\n" : "";
   cv += "\n[Poste] \u2014 [Entreprise] ([Dates])\n\n";
 
-  // Bricks as lines — no job description
+  // Bricks as lines — prefer cvVersion for 6-second scanning
   sorted.forEach(function(b) {
-    cv += b.text + "\n\n";
+    cv += (b.cvVersion || b.text) + "\n\n";
   });
 
   cv += "Formation\n[Diplome] \u2014 [Ecole] ([Annee])";
@@ -1022,7 +1275,7 @@ function generateBio(bricks, vault, trajectoryToggle) {
 
   // LINE 1 — Cauchemar du décideur
   var strongestCauchemar = null;
-  CAUCHEMARS_CIBLES.forEach(function(c) {
+  getActiveCauchemars().forEach(function(c) {
     var covers = validated.filter(function(b) {
       return c.kpis.some(function(kpi) { return b.kpi && b.kpi.toLowerCase().indexOf(kpi.toLowerCase().slice(0, 6)) !== -1; });
     });
@@ -1054,21 +1307,228 @@ function generateBio(bricks, vault, trajectoryToggle) {
   return line1 + "\n\n" + line2 + "\n\n" + line3;
 }
 
-function generateScript(bricks, targetRoleId) {
-  var validated = bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; });
-  if (validated.length === 0) return "[Script généré apres validation de tes briques.]";
+/* ==============================
+   ITEM 2 — TRIPLE SORTIE PAR BRIQUE
+   CV 6sec + Entretien 3 interlocuteurs + Discovery
+   ============================== */
 
-  var coverage = computeCauchemarCoverage(bricks);
-  var covered = coverage.filter(function(c) { return c.covered; });
-
+function generateBrickVersions(brick, targetRoleId) {
+  var text = brick.text || "";
+  var kpi = brick.kpi || "";
+  var category = brick.brickCategory || brick.brickType || "chiffre";
   var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
   var roleLabel = roleData ? roleData.role : "ce poste";
 
-  // Find strongest cauchemar with cost
+  // === VERSION CV (6 secondes) ===
+  // Extract: action verb + number + minimal context
+  var cvVersion = text;
+  if (text.length > 120) {
+    // Compress: keep first sentence or strongest clause
+    var firstDot = text.indexOf(".");
+    if (firstDot > 20 && firstDot < 120) {
+      cvVersion = text.slice(0, firstDot + 1);
+    } else {
+      cvVersion = text.slice(0, 120).replace(/\s\S*$/, "") + ".";
+    }
+  }
+  // Ensure starts with action verb if possible
+  var actionStarters = ["croissance", "réduction", "déploiement", "lancement", "création", "restructuration", "mise en place", "pilotage", "optimisation", "négociation", "alignement", "construction", "transformation", "accélération", "conception"];
+  var startsWithAction = actionStarters.some(function(a) { return cvVersion.toLowerCase().indexOf(a) < 15 && cvVersion.toLowerCase().indexOf(a) !== -1; });
+  if (!startsWithAction && /[\+\-]?\d/.test(cvVersion)) {
+    // Has numbers but no action start — try to restructure
+    var numMatch = cvVersion.match(/([\+\-]?\d[\d.,]*\s*[%KM€]*)/);
+    if (numMatch) {
+      var numPart = numMatch[1];
+      var rest = cvVersion.replace(numPart, "").replace(/^\s*[,:.\-]\s*/, "").trim();
+      if (rest.length > 10) {
+        cvVersion = rest.charAt(0).toUpperCase() + rest.slice(1);
+        if (cvVersion.indexOf(numPart) === -1) cvVersion = cvVersion.replace(/\.$/, "") + " (" + numPart.trim() + ").";
+      }
+    }
+  }
+
+  // === VERSION ENTRETIEN (3 interlocuteurs) ===
+  var interviewBase = text;
+
+  // RH — parcours + soft skills
+  var rhVersion = "";
+  if (category === "cicatrice") {
+    rhVersion = "J'ai traversé une situation difficile. " + interviewBase + " Cette expérience m'a appris à prendre du recul et à ajuster ma méthode. C'est ce type de moment qui structure un parcours.";
+  } else if (category === "decision") {
+    rhVersion = "J'ai été confronté à un choix stratégique. " + interviewBase + " Ce que j'en retiens, c'est ma capacité à trancher sous pression et à assumer les conséquences.";
+  } else if (category === "influence") {
+    rhVersion = "J'ai dû aligner des personnes aux intérêts divergents. " + interviewBase + " Ce qui m'a marqué, c'est l'importance de la lecture politique dans l'exécution.";
+  } else {
+    rhVersion = "Dans mon parcours, un moment clé a été quand " + interviewBase.charAt(0).toLowerCase() + interviewBase.slice(1) + " Ce résultat illustre ma façon de travailler : je mesure, j'ajuste, je livre.";
+  }
+
+  // N+1 — terrain + méthode
+  var n1Version = "";
+  if (category === "cicatrice") {
+    n1Version = "Le problème était concret. " + interviewBase + " La correction que j'ai appliquée ensuite a fonctionné parce que j'avais compris la cause racine, pas juste le symptôme.";
+  } else if (category === "decision") {
+    n1Version = "Deux options s'opposaient. " + interviewBase + " J'ai posé les faits, chiffré les risques, et tranché. La méthode compte autant que le résultat.";
+  } else if (category === "influence") {
+    n1Version = "Le blocage venait des personnes, pas du process. " + interviewBase + " J'ai résolu ça en travaillant les objections une par une, en commençant par le plus résistant.";
+  } else {
+    n1Version = "Sur le terrain, voici ce qui s'est passé. " + interviewBase + " La méthode est reproductible. Je l'ai testée sur ce contexte, elle s'adapte à d'autres.";
+  }
+
+  // Direction — impact business + P&L
+  var dirVersion = "";
+  var cauchemar = getActiveCauchemars().find(function(c) {
+    return c.kpis && c.kpis.some(function(k) { return kpi.toLowerCase().indexOf(k.toLowerCase().slice(0, 6)) !== -1; });
+  });
+  var costFrame = cauchemar ? " Ce type de problème coûte entre " + formatCost(cauchemar.costRange[0]) + " et " + formatCost(cauchemar.costRange[1]) + " par an quand il n'est pas résolu." : "";
+  if (category === "cicatrice") {
+    dirVersion = "L'enjeu business était réel. " + interviewBase + costFrame + " L'échec m'a coûté du temps mais m'a donné un cadre d'analyse que j'applique systématiquement.";
+  } else if (category === "decision") {
+    dirVersion = "En termes d'impact P&L, voici l'arbitrage. " + interviewBase + costFrame + " La décision a protégé la marge et accéléré l'exécution.";
+  } else if (category === "influence") {
+    dirVersion = "Le sujet était politique avant d'être opérationnel. " + interviewBase + costFrame + " L'alignement a débloqué l'exécution sur tout le périmètre.";
+  } else {
+    dirVersion = "L'impact business est mesurable. " + interviewBase + costFrame + " Ce delta se traduit directement en valeur pour l'organisation.";
+  }
+
+  // === VERSION DISCOVERY (questions à poser) ===
+  var discoveryQuestions = [];
+  if (kpi) {
+    discoveryQuestions.push("Quel est votre indicateur actuel sur " + kpi.toLowerCase() + " ? Où en étiez-vous il y a 12 mois ?");
+  }
+  if (cauchemar) {
+    discoveryQuestions.push(cauchemar.nightmareShort.replace(/\.$/, "") + " — c'est une situation que vous rencontrez aujourd'hui ?");
+  }
+  if (discoveryQuestions.length === 0) {
+    discoveryQuestions.push("Quel est le problème le plus coûteux que personne n'a encore résolu dans votre équipe ?");
+  }
+
+  return {
+    cvVersion: cvVersion,
+    interviewVersions: {
+      rh: rhVersion,
+      n1: n1Version,
+      direction: dirVersion,
+    },
+    discoveryQuestions: discoveryQuestions,
+  };
+}
+
+/* ==============================
+   ITEM 4 — NIVEAUX LOGIQUES DE DILTS
+   1=Environnement 2=Comportement 3=Capacités 4=Croyances 5=Identité 6=Mission
+   ============================== */
+
+var DILTS_LEVELS = [
+  { level: 1, name: "Environnement", desc: "Où, quand, avec qui", color: "#8892b0" },
+  { level: 2, name: "Comportement", desc: "Ce que je fais", color: "#3498db" },
+  { level: 3, name: "Capacités", desc: "Comment je le fais", color: "#4ecca3" },
+  { level: 4, name: "Croyances", desc: "Pourquoi je le fais", color: "#ff9800" },
+  { level: 5, name: "Identité", desc: "Qui je suis", color: "#e94560" },
+  { level: 6, name: "Mission", desc: "Pour quoi je le fais", color: "#9b59b6" },
+];
+
+var DILTS_MARKERS = {
+  1: ["chez", "dans l'equipe", "en 20", "pendant", "mois", "semaines", "trimestre", "clients", "comptes", "personnes", "euros", "budget", "paris", "lyon", "france", "entreprise", "start-up", "scale-up", "groupe"],
+  2: ["j'ai fait", "j'ai lance", "j'ai mis en place", "j'ai deploye", "j'ai construit", "j'ai cree", "j'ai forme", "j'ai recrute", "j'ai gere", "j'ai pilote", "j'ai negocie", "j'ai redige", "j'ai organise", "j'ai produit", "j'ai execute"],
+  3: ["ma methode", "mon approche", "mon process", "ma strategie", "mon cadre", "mon systeme", "la methode que", "la technique", "le framework", "reproductible", "structuré", "systematique", "optimise", "itere", "mesure", "analyse", "diagnostic"],
+  4: ["je crois que", "je suis convaincu", "le vrai sujet", "le vrai probleme", "ce que personne ne dit", "contrairement a", "a tort", "en realite", "la majorite pense", "l'erreur commune", "mon parti pris", "ma conviction", "je refuse de", "je defends"],
+  5: ["je suis le genre de", "mon role est", "je suis celui qui", "je suis celle qui", "mon positionnement", "ce qui me definit", "ma singularite", "ce qui me rend", "ma marque", "mon ADN", "ma posture", "je ne suis pas un", "on me reconnait"],
+  6: ["pour que", "l'impact sur", "contribuer a", "au service de", "ma mission", "ce que je veux changer", "le systeme", "l'ecosysteme", "la prochaine generation", "transformer", "le monde du travail", "faire avancer", "laisser une trace", "plus grand que moi"],
+};
+
+function detectDiltsLevel(text) {
+  if (!text || text.length < 10) return { dominant: 1, scores: {}, breakdown: [] };
+  var lower = text.toLowerCase().replace(/[éèê]/g, "e").replace(/[àâ]/g, "a").replace(/[ùû]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i");
+
+  var scores = {};
+  var breakdown = [];
+  [1, 2, 3, 4, 5, 6].forEach(function(level) {
+    var hits = 0;
+    var matched = [];
+    DILTS_MARKERS[level].forEach(function(m) {
+      var mNorm = m.replace(/[éèê]/g, "e").replace(/[àâ]/g, "a").replace(/[ùû]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i");
+      if (lower.indexOf(mNorm) !== -1) { hits++; matched.push(m); }
+    });
+    scores[level] = hits;
+    if (hits > 0) breakdown.push({ level: level, hits: hits, matched: matched });
+  });
+
+  // Dominant = highest score, tiebreak favors higher level
+  var dominant = 1;
+  var maxScore = 0;
+  [1, 2, 3, 4, 5, 6].forEach(function(level) {
+    if (scores[level] > maxScore || (scores[level] === maxScore && level > dominant)) {
+      maxScore = scores[level];
+      dominant = level;
+    }
+  });
+
+  return { dominant: dominant, scores: scores, breakdown: breakdown };
+}
+
+function getDiltsLabel(level) {
+  var d = DILTS_LEVELS.find(function(l) { return l.level === level; });
+  return d || DILTS_LEVELS[0];
+}
+
+/* Detect Dilts progression in a script (open vs close) */
+function analyzeDiltsProgression(text) {
+  if (!text || text.length < 40) return { opens: 1, closes: 1, progression: 0 };
+  var parts = text.split("\n\n");
+  if (parts.length < 2) parts = text.split("\n");
+  if (parts.length < 2) return { opens: 1, closes: 1, progression: 0 };
+
+  var firstThird = parts.slice(0, Math.max(1, Math.floor(parts.length / 3))).join(" ");
+  var lastThird = parts.slice(-Math.max(1, Math.floor(parts.length / 3))).join(" ");
+
+  var openLevel = detectDiltsLevel(firstThird).dominant;
+  var closeLevel = detectDiltsLevel(lastThird).dominant;
+
+  return { opens: openLevel, closes: closeLevel, progression: closeLevel - openLevel };
+}
+
+/* Check sequence stagnation across multiple posts */
+function checkDiltsSequence(posts) {
+  if (!posts || posts.length < 3) return null;
+  var last3 = posts.slice(-3);
+  var levels = last3.map(function(p) { return p.diltsLevel || 1; });
+  var allSame = levels[0] === levels[1] && levels[1] === levels[2];
+  if (allSame) {
+    var d = getDiltsLabel(levels[0]);
+    return { stagnant: true, level: levels[0], name: d.name, message: "Tes 3 derniers posts sont au niveau " + levels[0] + " (" + d.name + "). Ta séquence stagne. Monte d'un niveau." };
+  }
+  return { stagnant: false };
+}
+
+function generateScript(bricks, targetRoleId) {
+  var result = generateContactScripts(bricks, targetRoleId);
+  return result ? result.email : "[Script généré apres validation de tes briques.]";
+}
+
+/* ==============================
+   ITEM 6 — SCRIPT 4 VARIANTES + GRILLE 6 TESTS
+   ============================== */
+
+var SCRIPT_CHANNELS = [
+  { id: "email", label: "Email", icon: "\u2709\uFE0F", instruction: "Envoie entre 8h et 9h30. La première phrase fait le travail." },
+  { id: "dm", label: "DM LinkedIn", icon: "\uD83D\uDCAC", instruction: "Envoie après avoir liké 2-3 posts de la personne. Jamais à froid." },
+  { id: "n1", label: "N+1 opérationnel", icon: "\uD83C\uDFAF", instruction: "Ce message suppose que tu connais le nom du hiring manager. Trouve-le sur LinkedIn." },
+  { id: "rh", label: "RH / Recruteur", icon: "\uD83D\uDC64", instruction: "Le RH filtre. Ton message doit passer le filtre, pas convaincre." },
+];
+
+function generateContactScripts(bricks, targetRoleId) {
+  var validated = bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; });
+  if (validated.length === 0) return null;
+
+  var coverage = computeCauchemarCoverage(bricks);
+  var covered = coverage.filter(function(c) { return c.covered; });
+  var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
+  var roleLabel = roleData ? roleData.role : "ce poste";
+
   var strongestCauchemar = null;
   var strongestBrick = null;
   covered.forEach(function(cc) {
-    var cauch = CAUCHEMARS_CIBLES.find(function(c) { return c.id === cc.id; });
+    var cauch = getActiveCauchemars().find(function(c) { return c.id === cc.id; });
     if (!cauch) return;
     if (!strongestCauchemar || cauch.costRange[1] > strongestCauchemar.costRange[1]) {
       var coveringBrick = validated.find(function(b) {
@@ -1077,41 +1537,122 @@ function generateScript(bricks, targetRoleId) {
       if (coveringBrick) { strongestCauchemar = cauch; strongestBrick = coveringBrick; }
     }
   });
+  if (!strongestBrick) strongestBrick = validated[0];
 
-  var script = "Bonjour [Prenom],\n\n";
+  var cauchText = strongestCauchemar ? strongestCauchemar.nightmareShort : "";
+  var brickText = strongestBrick ? strongestBrick.text : "";
+  var brickCv = strongestBrick && strongestBrick.cvVersion ? strongestBrick.cvVersion : brickText;
+  var costLow = strongestCauchemar ? formatCost(Math.round(strongestCauchemar.costRange[0] / 4)) : "";
+  var costHigh = strongestCauchemar ? formatCost(Math.round(strongestCauchemar.costRange[1] / 4)) : "";
+  var costLine = costLow && costHigh ? " Ce type de situation coûte entre " + costLow + " et " + costHigh + " par trimestre." : "";
 
-  // OPENER — curiosity, not certainty
-  script += "Je ne sais pas si c'est pertinent pour votre contexte, mais votre offre " + roleLabel + " m'a fait reagir sur un point precis.\n\n";
-
-  // ANCHOR — cost of inaction
-  if (strongestCauchemar) {
-    var quarterlyCostLow = Math.round(strongestCauchemar.costRange[0] / 4);
-    var quarterlyCostHigh = Math.round(strongestCauchemar.costRange[1] / 4);
-    script += strongestCauchemar.nightmareShort + " Ce type de situation coute entre " + formatCost(quarterlyCostLow) + " et " + formatCost(quarterlyCostHigh) + " par trimestre de poste vacant.\n\n";
-    script += "J'ai vecu ce problème. Je l'ai résolu. " + strongestBrick.text + "\n\n";
-  } else {
-    var topBricks = validated.slice(0, 2);
-    topBricks.forEach(function(b) { script += b.text + "\n\n"; });
-  }
-
-  // CLOSE — pain question, not time request
-  var discoveryQuestions = {
+  var closeQuestions = {
     enterprise_ae: "Qu'est-ce qui rend ce recrutement difficile aujourd'hui ?",
-    head_of_growth: "Quel canal d'acquisition vous preoccupe le plus en ce moment ?",
+    head_of_growth: "Quel canal d'acquisition vous préoccupe le plus en ce moment ?",
     strategic_csm: "Quel est le compte qui vous empêche de dormir ?",
     senior_pm: "Quel arbitrage produit personne ne veut trancher en ce moment ?",
-    ai_architect: "Quel cas d'usage IA est bloque depuis plus de 3 mois ?",
-    engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas a debloquer ?",
-    management_consultant: "Quel problème a declenche ce recrutement ?",
-    strategy_associate: "Quelle decision stratégique attend des données que personne ne produit ?",
+    ai_architect: "Quel cas d'usage IA est bloqué depuis plus de 3 mois ?",
+    engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas à débloquer ?",
+    management_consultant: "Quel problème a déclenché ce recrutement ?",
+    strategy_associate: "Quelle décision stratégique attend des données que personne ne produit ?",
     operations_manager: "Quelle friction inter-équipes consomme le plus de temps ?",
     fractional_coo: "Qu'est-ce que le CEO ne devrait plus faire lui-même dans 6 mois ?",
   };
-  var closeQuestion = discoveryQuestions[targetRoleId] || "Qu'est-ce qui rend ce recrutement difficile aujourd'hui ?";
-  script += closeQuestion + "\n\n[Prenom]";
+  var closeQ = closeQuestions[targetRoleId] || "Qu'est-ce qui rend ce recrutement difficile aujourd'hui ?";
 
-  return script;
+  // A. EMAIL — 8-10 lignes, formel
+  var email = "Bonjour [Prénom],\n\n";
+  email += cauchText ? cauchText + costLine + "\n\n" : "Votre offre " + roleLabel + " m'a fait réagir sur un point précis.\n\n";
+  email += "J'ai vécu ce problème. " + brickText + "\n\n";
+  email += "Je ne sais pas si c'est pertinent pour votre contexte. Mais si ce sujet résonne, j'ai une question :\n\n";
+  email += closeQ + "\n\n";
+  email += "Bonne journée,\n[Prénom Nom]";
+
+  // B. DM LINKEDIN — 3-4 lignes, direct
+  var dm = "[Prénom], " + (cauchText ? cauchText.replace(/\.$/, "") + "." : "votre offre " + roleLabel + " m'a interpellé.") + " ";
+  dm += brickCv + " ";
+  dm += closeQ.replace(/\?$/, "") + " ?";
+
+  // C. N+1 OPÉRATIONNEL — terrain, problème concret
+  var n1 = "Bonjour [Prénom],\n\n";
+  n1 += "Je me permets de vous écrire directement.\n\n";
+  n1 += cauchText ? cauchText + " C'est un problème que j'ai résolu concrètement.\n\n" : "Votre équipe recrute. J'ai un angle terrain qui mérite 2 minutes.\n\n";
+  n1 += brickText + "\n\n";
+  n1 += "La méthode est reproductible. " + closeQ + "\n\n";
+  n1 += "[Prénom Nom]";
+
+  // D. RH — parcours, trajectoire, culture fit
+  var rh = "Bonjour [Prénom],\n\n";
+  rh += "Votre offre " + roleLabel + " correspond à mon parcours sur un point précis : ";
+  rh += brickCv + "\n\n";
+  if (strongestBrick && strongestBrick.interviewVersions) {
+    rh += strongestBrick.interviewVersions.rh.length > 200 ? strongestBrick.interviewVersions.rh.slice(0, 200) + "..." : strongestBrick.interviewVersions.rh;
+    rh += "\n\n";
+  }
+  rh += "Est-ce le type de profil que vous recherchez ?\n\n";
+  rh += "[Prénom Nom]";
+
+  return { email: email, dm: dm, n1: n1, rh: rh };
 }
+
+/* GRILLE 6 TESTS */
+function scoreContactScript(text, bricks, cauchemars) {
+  if (!text || text.length < 20) return { score: 0, tests: [] };
+  var lower = text.toLowerCase();
+
+  // 1. MIROIR — première phrase parle du destinataire
+  var firstLine = text.split("\n").filter(function(l) { return l.trim().length > 5; })[0] || "";
+  var firstLower = firstLine.toLowerCase();
+  var miroir = firstLower.indexOf("vous") !== -1 || firstLower.indexOf("votre") !== -1 || firstLower.indexOf("[prénom]") !== -1 || firstLower.indexOf("[prenom]") !== -1;
+  var miroirFail = firstLower.indexOf("je ") < 3 && firstLower.indexOf("je ") !== -1 && !miroir;
+
+  // 2. CAUCHEMAR — nomme un cauchemar spécifique
+  var activeCauch = cauchemars || getActiveCauchemars();
+  var hasCauchemar = activeCauch.some(function(c) {
+    return c.nightmareShort && lower.indexOf(c.nightmareShort.toLowerCase().slice(0, 20)) !== -1;
+  });
+  if (!hasCauchemar) {
+    hasCauchemar = lower.indexOf("cauchemar") !== -1 || lower.indexOf("problème") !== -1 || lower.indexOf("coûte") !== -1 || lower.indexOf("coute") !== -1;
+  }
+
+  // 3. PREUVE ASYMÉTRIQUE — ouvre une question au lieu de fermer
+  var hasQuestion = text.indexOf("?") !== -1;
+  var hasProof = bricks.some(function(b) {
+    return b.status === "validated" && b.text && lower.indexOf(b.text.toLowerCase().slice(0, 20)) !== -1;
+  });
+  var preuveAsym = hasQuestion && hasProof;
+
+  // 4. COÛT DU NON — coût de ne pas répondre
+  var coutDuNon = lower.indexOf("coûte") !== -1 || lower.indexOf("coute") !== -1 || lower.indexOf("perd") !== -1 || lower.indexOf("trimestre") !== -1 || lower.indexOf("par an") !== -1 || lower.indexOf("chaque mois") !== -1 || lower.indexOf("manque") !== -1;
+
+  // 5. SORTIE FACILE — question de fin légère
+  var lastLines = text.split("\n").filter(function(l) { return l.trim().length > 3; });
+  var lastMeaningful = "";
+  for (var i = lastLines.length - 1; i >= 0; i--) {
+    if (lastLines[i].indexOf("?") !== -1) { lastMeaningful = lastLines[i]; break; }
+  }
+  var sortieFacile = lastMeaningful.length > 0 && lastMeaningful.length < 120;
+
+  // 6. DILTS — monte d'au moins 1 niveau
+  var diltsP = analyzeDiltsProgression(text);
+  var diltsOk = diltsP.progression >= 1;
+
+  var tests = [
+    { id: "miroir", label: "Miroir", desc: "La première phrase parle du destinataire", passed: miroir && !miroirFail, fix: "Commence par 'vous' ou par le problème du destinataire, pas par 'je'." },
+    { id: "cauchemar", label: "Cauchemar", desc: "Nomme un problème spécifique", passed: hasCauchemar, fix: "Ajoute le cauchemar du décideur issu de l'offre." },
+    { id: "preuve", label: "Preuve asymétrique", desc: "Ouvre une question au lieu de la fermer", passed: preuveAsym, fix: "Inclus une preuve chiffrée ET termine par une question." },
+    { id: "cout", label: "Coût du non", desc: "Le coût de ne pas répondre est visible", passed: coutDuNon, fix: "Ajoute le coût en euros ou en temps du problème non résolu." },
+    { id: "sortie", label: "Sortie facile", desc: "La question de fin est légère", passed: sortieFacile, fix: "Termine par une question courte, facile à répondre." },
+    { id: "dilts", label: "Dilts", desc: "Monte d'au moins 1 niveau logique", passed: diltsOk, fix: "Ouvre sur du concret (fait, chiffre) et ferme sur de la vision (conviction, identité)." },
+  ];
+
+  var passed = tests.filter(function(t) { return t.passed; }).length;
+  var score = Math.round(passed * 1.67);
+  if (score > 10) score = 10;
+
+  return { score: score, tests: tests, passedCount: passed };
+}
+
 
 /* Item 6 — Transition script for outsiders detected via cross-role matching */
 function generateTransitionScript(bricks, sourceRoleId, targetAlt) {
@@ -1164,9 +1705,9 @@ function generateImpactReport(bricks, vault, targetRoleId, trajectoryToggle, den
   if (influenceBricks.length > 0) report += "- " + influenceBricks.length + " brique" + (influenceBricks.length > 1 ? "s" : "") + " influence\n";
   if (cicatrices.length > 0) report += "- " + cicatrices.length + " cicatrice" + (cicatrices.length > 1 ? "s" : "") + "\n";
 
-  report += "\nCAUCHEMARS COUVERTS : " + coveredCount + "/" + CAUCHEMARS_CIBLES.length + "\n";
+  report += "\nCAUCHEMARS COUVERTS : " + coveredCount + "/" + getActiveCauchemars().length + "\n";
   coverage.forEach(function(c) {
-    var cauch = CAUCHEMARS_CIBLES.find(function(cc) { return cc.id === c.id; });
+    var cauch = getActiveCauchemars().find(function(cc) { return cc.id === c.id; });
     report += "- " + c.label + " -- " + (c.covered ? "couvert" : "NON COUVERT") + "\n";
     if (c.covered && cauch) {
       report += "  Coût direct : " + formatCost(cauch.costRange[0]) + "-" + formatCost(cauch.costRange[1]) + "/an\n";
@@ -1321,7 +1862,7 @@ function generateLinkedInPosts(bricks, vault, targetRoleId) {
 
     // LINE 1 — Cauchemar
     var cauchemar = "";
-    CAUCHEMARS_CIBLES.forEach(function(c) {
+    getActiveCauchemars().forEach(function(c) {
       if (cauchemar) return;
       if (c.kpis.some(function(kpi) { return brick.kpi && brick.kpi.toLowerCase().indexOf(kpi.toLowerCase().slice(0, 6)) !== -1; })) {
         cauchemar = c.nightmareShort;
@@ -1360,17 +1901,199 @@ function generateLinkedInPosts(bricks, vault, targetRoleId) {
 
     var post = cauchemar + "\n\n" + these + "\n\n" + situation + "\n\n" + question;
 
-    posts.push({
+    var dilts = detectDiltsLevel(post);
+    var hook = scoreHook(post);
+    var body = analyzeBodyRetention(post);
+    var expert = expertWritingAudit(post);
+
+    var postObj = {
       pillar: pillar.title,
       pillarSource: pillar.source,
       brickUsed: brick.text.length > 60 ? brick.text.slice(0, 60) + "..." : brick.text,
       brickType: brick.brickType === "cicatrice" ? "cicatrice" : brick.brickCategory,
       text: post,
       charCount: post.length,
-    });
+      diltsLevel: dilts.dominant,
+      diltsBreakdown: dilts.breakdown,
+      hookScore: hook.score,
+      hookTests: hook.tests,
+      bodyRetention: body,
+      expertCritique: expert,
+    };
+
+    postObj.firstComment = generateFirstComment(postObj, bricks, vault);
+
+    // Global score /10 = average of hook + expert checks
+    var expertPassed = expert.miroir.filter(function(m) { return m.passed; }).length + expert.luisEnrique.filter(function(l) { return l.passed; }).length;
+    var expertTotal = expert.miroir.length + expert.luisEnrique.length;
+    var globalScore = Math.round(((hook.score / 10) + (expertPassed / expertTotal)) / 2 * 10);
+    postObj.globalScore = globalScore;
+
+    posts.push(postObj);
   });
 
   return posts;
+}
+
+/* ==============================
+   ITEM 5 — 4 FILTRES POSTS LINKEDIN
+   ============================== */
+
+/* FILTRE 2 — MARIE HOOK (accroche) — 6 tests sur la première phrase */
+function scoreHook(text) {
+  if (!text || text.length < 20) return { score: 0, tests: [] };
+  var lines = text.split("\n").filter(function(l) { return l.trim().length > 5; });
+  var hook = lines[0] || "";
+  var lower = hook.toLowerCase();
+
+  // A. So What — pourquoi le lecteur s'arrête
+  var soWhat = lower.indexOf("?") !== -1 || lower.indexOf("personne") !== -1 || lower.indexOf("jamais") !== -1 || lower.indexOf("problème") !== -1 || lower.indexOf("coûte") !== -1 || lower.indexOf("coute") !== -1 || lower.indexOf("erreur") !== -1;
+
+  // B. Ennemi — antagoniste identifié
+  var ennemi = lower.indexOf("pas") !== -1 || lower.indexOf("jamais") !== -1 || lower.indexOf("personne ne") !== -1 || lower.indexOf("erreur") !== -1 || lower.indexOf("mythe") !== -1 || lower.indexOf("mensonge") !== -1 || lower.indexOf("faux") !== -1 || lower.indexOf("à tort") !== -1;
+
+  // C. Consensus — dit le contraire de ce que tout le monde pense
+  var consensus = lower.indexOf("contrairement") !== -1 || lower.indexOf("tout le monde") !== -1 || lower.indexOf("consensus") !== -1 || lower.indexOf("on pense que") !== -1 || lower.indexOf("idée reçue") !== -1 || lower.indexOf("idee recue") !== -1 || lower.indexOf("à rebours") !== -1;
+
+  // D. Aliénation — prise de position risquée
+  var alienation = lower.indexOf("refuse") !== -1 || lower.indexOf("déteste") !== -1 || lower.indexOf("n'en peux plus") !== -1 || lower.indexOf("stop") !== -1 || lower.indexOf("marre") !== -1 || lower.indexOf("insupportable") !== -1 || ennemi;
+
+  // E. Authenticité — vécu ou template
+  var authenticite = lower.indexOf("j'ai") !== -1 || lower.indexOf("j'étais") !== -1 || lower.indexOf("mon") !== -1 || lower.indexOf("ma ") !== -1 || lower.indexOf("quand j") !== -1 || lower.indexOf("ce jour") !== -1;
+
+  // F. Mémorabilité — courte et percutante
+  var memorabilite = hook.length < 80 && hook.length > 10;
+
+  var tests = [
+    { id: "soWhat", label: "So What", passed: soWhat },
+    { id: "ennemi", label: "Ennemi", passed: ennemi },
+    { id: "consensus", label: "Consensus", passed: consensus },
+    { id: "alienation", label: "Aliénation", passed: alienation },
+    { id: "authenticite", label: "Authenticité", passed: authenticite },
+    { id: "memorabilite", label: "Mémorabilité", passed: memorabilite },
+  ];
+
+  var passed = tests.filter(function(t) { return t.passed; }).length;
+  var score = Math.round((passed / 6) * 10);
+  return { score: score, tests: tests, hook: hook, passedCount: passed };
+}
+
+/* FILTRE 3 — MARIE HOOK (corps) — rétention paragraphe par paragraphe */
+function analyzeBodyRetention(text) {
+  if (!text || text.length < 40) return { issues: [], charCount: 0, hasBullets: false, tooLong: false };
+  var paragraphs = text.split("\n\n").filter(function(p) { return p.trim().length > 5; });
+  var issues = [];
+
+  // Détection bullets
+  var hasBullets = /^[\-\*•]\s/m.test(text) || /^\d+\.\s/m.test(text);
+  if (hasBullets) issues.push("Listes à puces détectées. Prose brute uniquement.");
+
+  // Longueur
+  var tooLong = text.length > 1500;
+  if (tooLong) issues.push("Post trop long (" + text.length + " caractères). Max recommandé : 1500.");
+
+  // Ventre mou — paragraphes intermédiaires trop longs sans tension
+  if (paragraphs.length >= 3) {
+    var middle = paragraphs.slice(1, -1);
+    middle.forEach(function(p, i) {
+      if (p.length > 300) issues.push("Paragraphe " + (i + 2) + " trop long (" + p.length + " car.). Découpe ou resserre.");
+      var hasHook = p.indexOf("?") !== -1 || p.indexOf("!") !== -1 || p.toLowerCase().indexOf("mais") !== -1 || p.toLowerCase().indexOf("pourtant") !== -1 || p.toLowerCase().indexOf("sauf que") !== -1;
+      if (!hasHook && p.length > 100) issues.push("Paragraphe " + (i + 2) + " : pas de relance. Ajoute une tension pour tirer le lecteur au suivant.");
+    });
+  }
+
+  return { issues: issues, charCount: text.length, hasBullets: hasBullets, tooLong: tooLong, paragraphCount: paragraphs.length };
+}
+
+/* FILTRE 4 — EXPERT ÉCRITURE (Miroir + Luis Enrique) */
+function expertWritingAudit(text) {
+  if (!text || text.length < 40) return { miroir: [], luisEnrique: [] };
+  var paragraphs = text.split("\n\n").filter(function(p) { return p.trim().length > 5; });
+  var lower = text.toLowerCase();
+
+  // Phase Miroir
+  var miroir = [];
+
+  // Force du hook
+  var hookResult = scoreHook(text);
+  var hookStrong = hookResult.score >= 7;
+  miroir.push({ label: "Force du hook", passed: hookStrong, detail: hookStrong ? "Accroche solide (" + hookResult.score + "/10)" : "Accroche faible (" + hookResult.score + "/10). Reformule." });
+
+  // Clarté de l'angle — 1 seul sujet
+  var subjects = [];
+  paragraphs.forEach(function(p) {
+    var pl = p.toLowerCase();
+    var detectedSubjects = 0;
+    if (pl.indexOf("churn") !== -1 || pl.indexOf("retention") !== -1) detectedSubjects++;
+    if (pl.indexOf("pipeline") !== -1 || pl.indexOf("prospection") !== -1) detectedSubjects++;
+    if (pl.indexOf("management") !== -1 || pl.indexOf("equipe") !== -1 || pl.indexOf("équipe") !== -1) detectedSubjects++;
+    if (pl.indexOf("produit") !== -1 || pl.indexOf("roadmap") !== -1) detectedSubjects++;
+    if (pl.indexOf("negociation") !== -1 || pl.indexOf("négociation") !== -1 || pl.indexOf("deal") !== -1) detectedSubjects++;
+    subjects.push(detectedSubjects);
+  });
+  var uniqueTopics = subjects.filter(function(s) { return s > 0; }).length;
+  var singleTopic = uniqueTopics <= 2;
+  miroir.push({ label: "Clarté de l'angle", passed: singleTopic, detail: singleTopic ? "Un sujet par post. OK." : "Trop de sujets mélangés. Recentre." });
+
+  // Incarnation — vécu ou théorie
+  var incarnation = lower.indexOf("j'ai") !== -1 || lower.indexOf("j'étais") !== -1 || lower.indexOf("mon ") !== -1 || lower.indexOf("ma ") !== -1 || lower.indexOf("mes ") !== -1;
+  miroir.push({ label: "Incarnation", passed: incarnation, detail: incarnation ? "Vécu personnel détecté." : "Trop générique. Ajoute une expérience vécue." });
+
+  // Structure — 1 idée par paragraphe
+  var goodStructure = paragraphs.length >= 3 && paragraphs.every(function(p) { return p.length < 400; });
+  miroir.push({ label: "Structure", passed: goodStructure, detail: goodStructure ? "Paragraphes bien découpés." : "Découpe en blocs plus courts. 1 idée = 1 paragraphe." });
+
+  // Phase Luis Enrique
+  var luisEnrique = [];
+
+  // Utilité vs bruit
+  var hasInsight = lower.indexOf("apprend") !== -1 || lower.indexOf("découvert") !== -1 || lower.indexOf("compris") !== -1 || lower.indexOf("résultat") !== -1 || lower.indexOf("concret") !== -1 || lower.indexOf("methode") !== -1 || lower.indexOf("méthode") !== -1;
+  luisEnrique.push({ label: "Utilité vs bruit", passed: hasInsight, detail: hasInsight ? "Le lecteur apprend quelque chose." : "Le lecteur n'apprend rien de concret. Ajoute un enseignement." });
+
+  // Clarté vs complaisance
+  var filler = (lower.match(/en effet|en fait|il faut dire que|force est de constater|il est important de|fondamentalement|évidemment/g) || []).length;
+  var nofiller = filler < 2;
+  luisEnrique.push({ label: "Clarté vs complaisance", passed: nofiller, detail: nofiller ? "Phrases directes." : filler + " expressions creuses détectées. Coupe le gras." });
+
+  // Lecteur vs ego
+  var jeCount = (lower.match(/\bje\b|\bj'ai\b|\bj'étais\b|\bmon\b|\bma\b|\bmes\b/g) || []).length;
+  var vousCount = (lower.match(/\bvous\b|\bvotre\b|\bvos\b|\btu\b|\bton\b|\bta\b|\btes\b/g) || []).length;
+  var readerFocused = vousCount >= 1 || jeCount < 8;
+  luisEnrique.push({ label: "Lecteur vs ego", passed: readerFocused, detail: readerFocused ? "Equilibre je/vous correct." : "Trop de 'je' (" + jeCount + "). Réoriente vers le lecteur." });
+
+  return { miroir: miroir, luisEnrique: luisEnrique };
+}
+
+/* PREMIER COMMENTAIRE — relance algorithme */
+function generateFirstComment(post, bricks, vault) {
+  if (!post || !post.text) return "";
+  var text = post.text;
+  var lower = text.toLowerCase();
+
+  // Angle complémentaire basé sur le type de brique
+  var commentBase = "";
+  if (post.brickType === "cicatrice") {
+    commentBase = "Pour compléter : l'erreur que je décris ici m'a coûté cher. Mais elle m'a donné un cadre que j'applique encore aujourd'hui. La vraie question :";
+  } else if (post.brickType === "decision") {
+    commentBase = "Un détail que je n'ai pas mis dans le post : le plus dur dans cette décision, ce n'était pas les chiffres. C'était de convaincre les gens autour de la table. Ce qui m'intéresse :";
+  } else if (post.brickType === "influence") {
+    commentBase = "Ce que je ne dis pas dans le post : le blocage n'était pas technique. Il était humain. Ce qui change tout dans ces situations :";
+  } else {
+    commentBase = "Un point que je n'ai pas développé : ce résultat n'est pas venu du talent. Il est venu de la méthode. Et la méthode est reproductible. Ma question :";
+  }
+
+  // Question ouverte
+  var questions = [
+    "Quelle est la décision qui a le plus changé votre façon de travailler ?",
+    "Quelle réalité de votre métier est invisible pour ceux qui ne le pratiquent pas ?",
+    "Quel consensus de votre secteur votre expérience contredit ?",
+    "Quelle erreur vous a le plus appris professionnellement ?",
+    "Quel indicateur suivez-vous que personne d'autre ne regarde dans votre équipe ?",
+  ];
+  var qIndex = (post.pillar || "").length % questions.length;
+  var question = questions[qIndex];
+
+  return commentBase + " " + question;
 }
 
 /* ==============================
@@ -1476,8 +2199,8 @@ function generateDiagnosticQuestions(bricks, targetRoleId) {
   }
 
   // Cauchemar-based question (always)
-  if (CAUCHEMARS_CIBLES.length > 0) {
-    var cauchemar = CAUCHEMARS_CIBLES[0];
+  if (getActiveCauchemars().length > 0) {
+    var cauchemar = getActiveCauchemars()[0];
     var elasticBricks = validated.filter(function(b) { return b.elasticity === "élastique"; });
     questions.push({
       type: "efficience",
@@ -1527,7 +2250,7 @@ function generateSignalScript(signalText, signalType, bricks, targetRoleId) {
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   var elasticBricks = validated.filter(function(b) { return b.elasticity === "élastique"; });
   var bestBrick = elasticBricks.length > 0 ? elasticBricks[0] : (validated.length > 0 ? validated[0] : null);
-  var cauchemar = CAUCHEMARS_CIBLES.length > 0 ? CAUCHEMARS_CIBLES[0] : null;
+  var cauchemar = getActiveCauchemars().length > 0 ? getActiveCauchemars()[0] : null;
 
   var opener = "";
   if (signalType.type === "levee_fonds") opener = "Vous venez de lever des fonds. Dans les 6 prochains mois, vous allez structurer une équipe qui n'existe pas encore.";
@@ -1719,7 +2442,7 @@ function computeCauchemarCoverage(bricks) {
       kpiBricks[b.kpi].push(b);
     }
   });
-  return CAUCHEMARS_CIBLES.map(function(c) {
+  return getActiveCauchemars().map(function(c) {
     var covered = c.kpis.some(function(k) { return coveredKpis[k]; });
     var coveringBricks = [];
     c.kpis.forEach(function(k) { if (kpiBricks[k]) coveringBricks = coveringBricks.concat(kpiBricks[k]); });
@@ -2011,7 +2734,7 @@ function computeCauchemarCoverageDetailed(bricks, nightmareCosts) {
       bricksByKpi[b.kpi].push(b);
     }
   });
-  return CAUCHEMARS_CIBLES.map(function(c) {
+  return getActiveCauchemars().map(function(c) {
     var covered = c.kpis.some(function(k) { return coveredKpis[k]; });
     var coveringBricks = [];
     c.kpis.forEach(function(k) { if (bricksByKpi[k]) coveringBricks = coveringBricks.concat(bricksByKpi[k]); });
@@ -2937,7 +3660,7 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
 
           {/* BLUFF ALERT — elastic KPI covering a quantified cauchemar */}
           {kpiMatch && seed.kpi && (function() {
-            var matchedCauchemar = CAUCHEMARS_CIBLES.filter(function(c) {
+            var matchedCauchemar = getActiveCauchemars().filter(function(c) {
               return c.kpis.some(function(k) { return seed.kpi.indexOf(k) !== -1 || k.indexOf(seed.kpi) !== -1; });
             })[0];
             if (!matchedCauchemar) return null;
@@ -3971,11 +4694,11 @@ function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggle }) {
         <button onClick={function() { toggle("cauchemars"); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, width: "100%", textAlign: "left" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={sHead}>Cauchemars couverts</div>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>{coveredCount}/{CAUCHEMARS_CIBLES.length}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>{coveredCount}/{getActiveCauchemars().length}</span>
           </div>
         </button>
         {coverage.map(function(c) {
-          var cauch = CAUCHEMARS_CIBLES.find(function(cc) { return cc.id === c.id; });
+          var cauch = getActiveCauchemars().find(function(cc) { return cc.id === c.id; });
           var isOpen = openSection === "cauchemars";
           return (
             <div key={c.id} style={{ marginBottom: 6, paddingLeft: 8, borderLeft: c.covered ? "2px solid #495670" : "2px solid #e94560" }}>
@@ -4100,7 +4823,86 @@ function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggle }) {
    DELIVERABLE COMPONENTS
    ============================== */
 
-function Deliverable({ emoji, title, content, lines }) {
+/* ==============================
+   ITEM 1 — AUDIT AUTOMATIQUE DES LIVRABLES
+   4 principes : non-générique, preuve, destinataire d'abord, calibrage canal
+   ============================== */
+
+function auditDeliverable(type, content, bricks, cauchemars) {
+  if (!content || content.length < 30) return { score: 0, passed: [], failed: [] };
+  var lower = content.toLowerCase();
+  var validated = bricks ? bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; }) : [];
+  var activeCauch = cauchemars || getActiveCauchemars();
+
+  // A. NON-GÉNÉRIQUE — contient des éléments du Coffre-Fort
+  var hasSpecific = validated.some(function(b) {
+    if (!b.text || b.text.length < 15) return false;
+    var fragment = b.text.toLowerCase().slice(0, 30);
+    return lower.indexOf(fragment) !== -1;
+  });
+  var hasCvVersion = validated.some(function(b) {
+    if (!b.cvVersion || b.cvVersion.length < 10) return false;
+    return lower.indexOf(b.cvVersion.toLowerCase().slice(0, 25)) !== -1;
+  });
+  var nonGenerique = hasSpecific || hasCvVersion;
+
+  // B. PREUVE — au moins 1 brique référencée avec données
+  var hasProof = validated.some(function(b) {
+    if (!b.text) return false;
+    var brickLow = b.text.toLowerCase();
+    return lower.indexOf(brickLow.slice(0, 20)) !== -1 && /\d/.test(b.text);
+  });
+  if (!hasProof) hasProof = hasCvVersion && validated.some(function(b) { return b.cvVersion && /\d/.test(b.cvVersion); });
+
+  // C. DESTINATAIRE D'ABORD — première phrase orientée recruteur/cauchemar
+  var firstLines = content.split("\n").filter(function(l) { return l.trim().length > 5; });
+  var firstLine = (firstLines[0] || "").toLowerCase();
+  var destFirst = firstLine.indexOf("vous") !== -1 || firstLine.indexOf("votre") !== -1 || firstLine.indexOf("[prénom]") !== -1 || firstLine.indexOf("[prenom]") !== -1;
+  if (!destFirst) {
+    destFirst = activeCauch.some(function(c) {
+      return c.nightmareShort && firstLine.indexOf(c.nightmareShort.toLowerCase().slice(0, 15)) !== -1;
+    });
+  }
+  // CV exception: header with role title counts as reader-oriented
+  if (type === "cv") {
+    var roleInFirst = firstLine.indexOf("enterprise") !== -1 || firstLine.indexOf("head") !== -1 || firstLine.indexOf("senior") !== -1 || firstLine.indexOf("manager") !== -1 || firstLine.indexOf("csm") !== -1 || firstLine.indexOf("consultant") !== -1;
+    if (roleInFirst) destFirst = true;
+  }
+
+  // D. CALIBRAGE CANAL
+  var calibreOk = false;
+  if (type === "cv") {
+    // 6 secondes scannable — lignes courtes, pas de pavés
+    var lines = content.split("\n").filter(function(l) { return l.trim().length > 0; });
+    var longLines = lines.filter(function(l) { return l.length > 150; });
+    calibreOk = longLines.length <= 1 && content.length < 2000;
+  } else if (type === "dm") {
+    var lineCount = content.split("\n").filter(function(l) { return l.trim().length > 3; }).length;
+    calibreOk = lineCount <= 5 && content.length < 400;
+  } else if (type === "email") {
+    var emailLines = content.split("\n").filter(function(l) { return l.trim().length > 3; }).length;
+    calibreOk = emailLines <= 12 && content.length < 1200;
+  } else if (type === "post") {
+    calibreOk = content.length <= 1500 && !/^[\-\*•]\s/m.test(content);
+  } else if (type === "bio") {
+    calibreOk = content.length <= 500;
+  } else {
+    calibreOk = true;
+  }
+
+  var tests = [
+    { id: "generique", label: "Non-générique", desc: "Contient des éléments du Coffre-Fort", passed: nonGenerique, fix: "Le livrable ne référence aucune brique. Il ressemble à un template." },
+    { id: "preuve", label: "Preuve", desc: "Au moins 1 brique chiffrée", passed: hasProof, fix: "Aucune donnée chiffrée. Ajoute une brique avec un résultat mesurable." },
+    { id: "destinataire", label: "Destinataire d'abord", desc: "Première phrase orientée recruteur", passed: destFirst, fix: "La première phrase parle de toi. Commence par le problème du recruteur." },
+    { id: "calibrage", label: "Calibrage canal", desc: "Format adapté au support", passed: calibreOk, fix: type === "cv" ? "CV trop dense. Raccourcis les lignes pour un scan en 6 secondes." : type === "dm" ? "DM trop long. Maximum 3-4 lignes." : type === "email" ? "Email trop long. Maximum 10 lignes." : type === "post" ? "Post trop long ou contient des listes. Prose brute, max 1500 car." : "Format non calibré pour ce canal." },
+  ];
+
+  var passed = tests.filter(function(t) { return t.passed; });
+  var failed = tests.filter(function(t) { return !t.passed; });
+  return { score: passed.length, tests: tests, passed: passed, failed: failed };
+}
+
+function Deliverable({ emoji, title, content, lines, auditResult, onCorrect }) {
   var st = useState(false);
   var open = st[0];
   var setOpen = st[1];
@@ -4108,13 +4910,14 @@ function Deliverable({ emoji, title, content, lines }) {
   var preview = rows.slice(0, lines || 3).join("\n");
   var hasMore = rows.length > (lines || 3);
   return (
-    <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 10, border: "1px solid #16213e" }}>
+    <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 10, border: "1px solid " + (auditResult ? (auditResult.score === 4 ? "#4ecca3" : auditResult.score >= 2 ? "#ff9800" : "#e94560") : "#16213e") }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 18 }}>{emoji}</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>{title}</span>
+          {auditResult && <span style={{ fontSize: 10, fontWeight: 700, color: auditResult.score === 4 ? "#4ecca3" : auditResult.score >= 2 ? "#ff9800" : "#e94560" }}>{auditResult.score}/4</span>}
         </div>
-        <CopyBtn text={content} />
+        <CopyBtn text={content} label={auditResult && auditResult.score < 4 ? "Copier quand même" : undefined} />
       </div>
       <div style={{
         background: "#1a1a2e", borderRadius: 8, padding: 12, fontSize: 12, color: "#8892b0", lineHeight: 1.6,
@@ -4127,6 +4930,27 @@ function Deliverable({ emoji, title, content, lines }) {
         <button onClick={function() { setOpen(!open); }} style={{
           background: "none", border: "none", color: "#e94560", fontSize: 11, fontWeight: 600, cursor: "pointer", marginTop: 6, padding: 0,
         }}>{open ? "\u25B2 Réduire" : "\u25BC Voir tout"}</button>
+      )}
+      {auditResult && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {auditResult.tests.map(function(t) {
+              return (
+                <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: 10, color: t.passed ? "#4ecca3" : "#e94560" }}>{t.passed ? "\u2714" : "\u2718"}</span>
+                  <span style={{ fontSize: 9, color: t.passed ? "#8892b0" : "#ccd6f6", fontWeight: t.passed ? 400 : 600 }}>{t.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          {auditResult.failed.length > 0 && (
+            <div style={{ marginTop: 6 }}>
+              {auditResult.failed.map(function(f) {
+                return <div key={f.id} style={{ fontSize: 10, color: "#e94560", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {f.fix}</div>;
+              })}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -4424,6 +5248,15 @@ function EndScreen({ vault, bricks, duelResults, maturity, targetRoleId, nightma
   var phaseSt = useState("recherche");
   var capturePhase = phaseSt[0];
   var setCapturePhase = phaseSt[1];
+  var brickViewSt = useState({});
+  var brickViews = brickViewSt[0];
+  var setBrickViews = brickViewSt[1];
+  function setBrickView(brickId, view) {
+    setBrickViews(function(prev) { var next = Object.assign({}, prev); next[brickId] = view; return next; });
+  }
+  var scriptTabSt = useState("email");
+  var scriptTab = scriptTabSt[0];
+  var setScriptTab = scriptTabSt[1];
 
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   var missions = bricks.filter(function(b) { return b.type === "mission"; });
@@ -4535,13 +5368,82 @@ function EndScreen({ vault, bricks, duelResults, maturity, targetRoleId, nightma
       {tab === "arsenal" && (
         <div>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>TON LEVIER DE NEGOCIATION</div>
-          <Deliverable emoji={"\uD83D\uDCC4"} title="CV réécrit" content={generateCV(bricks, targetRoleId, trajectoryToggle)} lines={4} />
-          <Deliverable emoji={"\uD83D\uDCDD"} title="Bio LinkedIn" content={generateBio(bricks, vault, trajectoryToggle)} lines={3} />
+          {(function() {
+            var cvContent = generateCV(bricks, targetRoleId, trajectoryToggle);
+            var cvAudit = auditDeliverable("cv", cvContent, bricks);
+            return <Deliverable emoji={"\uD83D\uDCC4"} title="CV réécrit" content={cvContent} lines={4} auditResult={cvAudit} />;
+          })()}
+          {(function() {
+            var bioContent = generateBio(bricks, vault, trajectoryToggle);
+            var bioAudit = auditDeliverable("bio", bioContent, bricks);
+            return <Deliverable emoji={"\uD83D\uDCDD"} title="Bio LinkedIn" content={bioContent} lines={3} auditResult={bioAudit} />;
+          })()}
           <ImpactReportPanel bricks={bricks} vault={vault} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} />
-          <Deliverable emoji={"\uD83C\uDFAF"} title="Script de contact (ROI + élasticité)" content={generateScript(bricks, targetRoleId)} lines={3} />
-          <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5, padding: "4px 0 8px", fontStyle: "italic" }}>
-            Le recruteur reçoit 500 candidatures. 490 commencent par "je me permets de vous contacter." Le tien commence par son problème. C'est pour ca qu'il repond.
-          </div>
+          {(function() {
+            var scripts = generateContactScripts(bricks, targetRoleId);
+            if (!scripts) return <Deliverable emoji={"\uD83C\uDFAF"} title="Script de contact" content="[Valide des briques pour générer les scripts.]" lines={2} />;
+            var variants = { email: scripts.email, dm: scripts.dm, n1: scripts.n1, rh: scripts.rh };
+            var currentText = variants[scriptTab] || scripts.email;
+            var currentScore = scoreContactScript(currentText, bricks);
+            var diltsP = analyzeDiltsProgression(currentText);
+            var openD = getDiltsLabel(diltsP.opens);
+            var closeD = getDiltsLabel(diltsP.closes);
+            var channelInfo = SCRIPT_CHANNELS.find(function(c) { return c.id === scriptTab; }) || SCRIPT_CHANNELS[0];
+            return (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>{"\uD83C\uDFAF"} SCRIPTS DE CONTACT — 4 VARIANTES</div>
+                <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                  {SCRIPT_CHANNELS.map(function(ch) {
+                    var active = scriptTab === ch.id;
+                    var chScore = scoreContactScript(variants[ch.id] || "", bricks);
+                    return (
+                      <button key={ch.id} onClick={function() { setScriptTab(ch.id); }} style={{
+                        flex: 1, padding: "8px 4px", fontSize: 10, fontWeight: 600,
+                        background: active ? "#e94560" : "#1a1a2e",
+                        color: active ? "#fff" : "#8892b0",
+                        border: "none", borderRadius: 6, cursor: "pointer", textAlign: "center",
+                      }}>
+                        <div>{ch.icon} {ch.label}</div>
+                        <div style={{ fontSize: 9, marginTop: 2, color: active ? "#fff" : (chScore.score >= 8 ? "#4ecca3" : chScore.score >= 5 ? "#ff9800" : "#e94560") }}>{chScore.score}/10</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ background: "#0f3460", borderRadius: 10, padding: 14, marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>{channelInfo.icon} {channelInfo.label}</span>
+                    <CopyBtn text={currentText} label="Copier" />
+                  </div>
+                  <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-line", marginBottom: 10 }}>{currentText}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 9, color: openD.color, background: openD.color + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>Dilts {diltsP.opens} — {openD.name}</span>
+                    <span style={{ fontSize: 9, color: "#495670" }}>{"\u2192"}</span>
+                    <span style={{ fontSize: 9, color: closeD.color, background: closeD.color + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>Dilts {diltsP.closes} — {closeD.name}</span>
+                    {diltsP.progression > 0 && <span style={{ fontSize: 9, color: "#4ecca3" }}>+{diltsP.progression}</span>}
+                    {diltsP.progression <= 0 && <span style={{ fontSize: 9, color: "#e94560" }}>{"\u26A0\uFE0F"}</span>}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: currentScore.score >= 8 ? "#4ecca3" : currentScore.score >= 5 ? "#ff9800" : "#e94560", marginBottom: 6 }}>Score : {currentScore.score}/10 ({currentScore.passedCount}/6 tests)</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {currentScore.tests.map(function(t) {
+                      return (
+                        <div key={t.id} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                          <span style={{ fontSize: 10, color: t.passed ? "#4ecca3" : "#e94560", flexShrink: 0 }}>{t.passed ? "\u2714" : "\u2718"}</span>
+                          <div>
+                            <span style={{ fontSize: 10, color: t.passed ? "#8892b0" : "#ccd6f6", fontWeight: 600 }}>{t.label}</span>
+                            {!t.passed && <span style={{ fontSize: 10, color: "#e94560", marginLeft: 6 }}>{t.fix}</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10 }}>
+                  <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>{"\uD83D\uDCA1"} INSTRUCTION</div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>{channelInfo.instruction}</div>
+                </div>
+              </div>
+            );
+          })()}
 
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginTop: 20, marginBottom: 12 }}>PRISES DE POSITION</div>
           {(function() {
@@ -4629,30 +5531,95 @@ function EndScreen({ vault, bricks, duelResults, maturity, targetRoleId, nightma
           {(function() {
             var posts = generateLinkedInPosts(bricks, vault, targetRoleId);
             if (posts.length === 0) return null;
+            var seqAlert = checkDiltsSequence(posts);
             return (
               <div style={{ marginTop: 20 }}>
                 <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>POSTS LINKEDIN GENERES ({posts.length})</div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>
                   Generes depuis tes piliers et tes briques. Cauchemar + these + situation vecue + question ouverte. Pas de chiffre dans le post. La bio fait ce travail.
                 </div>
+                {seqAlert && seqAlert.stagnant && (
+                  <div style={{ background: "#ff9800" + "22", borderRadius: 8, padding: 10, marginBottom: 12, border: "1px solid #ff9800" }}>
+                    <div style={{ fontSize: 11, color: "#ff9800", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {seqAlert.message}</div>
+                  </div>
+                )}
                 {posts.map(function(post, i) {
+                  var diltsInfo = getDiltsLabel(post.diltsLevel || 1);
+                  var scoreColor = post.globalScore >= 7 ? "#4ecca3" : post.globalScore >= 5 ? "#ff9800" : "#e94560";
                   return (
-                    <div key={i} style={{ background: "#0f3460", borderRadius: 10, padding: 14, marginBottom: 12, borderLeft: "3px solid " + (post.pillarSource === "take" ? "#3498db" : "#e94560") }}>
+                    <div key={i} style={{ background: "#0f3460", borderRadius: 10, padding: 14, marginBottom: 16, borderLeft: "3px solid " + (post.pillarSource === "take" ? "#3498db" : "#e94560") }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ fontSize: 10, color: post.pillarSource === "take" ? "#3498db" : "#e94560", fontWeight: 700, letterSpacing: 1 }}>POST {i + 1}</span>
-                          <span style={{ fontSize: 10, color: "#495670", marginLeft: 8 }}>{post.pillarSource === "take" ? "pilier take" : "pilier IA"} {"\u00B7"} brique {post.brickType} {"\u00B7"} {post.charCount} car.</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor }}>{post.globalScore}/10</span>
+                          <span style={{ fontSize: 10, color: "#495670" }}>{post.charCount} car.</span>
                         </div>
-                        <CopyBtn text={post.text} label="Copier" />
+                        <CopyBtn text={post.text} label="Copier le post" />
                       </div>
-                      <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-line" }}>{post.text}</div>
-                      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 9, color: diltsInfo.color, background: diltsInfo.color + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>Dilts {post.diltsLevel} — {diltsInfo.name}</span>
+                        <span style={{ fontSize: 9, color: post.hookScore >= 7 ? "#4ecca3" : post.hookScore >= 4 ? "#ff9800" : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>Hook {post.hookScore}/10</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-line", marginBottom: 10 }}>{post.text}</div>
+
+                      {post.hookTests && (
+                        <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: "#ff9800", marginBottom: 4 }}>ACCROCHE — 6 tests Marie Hook</div>
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            {post.hookTests.map(function(t) {
+                              return <span key={t.id} style={{ fontSize: 9, color: t.passed ? "#4ecca3" : "#e94560" }}>{t.passed ? "\u2714" : "\u2718"} {t.label}</span>;
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {post.bodyRetention && post.bodyRetention.issues.length > 0 && (
+                        <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: "#ff9800", marginBottom: 4 }}>CORPS — rétention</div>
+                          {post.bodyRetention.issues.map(function(issue, j) {
+                            return <div key={j} style={{ fontSize: 10, color: "#e94560", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {issue}</div>;
+                          })}
+                        </div>
+                      )}
+
+                      {post.expertCritique && (
+                        <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: "#9b59b6", marginBottom: 4 }}>EXPERT ÉCRITURE</div>
+                          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 4 }}>
+                            {post.expertCritique.miroir.map(function(m, j) {
+                              return <span key={"m" + j} style={{ fontSize: 9, color: m.passed ? "#4ecca3" : "#e94560" }}>{m.passed ? "\u2714" : "\u2718"} {m.label}</span>;
+                            })}
+                          </div>
+                          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                            {post.expertCritique.luisEnrique.map(function(l, j) {
+                              return <span key={"l" + j} style={{ fontSize: 9, color: l.passed ? "#4ecca3" : "#e94560" }}>{l.passed ? "\u2714" : "\u2718"} {l.label}</span>;
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {post.firstComment && (
+                        <div style={{ background: "#16213e", borderRadius: 8, padding: 10, marginBottom: 8, borderLeft: "2px solid #3498db" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#3498db" }}>PREMIER COMMENTAIRE</span>
+                            <CopyBtn text={post.firstComment} label="Copier le commentaire" />
+                          </div>
+                          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{post.firstComment}</div>
+                          <div style={{ fontSize: 9, color: "#495670", marginTop: 4 }}>Publie. Attends 30 secondes. Colle ton commentaire.</div>
+                        </div>
+                      )}
+
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 9, color: "#495670", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>Pilier : {post.pillar.length > 30 ? post.pillar.slice(0, 30) + "..." : post.pillar}</span>
                         <span style={{ fontSize: 9, color: "#495670", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>Brique : {post.brickUsed}</span>
                       </div>
                     </div>
                   );
                 })}
+                <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>{"\uD83D\uDCA1"} INSTRUCTION</div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>Publie entre 7h30 et 8h30 en semaine. Réponds à tous les commentaires dans les 2 premières heures.</div>
+                </div>
                 <div style={{ fontSize: 10, color: "#495670", lineHeight: 1.5, marginTop: 8 }}>
                   Chaque Rendez-vous produit de nouvelles briques. De nouvelles briques produisent de nouveaux posts. L'abonnement alimente le flux.
                 </div>
@@ -4702,9 +5669,37 @@ function EndScreen({ vault, bricks, duelResults, maturity, targetRoleId, nightma
             {validated.map(function(b) {
               var cat = b.brickCategory && CATEGORY_LABELS[b.brickCategory];
               var elast = b.elasticity && ELASTICITY_LABELS[b.elasticity];
+              var activeView = brickViews[b.id] || "brut";
+              var hasVersions = b.cvVersion || b.interviewVersions;
               return (
                 <div key={b.id} style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 6, borderLeft: "3px solid " + (cat ? cat.color : "#e94560") }}>
-                  <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 6 }}>{b.text}</div>
+                  {hasVersions && (
+                    <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
+                      {["brut", "cv", "rh", "n1", "dir", "disco"].map(function(v) {
+                        var labels = { brut: "Brut", cv: "CV", rh: "RH", n1: "N+1", dir: "Direction", disco: "Questions" };
+                        var active = activeView === v;
+                        return (
+                          <button key={v} onClick={function() { setBrickView(b.id, v); }} style={{
+                            padding: "3px 8px", fontSize: 9, fontWeight: 600,
+                            background: active ? "#e94560" : "#1a1a2e",
+                            color: active ? "#fff" : "#8892b0",
+                            border: "none", borderRadius: 6, cursor: "pointer",
+                          }}>{labels[v]}</button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 6 }}>
+                    {activeView === "brut" && b.text}
+                    {activeView === "cv" && (b.cvVersion || b.text)}
+                    {activeView === "rh" && (b.interviewVersions ? b.interviewVersions.rh : b.text)}
+                    {activeView === "n1" && (b.interviewVersions ? b.interviewVersions.n1 : b.text)}
+                    {activeView === "dir" && (b.interviewVersions ? b.interviewVersions.direction : b.text)}
+                    {activeView === "disco" && (b.discoveryQuestions ? b.discoveryQuestions.join("\n\n") : "Aucune question générée.")}
+                  </div>
+                  {activeView !== "brut" && (
+                    <CopyBtn text={activeView === "cv" ? (b.cvVersion || b.text) : activeView === "rh" ? (b.interviewVersions ? b.interviewVersions.rh : b.text) : activeView === "n1" ? (b.interviewVersions ? b.interviewVersions.n1 : b.text) : activeView === "dir" ? (b.interviewVersions ? b.interviewVersions.direction : b.text) : activeView === "disco" ? (b.discoveryQuestions ? b.discoveryQuestions.join("\n\n") : "") : b.text} label="Copier" />
+                  )}
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 10, color: cat ? cat.color : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>
                       {b.brickType === "cicatrice" ? "cicatrice" : cat ? cat.label.toLowerCase() : b.kpi}
@@ -5126,6 +6121,9 @@ function Onboarding({ onStart, onScan }) {
   var scanDataState = useState(null);
   var scanData = scanDataState[0];
   var setScanData = scanDataState[1];
+  var offerSignalsState = useState(null);
+  var offerSignals = offerSignalsState[0];
+  var setOfferSignals = offerSignalsState[1];
 
   var isPassif = mode === "passif";
   var canStart = isPassif ? cv.trim().length > 20 : (cv.trim().length > 20 && offers.trim().length > 20 && targetRole !== null && trajectory !== null);
@@ -5135,6 +6133,16 @@ function Onboarding({ onStart, onScan }) {
     setScanProgress(0);
     setScanMessages([]);
     var steps = isPassif ? SCAN_STEPS_PASSIF : SCAN_STEPS_ACTIF;
+
+    // Parse offer signals immediately (synchronous, keyword-based)
+    if (!isPassif && offers.trim().length > 20 && targetRole) {
+      var signals = parseOfferSignals(offers, targetRole);
+      setOfferSignals(signals);
+      // Set global cauchemars for immediate use in ready screen
+      if (signals && signals.cauchemars) {
+        setActiveCauchemarsGlobal(signals.cauchemars);
+      }
+    }
 
     // Show progress messages
     steps.forEach(function(msg, i) {
@@ -5191,13 +6199,24 @@ function Onboarding({ onStart, onScan }) {
 
   if (phase === "ready") {
     var scoreLabel = isPassif ? "SCORE DE VISIBILITE" : "SCORE DE LUCIDITE";
-    var scorePct = isPassif ? 28 : 32;
+    // Dynamic score based on offer signal analysis
+    var detectedCount = offerSignals ? offerSignals.cauchemars.filter(function(c) { return c.detected; }).length : 0;
+    var scorePct = isPassif ? 28 : (offerSignals && offerSignals.totalSignals > 0 ? Math.min(45, 20 + offerSignals.totalSignals * 3) : 32);
+    var elasticCount = 0;
+    if (targetRole && KPI_REFERENCE[targetRole]) {
+      getActiveCauchemars().forEach(function(c) {
+        var kpiMatch = KPI_REFERENCE[targetRole].kpis.find(function(k) { return c.kpis && c.kpis.indexOf(k.name) !== -1; });
+        if (kpiMatch && kpiMatch.elasticity === "élastique") elasticCount++;
+      });
+    }
     var scoreMsg = isPassif
-      ? "Tu es visible sur 28% des critères que les recruteurs utilisent pour te trouver."
-      : "Tu comprends 32% des enjeux reels de tes offres cibles.";
+      ? "Tu es visible sur " + scorePct + "% des critères que les recruteurs utilisent pour te trouver."
+      : "Tu comprends " + scorePct + "% des enjeux reels de tes offres cibles.";
     var subMsg = isPassif
       ? "3 KPIs cles de ton secteur t'echappent. Les recruteurs te cherchent. Ton profil ne repond pas."
-      : "3 KPIs t'echappent. 2 sont sur des marches élastiques. Tu rates le terrain qui s'élargit.";
+      : (detectedCount > 0
+        ? detectedCount + " cauchemar" + (detectedCount > 1 ? "s" : "") + " detecte" + (detectedCount > 1 ? "s" : "") + " dans ton offre." + (elasticCount > 0 ? " " + elasticCount + " sur marche élastique. C'est la que tu dois frapper." : "")
+        : "3 KPIs t'echappent. Le Sprint va les extraire de ton parcours.");
 
     // ITERATION 6 — Readiness diagnostic
     var readiness = estimateReadiness(cv, offers);
@@ -5221,28 +6240,41 @@ function Onboarding({ onStart, onScan }) {
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>{subMsg}</div>
         </div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "left" }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 12 }}>{isPassif ? "CE QUE TU RATES" : "LES CAUCHEMARS QUE TU SAIS RESOUDRE (SANS LE SAVOIR)"}</div>
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 2 }}>
-              <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>{"\uD83C\uDFAF"} {isPassif ? "Signal faible #1" : "Cauchemar #1"} : Croissance ARR Mid-Market</span>
-              <span style={{ fontSize: 10, color: "#4ecca3", background: "#1a1a2e", padding: "1px 6px", borderRadius: 8 }}>{"\u2197\uFE0F"} élastique</span>
-            </div>
-            <div style={{ fontSize: 12, color: "#8892b0" }}>{isPassif ? "Ton profil ne mentionne aucun chiffre de croissance. Les recruteurs passent." : "Le VP Sales ne dort plus : son portefeuille Mid-Market stagne depuis 3 trimestres. L'offre le crie. Tu as le remède mais tu ne le formules pas."}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1 }}>{isPassif ? "CE QUE TU RATES" : "CAUCHEMARS DETECTES DANS L'OFFRE"}</div>
+            {offerSignals && offerSignals.totalSignals > 0 && (
+              <span style={{ fontSize: 10, color: "#4ecca3", background: "#1a1a2e", padding: "2px 8px", borderRadius: 8 }}>{offerSignals.totalSignals} signaux</span>
+            )}
           </div>
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 2 }}>
-              <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>{"\uD83C\uDFAF"} {isPassif ? "Signal faible #2" : "Cauchemar #2"} : Reduction cycle de vente</span>
-              <span style={{ fontSize: 10, color: "#4ecca3", background: "#1a1a2e", padding: "1px 6px", borderRadius: 8 }}>{"\u2197\uFE0F"} élastique</span>
+          {getActiveCauchemars().map(function(c, i) {
+            var kpiRef = targetRole && KPI_REFERENCE[targetRole] ? KPI_REFERENCE[targetRole].kpis.find(function(k) { return c.kpis && c.kpis.indexOf(k.name) !== -1; }) : null;
+            var elasticity = kpiRef ? kpiRef.elasticity : null;
+            var eColor = elasticity === "élastique" ? "#4ecca3" : elasticity === "stable" ? "#8892b0" : elasticity === "sous_pression" ? "#e94560" : "#495670";
+            var eLabel = elasticity === "élastique" ? "\u2197\uFE0F" : elasticity === "stable" ? "\u2194\uFE0F" : elasticity === "sous_pression" ? "\u2198\uFE0F" : "\u2022";
+            var eText = elasticity === "élastique" ? "élastique" : elasticity === "stable" ? "stable" : elasticity === "sous_pression" ? "sous pression" : "";
+            return (
+              <div key={i} style={{ marginBottom: i < 2 ? 10 : 0 }}>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 2 }}>
+                  <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>{"\uD83C\uDFAF"} {isPassif ? "Signal #" : "Cauchemar #"}{i + 1} : {c.label}</span>
+                  {eText && <span style={{ fontSize: 10, color: eColor, background: "#1a1a2e", padding: "1px 6px", borderRadius: 8 }}>{eLabel} {eText}</span>}
+                  {c.detected && <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "1px 6px", borderRadius: 8 }}>détecté</span>}
+                </div>
+                <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{c.nightmareShort}</div>
+                {c.matchedKw && c.matchedKw.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+                    {c.matchedKw.slice(0, 4).map(function(kw, ki) {
+                      return <span key={ki} style={{ fontSize: 9, color: "#4ecca3", background: "#1a1a2e", padding: "1px 6px", borderRadius: 6 }}>{kw}</span>;
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {offerSignals && offerSignals.urgencyScore > 0 && (
+            <div style={{ borderTop: "1px solid #16213e", marginTop: 10, paddingTop: 8, fontSize: 11, color: "#e94560", fontWeight: 600 }}>
+              {"\u26A1"} Signaux d'urgence détectés ({offerSignals.urgencyScore}) : {offerSignals.urgencyHits.slice(0, 3).join(", ")}
             </div>
-            <div style={{ fontSize: 12, color: "#8892b0" }}>{isPassif ? "Aucune preuve de structuration de process. Tu es invisible sur ce critère." : "Le CFO calcule le coût du cash immobilisé dans des deals qui trainent 6 mois. L'offre dit 'structurer les process'. Tu as la méthode mais tu l'ecris nulle part."}</div>
-          </div>
-          <div>
-            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 2 }}>
-              <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>{"\uD83C\uDFAF"} {isPassif ? "Signal faible #3" : "Cauchemar #3"} : Taux d'adoption outil</span>
-              <span style={{ fontSize: 10, color: "#8892b0", background: "#1a1a2e", padding: "1px 6px", borderRadius: 8 }}>{"\u2194\uFE0F"} stable</span>
-            </div>
-            <div style={{ fontSize: 12, color: "#8892b0" }}>{isPassif ? "Tu mentionnes Salesforce sans preuve d'adoption. Le recruteur ne sait pas si tu sais faire adopter." : "Le CRO a dépensé 200K sur un CRM et personne ne l'utilise. L'offre dit 'Salesforce requis'. Tu sais faire adopter mais ton CV dit juste 'maîtrise Salesforce'."}</div>
-          </div>
+          )}
         </div>
 
         {/* ITERATION 6 — DIAGNOSTIC DE READINESS */}
@@ -5337,7 +6369,7 @@ function Onboarding({ onStart, onScan }) {
             <div style={{ fontSize: 13, color: "#495670", marginBottom: 24, textAlign: "center" }}>
               Tes hypotheses de briques sont pretes. A toi de valider.
             </div>
-            <button onClick={function() { onStart(targetRole, trajectory); }} style={{
+            <button onClick={function() { onStart(targetRole, trajectory, offerSignals, offers); }} style={{
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
               color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontWeight: 700, fontSize: 16,
               boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
@@ -5534,6 +6566,87 @@ function Onboarding({ onStart, onScan }) {
 }
 
 /* ==============================
+   OFFERS MANAGER — Item 8 multi-offres
+   ============================== */
+
+function OffersManager({ offersArray, onAdd, onRemove, coherence, targetRoleId }) {
+  var inputState = useState("");
+  var inputText = inputState[0];
+  var setInputText = inputState[1];
+  var expandedState = useState(false);
+  var expanded = expandedState[0];
+  var setExpanded = expandedState[1];
+
+  function handleAdd() {
+    if (inputText.trim().length < 20) return;
+    onAdd(inputText.trim());
+    setInputText("");
+  }
+
+  var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
+
+  return (
+    <div style={{ background: "#16213e", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={function() { setExpanded(!expanded); }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 14 }}>{"\uD83C\uDFAF"}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>Offres cibles ({offersArray.length})</span>
+        </div>
+        <span style={{ fontSize: 10, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
+      </div>
+
+      {coherence && !coherence.coherent && (
+        <div style={{ background: "#e94560" + "22", borderRadius: 8, padding: 8, marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {coherence.message}</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+            {coherence.sectors.map(function(s, i) { return <span key={i} style={{ fontSize: 9, color: "#e94560", background: "#1a1a2e", padding: "1px 6px", borderRadius: 6 }}>{s}</span>; })}
+          </div>
+        </div>
+      )}
+
+      {expanded && (
+        <div style={{ marginTop: 12 }}>
+          {offersArray.map(function(offer, i) {
+            var signals = offer.parsedSignals;
+            var detected = signals ? signals.cauchemars.filter(function(c) { return c.detected; }).length : 0;
+            return (
+              <div key={offer.id} style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 8, borderLeft: "3px solid " + (detected > 0 ? "#4ecca3" : "#495670") }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.5 }}>{offer.text.length > 150 ? offer.text.slice(0, 150) + "..." : offer.text}</div>
+                    {signals && signals.totalSignals > 0 && (
+                      <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+                        <span style={{ fontSize: 9, color: "#4ecca3" }}>{signals.totalSignals} signaux</span>
+                        <span style={{ fontSize: 9, color: "#8892b0" }}>{detected} cauchemar{detected > 1 ? "s" : ""}</span>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={function() { onRemove(offer.id); }} style={{ background: "none", border: "none", color: "#e94560", cursor: "pointer", fontSize: 14, padding: "0 4px", flexShrink: 0 }}>{"\u2715"}</button>
+                </div>
+              </div>
+            );
+          })}
+
+          <div style={{ marginTop: 8 }}>
+            <textarea value={inputText} onChange={function(e) { setInputText(e.target.value); }}
+              placeholder="Colle une nouvelle offre d'emploi ici..."
+              style={{ width: "100%", minHeight: 80, padding: 10, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 12, lineHeight: 1.5, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
+            <button onClick={handleAdd} disabled={inputText.trim().length < 20} style={{
+              width: "100%", marginTop: 6, padding: 10,
+              background: inputText.trim().length >= 20 ? "#e94560" : "#1a1a2e",
+              color: inputText.trim().length >= 20 ? "#fff" : "#495670",
+              border: "none", borderRadius: 8, cursor: inputText.trim().length >= 20 ? "pointer" : "not-allowed",
+              fontWeight: 600, fontSize: 12,
+            }}>Ajouter cette offre</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ==============================
    APP
    ============================== */
 
@@ -5581,6 +6694,51 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   });
   var seeds = seedsState[0];
   var setSeeds = seedsState[1];
+  var parsedOffersState = useState(initialState && initialState.parsedOffers ? initialState.parsedOffers : null);
+  var parsedOffers = parsedOffersState[0];
+  var setParsedOffers = parsedOffersState[1];
+  var offersArrayState = useState(initialState && initialState.offersArray ? initialState.offersArray : []);
+  var offersArray = offersArrayState[0];
+  var setOffersArray = offersArrayState[1];
+  var offerNextIdState = useState(initialState && initialState.offerNextId ? initialState.offerNextId : 1);
+  var offerNextId = offerNextIdState[0];
+  var setOfferNextId = offerNextIdState[1];
+
+  // Recalculate merged signals when offersArray changes
+  var offerCoherence = checkOfferCoherence(offersArray);
+
+  function recalcOffersSignals(updatedOffers) {
+    var merged = mergeOfferSignals(updatedOffers, targetRoleId);
+    setParsedOffers(merged);
+    if (merged && merged.cauchemars) {
+      setActiveCauchemarsGlobal(merged.cauchemars);
+    } else if (targetRoleId) {
+      setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+    }
+  }
+
+  function handleAddOffer(text) {
+    var newOffer = { id: offerNextId, text: text, parsedSignals: parseOfferSignals(text, targetRoleId) };
+    var updated = offersArray.concat([newOffer]);
+    setOffersArray(updated);
+    setOfferNextId(offerNextId + 1);
+    recalcOffersSignals(updated);
+  }
+
+  function handleRemoveOffer(offerId) {
+    var updated = offersArray.filter(function(o) { return o.id !== offerId; });
+    setOffersArray(updated);
+    recalcOffersSignals(updated);
+  }
+
+  // Set global active cauchemars whenever role or parsed offers change
+  useEffect(function() {
+    if (parsedOffers && parsedOffers.cauchemars) {
+      setActiveCauchemarsGlobal(parsedOffers.cauchemars);
+    } else if (targetRoleId) {
+      setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+    }
+  }, [parsedOffers, targetRoleId]);
 
   // Persistence : notify parent on every meaningful state change
   var persistRef = useRef(null);
@@ -5592,10 +6750,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
         sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
         targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
-        trajectoryToggle: trajectoryToggle, takes: takes,
+        trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
+        offersArray: offersArray, offerNextId: offerNextId,
       });
     }, 500);
-  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, trajectoryToggle, takes]);
+  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, trajectoryToggle, takes, parsedOffers, offersArray, offerNextId]);
 
   var maturity = getMaturityLevel(bricks);
 
@@ -5631,6 +6790,10 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       advocacyText: seed.advocacyText || null,
       type: "brick", corrected: false,
     };
+    var versions = generateBrickVersions(brick, targetRoleId);
+    brick.cvVersion = versions.cvVersion;
+    brick.interviewVersions = versions.interviewVersions;
+    brick.discoveryQuestions = versions.discoveryQuestions;
     setBricks(function(prev) { return prev.concat([brick]); });
     setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1 }); });
     setToastBrick(brick);
@@ -5653,6 +6816,10 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       advocacyText: seed.advocacyText || null,
       type: "brick", corrected: true,
     };
+    var versions = generateBrickVersions(brick, targetRoleId);
+    brick.cvVersion = versions.cvVersion;
+    brick.interviewVersions = versions.interviewVersions;
+    brick.discoveryQuestions = versions.discoveryQuestions;
     setBricks(function(prev) { return prev.concat([brick]); });
     setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1, corrections: prev.corrections + 1 }); });
     setToastBrick(brick);
@@ -5674,6 +6841,10 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
 
   function handleAddBrick(text, kpi, category) {
     var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: "brick", corrected: false };
+    var versions = generateBrickVersions(newBrick, targetRoleId);
+    newBrick.cvVersion = versions.cvVersion;
+    newBrick.interviewVersions = versions.interviewVersions;
+    newBrick.discoveryQuestions = versions.discoveryQuestions;
     setNextId(nextId + 1);
     setBricks(function(prev) { return prev.concat([newBrick]); });
     setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1 }); });
@@ -5701,17 +6872,31 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     return bricks.some(function(b) { return b.id === s.id; });
   });
 
-  var density = computeDensityScore(bricks);
+  var density = computeDensityScore(bricks, getActiveCauchemars());
 
   var wrap = {
     color: "#ccd6f6",
     fontFamily: "'Inter', -apple-system, sans-serif",
+    background: "#0a0a1a",
+    minHeight: "100vh",
+    padding: "20px",
   };
 
   if (screen === "onboarding") {
     return (
       <div style={wrap}>
-        <Onboarding onStart={function(role, traj) { setTargetRoleId(role); setTrajectoryToggle(traj); setSeeds(generateAdaptiveSeeds(role)); setScreen("sprint"); }} onScan={onScan} />
+        <Onboarding onStart={function(role, traj, offerSignals, rawOfferText) {
+          setTargetRoleId(role);
+          setTrajectoryToggle(traj);
+          setParsedOffers(offerSignals);
+          setSeeds(generateAdaptiveSeeds(role));
+          if (rawOfferText && rawOfferText.trim().length > 20) {
+            var firstOffer = { id: 1, text: rawOfferText.trim(), parsedSignals: parseOfferSignals(rawOfferText, role) };
+            setOffersArray([firstOffer]);
+            setOfferNextId(2);
+          }
+          setScreen("sprint");
+        }} onScan={onScan} />
       </div>
     );
   }
@@ -5800,6 +6985,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         </div>
       )}
       {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={setActiveStep} density={density} />}
+      {!sprintDone && offersArray.length > 0 && <OffersManager offersArray={offersArray} onAdd={handleAddOffer} onRemove={handleRemoveOffer} coherence={offerCoherence} targetRoleId={targetRoleId} />}
       {!sprintDone && <Vault v={vault} maturity={maturity} bricks={bricks} nightmareCosts={nightmareCosts} onCostChange={function(cId, val) { setNightmareCosts(function(prev) { var next = Object.assign({}, prev); next[cId] = val; return next; }); }} />}
       {!sprintDone && <CVPreview bricks={bricks} />}
       {!sprintDone && <InvestmentIndex bricks={bricks} />}
