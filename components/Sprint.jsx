@@ -455,28 +455,28 @@ function detectBluffRisk(bricks) {
 
 var BRICK_FIELDS = {
   chiffre: [
-    { key: "situation", label: "La situation qu'on m'a confiee", placeholder: "Le problème ou la mission" },
+    { key: "situation", label: "La situation qu'on m'a confiée", placeholder: "Le problème ou la mission" },
     { key: "action", label: "Ce que j'ai fait concrètement", placeholder: "L'action, la méthode" },
     { key: "result", label: "Le résultat mesuré", placeholder: "Le chiffre, le delta, le délai" },
     { key: "constraint", label: "Ce qui compliquait les choses", placeholder: "La contrainte, le risque, le blocage" },
   ],
   decision: [
     { key: "options", label: "Les deux options qui s'opposaient", placeholder: "Option A vs Option B" },
-    { key: "choice", label: "Mon choix et pourquoi", placeholder: "Ce que j'ai tranche" },
-    { key: "result", label: "Le résultat", placeholder: "Ce qui s'est passe apres" },
-    { key: "hindsight", label: "Ce que j'aurais fait differemment", placeholder: "Le recul" },
+    { key: "choice", label: "Mon choix et pourquoi", placeholder: "Ce que j'ai tranché" },
+    { key: "result", label: "Le résultat", placeholder: "Ce qui s'est passé après" },
+    { key: "hindsight", label: "Ce que j'aurais fait différemment", placeholder: "Le recul" },
   ],
   influence: [
-    { key: "resistance", label: "Qui resistait et pourquoi", placeholder: "Les acteurs, leurs positions" },
-    { key: "stakes", label: "Ce qui etait bloque", placeholder: "L'enjeu, le coût du blocage" },
-    { key: "method", label: "Comment j'ai debloque", placeholder: "Ma méthode, mon levier" },
+    { key: "resistance", label: "Qui résistait et pourquoi", placeholder: "Les acteurs, leurs positions" },
+    { key: "stakes", label: "Ce qui était bloqué", placeholder: "L'enjeu, le coût du blocage" },
+    { key: "method", label: "Comment j'ai débloqué", placeholder: "Ma méthode, mon levier" },
     { key: "insight", label: "Ce que j'ai appris sur cette organisation", placeholder: "La lecture politique" },
   ],
   cicatrice: [
     { key: "action", label: "Ce que j'ai fait", placeholder: "L'action qui a échoué" },
-    { key: "damage", label: "Ce qui a rate", placeholder: "Le résultat negatif, les degats" },
-    { key: "mypart", label: "Ma part dans cet échec", placeholder: "Ce qui dependait de moi" },
-    { key: "change", label: "Ce que j'ai change apres", placeholder: "La correction appliquee" },
+    { key: "damage", label: "Ce qui a raté", placeholder: "Le résultat négatif, les dégâts" },
+    { key: "mypart", label: "Ma part dans cet échec", placeholder: "Ce qui dépendait de moi" },
+    { key: "change", label: "Ce que j'ai changé après", placeholder: "La correction appliquée" },
   ],
   take: [
     { key: "consensus", label: "Ce que tout le monde pense vrai", placeholder: "Le consensus de ton secteur" },
@@ -486,9 +486,9 @@ var BRICK_FIELDS = {
   ],
   unfair: [
     { key: "asked", label: "Ce qu'on me demande souvent", placeholder: "Ce que tes collègues te demandent de montrer, expliquer, ou faire" },
-    { key: "easy", label: "Pourquoi ca me parait facile", placeholder: "Ce qui rend ca naturel pour toi" },
-    { key: "others", label: "Ce que ca coute aux autres", placeholder: "Le temps ou l'effort que les autres y mettent" },
-    { key: "proof", label: "Une preuve concrete", placeholder: "Un moment ou ce decalage etait visible" },
+    { key: "easy", label: "Pourquoi ça me paraît facile", placeholder: "Ce qui rend ça naturel pour toi" },
+    { key: "others", label: "Ce que ça coûte aux autres", placeholder: "Le temps ou l'effort que les autres y mettent" },
+    { key: "proof", label: "Une preuve concrète", placeholder: "Un moment où ce décalage était visible" },
   ],
 };
 
@@ -513,7 +513,7 @@ var SEED_TEMPLATES = {
     brickCategory: "chiffre", type: "preuve",
     question: function(kpi) { return "Tu mentionnes une activité liée à " + kpi.name.toLowerCase() + ". Quel indicateur a bougé ? De combien ? En combien de temps ?"; },
     context: function(kpi) { return "Le recruteur cherche un chiffre sur " + kpi.name + ". " + kpi.why; },
-    hint: function(kpi) { return "Ex : donne le chiffre avant, le chiffre apres, et la méthode."; },
+    hint: function(kpi) { return "Ex : donne le chiffre avant, le chiffre après, et la méthode."; },
     missionText: function(kpi) { return "Tu n'as pas de chiffre sur " + kpi.name.toLowerCase() + ". Verifie tes anciens outils (CRM, reporting, dashboard). Cherche le delta avant/apres ton intervention. Reviens avec le chiffre."; },
     nightmareGen: function(kpi, cauch) { return cauch ? cauch.nightmareShort : "Le décideur cherche quelqu'un qui a fait bouger " + kpi.name.toLowerCase() + ". Tu as le remède mais tu ne le formules pas."; },
   },
@@ -545,7 +545,7 @@ var SEED_TEMPLATES = {
     brickCategory: "chiffre", type: "preuve",
     question: function(kpi) { return "Quel indicateur as-tu amélioré qui était directement lié a " + kpi.name.toLowerCase() + " ? Chiffre avant, chiffre apres."; },
     context: function(kpi) { return kpi.why; },
-    hint: function(kpi) { return "Ex : indicateur spécifique, avant/apres, méthode utilisee."; },
+    hint: function(kpi) { return "Ex : indicateur spécifique, avant/après, méthode utilisée."; },
     missionText: function(kpi) { return "Pas de chiffre sur " + kpi.name.toLowerCase() + ". C'est un KPI " + kpi.elasticity + ". Trouve la donnée."; },
     nightmareGen: function(kpi) { return "L'offre mentionne " + kpi.name.toLowerCase() + ". Le décideur veut voir un impact prouve."; },
   },
@@ -1844,7 +1844,7 @@ function auditAnonymization(text, paranoMode) {
       }
     });
     // Sector-specific terms that might identify a company
-    var sectorTerms = ["serie A", "serie B", "serie C", "serie D", "licorne", "pre-IPO", "post-IPO", "CAC 40", "SBF 120", "Next 40", "French Tech 120"];
+    var sectorTerms = ["serie A", "série B", "serie C", "serie D", "licorne", "pre-IPO", "post-IPO", "CAC 40", "SBF 120", "Next 40", "French Tech 120"];
     sectorTerms.forEach(function(t) {
       var idx = textLower.indexOf(t.toLowerCase());
       if (idx !== -1) {
@@ -5397,7 +5397,7 @@ function Onboarding({ onStart, onScan }) {
         </div>
         <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle ton CV, ta bio LinkedIn, ou decris ton dernier poste.</div>
         <textarea value={cv} onChange={function(e) { setCv(e.target.value); }}
-          placeholder="Ex : Account Executive chez [Entreprise SaaS] (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR gere 1.2M euros..."
+          placeholder="Ex : Account Executive chez [Entreprise SaaS] (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR géré 1.2M euros..."
           style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
         />
         <div style={{ fontSize: 11, color: cv.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
@@ -5412,7 +5412,7 @@ function Onboarding({ onStart, onScan }) {
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 a 3 offres d'emploi, ou decris le poste que tu vises.</div>
           <textarea value={offers} onChange={function(e) { setOffers(e.target.value); }}
-            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B serie B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. Salesforce requis. OTE 80-120K euros..."
+            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. Salesforce requis. OTE 80-120K euros..."
             style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
           <div style={{ fontSize: 11, color: offers.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
