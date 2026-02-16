@@ -938,7 +938,7 @@ var DUEL_CONTRADICTIONS = [
 var DUEL_QUESTIONS = [
   {
     id: 1,
-    question: "Votre portefeuille a grandi de 22%. Pourquoi avez-vous quitte Spendesk si les resultats etaient bons ?",
+    question: "Votre portefeuille a grandi de 22%. Pourquoi avez-vous quitte [Entreprise] si les resultats etaient bons ?",
     intent: "Tester la coherence de la narrative. Cherche une faille dans la motivation.",
     brickRef: "Croissance +22% portefeuille",
     danger: "Si tu reponds 'je cherchais autre chose', tu parais instable. Si tu reponds 'on m'a pousse', tu parais fragile.",
