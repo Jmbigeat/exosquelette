@@ -3,8 +3,8 @@ import { useState } from "react";
 import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/lib/sprint/references";
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, formatCost } from "@/lib/sprint/scoring";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/generators";
-import { generateWeeklyPosts } from "@/lib/sprint/linkedin";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript } from "@/lib/sprint/generators";
+import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
 
