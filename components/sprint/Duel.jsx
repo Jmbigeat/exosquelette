@@ -650,7 +650,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         style={{ width: "100%", minHeight: 90, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 14, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 4 }}
       />
       <div style={{ fontSize: 11, color: wordCount > 80 ? "#ff9800" : "#495670", marginBottom: 12, textAlign: "right" }}>
-        {wordCount} mot{wordCount > 1 ? "s" : ""}{wordCount > 80 ? " \u2014 trop long pour un entretien" : ""}
+        {wordCount} mot{wordCount > 1 ? "s" : ""}{wordCount > 80 ? " — trop long pour un entretien" : ""}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
         <button onClick={handleDuelSubmit} disabled={!canAnswer} style={{

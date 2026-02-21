@@ -1868,7 +1868,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
                       <div style={{ width: 8, height: 8, borderRadius: "50%", background: i === 0 ? "#e94560" : "#495670", marginTop: 4, flexShrink: 0 }} />
                       <div>
-                        <div style={{ fontSize: 11, color: "#495670", marginBottom: 4 }}>PING \u2014 {ping.month}</div>
+                        <div style={{ fontSize: 11, color: "#495670", marginBottom: 4 }}>PING — {ping.month}</div>
                         <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, fontWeight: 600 }}>"{ping.text}"</div>
                       </div>
                     </div>
@@ -2067,7 +2067,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
               color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 15,
               boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-            }}>Activer le Thermostat \u2014 10\u20AC/mois</button>
+            }}>Activer le Thermostat — 10€/mois</button>
             <div style={{ fontSize: 11, color: "#495670", marginTop: 10 }}>Tes briques restent accessibles en lecture seule sans abonnement.</div>
           </div>
         </div>

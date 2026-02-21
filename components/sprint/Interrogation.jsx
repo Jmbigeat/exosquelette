@@ -28,7 +28,7 @@ export function FeedbackToast({ brick, onDone }) {
     }}>
       <div style={{ fontSize: 11, color: isHard ? "#4ecca3" : "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
         {brick.type === "mission" ? "\uD83D\uDCCB MISSION ASSIGNÉE" : brick.corrected ? "\u270D\uFE0F BRIQUE CORRIGÉE" : "\u2705 BRIQUE FORGÉE"}
-        {catLabel && brick.type !== "mission" ? " \u2014 " + catLabel.toUpperCase() : ""}
+        {catLabel && brick.type !== "mission" ? " — " + catLabel.toUpperCase() : ""}
       </div>
       <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 10 }}>
         "{brick.text.length > 70 ? brick.text.slice(0, 70) + "..." : brick.text}"
