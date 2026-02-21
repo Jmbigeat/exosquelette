@@ -233,28 +233,47 @@ A partir de la, les paiements sont reels.
 
 ## STRUCTURE DU PROJET
 
-    exosquelette/
+Voir CODEMAP.md pour le detail complet (exports, flux, services).
+
+    exosquelette/                          (11 222 lignes)
     ├── app/
-    │   ├── layout.js              # HTML de base, fonts, couleurs
-    │   ├── page.js                # Redirect vers /sprint
-    │   ├── auth/page.js           # Login / Signup
-    │   ├── sprint/page.js         # Page Sprint (auth + paywall + persistence)
+    │   ├── layout.js                      # Layout racine, meta, font Inter
+    │   ├── page.js                        # Redirect vers /sprint
+    │   ├── auth/page.js                   # Login / Signup Supabase
+    │   ├── sprint/page.js                 # Auth + paywall + persistence + charge Sprint
     │   └── api/
-    │       ├── scan/route.js      # Appel Anthropic (analyse CV + offres)
-    │       ├── checkout/route.js  # Creation session Stripe
-    │       └── webhook/route.js   # Confirmation paiement Stripe
+    │       ├── scan/route.js              # Appel Anthropic (analyse CV + offres)
+    │       ├── checkout/route.js          # Creation session Stripe
+    │       └── webhook/route.js           # Confirmation paiement Stripe
     ├── components/
-    │   └── Sprint.jsx             # Le prototype complet (5800 lignes)
+    │   ├── Sprint.jsx                     # Orchestrateur principal (429 lig.)
+    │   └── sprint/
+    │       ├── Onboarding.jsx             # Scan CV/offres, diagnostic (690 lig.)
+    │       ├── Interrogation.jsx          # Forge de briques (953 lig.)
+    │       ├── Duel.jsx                   # Simulation entretien (674 lig.)
+    │       ├── EndScreen.jsx              # Livrables finaux (2 084 lig.)
+    │       ├── panels.jsx                 # Vault, WorkBench, CrossRole (1 009 lig.)
+    │       └── ui.jsx                     # Composants UI (238 lig.)
     ├── lib/
-    │   ├── supabase.js            # Client Supabase (browser + server)
-    │   ├── stripe.js              # Client Stripe
-    │   └── sprint-db.js           # Sauvegarde/chargement du sprint
+    │   ├── supabase.js                    # Client Supabase (browser + server)
+    │   ├── stripe.js                      # Client Stripe
+    │   ├── sprint-db.js                   # CRUD sprints + checkPaid
+    │   └── sprint/
+    │       ├── references.js              # Referentiel maitre — KPIs, roles, templates (726 lig.)
+    │       ├── generators.js              # CV, bio, scripts, plan 90j, diagnostic (1 143 lig.)
+    │       ├── linkedin.js                # Posts, commentaires, audit Dilts (1 078 lig.)
+    │       ├── bricks.js                  # Seeds, matching KPI, versions (491 lig.)
+    │       ├── scoring.js                 # Densite, couverture, effort, bluff (314 lig.)
+    │       ├── analysis.js                # Readiness, verbes, externalisation (258 lig.)
+    │       ├── dilts.js                   # Pyramide de Dilts (242 lig.)
+    │       ├── offers.js                  # Parsing offres, cauchemars (160 lig.)
+    │       └── redac.js                   # Filtre redactionnel (129 lig.)
     ├── supabase/
-    │   └── schema.sql             # Tables a creer dans Supabase
-    ├── .env.example               # Template des variables
-    ├── package.json               # Dependances
-    ├── jsconfig.json              # Aliases de chemin
-    └── next.config.js             # Config Next.js
+    │   └── schema.sql                     # Tables profiles, sprints, payments
+    ├── .env.example                       # Template des variables
+    ├── package.json                       # Dependances
+    ├── jsconfig.json                      # Aliases de chemin (@/*)
+    └── next.config.js                     # Config Next.js
 
 
 ## SI CA NE MARCHE PAS
