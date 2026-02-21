@@ -807,23 +807,6 @@ var MARKET_DATA = {
   },
 };
 
-/* Génère un résumé Fossé chiffré pour le diagnostic */
-function computeFosseMarket(salaire) {
-  var sal = salaire || MARKET_DATA.fosse.salaire_median_cadre;
-  var minPerte = Math.round(sal * MARKET_DATA.fosse.ecart_salaire_marche.min / 100);
-  var maxPerte = Math.round(sal * MARKET_DATA.fosse.ecart_salaire_marche.max / 100);
-  return {
-    salaire: sal,
-    perteMensuelleMin: Math.round(minPerte / 12),
-    perteMensuelleMax: Math.round(maxPerte / 12),
-    perteAnnuelleMin: minPerte,
-    perteAnnuelleMax: maxPerte,
-    contexte: MARKET_DATA.fosse.part_augmentes_changement + "% des cadres qui changent sont augmentés. " + MARKET_DATA.fosse.part_augmentes_meme_poste + "% de ceux qui restent.",
-    ecartGain: "+" + MARKET_DATA.fosse.gain_changement_employeur + "% en changeant vs +" + MARKET_DATA.fosse.gain_sans_changement + "% en restant.",
-    intentionVsAction: MARKET_DATA.reconversion.projet_reconversion + "% veulent bouger. " + MARKET_DATA.reconversion.demarches_entamees + "% bougent. Le Fossé est là.",
-  };
-}
-
 /* Global active cauchemars — set by Sprint component, used by all utility functions */
 var _activeCauchemars = null;
 function getActiveCauchemars() { return _activeCauchemars || CAUCHEMARS_CIBLES; }
@@ -971,13 +954,6 @@ function getBrickFields(seed) {
   if (seed.brickCategory === "decision") return BRICK_FIELDS.decision;
   if (seed.brickCategory === "influence") return BRICK_FIELDS.influence;
   return BRICK_FIELDS.chiffre;
-}
-
-function assembleFieldsToText(fields, fieldDefs) {
-  return fieldDefs.map(function(f) {
-    var val = fields[f.key] || "";
-    return val.trim() ? f.label + " : " + val.trim() : "";
-  }).filter(function(l) { return l.length > 0; }).join(". ") + ".";
 }
 
 var SEED_TEMPLATES = {
@@ -1880,11 +1856,6 @@ function getDiltsThermometerState(diltsHistory) {
     plafondRegistre: plafondMapping.registre,
     lastPostDate: lastPost ? lastPost.date : null,
   };
-}
-
-function generateScript(bricks, targetRoleId) {
-  var result = generateContactScripts(bricks, targetRoleId);
-  return result ? result.email : "[Script généré après validation de tes briques.]";
 }
 
 /* ==============================
@@ -3521,26 +3492,6 @@ function generateSleepComment(bricks, vault, targetRoleId) {
   };
 }
 
-function generateDormantRelaunch(bricks, vault, targetRoleId, monthsInactive) {
-  var diltsHistory = vault && vault.diltsHistory ? vault.diltsHistory : [];
-  var ceiling = getDiltsCeilingForOutput("relance_dormant", diltsHistory, monthsInactive || 1);
-  var brick = selectBrickForDiltsTarget(
-    bricks.filter(function(b) { return b.status === "validated"; }),
-    Math.min(ceiling, 2),
-    []
-  );
-  if (!brick) return null;
-  var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
-  var roleLabel = roleData ? roleData.role.toLowerCase() : "ton secteur";
-  return {
-    type: "relance_dormant",
-    diltsLevel: Math.min(ceiling, 2),
-    suggestion: "Envoie un message a un ancien collegue ou contact dormant. Angle : \"J'ai vu que [actualite de son entreprise]. Ca rejoint un cas que j'ai gere en " + roleLabel + ".\"",
-    brickSource: brick.text.slice(0, 50),
-    effort: "3 minutes",
-  };
-}
-
 function proposeSleepBrick(vault) {
   var weeks = 0;
   if (vault && vault.lastVisit) {
@@ -3897,28 +3848,6 @@ function auditAnonymization(text, paranoMode) {
     paranoMode: paranoMode || false,
     timestamp: Date.now(),
   };
-}
-
-// Legacy wrapper for simple detection
-function detectSensitiveData(text) {
-  var audit = auditAnonymization(text, false);
-  return audit.findings;
-}
-
-function classifyCicatrice(text) {
-  var lower = text.toLowerCase();
-  var strategicMarkers = ["choisi", "decide", "arbitre", "option", "alternative", "strategi", "prioris", "sacrifie", "renonce", "pari", "risque", "pivot", "enjeu", "dilemme", "compromis", "tranche"];
-  var operationalMarkers = ["oublie", "bug", "erreur technique", "plante", "crash", "pas testé", "manque de temps", "pas vérifié", "negligence", "oubli", "pas vu", "backup", "configuration", "serveur", "déploiement raté", "typo"];
-  var sCount = 0; var oCount = 0;
-  var foundStrategic = []; var foundOperational = [];
-  strategicMarkers.forEach(function(m) { if (lower.indexOf(m) !== -1) { sCount++; foundStrategic.push(m); } });
-  operationalMarkers.forEach(function(m) { if (lower.indexOf(m) !== -1) { oCount++; foundOperational.push(m); } });
-  var totalMarkers = sCount + oCount;
-  var confidence = totalMarkers >= 4 ? "forte" : totalMarkers >= 2 ? "moyenne" : "faible";
-  var confidenceColor = confidence === "forte" ? "#4ecca3" : confidence === "moyenne" ? "#ff9800" : "#495670";
-  if (sCount > oCount) return { type: "stratégique", label: "Echec d'arbitrage", color: "#9b59b6", msg: "Cet échec revele un choix difficile entre des options viables. C'est une preuve de jugement sous contrainte. Valeur haute pour un recruteur.", foundMarkers: foundStrategic, confidence: confidence, confidenceColor: confidenceColor, markerCount: totalMarkers };
-  if (oCount > sCount) return { type: "operationnel", label: "Echec operationnel", color: "#ff9800", msg: "Cet échec vient d'un oubli ou d'une erreur technique. Le recruteur retient la capacité a corriger, pas l'échec lui-meme. Valeur moderee : insiste sur le fix, pas sur l'erreur.", foundMarkers: foundOperational, confidence: confidence, confidenceColor: confidenceColor, markerCount: totalMarkers };
-  return { type: "indéterminé", label: "À préciser", color: "#495670", msg: "L'IA n'identifie pas clairement si cet échec vient d'un arbitrage ou d'une négligence. Précise : était-ce un choix entre deux options, ou un oubli ?", foundMarkers: [], confidence: "faible", confidenceColor: "#495670", markerCount: 0 };
 }
 
 function analyzeVerbs(text) {
