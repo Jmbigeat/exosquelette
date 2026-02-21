@@ -113,16 +113,19 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   // Persistence : notify parent on every meaningful state change
   var persistRef = useRef(null);
   useEffect(function() {
+    var stateObj = {
+      screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
+      sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
+      targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
+      trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
+      offersArray: offersArray, offerNextId: offerNextId, _savedAt: Date.now(),
+    };
+    // Immediate localStorage save (no debounce)
+    try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
     if (!onStateChange) return;
     if (persistRef.current) clearTimeout(persistRef.current);
     persistRef.current = setTimeout(function() {
-      onStateChange({
-        screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
-        sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
-        targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
-        trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
-        offersArray: offersArray, offerNextId: offerNextId,
-      });
+      onStateChange(stateObj);
     }, 500);
   }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, trajectoryToggle, takes, parsedOffers, offersArray, offerNextId]);
 

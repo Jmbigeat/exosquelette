@@ -44,9 +44,18 @@ export default function SprintPage() {
     });
   }, []);
 
-  // Load sprint + payment status
+  // Load sprint + payment status (localStorage as immediate fallback)
   useEffect(function() {
     if (!user) return;
+
+    // Restore from localStorage immediately while Supabase loads
+    try {
+      var cached = localStorage.getItem("sprint_state");
+      if (cached) {
+        var localState = JSON.parse(cached);
+        setSavedState(localState);
+      }
+    } catch (e) {}
 
     Promise.all([loadSprint(user.id), checkPaid(user.id)]).then(function(results) {
       var sprint = results[0];
@@ -54,7 +63,22 @@ export default function SprintPage() {
 
       if (sprint) {
         setSprintId(sprint.id);
-        setSavedState(sprint.state);
+        // Compare timestamps: use whichever is more recent
+        try {
+          var cached = localStorage.getItem("sprint_state");
+          if (cached) {
+            var localState = JSON.parse(cached);
+            if (localState._savedAt && sprint.state._savedAt && localState._savedAt > sprint.state._savedAt) {
+              setSavedState(localState);
+            } else {
+              setSavedState(sprint.state);
+            }
+          } else {
+            setSavedState(sprint.state);
+          }
+        } catch (e) {
+          setSavedState(sprint.state);
+        }
       }
       setPaid(isPaid);
       setLoading(false);
