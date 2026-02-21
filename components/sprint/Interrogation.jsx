@@ -43,7 +43,7 @@ export function FeedbackToast({ brick, onDone }) {
       )}
       {isHard && brick.type !== "mission" && (
         <div style={{ fontSize: 11, color: "#4ecca3", marginTop: 8, borderTop: "1px solid #16213e", paddingTop: 6 }}>
-          {brick.brickType === "cicatrice" ? "Echec assume. C'est la brique la plus rare de ton Coffre-Fort." : brick.brickCategory === "decision" ? "Arbitrage documente. Aucun generateur de CV ne produit ca." : "Influence prouvee. Le recruteur ne peut pas testér ca autrement qu'en entretien."}
+          {brick.brickType === "cicatrice" ? "Échec assumé. C'est la brique la plus rare de ton Coffre-Fort." : brick.brickCategory === "decision" ? "Arbitrage documenté. Aucun générateur de CV ne produit ça." : "Influence prouvée. Le recruteur ne peut pas tester ça autrement qu'en entretien."}
         </div>
       )}
     </div>
@@ -69,7 +69,7 @@ export function AddBrick({ onAdd }) {
   var setJustAdded = doneState[1];
   function handleAdd() {
     if (text.trim().length < 10) return;
-    onAdd(text.trim(), kpi.trim() || "A definir", category);
+    onAdd(text.trim(), kpi.trim() || "À définir", category);
     setText(""); setKpi("");
     setJustAdded(true);
     setTimeout(function() { setJustAdded(false); setIsOpen(false); }, 1800);
@@ -88,7 +88,7 @@ export function AddBrick({ onAdd }) {
         width: "100%", marginTop: 16, padding: 14, background: "#1a1a2e",
         border: "2px dashed #495670", borderRadius: 10, cursor: "pointer",
         color: "#8892b0", fontSize: 13, fontWeight: 600, textAlign: "center",
-      }}>{"\u2795"} L'IA a rate quelque chose ? Ajoute ta brique.</button>
+      }}>{"\u2795"} L'IA a raté quelque chose ? Ajoute ta brique.</button>
     );
   }
   return (
@@ -185,7 +185,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             {validated.length} brique{validated.length > 1 ? "s" : ""} + {missionItems.length} mission{missionItems.length > 1 ? "s" : ""}
           </div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
-            {missionItems.length > 0 ? "Les missions deviennent des briques quand tu apportes la preuve." : "Forgees a partir de tes réponses. Tu les incarnes. Tu les defendras."}
+            {missionItems.length > 0 ? "Les missions deviennent des briques quand tu apportes la preuve." : "Forgées à partir de tes réponses. Tu les incarnes. Tu les défendras."}
           </div>
         </div>
         <BricksRecap bricks={bricks} />
@@ -223,7 +223,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             {!hasDecision && !hasInfluence && !hasRichContent ? " L'IA n'a pas détecté de marqueurs de décision ou d'influence." : ""}
           </div>
           <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 4 }}>CE QUE L'IA A DETECTE DANS TA REPONSE</div>
+            <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 4 }}>CE QUE L'IA A DÉTECTÉ DANS TA RÉPONSE</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
               Chiffres : <span style={{ color: "#e94560" }}>aucun</span>
               {hasDecision && <span> {"\u00B7"} Marqueurs de décision : <span style={{ color: "#9b59b6" }}>oui</span></span>}
@@ -322,7 +322,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
       <div>
         <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600, marginBottom: 8, letterSpacing: 1 }}>RETOUCHE DE LA BRIQUE</div>
         <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>
-          Modifie le texte. Chaque correction enseigne ta voix a l'IA. Le Style Engine apprend de tes choix, pas de tes validations.
+          Modifie le texte. Chaque correction enseigne ta voix à l'IA. Le Style Engine apprend de tes choix, pas de tes validations.
         </div>
         <textarea value={editText} onChange={function(e) { setEditText(e.target.value); }}
           style={{ width: "100%", minHeight: 90, padding: 14, background: "#1a1a2e", border: "2px solid #9b59b6", borderRadius: 10, color: "#ccd6f6", fontSize: 14, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12 }}
@@ -511,10 +511,10 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
               </div>
               <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
                 {takeAnalysis.level === "deep"
-                  ? "Tu as un angle personnel, des exemples concrets et un raisonnement causal. C'est une these, pas une opinion. Elle deviendra un pilier de ta singularité."
-                  : "Ta position est la. Mais elle manque de " + (
-                    takeAnalysis.foundDepth.indexOf("contrarian") === -1 ? "contrepoint (qu'est-ce que les autres pensent a tort ?)" :
-                    takeAnalysis.foundDepth.indexOf("personal") === -1 ? "vecu (qu'est-ce que TU as vu que les autres n'ont pas vu ?)" :
+                  ? "Tu as un angle personnel, des exemples concrets et un raisonnement causal. C'est une thèse, pas une opinion. Elle deviendra un pilier de ta singularité."
+                  : "Ta position est là. Mais elle manque de " + (
+                    takeAnalysis.foundDepth.indexOf("contrarian") === -1 ? "contrepoint (qu'est-ce que les autres pensent à tort ?)" :
+                    takeAnalysis.foundDepth.indexOf("personal") === -1 ? "vécu (qu'est-ce que TU as vu que les autres n'ont pas vu ?)" :
                     takeAnalysis.foundDepth.indexOf("causal") === -1 ? "logique causale (pourquoi c'est vrai ?)" :
                     "spécificité (donne un exemple concret)."
                   )
@@ -644,8 +644,8 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           {/* CICATRICE — valorization without classification */}
           {seed.type === "cicatrice" && answer && (
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, borderLeft: "3px solid #ff9800", marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>CICATRICE ASSUMEE</div>
-              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tu viens de raconter un échec. Le système le transforme en preuve de maturité. 95% des candidats mentent ou esquivent. Tu te separes d'eux.</div>
+              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>CICATRICE ASSUMÉE</div>
+              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tu viens de raconter un échec. Le système le transforme en preuve de maturité. 95% des candidats mentent ou esquivent. Tu te sépares d'eux.</div>
             </div>
           )}
 
@@ -687,14 +687,14 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 10, borderLeft: "3px solid #ff9800", marginBottom: 10 }}>
               <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>{"\u26A0\uFE0F"} AUDIT DE CONTRÔLE</div>
               <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5 }}>{seed.controlRisk}</div>
-              <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5, marginTop: 6 }}>Si tu te positionnes comme le remède et que le problème persiste, tu deviens la cible. Ta brique doit decrire ce que TU contrôles, pas ce que ton équipe a fait.</div>
+              <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5, marginTop: 6 }}>Si tu te positionnes comme le remède et que le problème persiste, tu deviens la cible. Ta brique doit décrire ce que TU contrôles, pas ce que ton équipe a fait.</div>
             </div>
           )}
 
-          {/* CAUCHEMAR DU DECIDEUR — le problème que tu resous */}
+          {/* CAUCHEMAR DU DÉCIDEUR — le problème que tu résous */}
           {seed.nightmareText && (
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, borderLeft: "3px solid #e74c3c", marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#e74c3c", fontWeight: 600, marginBottom: 4 }}>LE CAUCHEMAR QUE TU RESOUS</div>
+              <div style={{ fontSize: 11, color: "#e74c3c", fontWeight: 600, marginBottom: 4 }}>LE CAUCHEMAR QUE TU RÉSOUS</div>
               <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5 }}>{seed.nightmareText}</div>
             </div>
           )}
@@ -710,12 +710,12 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
               </div>
               {verbData.foundProcess.length > 0 && (
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 4 }}>
-                  Verbes de processus détectés : <span style={{ color: "#e94560" }}>{verbData.foundProcess.join(", ")}</span>. Le recruteur lit : role secondaire.
+                  Verbes de processus détectés : <span style={{ color: "#e94560" }}>{verbData.foundProcess.join(", ")}</span>. Le recruteur lit : rôle secondaire.
                 </div>
               )}
               {verbData.foundAvoidance.length > 0 && (
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 4 }}>
-                  Verbes d'evitement détectés : <span style={{ color: "#e94560" }}>{verbData.foundAvoidance.join(", ")}</span>. Le recruteur lit : pas d'engagement.
+                  Verbes d'évitement détectés : <span style={{ color: "#e94560" }}>{verbData.foundAvoidance.join(", ")}</span>. Le recruteur lit : pas d'engagement.
                 </div>
               )}
               {verbData.foundResult.length > 0 && (
@@ -818,7 +818,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
     if (seed.type === "take") {
       var takeDepth = analyzeTakeDepth(text, seed.surfacePatterns);
       if (takeDepth.level === "surface") {
-        setConfrontMsg("Ta réponse est celle de 90% des professionnels de ton secteur. C'est un recit dominant, pas une prise de position. Un recruteur qui lit ca ne retient rien. Creuse. Qu'est-ce que ton expérience t'a montre que les articles de blog ne disent pas ?");
+        setConfrontMsg("Ta réponse est celle de 90% des professionnels de ton secteur. C'est un récit dominant, pas une prise de position. Un recruteur qui lit ça ne retient rien. Creuse. Qu'est-ce que ton expérience t'a montré que les articles de blog ne disent pas ?");
         setPhase("confront");
         return;
       }
@@ -830,13 +830,13 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
 
     // Blame detection for cicatrice seeds
     if (seed.blameDetection && hasBlame(text)) {
-      setConfrontMsg("Tu blames le produit ou le prix. Quel etait le budget reel du prospect ? Quelle étape de qualification as-tu sautee ? C'est là que le deal s'est perdu.");
+      setConfrontMsg("Tu blâmes le produit ou le prix. Quel était le budget réel du prospect ? Quelle étape de qualification as-tu sautée ? C'est là que le deal s'est perdu.");
       setPhase("confront");
       return;
     }
     // Externalization detection
     if (seed.externalizeDetection && hasExternalization(text)) {
-      setConfrontMsg("Tu n'as cite aucun facteur sous ton contrôle. Le recruteur entend : cette personne ne prend pas de responsabilite. Trouve ta part dans cet échec.");
+      setConfrontMsg("Tu n'as cité aucun facteur sous ton contrôle. Le recruteur entend : cette personne ne prend pas de responsabilité. Trouve ta part dans cet échec.");
       setPhase("confront");
       return;
     }
