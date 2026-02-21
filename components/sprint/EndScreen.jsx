@@ -1,13 +1,14 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
-import { CATEGORY_LABELS, ELASTICITY_LABELS, KPI_REFERENCE, MARKET_DATA } from "@/lib/sprint/references";
+import { CATEGORY_LABELS, ELASTICITY_LABELS, KPI_REFERENCE, MARKET_DATA, SCRIPT_CHANNELS, TARGET_ROLES } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, computeNegotiationBrief, detectBluffRisk, formatCost, getActiveCauchemars } from "@/lib/sprint/scoring";
 import { auditBrickVulnerability, computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { auditDeliverable, computeZones, generateBio, generateCV, generateContactScripts, generateDiagnosticQuestions, generateImpactReport, generatePlan90, generateTransitionScript, scoreContactScript } from "@/lib/sprint/generators";
 import { detectSignalType, generateLinkedInComment, generateLinkedInPosts, generatePositions, generateSignalScript, generateSleepComment, generateWeeklyPosts, proposeSleepBrick } from "@/lib/sprint/linkedin";
-import { analyzeDiltsProgression, checkDiltsSequence, computeDiltsTarget, getDiltsLabel, getDiltsThermometerState } from "@/lib/sprint/dilts";
-import { CopyBtn } from "./ui";
-import { CrossRoleInsight } from "./panels";
+import { analyzeDiltsProgression, checkDiltsSequence, computeDiltsTarget, DILTS_LEVELS, getDiltsLabel, getDiltsThermometerState } from "@/lib/sprint/dilts";
+import { Bar, CopyBtn } from "./ui";
+import { auditAnonymization } from "@/lib/sprint/analysis";
+import { CrossRoleInsight, MarketMap } from "./panels";
 
 export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggle }) {
   var sectionSt = useState(null);
@@ -1106,7 +1107,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     fractional_coo: "Qu'est-ce que le CEO ne devrait plus faire lui-même dans 6 mois ?",
                   };
                   var roleDisc = discoveryQsLocal[targetRoleId] || "Avant que je déroule mon parcours, quels sont vos enjeux clés sur ce poste ?";
-                  var roleData = ROLE_LIBRARY.find(function(r) { return r.id === targetRoleId; });
+                  var roleData = TARGET_ROLES.find(function(r) { return r.id === targetRoleId; });
                   var roleName = roleData ? roleData.role : "Non défini";
 
                   var ready = top3.length >= 1;
