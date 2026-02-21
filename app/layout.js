@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "L Exosquelette - Sprint Carriere",
+  title: "L Exosquelette - Sprint Carrière",
   description: "Extrais tes preuves. Mesure ta rareté. Arme-toi.",
 };
 

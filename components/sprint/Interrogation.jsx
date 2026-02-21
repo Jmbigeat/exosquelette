@@ -27,7 +27,7 @@ export function FeedbackToast({ brick, onDone }) {
       boxShadow: isHard ? "0 8px 32px rgba(78,204,163,0.3)" : "0 8px 32px rgba(233,69,96,0.25)",
     }}>
       <div style={{ fontSize: 11, color: isHard ? "#4ecca3" : "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-        {brick.type === "mission" ? "\uD83D\uDCCB MISSION ASSIGNÉE" : brick.corrected ? "\u270D\uFE0F BRIQUE CORRIGEE" : "\u2705 BRIQUE FORGEE"}
+        {brick.type === "mission" ? "\uD83D\uDCCB MISSION ASSIGNÉE" : brick.corrected ? "\u270D\uFE0F BRIQUE CORRIGÉE" : "\u2705 BRIQUE FORGÉE"}
         {catLabel && brick.type !== "mission" ? " \u2014 " + catLabel.toUpperCase() : ""}
       </div>
       <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 10 }}>
@@ -113,7 +113,7 @@ export function AddBrick({ onAdd }) {
         style={{ width: "100%", minHeight: 70, padding: 12, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 13, lineHeight: 1.5, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 8 }}
       />
       <input value={kpi} onChange={function(e) { setKpi(e.target.value); }}
-        placeholder="KPI associe (optionnel)"
+        placeholder="KPI associé (optionnel)"
         style={{ width: "100%", padding: 10, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 12, outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12 }}
       />
       <div style={{ display: "flex", gap: 8 }}>
@@ -239,20 +239,20 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           <button onClick={function() { setPhase("forging"); setTimeout(function() { setPhase("review"); }, 1200); }} style={{
             padding: 14, background: "#0f3460", color: "#ccd6f6", border: "2px solid #4ecca3", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
-            <span style={{ color: "#4ecca3" }}>{"\u2192"}</span> Forge une brique avec ce que j'ai donne
-            <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA structure ta réponse sans chiffre. La brique sera moins precise mais existera.</div>
+            <span style={{ color: "#4ecca3" }}>{"\u2192"}</span> Forge une brique avec ce que j'ai donné
+            <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA structure ta réponse sans chiffre. La brique sera moins précise mais existera.</div>
           </button>
           <button onClick={function() { setPhase("mission"); setIsMission(true); }} style={{
             padding: 14, background: "#0f3460", color: "#ccd6f6", border: "2px solid #ff9800", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
             <span style={{ color: "#ff9800" }}>{"\u2192"}</span> Assigne la mission, je reviendrai avec le chiffre
-            <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA te donne les étapes pour recuperer la preuve. La brique sera forgée quand tu reviendras.</div>
+            <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA te donne les étapes pour récupérer la preuve. La brique sera forgée quand tu reviendras.</div>
           </button>
           <button onClick={function() { setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); }} style={{
             padding: 14, background: "#1a1a2e", color: "#8892b0", border: "2px solid #495670", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
             <span style={{ color: "#495670" }}>{"\u2192"}</span> Je reformule ma réponse
-            <div style={{ fontSize: 11, color: "#495670", fontWeight: 400, marginTop: 2 }}>Tu repars de zero sur cette question.</div>
+            <div style={{ fontSize: 11, color: "#495670", fontWeight: 400, marginTop: 2 }}>Tu repars de zéro sur cette question.</div>
           </button>
         </div>
       </div>
@@ -294,7 +294,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           }}>Archiver la mission</button>
           <button onClick={function() { setPhase("question"); setIsMission(false); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); }} style={{
             padding: "14px 16px", background: "#1a1a2e", color: "#8892b0", border: "2px solid #495670", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-          }}>Reessayer</button>
+          }}>Réessayer</button>
         </div>
       </div>
     );
@@ -307,7 +307,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         <div style={{ background: "#1a1a2e", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid #e94560" }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 8, letterSpacing: 1 }}>CONFRONTATION</div>
           <div style={{ fontSize: 14, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 12 }}>{confrontMsg}</div>
-          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Reformule ta réponse en incluant ta part de responsabilite.</div>
+          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Reformule ta réponse en incluant ta part de responsabilité.</div>
         </div>
         <button onClick={function() { setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setConfrontMsg(null); }} style={{
           width: "100%", padding: 14, background: "#0f3460", color: "#ccd6f6", border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
@@ -370,7 +370,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
       });
       if (lastEnd < anonEdit.length) highlightedParts.push({ text: anonEdit.substring(lastEnd), sensitive: false });
     }
-    var typeLabels = { entreprise: "Entreprise", montant: "Montant", email: "Email", telephone: "Telephone", date: "Date", nom_propre: "Nom propre", localisation: "Localisation", marqueur_secteur: "Marqueur secteur" };
+    var typeLabels = { entreprise: "Entreprise", montant: "Montant", email: "Email", telephone: "Téléphone", date: "Date", nom_propre: "Nom propre", localisation: "Localisation", marqueur_secteur: "Marqueur secteur" };
 
     function handleAnonConfirm() {
       // Re-scan final text before archiving (defense layer 5)
@@ -399,8 +399,8 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         <div style={{ background: "#1a1a2e", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid " + audit.confidenceColor }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <div style={{ fontSize: 11, color: audit.confidenceColor, fontWeight: 600, letterSpacing: 1 }}>
-              {hasSensitive ? "\u26A0\uFE0F VERIFICATION REQUISE" : "\uD83D\uDD12 AUDIT ANONYMISATION"}
-              {isCorrection ? " (BRIQUE CORRIGEE)" : ""}
+              {hasSensitive ? "\u26A0\uFE0F VÉRIFICATION REQUISE" : "\uD83D\uDD12 AUDIT ANONYMISATION"}
+              {isCorrection ? " (BRIQUE CORRIGÉE)" : ""}
             </div>
           </div>
 
@@ -413,7 +413,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                   <span style={{ fontSize: 11, color: clean ? "#4ecca3" : "#e94560" }}>{clean ? "\u2705" : "\u274C"}</span>
                   <span style={{ fontSize: 11, color: "#8892b0" }}>Passe {i + 1} : {p.name}</span>
-                  {!clean && <span style={{ fontSize: 10, color: "#e94560" }}>({p.findings.length} element{p.findings.length > 1 ? "s" : ""})</span>}
+                  {!clean && <span style={{ fontSize: 10, color: "#e94560" }}>({p.findings.length} élément{p.findings.length > 1 ? "s" : ""})</span>}
                 </div>
               );
             })}
@@ -441,7 +441,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           {/* Detected items grouped by pass */}
           {hasSensitive && (
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>DETAILS PAR PASSE</div>
+              <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>DÉTAILS PAR PASSE</div>
               {audit.passes.filter(function(p) { return p.findings.length > 0; }).map(function(p, pi) {
                 return (
                   <div key={pi} style={{ marginBottom: 6 }}>
@@ -462,7 +462,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           )}
 
           {/* Editable textarea */}
-          <div style={{ fontSize: 11, color: "#8892b0", marginBottom: 6 }}>Edite la version transportable ci-dessous :</div>
+          <div style={{ fontSize: 11, color: "#8892b0", marginBottom: 6 }}>Édite la version transportable ci-dessous :</div>
           <textarea value={anonEdit} onChange={function(e) { setAnonEdit(e.target.value); }}
             style={{ width: "100%", minHeight: 80, padding: 12, background: "#0f3460", border: "2px solid " + audit.confidenceColor, borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
@@ -497,7 +497,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         <div>
           <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
             <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, color: "#3498db", fontWeight: 600, letterSpacing: 1 }}>PRISE DE POSITION {takeAnalysis.level === "deep" ? "FORGEE" : "DETECTEE"}</span>
+              <span style={{ fontSize: 11, color: "#3498db", fontWeight: 600, letterSpacing: 1 }}>PRISE DE POSITION {takeAnalysis.level === "deep" ? "FORGÉE" : "DÉTECTÉE"}</span>
               <span style={{ fontSize: 10, color: takeAnalysis.level === "deep" ? "#4ecca3" : takeAnalysis.level === "partial" ? "#ff9800" : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>
                 {takeAnalysis.level === "deep" ? "profonde" : takeAnalysis.level === "partial" ? "partielle" : "surface"}
               </span>
@@ -507,7 +507,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             {/* Depth diagnostic */}
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid " + (takeAnalysis.level === "deep" ? "#4ecca3" : "#ff9800") }}>
               <div style={{ fontSize: 11, color: takeAnalysis.level === "deep" ? "#4ecca3" : "#ff9800", fontWeight: 600, marginBottom: 4 }}>
-                {takeAnalysis.level === "deep" ? "VISION CONTRARIANTE DETECTEE" : "VISION PARTIELLE"}
+                {takeAnalysis.level === "deep" ? "VISION CONTRARIANTE DÉTECTÉE" : "VISION PARTIELLE"}
               </div>
               <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
                 {takeAnalysis.level === "deep"
@@ -559,7 +559,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
             <span style={{ fontSize: 11, color: seed.type === "cicatrice" ? "#ff9800" : cat ? cat.color : "#e94560", fontWeight: 600, letterSpacing: 1 }}>
-              {seed.type === "cicatrice" ? "CICATRICE FORGEE" : "BRIQUE FORGEE"}
+              {seed.type === "cicatrice" ? "CICATRICE FORGÉE" : "BRIQUE FORGÉE"}
             </span>
             {cat && <span style={{ fontSize: 10, color: cat.color, background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>{cat.label}</span>}
             {elast && <span style={{ fontSize: 10, color: elast.color, background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>{elast.icon} {elast.label}</span>}
@@ -571,7 +571,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid " + (isSousPression ? "#e94560" : kpiMatch.elasticity === "élastique" ? "#4ecca3" : "#8892b0") }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                 <span style={{ fontSize: 11, color: isSousPression ? "#e94560" : kpiMatch.elasticity === "élastique" ? "#4ecca3" : "#8892b0", fontWeight: 600 }}>
-                  {isSousPression ? "\uD83D\uDEA8 KPI SOUS PRESSION" : kpiMatch.elasticity === "élastique" ? "\u2197\uFE0F KPI ELASTIQUE" : "\u2194\uFE0F KPI STABLE"}
+                  {isSousPression ? "\uD83D\uDEA8 KPI SOUS PRESSION" : kpiMatch.elasticity === "élastique" ? "\u2197\uFE0F KPI ÉLASTIQUE" : "\u2194\uFE0F KPI STABLE"}
                 </span>
                 <span style={{ fontSize: 10, color: "#495670", background: "#0f3460", padding: "2px 8px", borderRadius: 8 }}>
                   {kpiMatch.name}
@@ -599,10 +599,10 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             return (
               <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid " + (isSousPression ? "#e94560" : "#ff9800") }}>
                 <div style={{ fontSize: 11, color: isSousPression ? "#e94560" : "#ff9800", fontWeight: 600, marginBottom: 4 }}>
-                  {isSousPression ? "\uD83D\uDEA8 BLUFF CRITIQUE" : "\u26A0\uFE0F LEVIER DE NEGOCIATION"} — {matchedCauchemar.label.toUpperCase()}
+                  {isSousPression ? "\uD83D\uDEA8 BLUFF CRITIQUE" : "\u26A0\uFE0F LEVIER DE NÉGOCIATION"} — {matchedCauchemar.label.toUpperCase()}
                 </div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 6 }}>
-                  Ce cauchemar coute {costStr}{"\u20AC"}/{matchedCauchemar.costUnit} dans le secteur. {matchedCauchemar.costContext}
+                  Ce cauchemar coûte {costStr}{"\u20AC"}/{matchedCauchemar.costUnit} dans le secteur. {matchedCauchemar.costContext}
                 </div>
                 {isSousPression ? (
                   <div style={{ fontSize: 12, color: "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
@@ -662,7 +662,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                   <div style={{ background: "#4ecca3" + "15", borderRadius: 6, padding: 8, marginTop: 8 }}>
                     <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5 }}>
                       {seed.type === "cicatrice"
-                        ? "Tu viens d'assumer un échec et de le transformer en preuve de maturité. 95% des candidats mentent ou esquivent. Tu viens de te separer d'eux."
+                        ? "Tu viens d'assumer un échec et de le transformer en preuve de maturité. 95% des candidats mentent ou esquivent. Tu viens de te séparer d'eux."
                         : seed.brickCategory === "decision"
                         ? "Tu viens de documenter un arbitrage. C'est la preuve la plus rare en entretien. N'importe qui cite un chiffre. Personne ne montre comment il décide sous pression."
                         : "Tu viens de montrer comment tu alignes des gens qui ne veulent pas s'aligner. C'est le genre de preuve que les recruteurs n'arrivent pas à extraire en entretien. Tu l'as écrite."
@@ -705,7 +705,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                 <span style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600 }}>TON LANGAGE</span>
                 <span style={{ fontSize: 10, color: "#495670", background: "#0f3460", padding: "2px 8px", borderRadius: 8 }}>
-                  {verbData.foundProcess.length + verbData.foundAvoidance.length} verbe{verbData.foundProcess.length + verbData.foundAvoidance.length > 1 ? "s" : ""} signale{verbData.foundProcess.length + verbData.foundAvoidance.length > 1 ? "s" : ""}
+                  {verbData.foundProcess.length + verbData.foundAvoidance.length} verbe{verbData.foundProcess.length + verbData.foundAvoidance.length > 1 ? "s" : ""} signalé{verbData.foundProcess.length + verbData.foundAvoidance.length > 1 ? "s" : ""}
                 </span>
               </div>
               {verbData.foundProcess.length > 0 && (
@@ -725,12 +725,12 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
               )}
               <button onClick={function() { setVerbDismissed(true); }} style={{
                 padding: "4px 10px", fontSize: 11, background: "#0f3460", color: "#495670", border: "1px solid #495670", borderRadius: 6, cursor: "pointer", fontWeight: 600, marginTop: 4,
-              }}>Ces verbes sont justifies ici</button>
+              }}>Ces verbes sont justifiés ici</button>
             </div>
           )}
           {verbDismissed && (
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, borderLeft: "3px solid #495670", marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#495670", fontWeight: 600 }}>LANGAGE : alerte ecartee par toi. L'IA en prend note.</div>
+              <div style={{ fontSize: 11, color: "#495670", fontWeight: 600 }}>LANGAGE : alerte écartée par toi. L'IA en prend note.</div>
             </div>
           )}
 

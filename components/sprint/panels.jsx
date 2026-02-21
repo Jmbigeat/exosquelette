@@ -338,7 +338,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 14 }}>{"\u26A1"}</span>
-          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>L'ETABLI</span>
+          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>L'ÉTABLI</span>
           <span style={{ fontSize: 10, color: qualityColor, background: qualityColor + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>{armeCount} arme{armeCount > 1 ? "s" : ""}</span>
           <span style={{ fontSize: 9, color: qualityColor, background: qualityColor + "15", padding: "1px 6px", borderRadius: 6 }}>{qualityLabel}</span>
         </div>

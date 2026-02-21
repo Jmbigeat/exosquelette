@@ -30,7 +30,7 @@ export default function AuthPage() {
       if (res.error) { setError(res.error.message); setLoading(false); return; }
       // Auto-login after signup
       var login = await supabase.auth.signInWithPassword({ email: email, password: pass });
-      if (login.error) { setError("Compte cree. Connecte-toi."); setMode("login"); setLoading(false); return; }
+      if (login.error) { setError("Compte créé. Connecte-toi."); setMode("login"); setLoading(false); return; }
     } else {
       var res = await supabase.auth.signInWithPassword({ email: email, password: pass });
       if (res.error) { setError(res.error.message); setLoading(false); return; }
@@ -59,7 +59,7 @@ export default function AuthPage() {
       <div style={card}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 8 }}>L'EXOSQUELETTE</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>{mode === "login" ? "Connexion" : "Creer un compte"}</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>{mode === "login" ? "Connexion" : "Créer un compte"}</div>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -69,7 +69,7 @@ export default function AuthPage() {
           />
           <input
             type="password" value={pass} onChange={function(e) { setPass(e.target.value); }}
-            placeholder="Mot de passe (6 caracteres min)" required minLength={6} style={inputStyle}
+            placeholder="Mot de passe (6 caractères min)" required minLength={6} style={inputStyle}
           />
 
           {error && (
@@ -80,13 +80,13 @@ export default function AuthPage() {
             width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
             color: "#fff", border: "none", borderRadius: 12, cursor: loading ? "wait" : "pointer",
             fontWeight: 700, fontSize: 15, opacity: loading ? 0.6 : 1, marginBottom: 12,
-          }}>{loading ? "..." : mode === "login" ? "Se connecter" : "Creer mon compte"}</button>
+          }}>{loading ? "..." : mode === "login" ? "Se connecter" : "Créer mon compte"}</button>
         </form>
 
         <div style={{ textAlign: "center" }}>
           <button onClick={function() { setMode(mode === "login" ? "signup" : "login"); setError(null); }} style={{
             background: "none", border: "none", color: "#8892b0", fontSize: 13, cursor: "pointer",
-          }}>{mode === "login" ? "Pas de compte ? Creer un compte" : "Deja un compte ? Se connecter"}</button>
+          }}>{mode === "login" ? "Pas de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}</button>
         </div>
       </div>
     </div>

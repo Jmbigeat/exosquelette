@@ -160,7 +160,7 @@ export default function SprintPage() {
         </button>
 
         <div style={{ textAlign: "center", marginTop: 16 }}>
-          <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 12, cursor: "pointer" }}>Se deconnecter</button>
+          <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 12, cursor: "pointer" }}>Se déconnecter</button>
         </div>
       </div>
     );
@@ -171,7 +171,7 @@ export default function SprintPage() {
     <div style={wrap}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 11, color: "#495670" }}>{user.email}</div>
-        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>Deconnexion</button>
+        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>Déconnexion</button>
       </div>
       <Sprint
         initialState={savedState}

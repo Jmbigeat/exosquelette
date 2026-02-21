@@ -6,7 +6,7 @@ import { useState } from "react";
 var DUEL_CRISES = [
   {
     id: 1,
-    trigger: "Le recruteur regarde son telephone. Il revient vers toi.",
+    trigger: "Le recruteur regarde son téléphone. Il revient vers toi.",
     scenario: "On vient de m'informer que votre ancien employeur annonce un plan de restructuration. 15% des effectifs. Votre équipe est impactée. Qu'est-ce que ça change à ce que vous venez de me dire ?",
     diagnostic: {
       externalize: ["c'etait previsible", "je le savais", "rien a voir avec moi", "la direction"],
@@ -15,7 +15,7 @@ var DUEL_CRISES = [
   },
   {
     id: 2,
-    trigger: "Le recruteur s'arrete au milieu de sa prise de notes.",
+    trigger: "Le recruteur s'arrête au milieu de sa prise de notes.",
     scenario: "J'ai un autre candidat en face cet après-midi. Plus senior que vous, 12 ans d'expérience. Dites-moi en une phrase pourquoi je devrais continuer cet entretien au lieu de le raccourcir.",
     diagnostic: {
       externalize: ["je suis mieux", "il ne peut pas", "plus motive", "plus jeune"],
@@ -35,7 +35,7 @@ var DUEL_CRISES = [
 
 var DUEL_CONTRADICTIONS = [
   "Votre ancien manager m'a donné une version différente. Que répondez-vous ?",
-  "J'ai parlé à quelqu'un dans votre ancienne équipe. Il dit que c'était un effort collectif, pas individuel. Votre reaction ?",
+  "J'ai parlé à quelqu'un dans votre ancienne équipe. Il dit que c'était un effort collectif, pas individuel. Votre réaction ?",
   "Un de vos ex-collègues m'a dit que le contexte était favorable et que n'importe qui aurait obtenu ces résultats. Comment répondez-vous ?",
   "Les chiffres que vous annoncez ne correspondent pas à ce que j'ai vu dans le marché. Vous êtes sûr de vos données ?",
 ];
@@ -552,7 +552,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
             </div>
           )}
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 12, borderLeft: "3px solid #e94560" }}>
-            <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>LE PIEGE</div>
+            <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>LE PIÈGE</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{q.danger}</div>
           </div>
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, borderLeft: "3px solid #4ecca3" }}>
