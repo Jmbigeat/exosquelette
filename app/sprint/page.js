@@ -124,15 +124,20 @@ export default function SprintPage() {
     );
   }
 
-  var wrap = {
+  var wrapPaywall = {
     minHeight: "100vh", padding: "24px 16px", maxWidth: 520, margin: "0 auto",
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  };
+
+  var wrapSprint = {
+    minHeight: "100vh", padding: "24px 16px", maxWidth: 1200, margin: "0 auto",
     fontFamily: "'Inter', -apple-system, sans-serif",
   };
 
   // PAYWALL : l'utilisateur n'a pas paye
   if (!paid) {
     return (
-      <div style={wrap}>
+      <div style={wrapPaywall}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Sprint — 49 euros</div>
@@ -168,7 +173,7 @@ export default function SprintPage() {
 
   // SPRINT : l'utilisateur a paye
   return (
-    <div style={wrap}>
+    <div style={wrapSprint}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 11, color: "#495670" }}>{user.email}</div>
         <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>Déconnexion</button>
