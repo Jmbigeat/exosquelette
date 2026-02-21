@@ -288,14 +288,21 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
             }}>Passer à la Forge {"\u2192"}</button>
           )}
-          {allSeedsDone && !density.unlocks.forge && (
-            <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
-              <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"🔒"} Verrou de Blindage</div>
-              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-                Il faut au moins 3 briques validées pour passer à la Forge. Tu en as {density.details.brickCount}. Ajoute des briques ou valide celles en attente.
+          {allSeedsDone && !density.unlocks.forge && (function() {
+            var cov = computeCauchemarCoverage(bricks);
+            var covOk = cov.every(function(c) { return c.covered; });
+            var brickOk = density.details.brickCount >= 3;
+            return (
+              <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
+                <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"🔒"} Verrou de Blindage</div>
+                <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
+                  {!brickOk && ("Il faut au moins 3 briques validées pour passer à la Forge. Tu en as " + density.details.brickCount + ". ")}
+                  {!covOk && ("Couverture cauchemars incomplète : " + cov.filter(function(c) { return c.covered; }).length + "/" + cov.length + ". Couvre tous les cauchemars actifs.")}
+                  {brickOk && covOk && "Verrou en cours de calcul…"}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       );
     }
