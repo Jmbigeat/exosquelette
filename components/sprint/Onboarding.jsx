@@ -100,7 +100,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           </div>
           <div style={{ flex: "1 1 45%", background: "#1a1a2e", borderRadius: 6, padding: 8 }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#495670" }}>{MARKET_DATA.fosse.part_augmentes_meme_poste}%</div>
-            <div style={{ fontSize: 9, color: "#8892b0", lineHeight: 1.4 }}>de ceux qui restent au même poste</div>
+            <div style={{ fontSize: 9, color: "#8892b0", lineHeight: 1.4 }}>sont augmentés en restant au même poste</div>
           </div>
           <div style={{ flex: "1 1 45%", background: "#1a1a2e", borderRadius: 6, padding: 8 }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#ff9800" }}>+{MARKET_DATA.friction.hausse_candidatures_ia}%</div>
