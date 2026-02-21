@@ -365,7 +365,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       {!sprintDone && <CVPreview bricks={bricks} />}
       {!sprintDone && <InvestmentIndex bricks={bricks} />}
       {!sprintDone && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} />}
-      {!sprintDone && (
+      {!sprintDone && vault.bricks > 0 && (
         <div style={{ marginBottom: 12 }}>
           <button onClick={function() {
             if (!urgenceMode) {
