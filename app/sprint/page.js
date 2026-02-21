@@ -134,7 +134,7 @@ export default function SprintPage() {
     return (
       <div style={wrap}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Sprint — 49 euros</div>
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
             7 jours. 11 questions. Un Coffre-Fort plein. CV, bio, script, positions, rapport d'impact. Tu valides. L'IA fait le reste.

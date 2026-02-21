@@ -337,7 +337,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   return (
     <div style={wrap}>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>L'EXOSQUELETTE</div>
+        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ABNEG@TION</div>
         <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>La Forge {"\u2014"} Calibrage en cours</div>
         {targetRoleId && KPI_REFERENCE[targetRoleId] && (
           <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>{"\uD83C\uDFAF"} {KPI_REFERENCE[targetRoleId].role} ({KPI_REFERENCE[targetRoleId].sector}) {trajectoryToggle === "j_y_suis" ? "\u00B7 J'y suis" : trajectoryToggle === "j_y_vais" ? "\u00B7 J'y vais" : ""}</div>

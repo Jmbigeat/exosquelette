@@ -58,7 +58,7 @@ export default function AuthPage() {
     <div style={wrap}>
       <div style={card}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 8 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 8 }}>ABNEG@TION</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>{mode === "login" ? "Connexion" : "Créer un compte"}</div>
         </div>
 

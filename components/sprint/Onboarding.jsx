@@ -289,7 +289,7 @@ export function Onboarding({ onStart, onScan }) {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Le marché ne paie pas la performance.</div>
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>Il paie la rareté. L'outil te montre où tu es rare, où tu es substituable, et comment inverser le rapport de force.</div>
         </div>
@@ -533,7 +533,7 @@ export function Onboarding({ onStart, onScan }) {
   return (
     <div style={{ padding: "8px 0" }}>
       <div style={{ textAlign: "center", marginBottom: 28 }}>
-        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
         <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>{isPassif ? "Ton profil est-il visible là où ça compte ?" : "Identifie où ta compétence rencontre la demande."}</div>
         <div style={{ color: "#495670", fontSize: 12, marginTop: 4 }}>Temps estimé : 2 minutes.</div>
       </div>
