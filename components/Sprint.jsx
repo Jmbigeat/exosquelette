@@ -4607,6 +4607,16 @@ function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray,
             </div>
           )}
 
+          {/* Avertissement anonymisation */}
+          {(function() { var anonRiskBricks = validated.filter(function(b) { return b.anonStatus && b.anonStatus !== "OK"; }); return anonRiskBricks.length > 0 ? (
+            <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 10, marginBottom: 12, borderLeft: "3px solid #ff9800" }}>
+              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, marginBottom: 4 }}>ANONYMISATION</div>
+              <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
+                {anonRiskBricks.length} brique{anonRiskBricks.length > 1 ? "s" : ""} {anonRiskBricks.some(function(b) { return b.anonStatus === "partiel"; }) ? "avec audit partiel — donnees sensibles potentiellement presentes." : "non auditee" + (anonRiskBricks.length > 1 ? "s" : "") + " — verifier l'anonymisation avant envoi."}
+              </div>
+            </div>
+          ) : null; })()}
+
           {/* Sélecteur d'offre */}
           {offersArray && offersArray.length > 1 && (
             <div style={{ marginBottom: 12 }}>
@@ -5429,13 +5439,15 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
             if (editText.trim().length >= 10) {
-              if (seed.anonymizedText) {
-                setAnonEdit(seed.anonymizedText);
+              var correctedSeed = cicOverride ? Object.assign({}, seed, { type: cicOverride, brickType: cicOverride }) : seed;
+              if (correctedSeed.anonymizedText) {
+                setAnonEdit(correctedSeed.anonymizedText);
                 // Store corrected text temporarily — we'll need it after anon review
-                seed._correctedText = editText.trim();
+                correctedSeed._correctedText = editText.trim();
+                correctedSeed._overriddenType = cicOverride || seed.type;
                 setPhase("anon_review_correct");
               } else {
-                onCorrect(seed, editText.trim());
+                onCorrect(correctedSeed, editText.trim());
                 setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setEditText(""); setVerbData(null); setVerbDismissed(false); setCicOverride(null);
               }
             }
@@ -5455,7 +5467,8 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
   // ANONYMIZATION REVIEW — multi-pass audit with defense in depth
   if (phase === "anon_review" || phase === "anon_review_correct") {
     var isCorrection = phase === "anon_review_correct";
-    var audit = auditAnonymization(anonEdit, paranoMode);
+    var audit = anonAudit || auditAnonymization(anonEdit, paranoMode);
+    if (!anonAudit) setAnonAudit(audit);
     var hasSensitive = audit.totalFindings > 0;
     // Build highlighted text
     var highlightedParts = [];
@@ -5482,7 +5495,8 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
         confirmedAt: Date.now(),
         findingsAtConfirm: finalAudit.totalFindings,
       };
-      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
+      var overriddenType = seed._overriddenType || seed.type;
+      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, type: overriddenType, brickType: overriddenType, anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, overriddenType, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, overriddenType, seed.elasticity) });
       if (isCorrection) {
         onCorrect(reviewedSeed, editText.trim());
         setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setEditText(""); setAnonEdit(""); setAnonAudit(null); setVerbData(null); setVerbDismissed(false); setCicOverride(null);
@@ -5562,7 +5576,7 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
 
           {/* Editable textarea */}
           <div style={{ fontSize: 11, color: "#8892b0", marginBottom: 6 }}>Edite la version transportable ci-dessous :</div>
-          <textarea value={anonEdit} onChange={function(e) { setAnonEdit(e.target.value); }}
+          <textarea value={anonEdit} onChange={function(e) { setAnonEdit(e.target.value); setAnonAudit(null); }}
             style={{ width: "100%", minHeight: 80, padding: 12, background: "#0f3460", border: "2px solid " + audit.confidenceColor, borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
           <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>
@@ -5647,23 +5661,32 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
       );
     }
 
+    var effectiveType = cicOverride || seed.type;
+    var effectiveBrickType = cicOverride || seed.brickType || seed.type;
     var cat = CATEGORY_LABELS[seed.brickCategory];
     var elast = seed.elasticity && ELASTICITY_LABELS[seed.elasticity];
     var kpiMatch = targetRoleId ? matchKpiToReference(seed.kpi || "", targetRoleId) : null;
     var isSousPression = kpiMatch && kpiMatch.elasticity === "sous_pression";
-    var computedAdvocacy = generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText);
-    var computedInternalAdvocacy = generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity);
+    var computedAdvocacy = generateAdvocacyText(effectiveText, seed.brickCategory, effectiveType, seed.nightmareText);
+    var computedInternalAdvocacy = generateInternalAdvocacy(effectiveText, seed.brickCategory, effectiveType, seed.elasticity);
     return (
       <div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, color: seed.type === "cicatrice" ? "#ff9800" : cat ? cat.color : "#e94560", fontWeight: 600, letterSpacing: 1 }}>
-              {seed.type === "cicatrice" ? "CICATRICE FORGEE" : "BRIQUE FORGEE"}
+            <span style={{ fontSize: 11, color: effectiveType === "cicatrice" ? "#ff9800" : cat ? cat.color : "#e94560", fontWeight: 600, letterSpacing: 1 }}>
+              {effectiveType === "cicatrice" ? "CICATRICE FORGEE" : "BRIQUE FORGEE"}
             </span>
             {cat && <span style={{ fontSize: 10, color: cat.color, background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>{cat.label}</span>}
             {elast && <span style={{ fontSize: 10, color: elast.color, background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>{elast.icon} {elast.label}</span>}
           </div>
           <div style={{ fontSize: 15, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 14 }}>&quot;{effectiveText}&quot;</div>
+
+          {/* CICATRICE TOGGLE — candidat override */}
+          {seed.type !== "take" && (
+            <div onClick={function() { setCicOverride(effectiveType === "cicatrice" ? (seed.type === "cicatrice" ? null : seed.type) : "cicatrice"); }} style={{ fontSize: 11, color: effectiveType === "cicatrice" ? "#ff9800" : "#495670", cursor: "pointer", marginBottom: 10, userSelect: "none" }}>
+              {effectiveType === "cicatrice" ? "Ce n'est pas une cicatrice" : "C'est une cicatrice"}
+            </div>
+          )}
 
           {/* KPI REFERENCE MATCH — authoritative classification */}
           {kpiMatch && (
@@ -5867,7 +5890,7 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
           )}
 
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-            <span style={{ background: "#1a1a2e", color: seed.type === "cicatrice" ? "#ff9800" : "#e94560", fontSize: 11, padding: "4px 10px", borderRadius: 20, fontWeight: 600 }}>KPI : {seed.kpi}</span>
+            <span style={{ background: "#1a1a2e", color: effectiveType === "cicatrice" ? "#ff9800" : "#e94560", fontSize: 11, padding: "4px 10px", borderRadius: 20, fontWeight: 600 }}>KPI : {seed.kpi}</span>
             {seed.skills.map(function(s) {
               return <span key={s} style={{ background: "#1a1a2e", color: "#8892b0", fontSize: 11, padding: "4px 10px", borderRadius: 20 }}>{s}</span>;
             })}
@@ -5881,8 +5904,8 @@ function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, onSkip, o
         {/* THREE-WAY ACTION: Archiver / Corriger / Rejeter */}
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
-            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
-            if (seed.anonymizedText) { setAnonEdit(seed.anonymizedText); setPhase("anon_review"); }
+            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, type: effectiveType, brickType: effectiveBrickType, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, effectiveType, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, effectiveType, seed.elasticity) });
+            if (seed.anonymizedText) { seed._overriddenType = effectiveType; setAnonEdit(seed.anonymizedText); setPhase("anon_review"); }
             else { onForge(forgedSeed); setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setVerbData(null); setVerbDismissed(false); setCicOverride(null); }
           }} style={{
             flex: 1, padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
@@ -8837,6 +8860,11 @@ function EndScreen({ vault, setVault, bricks, duelResults, maturity, targetRoleI
                       </div>
                     )}
                   </div>
+                  {b.anonStatus && b.anonStatus !== "OK" && (
+                    <div style={{ fontSize: 10, color: "#e94560", marginBottom: 4 }}>
+                      {b.anonStatus === "partiel" ? "Audit partiel — donnees sensibles potentiellement presentes" : "Non audite — verifier l'anonymisation avant envoi"}
+                    </div>
+                  )}
                   {activeView !== "brut" && (
                     <CopyBtn text={activeView === "cv" ? (b.cvVersion || b.text) : activeView === "rh" ? (b.interviewVersions ? b.interviewVersions.rh : b.text) : activeView === "n1" ? (b.interviewVersions ? b.interviewVersions.n1 : b.text) : activeView === "dir" ? (b.interviewVersions ? b.interviewVersions.direction : b.text) : activeView === "disco" ? (b.discoveryQuestions ? b.discoveryQuestions.join("\n\n") : "") : b.text} label="Copier" />
                   )}
