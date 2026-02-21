@@ -14,13 +14,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Contenu insuffisant" }, { status: 400 });
     }
 
-    var prompt = `Tu es un expert en recrutement et positionnement de carriere.
+    var prompt = `Tu es un expert en recrutement et positionnement de carrière.
 
 Le client a colle son CV/profil et des offres cibles. Ton travail :
-1. Identifier 3-5 briques de preuve probables (realisations chiffrees, decisions, influences)
+1. Identifier 3-5 briques de preuve probables (réalisations chiffrées, décisions, influences)
 2. Identifier 2-3 KPIs caches dans les offres (ce que le recruteur cherche sans le dire)
-3. Identifier les competences cles croisees entre le profil et les offres
-4. Detecter les decalages (ce que le profil montre vs ce que les offres demandent)
+3. Identifier les compétences clés croisées entre le profil et les offres
+4. Détecter les décalages (ce que le profil montre vs ce que les offres demandent)
 
 PROFIL DU CLIENT :
 ${cv.slice(0, 3000)}

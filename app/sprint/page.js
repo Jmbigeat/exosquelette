@@ -143,10 +143,10 @@ export default function SprintPage() {
 
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 16 }}>
-            Le marche ne paie pas la performance. Il paie la rarete. L'outil te montre ou tu es rare, ou tu es substituable, et comment inverser le rapport de force.
+            Le marché ne paie pas la performance. Il paie la rareté. L'outil te montre où tu es rare, où tu es substituable, et comment inverser le rapport de force.
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-            Interrogatoire structure (4 champs par brique). Confrontation automatique. Generateurs de livrables. Simulateur d'entretien avec crises imprevues. Rapport d'impact avec zones d'excellence et de rupture. Detection de metiers alternatifs.
+            Interrogatoire structuré (4 champs par brique). Confrontation automatique. Générateurs de livrables. Simulateur d'entretien avec crises imprévues. Rapport d'impact avec zones d'excellence et de rupture. Détection de métiers alternatifs.
           </div>
         </div>
 
