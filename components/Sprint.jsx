@@ -74,6 +74,13 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var urgenceMode = urgenceState[0];
   var setUrgenceMode = urgenceState[1];
 
+  // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
+  if (parsedOffers && parsedOffers.cauchemars) {
+    setActiveCauchemarsGlobal(parsedOffers.cauchemars);
+  } else if (targetRoleId) {
+    setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+  }
+
   // Recalculate merged signals when offersArray changes
   var offerCoherence = checkOfferCoherence(offersArray);
 
