@@ -1456,9 +1456,13 @@ function generateCV(bricks, targetRoleId, trajectoryToggle) {
 
   var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
   var roleTitle = roleData ? roleData.role.toUpperCase() : "PROFESSIONNEL";
+  var isJyVais = trajectoryToggle === "j_y_vais";
 
-  // Sort bricks: elastic first, then by category weight (decision > influence > cicatrice > chiffre)
-  var catWeight = { decision: 4, influence: 3, cicatrice: 2, chiffre: 1 };
+  // Sort bricks: elastic first, then by category weight
+  // j_y_suis: decisions first (authority) / j_y_vais: chiffres first (transferable proof)
+  var catWeight = isJyVais
+    ? { chiffre: 4, decision: 3, influence: 2, cicatrice: 1 }
+    : { decision: 4, influence: 3, cicatrice: 2, chiffre: 1 };
   var sorted = validated.slice().sort(function(a, b) {
     var ea = a.elasticity === "élastique" ? 10 : 0;
     var eb = b.elasticity === "élastique" ? 10 : 0;
@@ -1477,6 +1481,14 @@ function generateCV(bricks, targetRoleId, trajectoryToggle) {
 
   var cv = roleTitle + "\n";
   cv += headerStats ? headerStats + ".\n" : "";
+  if (isJyVais) {
+    var cauchCoverage = computeCauchemarCoverage(bricks);
+    var cauchCovered = cauchCoverage.filter(function(c) { return c.covered; }).length;
+    var cauchTotal = getActiveCauchemars().length;
+    if (cauchTotal > 0) {
+      cv += cauchCovered + "/" + cauchTotal + " risques du " + (roleData ? roleData.role.toLowerCase() : "poste cible") + " couverts par des preuves.\n";
+    }
+  }
   cv += "\n[Poste] \u2014 [Entreprise] ([Dates])\n\n";
 
   // Bricks as lines — prefer cvVersion for 6-second scanning
@@ -1491,6 +1503,7 @@ function generateCV(bricks, targetRoleId, trajectoryToggle) {
 function generateBio(bricks, vault, trajectoryToggle) {
   var validated = bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; });
   if (validated.length === 0) return "[Bio générée après validation de tes briques.]";
+  var isJyVais = trajectoryToggle === "j_y_vais";
 
   // LINE 1 — Cauchemar du décideur
   var strongestCauchemar = null;
@@ -1503,6 +1516,9 @@ function generateBio(bricks, vault, trajectoryToggle) {
     }
   });
   var line1 = strongestCauchemar ? strongestCauchemar.text : "Les résultats existent. Personne ne les formule.";
+  if (isJyVais && strongestCauchemar) {
+    line1 = "Ce probl\u00e8me, je l'ai r\u00e9solu ailleurs. " + line1;
+  }
 
   // LINE 2 — Top 3 elastic bricks, numbers only
   var elasticBricks = validated.filter(function(b) { return b.elasticity === "élastique"; });
@@ -1514,12 +1530,17 @@ function generateBio(bricks, vault, trajectoryToggle) {
   var line2 = line2parts.join(". ") + ".";
 
   // LINE 3 — Pillar (take preferred)
-  var line3 = "J'ecris ici sur ce que l'expérience revele quand on creuse sous les metriques.";
+  var line3 = isJyVais
+    ? "Je documente ici ce que la preuve r\u00e9v\u00e8le quand on change de terrain."
+    : "J'ecris ici sur ce que l'exp\u00e9rience revele quand on creuse sous les metriques.";
   if (vault && vault.selectedPillars && vault.selectedPillars.length > 0) {
     var takePillar = vault.selectedPillars.find(function(p) { return p.source === "take"; });
     var pillar = takePillar || vault.selectedPillars[0];
     if (pillar && pillar.title) {
-      line3 = "J'ecris ici sur " + pillar.title.toLowerCase().replace(/^pourquoi /, "pourquoi ").replace(/\.$/, "") + ".";
+      var pillarText = pillar.title.toLowerCase().replace(/^pourquoi /, "pourquoi ").replace(/\.$/, "");
+      line3 = isJyVais
+        ? "Je documente ici " + pillarText + " \u2014 vu d'un terrain diff\u00e9rent."
+        : "J'ecris ici sur " + pillarText + ".";
     }
   }
 
