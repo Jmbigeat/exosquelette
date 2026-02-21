@@ -559,7 +559,7 @@ export function Onboarding({ onStart, onScan }) {
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 à 3 offres d'emploi, ou décris le poste que tu vises.</div>
           <textarea value={offers} onChange={function(e) { setOffers(e.target.value); }}
-            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. Salesforce requis. OTE 80-120K euros..."
+            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. CRM requis. OTE 80-120K euros..."
             style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
           <div style={{ fontSize: 11, color: offers.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
