@@ -5,6 +5,7 @@ import { analyzeVerbs, auditAnonymization, hasBlame, hasDecisionMarkers, hasExte
 import { formatCost, getActiveCauchemars } from "@/lib/sprint/scoring";
 import { analyzeTakeDepth, auditBrickVulnerability, getBrickFields, matchKpiToReference, takeToiPillar } from "@/lib/sprint/bricks";
 import { generateAdvocacyText, generateInternalAdvocacy } from "@/lib/sprint/generators";
+import { BricksRecap } from "@/components/sprint/panels";
 
 export function FeedbackToast({ brick, onDone }) {
   var opState = useState(0);
