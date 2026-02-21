@@ -25,7 +25,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
       {/* BLOC 1 — Ce que l'offre demande VRAIMENT */}
       <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>CE QUE L'OFFRE DEMANDE VRAIMENT</div>
-        <div style={{ fontSize: 11, color: "#495670", marginBottom: 12 }}>Pas les competences listees. Les cauchemars caches derriere les mots.</div>
+        <div style={{ fontSize: 11, color: "#495670", marginBottom: 12 }}>Pas les compétences listées. Les cauchemars cachés derrière les mots.</div>
         {b1.cauchemars.map(function(c, i) {
           var kpiRef = roleData ? roleData.kpis.find(function(k) { return c.kpis && c.kpis.indexOf(k.name) !== -1; }) : null;
           var eColor = kpiRef && kpiRef.elasticity === "élastique" ? "#4ecca3" : kpiRef && kpiRef.elasticity === "sous_pression" ? "#e94560" : "#8892b0";
@@ -67,7 +67,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
 
       {/* BLOC 3 — Le fossé */}
       <div style={{ background: "#e94560" + "15", borderRadius: 12, padding: 16, marginBottom: 16, border: "1px solid #e94560" + "44" }}>
-        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>LE FOSSE</div>
+        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>LE FOSSÉ</div>
         <div style={{ textAlign: "center", marginBottom: 12 }}>
           <div style={{ fontSize: 48, fontWeight: 800, color: "#e94560" }}>{b3.fossePct}%</div>
           <div style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>de tes preuves sont invisibles</div>
@@ -79,15 +79,15 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#ff9800" }}>{b3.coveredCount}</div>
-            <div style={{ fontSize: 10, color: "#8892b0" }}>mentionnes</div>
+            <div style={{ fontSize: 10, color: "#8892b0" }}>mentionnés</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#4ecca3" }}>{b3.proofCount}</div>
-            <div style={{ fontSize: 10, color: "#8892b0" }}>prouves</div>
+            <div style={{ fontSize: 10, color: "#8892b0" }}>prouvés</div>
           </div>
         </div>
         <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, textAlign: "center" }}>
-          Tu tires a blanc. Tu as l'experience. Tu ne la formules pas en preuve. Le recruteur ne voit pas le remede. Il te jette.
+          Tu tires à blanc. Tu as l'expérience. Tu ne la formules pas en preuve. Le recruteur ne voit pas le remède. Il te jette.
         </div>
       </div>
 
@@ -116,10 +116,10 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
         </div>
       </div>
 
-      {/* BLOC 4 — Ce que la Forge debloque */}
+      {/* BLOC 4 — Ce que la Forge débloque */}
       {b4.transformation && (
         <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>CE QUE LE SPRINT DEBLOQUE</div>
+          <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>CE QUE LE SPRINT DÉBLOQUE</div>
           <div style={{ marginBottom: 12 }}>
             <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>AVANT — Ton CV aujourd'hui</div>
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, fontSize: 12, color: "#8892b0", lineHeight: 1.5, borderLeft: "3px solid #e94560" }}>
@@ -128,14 +128,14 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           </div>
           <div style={{ textAlign: "center", fontSize: 18, color: "#495670", margin: "4px 0" }}>{"\u2193"}</div>
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>APRES — Apres extraction Forge</div>
+            <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>APRÈS — Après extraction Forge</div>
             <div style={{ background: "#4ecca3" + "15", borderRadius: 8, padding: 10, fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, fontWeight: 600, borderLeft: "3px solid #4ecca3" }}>
               {b4.transformation.after}
             </div>
           </div>
           {b4.transformation.isSimulated && (
             <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", textAlign: "center" }}>
-              Transformation simulee. La Forge extrait TES vrais chiffres.
+              Transformation simulée. La Forge extrait TES vrais chiffres.
             </div>
           )}
         </div>
@@ -161,7 +161,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           <span style={{ fontSize: 14 }}>{trajectory === "j_y_suis" ? "\uD83D\uDCCD" : "\uD83D\uDE80"}</span>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>{trajectory === "j_y_suis" ? "J'y suis" : "J'y vais"}</div>
-            <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachee dans ce que tu fais deja." : "La Forge cherche les preuves transferables vers le poste vise."}</div>
+            <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachée dans ce que tu fais déjà." : "La Forge cherche les preuves transférables vers le poste visé."}</div>
           </div>
         </div>
       )}
@@ -184,14 +184,14 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           var icon = p.status === "silence" ? "[X]" : "[!]";
           lines.push(icon + " " + p.cauchemar + " : " + p.perception);
         });
-        lines.push("\nLE FOSSE :");
-        lines.push(b3.fossePct + "% de tes preuves sont invisibles. " + b3.totalCauchemars + " enjeux critiques, " + b3.coveredCount + " mentionnes, " + b3.proofCount + " prouves.");
+        lines.push("\nLE FOSSÉ :");
+        lines.push(b3.fossePct + "% de tes preuves sont invisibles. " + b3.totalCauchemars + " enjeux critiques, " + b3.coveredCount + " mentionnés, " + b3.proofCount + " prouvés.");
         if (b4.transformation) {
           lines.push("\nAVANT (ton CV) : " + b4.transformation.before);
-          lines.push("APRES (apres Forge) : " + b4.transformation.after);
-          if (b4.transformation.isSimulated) lines.push("(Transformation simulee. La Forge extrait TES vrais chiffres.)");
+          lines.push("APRÈS (après Forge) : " + b4.transformation.after);
+          if (b4.transformation.isSimulated) lines.push("(Transformation simulée. La Forge extrait TES vrais chiffres.)");
         }
-        lines.push("\n---\nDiagnostic genere par Abneg@tion — L'Exosquelette");
+        lines.push("\n---\nDiagnostic généré par Abneg@tion — L'Exosquelette");
         var text = lines.join("\n");
         if (navigator.clipboard) { navigator.clipboard.writeText(text); }
         if (typeof onCopied === "function") onCopied();
@@ -200,7 +200,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
         color: "#8892b0", border: "1px solid #16213e", borderRadius: 10, cursor: "pointer", fontWeight: 600, fontSize: 13,
         marginBottom: 8,
       }}>Copier le diagnostic</button>
-      <div style={{ fontSize: 11, color: "#495670", textAlign: "center" }}>Ta premiere munition en 20 minutes. Ton arsenal complet a ton rythme.</div>
+      <div style={{ fontSize: 11, color: "#495670", textAlign: "center" }}>Ta première munition en 20 minutes. Ton arsenal complet à ton rythme.</div>
     </div>
   );
 }
@@ -290,7 +290,7 @@ export function Onboarding({ onStart, onScan }) {
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Le marche ne paie pas la performance.</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Le marché ne paie pas la performance.</div>
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>Il paie la rareté. L'outil te montre où tu es rare, où tu es substituable, et comment inverser le rapport de force.</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
@@ -298,15 +298,15 @@ export function Onboarding({ onStart, onScan }) {
             background: "#0f3460", border: "2px solid #16213e", borderRadius: 12, padding: 20, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>{"\uD83C\uDFAF"}</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Je vise un poste precis</div>
-            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5 }}>L'IA extrait les KPIs caches, mesure l'élasticité du marché, et te dit où investir ton energie.</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Je vise un poste précis</div>
+            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5 }}>L'IA extrait les KPIs cachés, mesure l'élasticité du marché, et te dit où investir ton énergie.</div>
           </button>
           <button onClick={function() { setMode("passif"); }} style={{
             background: "#0f3460", border: "2px solid #16213e", borderRadius: 12, padding: 20, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>{"\uD83D\uDC41\uFE0F"}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Je veux un diagnostic rapide</div>
-            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5 }}>L'IA scanne ton profil en 30 secondes. Tu vois ce que les recruteurs voient. Si ca te convainc, tu passes a la Forge.</div>
+            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5 }}>L'IA scanne ton profil en 30 secondes. Tu vois ce que les recruteurs voient. Si ça te convainc, tu passes à la Forge.</div>
           </button>
         </div>
       </div>
@@ -314,7 +314,7 @@ export function Onboarding({ onStart, onScan }) {
   }
 
   if (phase === "ready") {
-    var scoreLabel = "LE FOSSE";
+    var scoreLabel = "LE FOSSÉ";
     // Dynamic score based on offer signal analysis
     var detectedCount = offerSignals ? offerSignals.cauchemars.filter(function(c) { return c.detected; }).length : 0;
     var scorePct = isPassif ? 28 : (offerSignals && offerSignals.totalSignals > 0 ? Math.min(45, 20 + offerSignals.totalSignals * 3) : 32);
@@ -327,12 +327,12 @@ export function Onboarding({ onStart, onScan }) {
     }
     var scoreMsg = isPassif
       ? "Tu es visible sur " + scorePct + "% des critères que les recruteurs utilisent pour te trouver."
-      : "Tu comprends " + scorePct + "% des enjeux reels de tes offres cibles.";
+      : "Tu comprends " + scorePct + "% des enjeux réels de tes offres cibles.";
     var subMsg = isPassif
-      ? "3 KPIs cles de ton secteur t'echappent. Les recruteurs te cherchent. Ton profil ne repond pas."
+      ? "3 KPIs clés de ton secteur t'échappent. Les recruteurs te cherchent. Ton profil ne répond pas."
       : (detectedCount > 0
-        ? detectedCount + " enjeu" + (detectedCount > 1 ? "x" : "") + " critique" + (detectedCount > 1 ? "s" : "") + " detecte" + (detectedCount > 1 ? "s" : "") + " dans ton offre." + (elasticCount > 0 ? " " + elasticCount + " sur marche élastique. C'est là que tu dois frapper." : "")
-        : "3 KPIs t'echappent. La Forge va les extraire de ton parcours.");
+        ? detectedCount + " enjeu" + (detectedCount > 1 ? "x" : "") + " critique" + (detectedCount > 1 ? "s" : "") + " détecté" + (detectedCount > 1 ? "s" : "") + " dans ton offre." + (elasticCount > 0 ? " " + elasticCount + " sur marché élastique. C'est là que tu dois frapper." : "")
+        : "3 KPIs t'échappent. La Forge va les extraire de ton parcours.");
 
     // ITERATION 6 — Readiness diagnostic
     var readiness = estimateReadiness(cv, offers);
@@ -357,7 +357,7 @@ export function Onboarding({ onStart, onScan }) {
         </div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "left" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1 }}>{isPassif ? "CE QUE TU RATES" : "CAUCHEMARS DETECTES DANS L'OFFRE"}</div>
+            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1 }}>{isPassif ? "CE QUE TU RATES" : "CAUCHEMARS DÉTECTÉS DANS L'OFFRE"}</div>
             {offerSignals && offerSignals.totalSignals > 0 && (
               <span style={{ fontSize: 10, color: "#4ecca3", background: "#1a1a2e", padding: "2px 8px", borderRadius: 8 }}>{offerSignals.totalSignals} signaux</span>
             )}
@@ -393,13 +393,13 @@ export function Onboarding({ onStart, onScan }) {
           )}
         </div>
 
-        {/* ITERATION 6 — GISEMENT DETECTE */}
+        {/* ITERATION 6 — GISEMENT DÉTECTÉ */}
         {!isPassif && (
           <div style={{ background: readiness.readiness === "fort" ? "#4ecca3" + "15" : readiness.readiness === "moyen" ? "#ff9800" + "15" : "#e94560" + "15", borderRadius: 10, padding: 14, marginBottom: 16, border: "1px solid " + (readiness.readiness === "fort" ? "#4ecca3" : readiness.readiness === "moyen" ? "#ff9800" : "#e94560") }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <span style={{ fontSize: 14 }}>{readiness.readiness === "fort" ? "\u26A1" : readiness.readiness === "moyen" ? "\u26A0\uFE0F" : "\uD83D\uDEA8"}</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: readiness.readiness === "fort" ? "#4ecca3" : readiness.readiness === "moyen" ? "#ff9800" : "#e94560" }}>
-                GISEMENT DETECTE
+                GISEMENT DÉTECTÉ
               </span>
             </div>
             <div style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, marginBottom: 6 }}>
@@ -419,8 +419,8 @@ export function Onboarding({ onStart, onScan }) {
               {readiness.readiness === "fort"
                 ? "Gisement dense. La Forge va extraire des briques fortes. Tu as les chiffres et les méthodes. Les signaux de leadership sont là."
                 : readiness.readiness === "moyen"
-                ? "Gisement partiel. La Forge va extraire des briques mais certaines zones resteront floues. Prepare-toi a des missions de recuperation de données."
-                : "Gisement faible. La Forge va reveler tes trous. Beaucoup de missions. C'est honnête, pas agréable. Si tu as accès à tes anciens outils (CRM, reporting), récupère tes chiffres avant de commencer."
+                ? "Gisement partiel. La Forge va extraire des briques mais certaines zones resteront floues. Prépare-toi à des missions de récupération de données."
+                : "Gisement faible. La Forge va révéler tes trous. Beaucoup de missions. C'est honnête, pas agréable. Si tu as accès à tes anciens outils (CRM, reporting), récupère tes chiffres avant de commencer."
               }
             </div>
           </div>
@@ -432,7 +432,7 @@ export function Onboarding({ onStart, onScan }) {
             <span style={{ fontSize: 14 }}>{trajectory === "j_y_suis" ? "\uD83D\uDCCD" : "\uD83D\uDE80"}</span>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>{trajectory === "j_y_suis" ? "J'y suis" : "J'y vais"}</div>
-              <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachee dans ce que tu fais deja." : "La Forge cherche les preuves transferables vers le poste vise."}</div>
+              <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachée dans ce que tu fais déjà." : "La Forge cherche les preuves transférables vers le poste visé."}</div>
             </div>
           </div>
         )}
@@ -462,7 +462,7 @@ export function Onboarding({ onStart, onScan }) {
                 <span style={{ fontSize: 11, color: "#3498db", fontWeight: 700 }}>SIGNAL : TERRAIN ADJACENT</span>
               </div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
-                Ton profil contient des signaux compatibles avec {best.role}. La Forge precisera si tes preuves couvrent ce terrain mieux que {KPI_REFERENCE[targetRole] ? KPI_REFERENCE[targetRole].role : "ton choix"}.
+                Ton profil contient des signaux compatibles avec {best.role}. La Forge précisera si tes preuves couvrent ce terrain mieux que {KPI_REFERENCE[targetRole] ? KPI_REFERENCE[targetRole].role : "ton choix"}.
               </div>
             </div>
           );
@@ -471,14 +471,14 @@ export function Onboarding({ onStart, onScan }) {
         {isPassif ? (
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 13, color: "#8892b0", marginBottom: 16, lineHeight: 1.6 }}>
-              Voila ce que les recruteurs voient. Si tu veux changer ca, la Forge extrait tes preuves cachees, construit ton arsenal et te positionne sur les terrains élastiques.
+              Voilà ce que les recruteurs voient. Si tu veux changer ça, la Forge extrait tes preuves cachées, construit ton arsenal et te positionne sur les terrains élastiques.
             </div>
             <button onClick={function() { setMode("actif"); setPhase("input"); }} style={{
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
               color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontWeight: 700, fontSize: 16,
               boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-            }}>Passer a la Forge</button>
-            <div style={{ fontSize: 11, color: "#495670", marginTop: 10 }}>Le profil que tu as colle est déjà charge. Ajoute tes offres cibles et choisis ton poste.</div>
+            }}>Passer à la Forge</button>
+            <div style={{ fontSize: 11, color: "#495670", marginTop: 10 }}>Le profil que tu as collé est déjà chargé. Ajoute tes offres cibles et choisis ton poste.</div>
           </div>
         ) : (
           <DiagnosticScreen
@@ -542,13 +542,13 @@ export function Onboarding({ onStart, onScan }) {
           <span style={{ fontSize: 16 }}>{"\uD83D\uDC64"}</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Ton profil</span>
         </div>
-        <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle ton CV, ta bio LinkedIn, ou decris ton dernier poste.</div>
+        <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle ton CV, ta bio LinkedIn, ou décris ton dernier poste.</div>
         <textarea value={cv} onChange={function(e) { setCv(e.target.value); }}
           placeholder="Ex : Account Executive chez [Entreprise SaaS] (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR géré 1.2M euros..."
           style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
         />
         <div style={{ fontSize: 11, color: cv.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
-          {cv.trim().length > 20 ? "Suffisant" : "Minimum 20 caracteres"}
+          {cv.trim().length > 20 ? "Suffisant" : "Minimum 20 caractères"}
         </div>
       </div>
       {!isPassif && (
@@ -557,13 +557,13 @@ export function Onboarding({ onStart, onScan }) {
             <span style={{ fontSize: 16 }}>{"\uD83C\uDFAF"}</span>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Tes cibles</span>
           </div>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 a 3 offres d'emploi, ou decris le poste que tu vises.</div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 à 3 offres d'emploi, ou décris le poste que tu vises.</div>
           <textarea value={offers} onChange={function(e) { setOffers(e.target.value); }}
             placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. Salesforce requis. OTE 80-120K euros..."
             style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
           <div style={{ fontSize: 11, color: offers.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
-            {offers.trim().length > 20 ? "Suffisant" : "Minimum 20 caracteres"}
+            {offers.trim().length > 20 ? "Suffisant" : "Minimum 20 caractères"}
           </div>
         </div>
       )}
@@ -574,7 +574,7 @@ export function Onboarding({ onStart, onScan }) {
             <span style={{ fontSize: 16 }}>{"\uD83D\uDCBC"}</span>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Ton poste cible</span>
           </div>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12 }}>Choisis la famille de metier. L'IA classe tes briques contre les 5 KPIs de ce poste.</div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12 }}>Choisis la famille de métier. L'IA classe tes briques contre les 5 KPIs de ce poste.</div>
 
           {blocNames.map(function(blocName) {
             return (
@@ -616,7 +616,7 @@ export function Onboarding({ onStart, onScan }) {
               })}
               <div style={{ borderTop: "1px solid #16213e", marginTop: 8, paddingTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 12 }}>{"\uD83D\uDD54"}</span>
-                <span style={{ fontSize: 11, color: "#ccd6f6" }}>Rendez-vous de Souverainete : {KPI_REFERENCE[targetRole].cadenceLabel}</span>
+                <span style={{ fontSize: 11, color: "#ccd6f6" }}>Rendez-vous de Souveraineté : {KPI_REFERENCE[targetRole].cadenceLabel}</span>
                 <span style={{ fontSize: 9, color: "#495670" }}>({KPI_REFERENCE[targetRole].cadence}j)</span>
               </div>
               <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>{KPI_REFERENCE[targetRole].cadenceReason}</div>
@@ -626,7 +626,7 @@ export function Onboarding({ onStart, onScan }) {
           {/* ITERATION 1 — TOGGLE "J'Y SUIS / J'Y VAIS" */}
           {targetRole && (
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 700, marginBottom: 8 }}>Tu y es déjà ou tu veux y acceder ?</div>
+              <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 700, marginBottom: 8 }}>Tu y es déjà ou tu veux y accéder ?</div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={function() { setTrajectory("j_y_suis"); }} style={{
                   flex: 1, padding: "14px 8px",
@@ -636,7 +636,7 @@ export function Onboarding({ onStart, onScan }) {
                 }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{"\uD83D\uDCCD"}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: trajectory === "j_y_suis" ? "#e94560" : "#ccd6f6" }}>J'y suis</div>
-                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je fais déjà ce metier. Je veux etre mieux positionne.</div>
+                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je fais déjà ce métier. Je veux être mieux positionné.</div>
                 </button>
                 <button onClick={function() { setTrajectory("j_y_vais"); }} style={{
                   flex: 1, padding: "14px 8px",
@@ -646,15 +646,15 @@ export function Onboarding({ onStart, onScan }) {
                 }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{"\uD83D\uDE80"}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: trajectory === "j_y_vais" ? "#e94560" : "#ccd6f6" }}>J'y vais</div>
-                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je vise ce metier. Je viens d'un autre poste.</div>
+                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je vise ce métier. Je viens d'un autre poste.</div>
                 </button>
               </div>
               {trajectory && (
                 <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginTop: 8 }}>
                   <div style={{ fontSize: 11, color: trajectory === "j_y_suis" ? "#4ecca3" : "#3498db", lineHeight: 1.5 }}>
                     {trajectory === "j_y_suis"
-                      ? "La Forge va chercher la valeur cachee dans ce que tu fais deja. Quels accomplissements valent cher ? Lesquels ne valent plus rien face a l'IA ? L'angle est : tu es expert, montre-le."
-                      : "La Forge va chercher les preuves transferables dans ton expérience. Quels indicateurs du poste vise couvres-tu déjà ? Quels trous faut-il combler ? L'angle est : tu as fait le travail, tu n'avais pas le titre."
+                      ? "La Forge va chercher la valeur cachée dans ce que tu fais déjà. Quels accomplissements valent cher ? Lesquels ne valent plus rien face à l'IA ? L'angle est : tu es expert, montre-le."
+                      : "La Forge va chercher les preuves transférables dans ton expérience. Quels indicateurs du poste visé couvres-tu déjà ? Quels trous faut-il combler ? L'angle est : tu as fait le travail, tu n'avais pas le titre."
                     }
                   </div>
                 </div>

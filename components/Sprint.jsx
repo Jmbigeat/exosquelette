@@ -283,13 +283,13 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <button onClick={function() { setActiveStep(1); }} style={{
               width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
               border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-            }}>Passer a la Forge {"\u2192"}</button>
+            }}>Passer à la Forge {"\u2192"}</button>
           )}
           {allSeedsDone && !density.unlocks.forge && (
             <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
               <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"🔒"} Verrou de Blindage</div>
               <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-                Il faut au moins 3 briques validees pour passer a la Forge. Tu en as {density.details.brickCount}. Ajoute des briques ou valide celles en attente.
+                Il faut au moins 3 briques validées pour passer à la Forge. Tu en as {density.details.brickCount}. Ajoute des briques ou valide celles en attente.
               </div>
             </div>
           )}
@@ -302,26 +302,26 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         <div>
           {density.unlocks.armement ? (
             <div>
-              <Locked title="Affutage" desc="Audit CV, prises de position, rapport d'impact." />
+              <Locked title="Affûtage" desc="Audit CV, prises de position, rapport d'impact." />
               <button onClick={function() { setActiveStep(3); }} style={{
                 width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
                 border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-              }}>Passer a l'Armement {"\u2192"}</button>
+              }}>Passer à l'Armement {"\u2192"}</button>
             </div>
           ) : (
             <div>
-              <Locked title="Affutage" desc="Audit CV, prises de position, rapport d'impact." />
+              <Locked title="Affûtage" desc="Audit CV, prises de position, rapport d'impact." />
               <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
                 <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"\uD83D\uDD12"} Densité insuffisante : {density.score}%</div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-                  L'Armement s'ouvre a 70%. {density.details.blindedCount === 0 ? "Aucune brique blindee. Corrige et enrichis tes briques." : density.details.blindedRatio + "% de briques blindees. Continue."}
+                  L'Armement s'ouvre à 70%. {density.details.blindedCount === 0 ? "Aucune brique blindée. Corrige et enrichis tes briques." : density.details.blindedRatio + "% de briques blindées. Continue."}
                   {density.details.cauchemarCoverage < 3 ? " " + (3 - density.details.cauchemarCoverage) + " cauchemar" + (3 - density.details.cauchemarCoverage > 1 ? "s" : "") + " non couvert" + (3 - density.details.cauchemarCoverage > 1 ? "s" : "") + "." : ""}
                   {!density.details.hasCicatrice ? " Aucune cicatrice assumée." : ""}
                 </div>
                 <button onClick={function() { setActiveStep(0); }} style={{
                   marginTop: 10, padding: "8px 20px", background: "#0f3460", color: "#ccd6f6",
                   border: "1px solid #e94560", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 12,
-                }}>{"\u2190"} Retour a l'Interrogatoire</button>
+                }}>{"\u2190"} Retour à l'Interrogatoire</button>
               </div>
             </div>
           )}
@@ -350,7 +350,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               Densité : {density.score}%
             </span>
             <span>
-              {density.score < 50 ? "Verrou actif \u2014 blinde tes briques" : density.score < 70 ? "Seuil de sortie : 70%" : "\uD83D\uDD13 Arsenal pret"}
+              {density.score < 50 ? "Verrou actif \u2014 blinde tes briques" : density.score < 70 ? "Seuil de sortie : 70%" : "\uD83D\uDD13 Arsenal prêt"}
             </span>
           </div>
           <Bar pct={density.score} />
@@ -366,7 +366,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         <div style={{ marginBottom: 12 }}>
           <button onClick={function() {
             if (!urgenceMode) {
-              if (confirm("L'Etabli : tes scripts seront generes avec les briques disponibles, blindees ou non. Un script sans preuve chiffree ouvre une conversation. Il ne la ferme pas. Activer ?")) {
+              if (confirm("L'Établi : tes scripts seront générés avec les briques disponibles, blindées ou non. Un script sans preuve chiffrée ouvre une conversation. Il ne la ferme pas. Activer ?")) {
                 setUrgenceMode(true);
               }
             } else {
@@ -380,7 +380,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 14 }}>{urgenceMode ? "\u26A1" : "\u26A1"}</span>
               <span style={{ fontSize: 12, color: urgenceMode ? "#e94560" : "#495670", fontWeight: 700 }}>
-                {urgenceMode ? "ETABLI ACTIF" : "Activer l'Etabli"}
+                {urgenceMode ? "ÉTABLI ACTIF" : "Activer l'Établi"}
               </span>
             </div>
             <div style={{
@@ -394,7 +394,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             </div>
           </button>
           {!urgenceMode && (
-            <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Active l'Etabli pour recevoir tes scripts et CV pendant la Forge.</div>
+            <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Active l'Établi pour recevoir tes scripts et CV pendant la Forge.</div>
           )}
         </div>
       )}
@@ -405,11 +405,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             var bl = v.filter(function(b) { return b.blinded; });
             var cov = computeCauchemarCoverage(bricks).filter(function(c) { return c.covered; });
             var mis = bricks.filter(function(b) { return b.type === "mission"; });
-            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forgee" + (v.length > 1 ? "s" : "") + ". "
-              + bl.length + " blindee" + (bl.length > 1 ? "s" : "") + ". "
+            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forgée" + (v.length > 1 ? "s" : "") + ". "
+              + bl.length + " blindée" + (bl.length > 1 ? "s" : "") + ". "
               + cov.length + " cauchemar" + (cov.length > 1 ? "s" : "") + " couvert" + (cov.length > 1 ? "s" : "") + "."
               + (mis.length > 0 ? " " + mis.length + " mission" + (mis.length > 1 ? "s" : "") + " en attente." : "")
-              + "\n\nTon Coffre-Fort est sauvegarde. Tu reviens quand tu veux.";
+              + "\n\nTon Coffre-Fort est sauvegardé. Tu reviens quand tu veux.";
             if (confirm(summary)) { setSprintDone(true); }
           }} style={{
             width: "100%", padding: "10px 16px", background: "none",

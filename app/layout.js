@@ -1,6 +1,6 @@
 export const metadata = {
   title: "L Exosquelette - Sprint Carriere",
-  description: "Extrais tes preuves. Mesure ta rarete. Arme-toi.",
+  description: "Extrais tes preuves. Mesure ta rareté. Arme-toi.",
 };
 
 export default function RootLayout({ children }) {

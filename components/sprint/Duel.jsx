@@ -7,7 +7,7 @@ var DUEL_CRISES = [
   {
     id: 1,
     trigger: "Le recruteur regarde son telephone. Il revient vers toi.",
-    scenario: "On vient de m'informer que votre ancien employeur annonce un plan de restructuration. 15% des effectifs. Votre équipe est impactee. Qu'est-ce que ca change a ce que vous venez de me dire ?",
+    scenario: "On vient de m'informer que votre ancien employeur annonce un plan de restructuration. 15% des effectifs. Votre équipe est impactée. Qu'est-ce que ça change à ce que vous venez de me dire ?",
     diagnostic: {
       externalize: ["c'etait previsible", "je le savais", "rien a voir avec moi", "la direction"],
       recadre: ["mon impact reste", "mes résultats", "la méthode fonctionne", "independamment", "reproductible"],
@@ -25,7 +25,7 @@ var DUEL_CRISES = [
   {
     id: 3,
     trigger: "Le recruteur pose son stylo et croise les bras.",
-    scenario: "Soyons honnetes. Votre CV est bon mais pas exceptionnel. J'en vois dix comme ca par semaine. Qu'est-ce qui fait que je vais me souvenir de vous demain ?",
+    scenario: "Soyons honnêtes. Votre CV est bon mais pas exceptionnel. J'en vois dix comme ça par semaine. Qu'est-ce qui fait que je vais me souvenir de vous demain ?",
     diagnostic: {
       externalize: ["je suis unique", "je travaille dur", "je suis passionne", "j'aime"],
       recadre: ["trois cauchemars", "voici le problème que je resous", "la preuve", "mesurable", "reproductible", "mon arbitrage"],
@@ -34,10 +34,10 @@ var DUEL_CRISES = [
 ];
 
 var DUEL_CONTRADICTIONS = [
-  "Votre ancien manager m'a donne une version differente. Que repondez-vous ?",
-  "J'ai parle a quelqu'un dans votre ancienne équipe. Il dit que c'etait un effort collectif, pas individuel. Votre reaction ?",
+  "Votre ancien manager m'a donné une version différente. Que répondez-vous ?",
+  "J'ai parlé à quelqu'un dans votre ancienne équipe. Il dit que c'était un effort collectif, pas individuel. Votre reaction ?",
   "Un de vos ex-collègues m'a dit que le contexte était favorable et que n'importe qui aurait obtenu ces résultats. Comment répondez-vous ?",
-  "Les chiffres que vous annoncez ne correspondent pas a ce que j'ai vu dans le marché. Vous etes sur de vos données ?",
+  "Les chiffres que vous annoncez ne correspondent pas à ce que j'ai vu dans le marché. Vous êtes sûr de vos données ?",
 ];
 
 function hashCode(str) {
@@ -108,9 +108,9 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
     var extCount = 0; var recCount = 0;
     crisis.diagnostic.externalize.forEach(function(m) { if (lower.indexOf(m) !== -1) extCount++; });
     crisis.diagnostic.recadre.forEach(function(m) { if (lower.indexOf(m) !== -1) recCount++; });
-    if (recCount > extCount) return { verdict: "recadrage", color: "#4ecca3", msg: "Tu as recadre sur ta valeur. Reflexe de positionnement." };
-    if (extCount > recCount) return { verdict: "externalisation", color: "#ff9800", msg: "Tu as externalise. Le recruteur lit : cette personne subit les événements au lieu de les cadrer." };
-    return { verdict: "neutre", color: "#8892b0", msg: "Reponse neutre. Ni externalisation ni recadrage clair. En entretien, l'absence de positionnement est un positionnement : celui du suiveur." };
+    if (recCount > extCount) return { verdict: "recadrage", color: "#4ecca3", msg: "Tu as recadré sur ta valeur. Réflexe de positionnement." };
+    if (extCount > recCount) return { verdict: "externalisation", color: "#ff9800", msg: "Tu as externalisé. Le recruteur lit : cette personne subit les événements au lieu de les cadrer." };
+    return { verdict: "neutre", color: "#8892b0", msg: "Réponse neutre. Ni externalisation ni recadrage clair. En entretien, l'absence de positionnement est un positionnement : celui du suiveur." };
   }
 
   if (phase === "setup") {
@@ -150,30 +150,30 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
   if (phase === "discovery") {
     var discoveryQs = {
       enterprise_ae: "Quels sont les enjeux de croissance principaux de votre équipe cette année ?",
-      head_of_growth: "Quel canal d'acquisition vous preoccupe le plus en ce moment ?",
-      strategic_csm: "Quel est le segment de clients qui généré le plus de friction aujourd'hui ?",
-      senior_pm: "Quel est l'arbitrage produit le plus difficile que l'équipe n'a pas encore tranche ?",
-      ai_architect: "Quel cas d'usage IA est bloque depuis le plus longtemps ?",
-      engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas a debloquer ?",
-      management_consultant: "Quel est le problème qui a declenche ce recrutement ?",
-      strategy_associate: "Quelle decision stratégique attend des données que personne ne produit ?",
+      head_of_growth: "Quel canal d'acquisition vous préoccupe le plus en ce moment ?",
+      strategic_csm: "Quel est le segment de clients qui génère le plus de friction aujourd'hui ?",
+      senior_pm: "Quel est l'arbitrage produit le plus difficile que l'équipe n'a pas encore tranché ?",
+      ai_architect: "Quel cas d'usage IA est bloqué depuis le plus longtemps ?",
+      engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas à débloquer ?",
+      management_consultant: "Quel est le problème qui a déclenché ce recrutement ?",
+      strategy_associate: "Quelle décision stratégique attend des données que personne ne produit ?",
       operations_manager: "Quelle friction inter-équipes consomme le plus de temps ?",
       fractional_coo: "Qu'est-ce que le CEO ne devrait plus faire lui-même dans 6 mois ?",
     };
-    var roleDiscovery = discoveryQs[targetRoleId] || "Avant que je deroule mon parcours, quels sont vos enjeux cles sur ce poste ?";
-    var altDiscovery = "Quelle partie de mon parcours voulez-vous que je developpe en priorite ?";
+    var roleDiscovery = discoveryQs[targetRoleId] || "Avant que je déroule mon parcours, quels sont vos enjeux clés sur ce poste ?";
+    var altDiscovery = "Quelle partie de mon parcours voulez-vous que je développe en priorité ?";
     var triggerDiscovery = "Qu'est-ce qui a déclenché ce recrutement ?";
     var antiProfileDiscovery = "Quel profil ne voulez-vous surtout pas reproduire ?";
     return (
       <div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid #3498db" }}>
           <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, letterSpacing: 1, marginBottom: 10 }}>COACHING PRE-DUEL</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6", marginBottom: 12 }}>Avant de repondre, pose une question.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6", marginBottom: 12 }}>Avant de répondre, pose une question.</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.7, marginBottom: 16 }}>
             Le piège le plus courant des profils seniors : le monologue. Tu racontes pendant 6 minutes. Le recruteur décroche après 90 secondes. Pas parce que tu es mauvais. Parce que tu n'as pas calibré.
           </div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.7, marginBottom: 16 }}>
-            Avant chaque réponse, pose une de ces questions au recruteur. Il te donnera la cible. Tu réponds avec la brique qui matche. Chaque mot que tu prononces est pertinent parce qu'il l'a demande.
+            Avant chaque réponse, pose une de ces questions au recruteur. Il te donnera la cible. Tu réponds avec la brique qui matche. Chaque mot que tu prononces est pertinent parce qu'il l'a demandé.
           </div>
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
             <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>QUESTION DISCOVERY (adaptée à ton rôle)</div>
@@ -192,12 +192,12 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
             <div style={{ fontSize: 14, color: "#ccd6f6", fontStyle: "italic", lineHeight: 1.5 }}>"{altDiscovery}"</div>
           </div>
           <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.5, marginTop: 12 }}>
-            Un vrai senior n'est pas celui qui en dit le plus. C'est celui qui ecoute et cible. Il articule son vecu autour du problème de l'autre.
+            Un vrai senior n'est pas celui qui en dit le plus. C'est celui qui écoute et cible. Il articule son vécu autour du problème de l'autre.
           </div>
           <div style={{ background: "#9b59b6" + "15", borderRadius: 8, padding: 12, marginTop: 12, border: "1px solid #9b59b6" + "33" }}>
             <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600, marginBottom: 4 }}>IN MEDIA RES</div>
             <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-              Quand le recruteur te pose une question, ta premiere phrase est un chiffre ou un resultat. Le contexte vient apres. Pas avant. "J'ai reduit le cycle de 14 a 9 jours" puis le comment. Jamais l'inverse.
+              Quand le recruteur te pose une question, ta première phrase est un chiffre ou un résultat. Le contexte vient après. Pas avant. "J'ai réduit le cycle de 14 à 9 jours" puis le comment. Jamais l'inverse.
             </div>
           </div>
           <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 12, marginTop: 12, border: "1px solid #e94560" + "33" }}>
@@ -218,13 +218,13 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
   if (phase === "pitch_chrono") {
     var pitchTake = bricks.find(function(b) { return b.brickType === "take" && b.status === "validated"; });
     var pitchBricks = bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; }).slice(0, 3);
-    var pitchDiscoveryQ = pitchBricks.length > 0 && pitchBricks[0].discoveryQuestions && pitchBricks[0].discoveryQuestions.length > 0 ? pitchBricks[0].discoveryQuestions[0] : "Quel est le probleme que ce poste resout en priorite ?";
+    var pitchDiscoveryQ = pitchBricks.length > 0 && pitchBricks[0].discoveryQuestions && pitchBricks[0].discoveryQuestions.length > 0 ? pitchBricks[0].discoveryQuestions[0] : "Quel est le problème que ce poste résout en priorité ?";
 
     var chronoBlocs = [
-      { label: "CAUCHEMAR", time: "0-15s", color: "#e94560", content: pitchTake ? pitchTake.text : "Definis ton Take dans les Piliers.", hint: "Ouvre sur le probleme du decideur. Pas sur toi." },
-      { label: "PREUVE 1", time: "15-30s", color: "#4ecca3", content: pitchBricks[0] ? pitchBricks[0].text : "Brique manquante.", hint: "Un chiffre. Un contexte. Un resultat." },
-      { label: "PREUVE 2", time: "30-45s", color: "#4ecca3", content: pitchBricks[1] ? pitchBricks[1].text : "Brique manquante.", hint: "Preuve complementaire. Autre angle." },
-      { label: "METHODE", time: "45-70s", color: "#3498db", content: pitchBricks[2] ? pitchBricks[2].text : "Comment tu transfères ici.", hint: "Ce que tu feras chez eux. Pas ce que tu as fait ailleurs." },
+      { label: "CAUCHEMAR", time: "0-15s", color: "#e94560", content: pitchTake ? pitchTake.text : "Définis ton Take dans les Piliers.", hint: "Ouvre sur le problème du décideur. Pas sur toi." },
+      { label: "PREUVE 1", time: "15-30s", color: "#4ecca3", content: pitchBricks[0] ? pitchBricks[0].text : "Brique manquante.", hint: "Un chiffre. Un contexte. Un résultat." },
+      { label: "PREUVE 2", time: "30-45s", color: "#4ecca3", content: pitchBricks[1] ? pitchBricks[1].text : "Brique manquante.", hint: "Preuve complémentaire. Autre angle." },
+      { label: "MÉTHODE", time: "45-70s", color: "#3498db", content: pitchBricks[2] ? pitchBricks[2].text : "Comment tu transfères ici.", hint: "Ce que tu feras chez eux. Pas ce que tu as fait ailleurs." },
       { label: "QUESTION", time: "70-90s", color: "#ff9800", content: pitchDiscoveryQ, hint: "Tu reprends le cadre. Le recruteur parle." },
     ];
 
@@ -240,10 +240,10 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
     var setPitchInterruptResponse = pitchInterruptResponseState[1];
 
     var pitchInterruptions = [
-      "Stop. Le recruteur vous coupe : 'C'etait un effort d'equipe, non ? Quelle etait votre contribution individuelle ?'",
+      "Stop. Le recruteur vous coupe : 'C'était un effort d'équipe, non ? Quelle était votre contribution individuelle ?'",
       "Stop. Le recruteur vous coupe : 'Ce chiffre est impressionnant. Mais c'est aussi le contexte qui aidait, non ?'",
       "Stop. Le recruteur vous coupe : 'Attendez. Comment vous savez que c'est reproductible ici ?'",
-      "Stop. Le recruteur vous coupe : 'Votre predecesseur avait lance le chantier. Quel est votre merite personnel ?'",
+      "Stop. Le recruteur vous coupe : 'Votre prédécesseur avait lancé le chantier. Quel est votre mérite personnel ?'",
       "Stop. Le recruteur vous coupe : 'On a eu 200 candidatures. En une phrase : pourquoi vous ?'",
     ];
     var selectedInterruption = pitchInterruptions[Math.abs(hashCode(ctx.company + ctx.role + "pitchint")) % pitchInterruptions.length];
@@ -253,7 +253,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid #9b59b6" }}>
           <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>PITCH 90 SECONDES — CHRONO</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.7, marginBottom: 16 }}>
-            Pas de texte a reciter. Une structure a suivre. 5 blocs. 90 secondes. Le chrono donne le rythme. Tes mots viennent de toi.
+            Pas de texte à réciter. Une structure à suivre. 5 blocs. 90 secondes. Le chrono donne le rythme. Tes mots viennent de toi.
           </div>
 
           {chronoBlocs.map(function(bloc, bi) {
@@ -275,7 +275,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
 
           {!pitchInterrupted && (
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 8 }}>ENTRAINEMENT : prononce ton pitch a voix haute. Puis clique.</div>
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 8 }}>ENTRAÎNEMENT : prononce ton pitch à voix haute. Puis clique.</div>
               <button onClick={function() { setPitchInterrupted(true); }} style={{
                 width: "100%", padding: 14, background: "#e94560" + "22", color: "#e94560",
                 border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
@@ -286,9 +286,9 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
           {pitchInterrupted && !pitchInterruptResponse && (
             <div style={{ marginTop: 16, background: "#e94560" + "15", borderRadius: 10, padding: 16, border: "1px solid #e94560" + "33" }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#e94560", marginBottom: 10 }}>{selectedInterruption}</div>
-              <div style={{ fontSize: 11, color: "#8892b0", marginBottom: 8 }}>Le recruteur ne te laisse pas finir. C'est fait expres. Reprends le cadre.</div>
+              <div style={{ fontSize: 11, color: "#8892b0", marginBottom: 8 }}>Le recruteur ne te laisse pas finir. C'est fait exprès. Reprends le cadre.</div>
               <textarea value={pitchAnswer} onChange={function(e) { setPitchAnswer(e.target.value); }}
-                placeholder="Ta reponse a l'interruption..."
+                placeholder="Ta réponse à l'interruption..."
                 style={{ width: "100%", minHeight: 70, padding: 12, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 8 }}
               />
               <button onClick={function() {
@@ -297,7 +297,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
                   setEntropyLog(function(prev) { return prev.concat([{
                     type: "pitch_interrupt", scenario: selectedInterruption,
                     answer: pitchAnswer.trim(), color: "#9b59b6",
-                    diagnostic: "Le recruteur teste ta capacite a tenir ta ligne quand il te coupe. Ta reponse montre si tu reprends le cadre ou si tu le perds."
+                    diagnostic: "Le recruteur teste ta capacité à tenir ta ligne quand il te coupe. Ta réponse montre si tu reprends le cadre ou si tu le perds."
                   }]); });
                 }
               }} disabled={pitchAnswer.trim().length < 10} style={{
@@ -311,10 +311,10 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
 
           {pitchInterruptResponse && (
             <div style={{ marginTop: 16, background: "#4ecca3" + "15", borderRadius: 10, padding: 16, border: "1px solid #4ecca3" + "33" }}>
-              <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 600, marginBottom: 6 }}>INTERRUPTION ENCAISSEE</div>
-              <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 8 }}>Ta reponse : "{pitchInterruptResponse}"</div>
+              <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 600, marginBottom: 6 }}>INTERRUPTION ENCAISSÉE</div>
+              <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 8 }}>Ta réponse : "{pitchInterruptResponse}"</div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
-                En entretien reel, le recruteur coupe pour tester ta resistance. Le candidat qui panique reformule tout depuis le debut. Le candidat prepare repond a l'objection en une phrase et reprend son fil. Tu viens de t'entrainer a reprendre le fil.
+                En entretien réel, le recruteur coupe pour tester ta résistance. Le candidat qui panique reformule tout depuis le début. Le candidat préparé répond à l'objection en une phrase et reprend son fil. Tu viens de t'entraîner à reprendre le fil.
               </div>
             </div>
           )}
@@ -340,7 +340,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>{"\uD83D\uDEE1\uFE0F"}</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>Duel terminé.</div>
-          <div style={{ fontSize: 13, color: "#8892b0" }}>{answered.length} réponse{answered.length > 1 ? "s" : ""} forgée{answered.length > 1 ? "s" : ""}. {entropyLog.length} événement{entropyLog.length > 1 ? "s" : ""} imprevu{entropyLog.length > 1 ? "s" : ""}.</div>
+          <div style={{ fontSize: 13, color: "#8892b0" }}>{answered.length} réponse{answered.length > 1 ? "s" : ""} forgée{answered.length > 1 ? "s" : ""}. {entropyLog.length} événement{entropyLog.length > 1 ? "s" : ""} imprévu{entropyLog.length > 1 ? "s" : ""}.</div>
         </div>
         {results.map(function(r, i) {
           return (
@@ -355,7 +355,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         {/* ENTROPY EVENTS RECAP */}
         {entropyLog.length > 0 && (
           <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>{"\u26A1"} EVENEMENTS IMPREVUS ({entropyLog.length})</div>
+            <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>{"\u26A1"} ÉVÉNEMENTS IMPRÉVUS ({entropyLog.length})</div>
             {entropyLog.map(function(ev, i) {
               var typeLabel = ev.type === "crisis" ? "\uD83D\uDEA8 Crise" : ev.type === "contradiction" ? "\u2694\uFE0F Contradiction" : ev.type === "pitch_interrupt" ? "\uD83C\uDFA4 Interruption Pitch" : "\uD83E\uDD10 Silence";
               return (
@@ -426,12 +426,12 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid " + (lastCrisisLog ? lastCrisisLog.color : "#8892b0") }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 10 }}>{"\uD83D\uDEA8"} DIAGNOSTIC DE CRISE</div>
           <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 10 }}>{lastCrisisLog ? lastCrisisLog.diagnostic : ""}</div>
-          <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.5 }}>En entretien, les crises arrivent. Le recruteur pose une mine pour voir comment tu reagis sous pression. Ce n'etait pas prevu. C'est le point.</div>
+          <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.5 }}>En entretien, les crises arrivent. Le recruteur pose une mine pour voir comment tu réagis sous pression. Ce n'était pas prévu. C'est le point.</div>
         </div>
         <button onClick={function() { setCrisisAnswer(""); setPhase("feedback"); }} style={{
           width: "100%", padding: 14, background: "#0f3460", color: "#ccd6f6",
           border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-        }}>Retour a la question {"\u2192"}</button>
+        }}>Retour à la question {"\u2192"}</button>
       </div>
     );
   }
@@ -442,11 +442,11 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
       <div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16, borderLeft: "3px solid #9b59b6" }}>
           <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600, letterSpacing: 1, marginBottom: 10 }}>{"\u2694\uFE0F"} RELANCE CONTRADICTOIRE</div>
-          <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>Le recruteur ne passe pas a la question suivante. Il te regarde et dit :</div>
+          <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>Le recruteur ne passe pas à la question suivante. Il te regarde et dit :</div>
           <div style={{ fontSize: 15, color: "#ccd6f6", lineHeight: 1.6, fontStyle: "italic" }}>"{activeContradict}"</div>
         </div>
         <textarea value={contradictAnswer} onChange={function(e) { setContradictAnswer(e.target.value); }}
-          placeholder="Defends ta position ou nuance-la."
+          placeholder="Défends ta position ou nuance-la."
           style={{ width: "100%", minHeight: 80, padding: 14, background: "#1a1a2e", border: "2px solid #9b59b6", borderRadius: 10, color: "#ccd6f6", fontSize: 14, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 4 }}
         />
         <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
@@ -456,7 +456,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
             var defends = lower.indexOf("je maintiens") !== -1 || lower.indexOf("les chiffres") !== -1 || lower.indexOf("la preuve") !== -1 || lower.indexOf("je confirme") !== -1 || lower.indexOf("mesurable") !== -1;
             var nuances = lower.indexOf("c'est vrai que") !== -1 || lower.indexOf("effectivement") !== -1 || lower.indexOf("je reconnais") !== -1 || lower.indexOf("en partie") !== -1;
             var folds = lower.indexOf("vous avez raison") !== -1 || lower.indexOf("je comprends") !== -1 || lower.indexOf("peut-etre") !== -1;
-            var diagMsg = defends ? "Tu as tenu ta position avec des faits. Le recruteur respecte la solidite." : nuances ? "Tu as nuance intelligemment. Le recruteur voit de la maturité." : folds ? "Tu as plie. Le recruteur lit : cette personne doute de ses propres résultats." : "Reponse lue. En entretien, la contradiction teste si tu crois a tes propres chiffres.";
+            var diagMsg = defends ? "Tu as tenu ta position avec des faits. Le recruteur respecte la solidité." : nuances ? "Tu as nuancé intelligemment. Le recruteur voit de la maturité." : folds ? "Tu as plié. Le recruteur lit : cette personne doute de ses propres résultats." : "Réponse lue. En entretien, la contradiction teste si tu crois à tes propres chiffres.";
             var diagColor = defends ? "#4ecca3" : nuances ? "#3498db" : folds ? "#e94560" : "#8892b0";
             setEntropyLog(function(prev) { return prev.concat([{ type: "contradiction", scenario: activeContradict, answer: contradictAnswer.trim(), diagnostic: diagMsg, color: diagColor }]); });
             setContradictAnswer("");
@@ -466,7 +466,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
             background: contradictAnswer.trim().length >= 10 ? "linear-gradient(135deg, #9b59b6, #8e44ad)" : "#1a1a2e",
             color: contradictAnswer.trim().length >= 10 ? "#fff" : "#495670",
             border: "none", borderRadius: 10, cursor: contradictAnswer.trim().length >= 10 ? "pointer" : "default", fontWeight: 700, fontSize: 14,
-          }}>Repondre</button>
+          }}>Répondre</button>
         </div>
       </div>
     );
@@ -493,7 +493,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
-            setEntropyLog(function(prev) { return prev.concat([{ type: "silence", scenario: "C'est tout ?", answer: "J'ai tenu ma position.", diagnostic: "Tu as tenu ta réponse. Conviction affichee. Le recruteur note : cette personne ne doute pas de ce qu'elle dit.", color: "#4ecca3" }]); });
+            setEntropyLog(function(prev) { return prev.concat([{ type: "silence", scenario: "C'est tout ?", answer: "J'ai tenu ma position.", diagnostic: "Tu as tenu ta réponse. Conviction affichée. Le recruteur note : cette personne ne doute pas de ce qu'elle dit.", color: "#4ecca3" }]); });
             setSilenceUsed(true);
             setPhase("feedback");
           }} style={{
@@ -503,7 +503,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
           <button onClick={function() { setPhase("silence_complete"); }} style={{
             flex: 1, padding: 14, background: "#0f3460", color: "#ff9800",
             border: "2px solid #ff9800", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-          }}>Non, je complete...</button>
+          }}>Non, je complète...</button>
         </div>
       </div>
     );
@@ -513,8 +513,8 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
     return (
       <div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 16, borderLeft: "3px solid #ff9800" }}>
-          <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>TU COMPLETES</div>
-          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tu as choisi de completer. Le recruteur ecoute. Mais il a note que tu as doute de ta première réponse.</div>
+          <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, letterSpacing: 1, marginBottom: 6 }}>TU COMPLÈTES</div>
+          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tu as choisi de compléter. Le recruteur écoute. Mais il a noté que tu as douté de ta première réponse.</div>
         </div>
         <textarea value={silenceAnswer} onChange={function(e) { setSilenceAnswer(e.target.value); }}
           placeholder="Ce que tu ajoutes..."
@@ -523,9 +523,9 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
         <button onClick={function() {
           if (silenceAnswer.trim().length < 5) return;
           var hasNewInfo = silenceAnswer.trim().split(/\s+/).length > 10;
-          var diagMsg = hasNewInfo ? "Tu as ajoute du contenu substantiel. Le recruteur lit : cette personne approfondit sous pression. Positif." : "Tu as ajoute peu. Le recruteur lit : doute sur la première réponse, mais rien de neuf. Negatif.";
+          var diagMsg = hasNewInfo ? "Tu as ajouté du contenu substantiel. Le recruteur lit : cette personne approfondit sous pression. Positif." : "Tu as ajouté peu. Le recruteur lit : doute sur la première réponse, mais rien de neuf. Négatif.";
           var diagColor = hasNewInfo ? "#3498db" : "#ff9800";
-          setEntropyLog(function(prev) { return prev.concat([{ type: "silence", scenario: "C'est tout ? (complete)", answer: silenceAnswer.trim(), diagnostic: diagMsg, color: diagColor }]); });
+          setEntropyLog(function(prev) { return prev.concat([{ type: "silence", scenario: "C'est tout ? (complété)", answer: silenceAnswer.trim(), diagnostic: diagMsg, color: diagColor }]); });
           setSilenceUsed(true);
           setSilenceAnswer("");
           setPhase("feedback");
@@ -534,7 +534,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
           background: silenceAnswer.trim().length >= 5 ? "#0f3460" : "#1a1a2e",
           color: silenceAnswer.trim().length >= 5 ? "#ccd6f6" : "#495670",
           border: "2px solid #ff9800", borderRadius: 10, cursor: silenceAnswer.trim().length >= 5 ? "pointer" : "default", fontWeight: 700, fontSize: 14,
-        }}>Soumettre le complement</button>
+        }}>Soumettre le complément</button>
       </div>
     );
   }
@@ -544,7 +544,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
     return (
       <div>
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 10 }}>ANALYSE DE TA REPONSE</div>
+          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 10 }}>ANALYSE DE TA RÉPONSE</div>
           {lastResult && lastResult.wordWarning && (
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid #ff9800" }}>
               <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>LONGUEUR</div>
@@ -556,25 +556,25 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{q.danger}</div>
           </div>
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, borderLeft: "3px solid #4ecca3" }}>
-            <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>L'ANGLE RECOMMANDE</div>
+            <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>L'ANGLE RECOMMANDÉ</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{q.idealAngle}</div>
           </div>
 
           {/* ROLE MIRROR FEEDBACK — Item 3 */}
           {lastResult && lastResult.wordWarning && (function() {
             var roleMirrors = {
-              enterprise_ae: "En poste, tu laisserais le client driver le deal. Le prospect decroche après 90 secondes.",
-              head_of_growth: "En poste, tu noierais le board dans les metriques au lieu de montrer le levier.",
-              strategic_csm: "En poste, ton QBR durerait 45 minutes au lieu de 15. Le client decroche.",
+              enterprise_ae: "En poste, tu laisserais le client driver le deal. Le prospect décroche après 90 secondes.",
+              head_of_growth: "En poste, tu noierais le board dans les métriques au lieu de montrer le levier.",
+              strategic_csm: "En poste, ton QBR durerait 45 minutes au lieu de 15. Le client décroche.",
               senior_pm: "En poste, tu présenterais une roadmap sans hiérarchie. L'équipe ne sait pas par où commencer.",
               ai_architect: "En poste, tu expliquerais le modèle pendant 20 minutes. Le CPO veut le cas d'usage en 2.",
-              engineering_manager: "En poste, ton équipe attendrait 3 minutes de contexte avant chaque decision.",
+              engineering_manager: "En poste, ton équipe attendrait 3 minutes de contexte avant chaque décision.",
               management_consultant: "En poste, ton slide deck ferait 80 pages au lieu de 3.",
-              strategy_associate: "En poste, ton memo serait un rapport. Le Comex veut une recommandation en 1 page.",
+              strategy_associate: "En poste, ton mémo serait un rapport. Le Comex veut une recommandation en 1 page.",
               operations_manager: "En poste, tes meetings dureraient le double. L'équipe perdrait confiance.",
-              fractional_coo: "En poste, le CEO te demanderait de synthetiser et tu donnerais un audit.",
+              fractional_coo: "En poste, le CEO te demanderait de synthétiser et tu donnerais un audit.",
             };
-            var mirror = roleMirrors[targetRoleId] || "En poste, tu prendrais trop de temps a arriver au point. Le décideur decroche.";
+            var mirror = roleMirrors[targetRoleId] || "En poste, tu prendrais trop de temps à arriver au point. Le décideur décroche.";
             return (
               <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginTop: 10, borderLeft: "3px solid #9b59b6" }}>
                 <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 600, marginBottom: 4 }}>MIROIR DE POSTE</div>
@@ -643,7 +643,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
       <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
         <div style={{ fontSize: 10, color: "#e94560", background: "#1a1a2e", padding: "3px 8px", borderRadius: 10, fontWeight: 600, display: "inline-block", marginBottom: 10 }}>{q.intent}</div>
         <div style={{ fontSize: 16, color: "#ccd6f6", lineHeight: 1.6, fontWeight: 600, marginBottom: 10 }}>&quot;{q.question}&quot;</div>
-        <div style={{ fontSize: 11, color: "#495670" }}>Brique visee : {q.brickRef}</div>
+        <div style={{ fontSize: 11, color: "#495670" }}>Brique visée : {q.brickRef}</div>
       </div>
       <textarea value={answer} onChange={function(e) { setAnswer(e.target.value); }}
         placeholder="Réponds comme en entretien."

@@ -45,7 +45,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Rapport d'impact</div>
           <div style={{ fontSize: 11, color: "#495670", marginTop: 2 }}>
-            {roleData ? roleData.role : "Non defini"} {"\u00B7"} {trajectoryToggle === "j_y_suis" ? "J'y suis" : "J'y vais"}
+            {roleData ? roleData.role : "Non défini"} {"\u00B7"} {trajectoryToggle === "j_y_suis" ? "J'y suis" : "J'y vais"}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
@@ -71,7 +71,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
           {missions.length > 0 && <div style={{ fontSize: 12, color: "#e94560" }}>{missions.length} mission{missions.length > 1 ? "s" : ""}</div>}
         </div>
         {elasticBricks.length > 0 && (
-          <div style={{ fontSize: 11, color: "#8892b0", marginTop: 6 }}>{elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marche élastique</div>
+          <div style={{ fontSize: 11, color: "#8892b0", marginTop: 6 }}>{elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marché élastique</div>
         )}
       </div>
 
@@ -96,7 +96,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
                 <div style={{ marginTop: 4 }}>
                   <div style={{ fontSize: 11, color: "#8892b0" }}>Direct : {formatCost(cauch.costRange[0])}-{formatCost(cauch.costRange[1])}/an</div>
                   {cauch.costSymbolique && <div style={{ fontSize: 11, color: "#495670", marginTop: 2 }}>Symbolique : {cauch.costSymbolique}</div>}
-                  {cauch.costSystemique && <div style={{ fontSize: 11, color: "#495670", marginTop: 2 }}>Systemique : {cauch.costSystemique}</div>}
+                  {cauch.costSystemique && <div style={{ fontSize: 11, color: "#495670", marginTop: 2 }}>Systémique : {cauch.costSystemique}</div>}
                 </div>
               )}
               {isOpen && !c.covered && (
@@ -105,7 +105,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
             </div>
           );
         })}
-        {openSection !== "cauchemars" && <div style={{ fontSize: 10, color: "#495670", marginTop: 4 }}>Appuie pour voir le detail des couts</div>}
+        {openSection !== "cauchemars" && <div style={{ fontSize: 10, color: "#495670", marginTop: 4 }}>Appuie pour voir le détail des coûts</div>}
       </div>
 
       {/* ZONES */}
@@ -179,7 +179,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
           <div style={sHead}>Avantage injuste</div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5 }}>{unfairBrick.text}</div>
           {elasticBricks.some(function(eb) { return eb.kpi === unfairBrick.kpi; }) && (
-            <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4 }}>Confirme par brique chiffre + signal collègues. Non-rattrapable par la formation.</div>
+            <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4 }}>Confirmé par brique chiffre + signal collègues. Non-rattrapable par la formation.</div>
           )}
         </div>
       )}
@@ -196,7 +196,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
 
       {/* NEXT RDV */}
       <div style={{ fontSize: 11, color: "#495670", marginTop: 8, marginBottom: 12 }}>
-        Prochain Rendez-vous : {roleData ? roleData.cadenceLabel : "dans 30 jours"}. Ce rapport s'épaissit a chaque iteration.
+        Prochain Rendez-vous : {roleData ? roleData.cadenceLabel : "dans 30 jours"}. Ce rapport s'épaissit à chaque itération.
       </div>
 
       {/* COPY — Option 2 structured text */}
@@ -340,7 +340,7 @@ export function SignalField({ bricks, targetRoleId }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <div>
               <span style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, letterSpacing: 1 }}>{result.type.label.toUpperCase()}</span>
-              <span style={{ fontSize: 10, color: "#495670", marginLeft: 8 }}>Script contextualise</span>
+              <span style={{ fontSize: 10, color: "#495670", marginLeft: 8 }}>Script contextualisé</span>
             </div>
             <CopyBtn text={result.script} label="Copier" />
           </div>
@@ -544,8 +544,8 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
   var kpiGaps = [];
   if (validated.length < 7) kpiGaps.push({ kpi: "Briques de preuve", msg: "Tu es muet sur " + (7 - validated.length) + " preuves. Le recruteur contrôlera cette partie de la négociation." });
   if (duelFailles.length > 0) kpiGaps.push({ kpi: "Failles de combat", msg: "Tu as " + duelFailles.length + " faille" + (duelFailles.length > 1 ? "s" : "") + " ouvertes. Le recruteur va tomber dessus." });
-  if (decisions.length === 0) kpiGaps.push({ kpi: "Aucune brique decision", msg: "Tu n'as documente aucun arbitrage. Le recruteur ne sait pas si tu sais trancher." });
-  if (influences.length === 0) kpiGaps.push({ kpi: "Aucune brique influence", msg: "Tu n'as documente aucun alignement. Le recruteur ne sait pas si tu sais naviguer la politique interne." });
+  if (decisions.length === 0) kpiGaps.push({ kpi: "Aucune brique décision", msg: "Tu n'as documenté aucun arbitrage. Le recruteur ne sait pas si tu sais trancher." });
+  if (influences.length === 0) kpiGaps.push({ kpi: "Aucune brique influence", msg: "Tu n'as documenté aucun alignement. Le recruteur ne sait pas si tu sais naviguer la politique interne." });
 
   // Measurement hygiene diagnostic
   var totalAnswered = validated.length + missions.length;
@@ -559,7 +559,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
     measurementDiag = { level: "faible", color: "#e94560", title: "Hygiène de mesure : absente", msg: missions.length + " questions sur " + totalAnswered + " sans chiffre (" + missionRatio + "%). Ce n'est pas un problème de mémoire. C'est un mode de fonctionnement : tu opères sans mesurer l'impact de ce que tu fais. Chaque trimestre sans tableau de bord est un trimestre de négociation perdu. Les missions ne sont pas des corvées. Ce sont les premiers pas vers un réflexe qui change tout." };
   }
   if (missions.length > 0) {
-    kpiGaps.push({ kpi: "Deconnexion action-mesure", msg: missions.length + " mission" + (missions.length > 1 ? "s" : "") + " en attente. " + missionRatio + "% de tes réponses n'ont pas de preuve. Le professionnel qui mesure fixe son prix. Celui qui ne mesure pas accepte celui qu'on lui donne." });
+    kpiGaps.push({ kpi: "Déconnexion action-mesure", msg: missions.length + " mission" + (missions.length > 1 ? "s" : "") + " en attente. " + missionRatio + "% de tes réponses n'ont pas de preuve. Le professionnel qui mesure fixe son prix. Celui qui ne mesure pas accepte celui qu'on lui donne." });
   }
   var leveragePct = Math.round((validated.length / 9) * 100);
   leveragePct = Math.min(leveragePct, 100);
@@ -569,22 +569,22 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
   var capturePings = {
     recherche: [
-      { month: "Janvier", text: "Tu as fini ton Q4. Quel est le chiffre final du pipeline ? Quel obstacle as-tu brise ?" },
-      { month: "Février", text: "Quelle compétence as-tu utilisee ce mois-ci qui n'existait pas dans ta fiche de poste il y a un an ?" },
+      { month: "Janvier", text: "Tu as fini ton Q4. Quel est le chiffre final du pipeline ? Quel obstacle as-tu brisé ?" },
+      { month: "Février", text: "Quelle compétence as-tu utilisée ce mois-ci qui n'existait pas dans ta fiche de poste il y a un an ?" },
       { month: "Mars", text: "Quel indicateur as-tu suivi ce mois ? Quel chiffre a bougé ? Si la réponse est 'aucun', tu opères dans le noir." },
     ],
     en_poste: [
       { month: "Janvier", text: "Tu viens de finir un projet. Quel impact mesurable ? Quel feedback de ton N+1 ?" },
       { month: "Février", text: "Tu as résolu un problème interne. Quel indicateur a bougé ? De combien ? Nouvelle brique." },
-      { month: "Mars", text: "Ouvre ton tableau de bord. Quel chiffre a change depuis le mois dernier grace a toi ? Si tu n'as pas de tableau de bord, c'est le premier problème a résoudre." },
+      { month: "Mars", text: "Ouvre ton tableau de bord. Quel chiffre a changé depuis le mois dernier grâce à toi ? Si tu n'as pas de tableau de bord, c'est le premier problème à résoudre." },
     ],
     négociation: [
       { month: "Janvier", text: "Tu prépares ton entretien annuel. Quelles briques mobiliser pour justifier +15% ?" },
       { month: "Février", text: "Tu vises une promotion. L'IA identifie les 2 briques manquantes pour le niveau supérieur." },
-      { month: "Mars", text: "Combien de tes réalisations du trimestre as-tu documentées avec un chiffre ? Ce que tu n'as pas mesure, tu ne le négocieras pas." },
+      { month: "Mars", text: "Combien de tes réalisations du trimestre as-tu documentées avec un chiffre ? Ce que tu n'as pas mesuré, tu ne le négocieras pas." },
     ],
     freelance: [
-      { month: "Janvier", text: "Quelles sont les 3 decisions les plus couteuses que tu as prises ce mois pour ton client ? Ton rapport de valeur en depend." },
+      { month: "Janvier", text: "Quelles sont les 3 décisions les plus coûteuses que tu as prises ce mois pour ton client ? Ton rapport de valeur en dépend." },
       { month: "Février", text: "Ton client pense que 'tout va bien' parce que tu fais bien ton job. Quelles catastrophes as-tu évitées ce mois ? L'IA génère ton rapport de valeur." },
       { month: "Mars", text: "Quel indicateur as-tu fait bouger ce mois chez ton client ? Mets le chiffre dans ton rapport. Pas de chiffre, pas de justification d'honoraires." },
     ],
@@ -602,7 +602,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             borderRadius: 10, cursor: "pointer", marginBottom: arsenalSection === "scripts" ? 12 : 6,
           }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "scripts" ? "#e94560" : "#8892b0" }}>{"\uD83C\uDFAF"} Scripts de contact{trajectoryToggle !== "j_y_suis" ? " " : ""}</span>
-            {trajectoryToggle !== "j_y_suis" && <span style={{ fontSize: 8, color: "#e94560", background: "#e94560" + "22", padding: "2px 6px", borderRadius: 4, fontWeight: 700, letterSpacing: 1 }}>PRIORITE</span>}
+            {trajectoryToggle !== "j_y_suis" && <span style={{ fontSize: 8, color: "#e94560", background: "#e94560" + "22", padding: "2px 6px", borderRadius: 4, fontWeight: 700, letterSpacing: 1 }}>PRIORITÉ</span>}
             <span style={{ fontSize: 12, color: "#495670" }}>{arsenalSection === "scripts" ? "\u25B2" : "\u25BC"}</span>
           </button>
           {arsenalSection === "scripts" && (function() {
@@ -729,7 +729,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             border: arsenalSection === "combat" ? "1px solid #e94560" : "1px solid #16213e",
             borderRadius: 10, cursor: "pointer", marginBottom: arsenalSection === "combat" ? 12 : 6,
           }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "combat" ? "#e94560" : "#8892b0" }}>{"\uD83D\uDEE1\uFE0F"} Combat ({duelAnswered.length} reponses, {duelFailles.length} failles)</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "combat" ? "#e94560" : "#8892b0" }}>{"\uD83D\uDEE1\uFE0F"} Combat ({duelAnswered.length} réponses, {duelFailles.length} failles)</span>
             <span style={{ fontSize: 12, color: "#495670" }}>{arsenalSection === "combat" ? "\u25B2" : "\u25BC"}</span>
           </button>
           {arsenalSection === "combat" && (
@@ -766,7 +766,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.7 }}>
               {validated.length} Briques {"\u00B7"} {vault.pillars} Piliers
             </div>
-            <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginTop: 8, fontStyle: "italic" }}>"Tu as le PDF. Ton cerveau numerique reste ici."</div>
+            <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginTop: 8, fontStyle: "italic" }}>"Tu as le PDF. Ton cerveau numérique reste ici."</div>
           </div>
 
           {/* ITERATION 7 — QUESTIONS DE DIAGNOSTIC (post-Duel) */}
@@ -777,7 +777,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <div style={{ marginTop: 20 }}>
                 <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>QUESTIONS DE DIAGNOSTIC ({diagQuestions.length})</div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>
-                  Questions calibrées sur tes briques les plus fortes. Tu ne poses pas des questions de curiosite. Tu poses des questions que tu es le seul a avoir la crédibilité de poser.
+                  Questions calibrées sur tes briques les plus fortes. Tu ne poses pas des questions de curiosité. Tu poses des questions que tu es le seul à avoir la crédibilité de poser.
                 </div>
                 {diagQuestions.map(function(q, i) {
                   return (
@@ -787,11 +787,11 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         <CopyBtn text={"NIVEAU 1 :\n" + q.level1 + "\n\nNIVEAU 2 :\n" + q.level2} label="Copier" />
                       </div>
                       <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 600, marginBottom: 3 }}>PREMIERE RENCONTRE</div>
+                        <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 600, marginBottom: 3 }}>PREMIÈRE RENCONTRE</div>
                         <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, fontStyle: "italic" }}>"{q.level1}"</div>
                       </div>
                       <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 600, marginBottom: 3 }}>ENTRETIEN AVANCE</div>
+                        <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 600, marginBottom: 3 }}>ENTRETIEN AVANCÉ</div>
                         <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, fontStyle: "italic" }}>"{q.level2}"</div>
                       </div>
                       <div style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginTop: 6 }}>
@@ -819,7 +819,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             borderRadius: 10, cursor: "pointer", marginBottom: arsenalSection === "linkedin" ? 12 : 6,
           }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "linkedin" ? "#3498db" : "#8892b0" }}>{"\uD83D\uDCE3"} LinkedIn (posts, commentaires, signaux){trajectoryToggle === "j_y_suis" ? " " : ""}</span>
-            {trajectoryToggle === "j_y_suis" && <span style={{ fontSize: 8, color: "#3498db", background: "#3498db" + "22", padding: "2px 6px", borderRadius: 4, fontWeight: 700, letterSpacing: 1 }}>PRIORITE</span>}
+            {trajectoryToggle === "j_y_suis" && <span style={{ fontSize: 8, color: "#3498db", background: "#3498db" + "22", padding: "2px 6px", borderRadius: 4, fontWeight: 700, letterSpacing: 1 }}>PRIORITÉ</span>}
             <span style={{ fontSize: 12, color: "#495670" }}>{arsenalSection === "linkedin" ? "\u25B2" : "\u25BC"}</span>
           </button>
           {arsenalSection === "linkedin" && (
@@ -857,7 +857,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
             return (
               <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>POSTS LINKEDIN GENERES ({posts.length})</div>
+                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>POSTS LINKEDIN GÉNÉRÉS ({posts.length})</div>
 
                 {/* CALIBREUR DILTS */}
                 <div style={{ background: "#0a192f", borderRadius: 10, padding: 14, marginBottom: 16, border: "1px solid " + targetInfo.color }}>
@@ -894,7 +894,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 </div>
 
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 12 }}>
-                  Calibres sur Registre {dt.targetLevel}. Brique et cadrage sélectionnés pour pousser vers le niveau {targetInfo.name}.
+                  Calibrés sur Registre {dt.targetLevel}. Brique et cadrage sélectionnés pour pousser vers le niveau {targetInfo.name}.
                 </div>
                 {seqAlert && seqAlert.stagnant && (
                   <div style={{ background: "#ff9800" + "22", borderRadius: 8, padding: 10, marginBottom: 12, border: "1px solid #ff9800" }}>
@@ -1013,7 +1013,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           {arsenalSection === "lettre" && (
             <div style={{ marginBottom: 12 }}>
               <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, borderLeft: "3px solid #ff9800" }}>
-                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>ASSEMBLE. NE GENERE PAS.</div>
+                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>ASSEMBLE. NE GÉNÈRE PAS.</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 16 }}>
                   52% des candidats utilisent l'IA pour leur lettre. Le résultat : des lettres identiques. Ton avantage : tu as des briques blindées. Assemble-les.
                 </div>
@@ -1084,7 +1084,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, borderLeft: "3px solid #e94560" }}>
                 <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>GARDE-LA SUR TES GENOUX PENDANT L'ENTRETIEN.</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 16 }}>
-                  Une page. Cauchemars du decideur. Tes 3 briques avec contre-arguments. Questions discovery. Pitch. La regle du silence. Tu n'oublies rien.
+                  Une page. Cauchemars du décideur. Tes 3 briques avec contre-arguments. Questions discovery. Pitch. La règle du silence. Tu n'oublies rien.
                 </div>
 
                 {(function() {
@@ -1094,20 +1094,20 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                   var takePillar = vault && vault.selectedPillars ? vault.selectedPillars.find(function(p) { return p.source === "take"; }) : null;
                   var takeText = takePillar ? takePillar.title : null;
                   var discoveryQsLocal = {
-                    enterprise_ae: "Quels sont les enjeux de croissance principaux de votre equipe cette annee ?",
-                    head_of_growth: "Quel canal d'acquisition vous preoccupe le plus en ce moment ?",
-                    strategic_csm: "Quel est le segment de clients qui genere le plus de friction aujourd'hui ?",
-                    senior_pm: "Quel est l'arbitrage produit le plus difficile que l'equipe n'a pas encore tranche ?",
-                    ai_architect: "Quel cas d'usage IA est bloque depuis le plus longtemps ?",
-                    engineering_manager: "Quel est le frein technique que l'equipe n'arrive pas a debloquer ?",
-                    management_consultant: "Quel est le probleme qui a declenche ce recrutement ?",
-                    strategy_associate: "Quelle decision strategique attend des donnees que personne ne produit ?",
-                    operations_manager: "Quelle friction inter-equipes consomme le plus de temps ?",
-                    fractional_coo: "Qu'est-ce que le CEO ne devrait plus faire lui-meme dans 6 mois ?",
+                    enterprise_ae: "Quels sont les enjeux de croissance principaux de votre équipe cette année ?",
+                    head_of_growth: "Quel canal d'acquisition vous préoccupe le plus en ce moment ?",
+                    strategic_csm: "Quel est le segment de clients qui génère le plus de friction aujourd'hui ?",
+                    senior_pm: "Quel est l'arbitrage produit le plus difficile que l'équipe n'a pas encore tranché ?",
+                    ai_architect: "Quel cas d'usage IA est bloqué depuis le plus longtemps ?",
+                    engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas à débloquer ?",
+                    management_consultant: "Quel est le problème qui a déclenché ce recrutement ?",
+                    strategy_associate: "Quelle décision stratégique attend des données que personne ne produit ?",
+                    operations_manager: "Quelle friction inter-équipes consomme le plus de temps ?",
+                    fractional_coo: "Qu'est-ce que le CEO ne devrait plus faire lui-même dans 6 mois ?",
                   };
-                  var roleDisc = discoveryQsLocal[targetRoleId] || "Avant que je deroule mon parcours, quels sont vos enjeux cles sur ce poste ?";
+                  var roleDisc = discoveryQsLocal[targetRoleId] || "Avant que je déroule mon parcours, quels sont vos enjeux clés sur ce poste ?";
                   var roleData = ROLE_LIBRARY.find(function(r) { return r.id === targetRoleId; });
-                  var roleName = roleData ? roleData.role : "Non defini";
+                  var roleName = roleData ? roleData.role : "Non défini";
 
                   var ready = top3.length >= 1;
 
@@ -1144,7 +1144,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     html += "<div class='role'>" + roleName + "</div>";
 
                     // Cauchemars
-                    html += "<div class='section-tag' style='color:#e94560'>CAUCHEMARS DU DECIDEUR</div>";
+                    html += "<div class='section-tag' style='color:#e94560'>CAUCHEMARS DU DÉCIDEUR</div>";
                     if (topCauchemars.length > 0) {
                       topCauchemars.forEach(function(c) {
                         var lo = c.cost.low ? Math.round(c.cost.low / 1000) + "K" : "?";
@@ -1152,7 +1152,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         html += "<div class='card'><div class='card-row'><span>" + c.label + "</span><span class='cost'>" + lo + " - " + hi + "/an</span></div></div>";
                       });
                     } else {
-                      html += "<div class='card'><span style='color:#495670'>Aucun cauchemar chiffre. Complete la Carte des Cauchemars.</span></div>";
+                      html += "<div class='card'><span style='color:#495670'>Aucun cauchemar chiffré. Complète la Carte des Cauchemars.</span></div>";
                     }
 
                     // Top 3 briques + contre-arguments
@@ -1175,22 +1175,22 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     html += "<div class='section-gap'></div><div class='section-tag' style='color:#3498db'>QUESTIONS DISCOVERY</div>";
                     var discs = [
                       ["Discovery", roleDisc],
-                      ["Declencheur", "Qu'est-ce qui a declenche ce recrutement ?"],
+                      ["Déclencheur", "Qu'est-ce qui a déclenché ce recrutement ?"],
                       ["Cicatrice", "Quel profil ne voulez-vous surtout pas reproduire ?"],
-                      ["Cadrage", "Quelle partie de mon parcours voulez-vous que je developpe en priorite ?"]
+                      ["Cadrage", "Quelle partie de mon parcours voulez-vous que je développe en priorité ?"]
                     ];
                     discs.forEach(function(d) {
                       html += "<div class='disc-card'><div class='disc-label'>" + d[0] + "</div><div class='disc-q'>" + d[1] + "</div></div>";
                     });
 
                     // Pitch Chrono
-                    var discoveryClose = top3.length > 0 && top3[0].discoveryQuestions && top3[0].discoveryQuestions.length > 0 ? top3[0].discoveryQuestions[0] : "Quel est le probleme que ce poste resout en priorite ?";
+                    var discoveryClose = top3.length > 0 && top3[0].discoveryQuestions && top3[0].discoveryQuestions.length > 0 ? top3[0].discoveryQuestions[0] : "Quel est le problème que ce poste résout en priorité ?";
                     html += "<div class='section-gap'></div><div class='section-tag' style='color:#9b59b6'>PITCH 90 SECONDES — CHRONO</div>";
                     var chronoData = [
-                      { label: "CAUCHEMAR", time: "0-15s", color: "#e94560", hint: "Ouvre sur le probleme du decideur" },
-                      { label: "PREUVE 1", time: "15-30s", color: "#4ecca3", hint: "Un chiffre. Un contexte. Un resultat." },
-                      { label: "PREUVE 2", time: "30-45s", color: "#4ecca3", hint: "Angle complementaire" },
-                      { label: "METHODE", time: "45-70s", color: "#3498db", hint: "Ce que tu feras chez eux" },
+                      { label: "CAUCHEMAR", time: "0-15s", color: "#e94560", hint: "Ouvre sur le problème du décideur" },
+                      { label: "PREUVE 1", time: "15-30s", color: "#4ecca3", hint: "Un chiffre. Un contexte. Un résultat." },
+                      { label: "PREUVE 2", time: "30-45s", color: "#4ecca3", hint: "Angle complémentaire" },
+                      { label: "MÉTHODE", time: "45-70s", color: "#3498db", hint: "Ce que tu feras chez eux" },
                       { label: "QUESTION", time: "70-90s", color: "#ff9800", hint: "Tu reprends le cadre" },
                     ];
                     var chronoContent = [takeText || "", top3[0] ? top3[0].text : "", top3[1] ? top3[1].text : "", top3[2] ? top3[2].text : "", discoveryClose];
@@ -1208,7 +1208,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       html += "</div></div>";
                     });
                     html += "</div>";
-                    html += "<div style='font-size:8px;color:#8892b0;margin-top:6px'>Pas de texte a reciter. Une structure a suivre. Tes mots viennent de toi.</div>";
+                    html += "<div style='font-size:8px;color:#8892b0;margin-top:6px'>Pas de texte à réciter. Une structure à suivre. Tes mots viennent de toi.</div>";
 
                     // Silence
                     html += "<div class='silence-box'><div class='silence-tag'>LE SILENCE</div><div class='silence-text'>Le recruteur se tait. Ne remplis pas. Laisse-le revenir. Celui qui parle en premier perd le cadre.</div></div>";
@@ -1240,7 +1240,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     }
 
                     // Footer
-                    html += "<div class='footer'><span>Abneg@tion - L'IA extrait. Tu decides.</span><span>abnegation-fawn.vercel.app</span></div>";
+                    html += "<div class='footer'><span>Abneg@tion - L'IA extrait. Tu décides.</span><span>abnegation-fawn.vercel.app</span></div>";
 
                     html += "</body></html>";
 
@@ -1258,7 +1258,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
                         <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>CAUCHEMARS</div>
                         <div style={{ fontSize: 12, color: topCauchemars.length > 0 ? "#ccd6f6" : "#495670" }}>
-                          {topCauchemars.length > 0 ? topCauchemars.length + " cauchemar" + (topCauchemars.length > 1 ? "s" : "") + " chiffre" + (topCauchemars.length > 1 ? "s" : "") : "Aucun (complete la Carte)"}
+                          {topCauchemars.length > 0 ? topCauchemars.length + " cauchemar" + (topCauchemars.length > 1 ? "s" : "") + " chiffre" + (topCauchemars.length > 1 ? "s" : "") : "Aucun (complète la Carte)"}
                         </div>
                       </div>
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
@@ -1269,12 +1269,12 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       </div>
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
                         <div style={{ fontSize: 10, color: "#3498db", fontWeight: 700, marginBottom: 4 }}>QUESTIONS DISCOVERY</div>
-                        <div style={{ fontSize: 12, color: "#ccd6f6" }}>4 questions calibrees ({roleName})</div>
+                        <div style={{ fontSize: 12, color: "#ccd6f6" }}>4 questions calibrées ({roleName})</div>
                       </div>
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
                         <div style={{ fontSize: 10, color: "#9b59b6", fontWeight: 700, marginBottom: 4 }}>CHRONO 90s + SILENCE</div>
                         <div style={{ fontSize: 12, color: takeText ? "#ccd6f6" : "#495670" }}>
-                          {takeText ? "Pitch complet + regle du silence" : "Take manquant (valide tes Piliers)"}
+                          {takeText ? "Pitch complet + règle du silence" : "Take manquant (valide tes Piliers)"}
                         </div>
                       </div>
 
@@ -1285,7 +1285,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         border: "none", borderRadius: 10, cursor: ready ? "pointer" : "default",
                         fontWeight: 700, fontSize: 14,
                       }}>
-                        {ready ? "Generer la Fiche de Combat \u2192" : "Valide au moins 1 brique pour generer"}
+                        {ready ? "Générer la Fiche de Combat \u2192" : "Valide au moins 1 brique pour générer"}
                       </button>
                       {ready && (
                         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 8 }}>
@@ -1307,19 +1307,19 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
         <div style={{ fontSize: 40, marginBottom: 10 }}>{"\uD83D\uDE80"}</div>
         <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6", marginBottom: 6 }}>Arsenal calibré.</div>
         <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
-          {validated.length} briques ({decisions.length > 0 || influences.length > 0 ? "chiffre + decision + influence" : "chiffre"}).
+          {validated.length} briques ({decisions.length > 0 || influences.length > 0 ? "chiffre + décision + influence" : "chiffre"}).
           {cicatrices.length > 0 ? " " + cicatrices.length + " cicatrice" + (cicatrices.length > 1 ? "s" : "") + "." : ""}
           {missions.length > 0 ? " " + missions.length + " mission" + (missions.length > 1 ? "s" : "") + " (" + missionRatio + "% sans preuve)." : ""}
           {" "}{duelAnswered.length} réponses de combat.
-          {elasticBricks.length > 0 ? " " + elasticBricks.length + " briques sur marche élastique." : ""}
+          {elasticBricks.length > 0 ? " " + elasticBricks.length + " briques sur marché élastique." : ""}
         </div>
 
         {/* CALIBRATION MESSAGE — Item 5: 3 postures par trajectoire */}
         <div style={{ background: "#0f3460", borderRadius: 8, padding: 12, marginTop: 12, textAlign: "left" }}>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
             {trajectoryToggle === "j_y_suis"
-              ? "10 000 professionnels de ton secteur publient cette semaine. 9 990 partagent des conseils generiques. Toi tu publies un diagnostic sectoriel ancre sur un vecu que l'IA ne peut pas inventer. Ton prochain poste ne viendra pas d'une offre. Il viendra de quelqu'un qui prononce ton nom dans une salle où tu n'es pas."
-              : "500 personnes ont postule a la même offre. 490 ont envoye un CV generique. Tu as un CV forge depuis des preuves chiffrees et un script ancre sur le cauchemar du décideur. Tes prises de position, l'IA ne sait pas les ecrire. Tu es dans les 5."
+              ? "10 000 professionnels de ton secteur publient cette semaine. 9 990 partagent des conseils génériques. Toi tu publies un diagnostic sectoriel ancré sur un vécu que l'IA ne peut pas inventer. Ton prochain poste ne viendra pas d'une offre. Il viendra de quelqu'un qui prononce ton nom dans une salle où tu n'es pas."
+              : "500 personnes ont postulé à la même offre. 490 ont envoyé un CV générique. Tu as un CV forgé depuis des preuves chiffrées et un script ancré sur le cauchemar du décideur. Tes prises de position, l'IA ne sait pas les écrire. Tu es dans les 5."
             }
           </div>
         </div>
@@ -1363,7 +1363,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
       {/* ARSENAL TAB */}
       {tab === "arsenal" && (
         <div>
-          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>TON LEVIER DE NEGOCIATION</div>
+          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>TON LEVIER DE NÉGOCIATION</div>
 
           {trajectoryToggle !== "j_y_suis" ? (
             <div>
@@ -1432,8 +1432,8 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginBottom: 16, border: "1px solid #e94560" + "44" }}>
                 <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, marginBottom: 6 }}>{"\u26A0\uFE0F"} ALERTE THERMOSTAT</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-                  {staleBricks.length > 0 ? staleBricks.length + " brique" + (staleBricks.length > 1 ? "s" : "") + " depasse" + (staleBricks.length > 1 ? "nt" : "") + " 90 jours. Ton signal se degrade." : ""}
-                  {thermoState.decay > 0 ? " Ton registre Dilts a baisse. " + thermoState.weeksInactive + " semaine" + (thermoState.weeksInactive > 1 ? "s" : "") + " sans signal." : ""}
+                  {staleBricks.length > 0 ? staleBricks.length + " brique" + (staleBricks.length > 1 ? "s" : "") + " dépasse" + (staleBricks.length > 1 ? "nt" : "") + " 90 jours. Ton signal se dégrade." : ""}
+                  {thermoState.decay > 0 ? " Ton registre Dilts a baissé. " + thermoState.weeksInactive + " semaine" + (thermoState.weeksInactive > 1 ? "s" : "") + " sans signal." : ""}
                 </div>
               </div>
             )}
@@ -1446,7 +1446,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                 <div style={{ flex: 1, textAlign: "center", background: "#1a1a2e", borderRadius: 8, padding: 10, borderTop: "3px solid #4ecca3" }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "#4ecca3" }}>{freshBricks.length}</div>
-                  <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Fraiches</div>
+                  <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Fraîches</div>
                   <div style={{ fontSize: 8, color: "#495670" }}>&lt; 30 jours</div>
                 </div>
                 <div style={{ flex: 1, textAlign: "center", background: "#1a1a2e", borderRadius: 8, padding: 10, borderTop: "3px solid #ff9800" }}>
@@ -1456,21 +1456,21 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 </div>
                 <div style={{ flex: 1, textAlign: "center", background: "#1a1a2e", borderRadius: 8, padding: 10, borderTop: "3px solid #e94560" }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "#e94560" }}>{staleBricks.length}</div>
-                  <div style={{ fontSize: 9, color: "#e94560", fontWeight: 600 }}>Perimees</div>
+                  <div style={{ fontSize: 9, color: "#e94560", fontWeight: 600 }}>Périmées</div>
                   <div style={{ fontSize: 8, color: "#495670" }}>&gt; 90 jours</div>
                 </div>
               </div>
 
               {/* Valeur + Visibilité + Coût */}
               <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #16213e" }}>
-                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>VALEUR PROUVEE</div>
+                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>VALEUR PROUVÉE</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-                  {thermoCovered.length} cauchemar{thermoCovered.length > 1 ? "s" : ""} couvert{thermoCovered.length > 1 ? "s" : ""}. Cout cumule : {formatCost(thermoCostLow)}-{formatCost(thermoCostHigh)}/an. {thermoBlinded.length} brique{thermoBlinded.length > 1 ? "s" : ""} blindee{thermoBlinded.length > 1 ? "s" : ""}.
+                  {thermoCovered.length} cauchemar{thermoCovered.length > 1 ? "s" : ""} couvert{thermoCovered.length > 1 ? "s" : ""}. Coût cumulé : {formatCost(thermoCostLow)}-{formatCost(thermoCostHigh)}/an. {thermoBlinded.length} brique{thermoBlinded.length > 1 ? "s" : ""} blindée{thermoBlinded.length > 1 ? "s" : ""}.
                 </div>
               </div>
 
               <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #16213e" }}>
-                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, marginBottom: 4 }}>VISIBILITE</div>
+                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, marginBottom: 4 }}>VISIBILITÉ</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
                   Registre : {diltsLabel.name} ({thermoState.effectiveLevel}/5).
                   {thermoState.decay > 0 ? " Signal en baisse depuis " + thermoState.weeksInactive + " semaine" + (thermoState.weeksInactive > 1 ? "s" : "") + "." : " Signal stable."}
@@ -1478,22 +1478,22 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               </div>
 
               <div>
-                <div style={{ fontSize: 11, color: thermoState.decay > 0 ? "#e94560" : "#8892b0", fontWeight: 700, marginBottom: 4 }}>COUT DU SILENCE</div>
+                <div style={{ fontSize: 11, color: thermoState.decay > 0 ? "#e94560" : "#8892b0", fontWeight: 700, marginBottom: 4 }}>COÛT DU SILENCE</div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
                   {thermoState.decay > 0
-                    ? "Ton thermostat a baisse. Chaque semaine sans signal, tu sors du top 5% des profils visibles."
+                    ? "Ton thermostat a baissé. Chaque semaine sans signal, tu sors du top 5% des profils visibles."
                     : "Ton thermostat est stable. 1 signal par semaine suffit."
                   }
                 </div>
               </div>
             </div>
 
-            {/* PROCHAIN RENDEZ-VOUS DE SOUVERAINETE */}
+            {/* PROCHAIN RENDEZ-VOUS DE SOUVERAINETÉ */}
             <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16, borderLeft: "4px solid #9b59b6" }}>
-              <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAIN RENDEZ-VOUS DE SOUVERAINETE</div>
+              <div style={{ fontSize: 11, color: "#9b59b6", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAIN RENDEZ-VOUS DE SOUVERAINETÉ</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>{rdvFormatted}</div>
               <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 8 }}>
-                Cadence {cadenceLabel.toLowerCase()} — {roleData ? roleData.role : "Role non defini"}.
+                Cadence {cadenceLabel.toLowerCase()} — {roleData ? roleData.role : "Rôle non défini"}.
               </div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
                 {roleData ? roleData.cadenceReason : ""}
@@ -1503,7 +1503,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             {/* BRIQUES A RAFRAICHIR */}
             {(agingBricks.length > 0 || staleBricks.length > 0) && (
               <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, borderLeft: "4px solid #ff9800" }}>
-                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>BRIQUES A RAFRAICHIR ({agingBricks.length + staleBricks.length})</div>
+                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>BRIQUES À RAFRAÎCHIR ({agingBricks.length + staleBricks.length})</div>
                 {staleBricks.concat(agingBricks).map(function(b, i) {
                   var age = b.validatedAt ? Math.floor((now - b.validatedAt) / (24 * 3600 * 1000)) : 0;
                   var isStale = age >= 90;
@@ -1529,11 +1529,11 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginTop: 16, borderLeft: "4px solid #4ecca3" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1 }}>POSTS DE LA SEMAINE</div>
-                    <span style={{ fontSize: 10, color: "#8892b0" }}>{weeklyPosts.length} pret{weeklyPosts.length > 1 ? "s" : ""}</span>
+                    <span style={{ fontSize: 10, color: "#8892b0" }}>{weeklyPosts.length} prêt{weeklyPosts.length > 1 ? "s" : ""}</span>
                   </div>
                   {weeklyPosts.length === 0 && (
                     <div style={{ fontSize: 12, color: "#495670", textAlign: "center", padding: 12 }}>
-                      Pas assez de briques blindees pour generer des posts. Blinde ton Coffre-Fort.
+                      Pas assez de briques blindées pour générer des posts. Blinde ton Coffre-Fort.
                     </div>
                   )}
                   {weeklyPosts.map(function(post, pi) {
@@ -1552,7 +1552,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     );
                   })}
                   <div style={{ fontSize: 10, color: "#495670", lineHeight: 1.5, marginTop: 8 }}>
-                    Publie entre 7h30 et 8h30 en semaine. Reponds a tous les commentaires dans les 2 premieres heures.
+                    Publie entre 7h30 et 8h30 en semaine. Réponds à tous les commentaires dans les 2 premières heures.
                   </div>
                 </div>
               );
@@ -1617,13 +1617,13 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         {allClean ? "\uD83D\uDD12 Versions transportables propres" : "\u26A0\uFE0F Re-scan : éléments détectés"}
                       </div>
                       <div style={{ fontSize: 10, color: "#8892b0", marginTop: 2 }}>
-                        {withAnon.length} version{withAnon.length > 1 ? "s" : ""} — re-scannée{withAnon.length > 1 ? "s" : ""} a l'export
+                        {withAnon.length} version{withAnon.length > 1 ? "s" : ""} — re-scannée{withAnon.length > 1 ? "s" : ""} à l'export
                       </div>
                     </div>
                     {allClean && <CopyBtn text={exportText} label="Exporter" />}
                   </div>
                   {!allClean && (
-                    <div style={{ fontSize: 11, color: "#e94560", marginTop: 6 }}>Export bloque. Une ou plusieurs versions transportables contiennent des elements sensibles détectés au re-scan.</div>
+                    <div style={{ fontSize: 11, color: "#e94560", marginTop: 6 }}>Export bloqué. Une ou plusieurs versions transportables contiennent des éléments sensibles détectés au re-scan.</div>
                   )}
                 </div>
               );
@@ -1664,7 +1664,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, marginBottom: 8 }}>STRESS TEST — {b.stressTest.length} angles d'attaque</div>
                         {b.stressTest.map(function(angle, ai) {
                           var sourceColor = angle.source === "offre" ? "#3498db" : angle.source === "marche" ? "#9b59b6" : "#ff9800";
-                          var sourceLabel = angle.source === "offre" ? "OFFRE" : angle.source === "marche" ? "MARCHE" : "";
+                          var sourceLabel = angle.source === "offre" ? "OFFRE" : angle.source === "marche" ? "MARCHÉ" : "";
                           return (
                             <div key={ai} style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginBottom: 6 }}>
                               <div style={{ fontSize: 10, fontWeight: 700, color: sourceColor, marginBottom: 4 }}>{(ai + 1) + ". " + angle.label}{sourceLabel ? " — " + sourceLabel : ""}</div>
@@ -1702,7 +1702,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     return (
                       <div style={{ fontSize: 10, color: vuln.color, marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
                         <span>{vuln.level === "blindee" ? "\uD83D\uDEE1\uFE0F" : vuln.level === "credible" ? "\u26A0\uFE0F" : "\uD83D\uDEA8"}</span>
-                        <span>{vuln.level === "blindee" ? "Blindee" : vuln.level === "credible" ? "A blinder" : "Vulnerable"}</span>
+                        <span>{vuln.level === "blindee" ? "Blindée" : vuln.level === "credible" ? "À blinder" : "Vulnérable"}</span>
                       </div>
                     );
                   })()}
@@ -1745,13 +1745,13 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 })}
                 {withCosts.length > 0 && (
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, marginTop: 8 }}>
-                    Ta négociation ne porte pas sur ton salaire. Elle porte sur la disparition de {withCosts.length === 1 ? "ce problème qui coute " + withCosts[0].cost : "ces problèmes"}. Le recruteur ne paie pas ta compétence. Il paie la fin de sa douleur.
+                    Ta négociation ne porte pas sur ton salaire. Elle porte sur la disparition de {withCosts.length === 1 ? "ce problème qui coûte " + withCosts[0].cost : "ces problèmes"}. Le recruteur ne paie pas ta compétence. Il paie la fin de sa douleur.
                   </div>
                 )}
                 {vulnerableCoverage.length > 0 && (
                   <div style={{ background: "#e94560" + "22", borderRadius: 6, padding: 8, marginTop: 8 }}>
                     <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5 }}>
-                      {vulnerableCoverage.length} cauchemar{vulnerableCoverage.length > 1 ? "s" : ""} couvert{vulnerableCoverage.length > 1 ? "s" : ""} par des briques vulnerables. Tu te positionnes comme le remède mais ta preuve est faible. Si le problème persiste, tu deviens la cible.
+                      {vulnerableCoverage.length} cauchemar{vulnerableCoverage.length > 1 ? "s" : ""} couvert{vulnerableCoverage.length > 1 ? "s" : ""} par des briques vulnérables. Tu te positionnes comme le remède mais ta preuve est faible. Si le problème persiste, tu deviens la cible.
                     </div>
                   </div>
                 )}
@@ -1766,7 +1766,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>{measurementDiag.msg}</div>
               {missions.length > 0 && (
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginTop: 8 }}>
-                  Ratio : {validated.length} brique{validated.length > 1 ? "s" : ""} prouvee{validated.length > 1 ? "s" : ""} / {missions.length} mission{missions.length > 1 ? "s" : ""} sans chiffre.
+                  Ratio : {validated.length} brique{validated.length > 1 ? "s" : ""} prouvée{validated.length > 1 ? "s" : ""} / {missions.length} mission{missions.length > 1 ? "s" : ""} sans chiffre.
                   {missionRatio >= 50 ? " La majorité de ton activité est invisible. Tu négocies à l'aveugle." : ""}
                 </div>
               )}
@@ -1777,12 +1777,12 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           {missions.length > 0 && (
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{"\uD83D\uDCCB"} Missions en attente ({missions.length})</div>
-              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 8 }}>Chaque mission completee ne remplit pas seulement ton arsenal. Elle installe un réflexe : mesurer ce que tu fais pendant que tu le fais.</div>
+              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 8 }}>Chaque mission complétée ne remplit pas seulement ton arsenal. Elle installe un réflexe : mesurer ce que tu fais pendant que tu le fais.</div>
               {missions.map(function(m) {
                 return (
                   <div key={m.id} style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 6, borderLeft: "3px solid #ff9800" }}>
                     <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 4 }}>{m.text}</div>
-                    <span style={{ fontSize: 10, color: "#ff9800" }}>Complete cette mission. La prochaine fois, mesure en temps reel.</span>
+                    <span style={{ fontSize: 10, color: "#ff9800" }}>Complète cette mission. La prochaine fois, mesure en temps réel.</span>
                   </div>
                 );
               })}
@@ -1797,8 +1797,8 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
           {/* STYLE ENGINE — now tracks corrections */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{"\u270D\uFE0F"} Editeur de Contraintes : {vault.corrections} correction{vault.corrections > 1 ? "s" : ""}</div>
-            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 8 }}>Le moteur apprend de tes corrections, pas de tes validations. Chaque modification enseigne ta voix. Apres 50 corrections, l'IA ecrit comme toi.</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{"\u270D\uFE0F"} Éditeur de Contraintes : {vault.corrections} correction{vault.corrections > 1 ? "s" : ""}</div>
+            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 8 }}>Le moteur apprend de tes corrections, pas de tes validations. Chaque modification enseigne ta voix. Après 50 corrections, l'IA écrit comme toi.</div>
             <Bar pct={Math.min(100, vault.corrections * 2)} />
           </div>
 
@@ -1807,13 +1807,13 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{"\u2694\uFE0F"} Indice de Levier</div>
             <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, border: "1px dashed #e94560" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 600 }}>POUVOIR DE NEGOCIATION</div>
+                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 600 }}>POUVOIR DE NÉGOCIATION</div>
                 <span style={{ fontSize: 14, color: leveragePct >= 70 ? "#4ecca3" : "#e94560", fontWeight: 800 }}>{leveragePct}%</span>
               </div>
               <Bar pct={leveragePct} />
               {elasticBricks.length > 0 && (
                 <div style={{ marginTop: 10, fontSize: 12, color: "#4ecca3" }}>
-                  {"\u2197\uFE0F"} {elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marche élastique. Tu te positionnes là où la demande accelere.
+                  {"\u2197\uFE0F"} {elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marché élastique. Tu te positionnes là où la demande accélère.
                 </div>
               )}
               {kpiGaps.length > 0 && (
@@ -1830,7 +1830,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 </div>
               )}
               {kpiGaps.length === 0 && (
-                <div style={{ marginTop: 12, fontSize: 12, color: "#4ecca3", fontWeight: 600 }}>Aucune faille détectée. Ton levier est maximal sur les criteres Forge.</div>
+                <div style={{ marginTop: 12, fontSize: 12, color: "#4ecca3", fontWeight: 600 }}>Aucune faille détectée. Ton levier est maximal sur les critères Forge.</div>
               )}
             </div>
           </div>
@@ -1842,7 +1842,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               {[
                 { id: "recherche", label: "Recherche" },
                 { id: "en_poste", label: "En poste" },
-                { id: "négociation", label: "Negociation" },
+                { id: "négociation", label: "Négociation" },
                 { id: "freelance", label: "Freelance" },
               ].map(function(p) {
                 var act = capturePhase === p.id;
@@ -1859,7 +1859,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, border: "1px solid #16213e" }}>
               {capturePhase === "freelance" && (
                 <div style={{ fontSize: 12, color: "#4ecca3", lineHeight: 1.5, marginBottom: 12, padding: "8px 10px", background: "#1a1a2e", borderRadius: 8, borderLeft: "3px solid #4ecca3" }}>
-                  Mode freelance : chaque ping généré un rapport de valeur que tu envoies à ton client pour justifier tes honoraires. Tu ne notes pas pour te souvenir. Tu blindes pour facturer.
+                  Mode freelance : chaque ping génère un rapport de valeur que tu envoies à ton client pour justifier tes honoraires. Tu ne notes pas pour te souvenir. Tu blindes pour facturer.
                 </div>
               )}
               {pings.map(function(ping, i) {
@@ -1878,7 +1878,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             </div>
           </div>
 
-          {/* BRIEF DE NEGOCIATION — cauchemars as leverage */}
+          {/* BRIEF DE NÉGOCIATION — cauchemars as leverage */}
           {(function() {
             var coverage = computeCauchemarCoverage(bricks);
             var coveredWithCost = coverage.filter(function(c) { return c.covered && c.costRange; });
@@ -1892,16 +1892,16 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                   <span style={{ fontSize: 18 }}>{"\uD83D\uDCB0"}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6" }}>BRIEF DE NEGOCIATION</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6" }}>BRIEF DE NÉGOCIATION</div>
                     <div style={{ fontSize: 11, color: "#4ecca3" }}>Cadrage par le coût du problème, pas par ton salaire</div>
                   </div>
                 </div>
                 <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 10 }}>
-                  <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>Tu couvres {coveredWithCost.length} cauchemar{coveredWithCost.length > 1 ? "s" : ""} represetant un cout sectoriel de :</div>
+                  <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>Tu couvres {coveredWithCost.length} cauchemar{coveredWithCost.length > 1 ? "s" : ""} représentant un coût sectoriel de :</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#4ecca3" }}>
                     {(totalCostMin / 1000).toFixed(0)}K - {(totalCostMax / 1000).toFixed(0)}K{"\u20AC"}/an
                   </div>
-                  <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>Fourchette basee sur les moyennes Mid-Market SaaS</div>
+                  <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>Fourchette basée sur les moyennes Mid-Market SaaS</div>
                 </div>
                 {coveredWithCost.map(function(c) {
                   return (
@@ -1912,10 +1912,10 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       </div>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>{c.costContext}</div>
                       {c.hasElasticCovering && (
-                        <div style={{ fontSize: 10, color: "#4ecca3", marginTop: 3 }}>{"\u2197\uFE0F"} Couvert par une brique élastique. Position de remède credible.</div>
+                        <div style={{ fontSize: 10, color: "#4ecca3", marginTop: 3 }}>{"\u2197\uFE0F"} Couvert par une brique élastique. Position de remède crédible.</div>
                       )}
                       {c.covered && !c.hasElasticCovering && (
-                        <div style={{ fontSize: 10, color: "#ff9800", marginTop: 3 }}>{"\u26A0\uFE0F"} Couvert par une brique stable. Levier de négociation limite.</div>
+                        <div style={{ fontSize: 10, color: "#ff9800", marginTop: 3 }}>{"\u26A0\uFE0F"} Couvert par une brique stable. Levier de négociation limité.</div>
                       )}
                     </div>
                   );
@@ -1923,8 +1923,8 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: hasElastic ? "#4ecca3" + "15" : "#ff9800" + "15", borderRadius: 6, padding: 8, marginTop: 8 }}>
                   <div style={{ fontSize: 12, color: hasElastic ? "#4ecca3" : "#ff9800", lineHeight: 1.5, fontWeight: 600 }}>
                     {hasElastic
-                      ? "Ta négociation ne porte pas sur ton salaire. Elle porte sur le coût de ne pas te recruter. Le cauchemar coute " + (totalCostMin / 1000).toFixed(0) + "-" + (totalCostMax / 1000).toFixed(0) + "K\u20AC/an. Ton package est une fraction de ce risque."
-                      : "Tes briques couvrent des cauchemars mais aucune n'est sur un KPI élastique. Ton levier de négociation est reel mais contestable. Cherche un angle élastique."
+                      ? "Ta négociation ne porte pas sur ton salaire. Elle porte sur le coût de ne pas te recruter. Le cauchemar coûte " + (totalCostMin / 1000).toFixed(0) + "-" + (totalCostMax / 1000).toFixed(0) + "K\u20AC/an. Ton package est une fraction de ce risque."
+                      : "Tes briques couvrent des cauchemars mais aucune n'est sur un KPI élastique. Ton levier de négociation est réel mais contestable. Cherche un angle élastique."
                     }
                   </div>
                 </div>
@@ -1952,15 +1952,15 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                   <div style={{ flex: 1, textAlign: "center", background: "#4ecca3" + "15", borderRadius: 8, padding: 10, border: "1px solid #4ecca3" + "33" }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "#4ecca3" }}>{validatedBricks.length}</div>
-                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Briques fraiches</div>
+                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Briques fraîches</div>
                   </div>
                   <div style={{ flex: 1, textAlign: "center", background: "#4ecca3" + "15", borderRadius: 8, padding: 10, border: "1px solid #4ecca3" + "33" }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "#4ecca3" }}>{blindedBricks.length}</div>
-                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Blindees</div>
+                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Blindées</div>
                   </div>
                   <div style={{ flex: 1, textAlign: "center", background: "#4ecca3" + "15", borderRadius: 8, padding: 10, border: "1px solid #4ecca3" + "33" }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: "#4ecca3" }}>0</div>
-                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Perimees</div>
+                    <div style={{ fontSize: 9, color: "#4ecca3", fontWeight: 600 }}>Périmées</div>
                   </div>
                 </div>
 
@@ -1968,7 +1968,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 14, border: "1px solid #e94560" + "33", marginBottom: 12 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#e94560", marginBottom: 6 }}>Aujourd'hui tout est vert.</div>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7 }}>
-                    Le {decayStr}, ces {validatedBricks.length} briques auront perdu 40% de leur valeur. Un recruteur qui te contacte dans 3 mois entendra un pitch construit sur des chiffres anciens. Le marche aura bouge. Tes preuves non.
+                    Le {decayStr}, ces {validatedBricks.length} briques auront perdu 40% de leur valeur. Un recruteur qui te contacte dans 3 mois entendra un pitch construit sur des chiffres anciens. Le marché aura bougé. Tes preuves non.
                   </div>
                 </div>
 
@@ -1976,7 +1976,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 12 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <div style={{ fontSize: 10, color: "#9b59b6", fontWeight: 700 }}>PROCHAIN RENDEZ-VOUS DE SOUVERAINETE</div>
+                      <div style={{ fontSize: 10, color: "#9b59b6", fontWeight: 700 }}>PROCHAIN RENDEZ-VOUS DE SOUVERAINETÉ</div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6", marginTop: 4 }}>{rdvStr}</div>
                     </div>
                     <div style={{ fontSize: 9, color: "#8892b0", textAlign: "right" }}>
@@ -1988,13 +1988,13 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
                 {/* What Thermostat does */}
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6 }}>
-                  Le Thermostat surveille la fraicheur de chaque brique, te previent quand ton signal se degrade, et programme tes Rendez-vous de Souverainete. Il fonctionne avec l'abonnement.
+                  Le Thermostat surveille la fraîcheur de chaque brique, te prévient quand ton signal se dégrade, et programme tes Rendez-vous de Souveraineté. Il fonctionne avec l'abonnement.
                 </div>
               </div>
             );
           })()}
 
-          {/* SCRIPT DE NEGOCIATION */}
+          {/* SCRIPT DE NÉGOCIATION */}
           {(function() {
             var negoBrief = computeNegotiationBrief(bricks);
             var bluffRisks = detectBluffRisk(bricks);
@@ -2004,7 +2004,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                   <span style={{ fontSize: 18 }}>{"\u2694\uFE0F"}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6" }}>SCRIPT DE NEGOCIATION</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6" }}>SCRIPT DE NÉGOCIATION</div>
                     <div style={{ fontSize: 11, color: "#4ecca3" }}>{negoBrief.coveredCount} cauchemar{negoBrief.coveredCount > 1 ? "s" : ""} couvert{negoBrief.coveredCount > 1 ? "s" : ""} / Impact total : {formatCost(negoBrief.totalCostLow)}-{formatCost(negoBrief.totalCostHigh)}/an</div>
                   </div>
                 </div>
@@ -2047,7 +2047,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 {/* Mode d'emploi */}
                 <div style={{ background: "#16213e", borderRadius: 6, padding: 10, marginTop: 8 }}>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6 }}>
-                    Mode d'emploi : n'arrive pas en disant "je vaux X". Arrive en disant "votre problème coute {formatCost(negoBrief.totalCostLow)}-{formatCost(negoBrief.totalCostHigh)} par an. Voici comment je l'ai résolu. Voici ce que ca vaut." Le recruteur ne paie pas ta compétence. Il paie la fin de sa douleur.
+                    Mode d'emploi : n'arrive pas en disant "je vaux X". Arrive en disant "votre problème coûte {formatCost(negoBrief.totalCostLow)}-{formatCost(negoBrief.totalCostHigh)} par an. Voici comment je l'ai résolu. Voici ce que ça vaut." Le recruteur ne paie pas ta compétence. Il paie la fin de sa douleur.
                   </div>
                 </div>
               </div>
@@ -2059,9 +2059,9 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
           {/* CTA — tied to Thermostat */}
           <div style={{ borderTop: "1px solid #495670", paddingTop: 20, marginTop: 8, textAlign: "center" }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>Le Thermostat surveille. Tu decides.</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>Le Thermostat surveille. Tu décides.</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 16 }}>
-              Score de fraicheur de chaque brique. Alerte quand ton signal se degrade. Rendez-vous de Souverainete programmes. Duel illimite. Coffre-Fort mis a jour en continu.
+              Score de fraîcheur de chaque brique. Alerte quand ton signal se dégrade. Rendez-vous de Souveraineté programmés. Duel illimité. Coffre-Fort mis à jour en continu.
             </div>
             <button style={{
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",

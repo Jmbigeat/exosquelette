@@ -41,10 +41,10 @@ export function InvestmentIndex({ bricks }) {
             {level === "dense"
               ? "Tu as fait un travail que la majorité des candidats ne fera jamais. Le recruteur verra la différence entre quelqu'un qui a préparé et quelqu'un qui a généré."
               : level === "solide"
-              ? "Investissement solide. Chaque brique supplementaire creuse l'ecart avec les candidats qui arrivent les mains vides."
+              ? "Investissement solide. Chaque brique supplémentaire creuse l'écart avec les candidats qui arrivent les mains vides."
               : level === "en cours"
-              ? "Debut d'investissement. Continue. La valeur arrive quand le travail devient inconfortable."
-              : "Premier pas. La Forge demarre. Chaque réponse construit ton arsenal."
+              ? "Début d'investissement. Continue. La valeur arrive quand le travail devient inconfortable."
+              : "Premier pas. La Forge démarre. Chaque réponse construit ton arsenal."
             }
           </div>
           {hasCicatrices && (
@@ -64,7 +64,7 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
     { l: "Missions en cours", val: v.missions, mx: 5, e: "\uD83D\uDCCB" },
     { l: "Piliers Singularité", val: v.pillars, mx: 4, e: "\uD83C\uDFDB\uFE0F" },
   ];
-  var matLabels = { executant: "Executant", optimiseur: "Optimiseur", architecte: "Architecte" };
+  var matLabels = { executant: "Exécutant", optimiseur: "Optimiseur", architecte: "Architecte" };
   var matColors = { executant: "#495670", optimiseur: "#e94560", architecte: "#4ecca3" };
   return (
     <div style={{ background: "#16213e", borderRadius: 12, padding: 20, marginBottom: 24 }}>
@@ -115,14 +115,14 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
                   {/* Reference cost range */}
                   {c.costRange && (
                     <div style={{ fontSize: 10, color: "#e94560", marginBottom: 3 }}>
-                      {"\uD83D\uDCB0"} Cout sectoriel : {(c.costRange[0] / 1000).toFixed(0)}K - {(c.costRange[1] / 1000).toFixed(0)}K\u20AC/{c.costUnit}
+                      {"\uD83D\uDCB0"} Coût sectoriel : {(c.costRange[0] / 1000).toFixed(0)}K - {(c.costRange[1] / 1000).toFixed(0)}K\u20AC/{c.costUnit}
                     </div>
                   )}
                   {/* Negotiation framing for covered cauchemars */}
                   {c.covered && c.costRange && c.hasElasticCovering && (
                     <div style={{ background: "#4ecca3" + "15", borderRadius: 4, padding: 6, marginBottom: 3 }}>
                       <div style={{ fontSize: 10, color: "#4ecca3", lineHeight: 1.4 }}>
-                        {"\u2197\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique a {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K\u20AC. Ta négociation commence par ce chiffre.
+                        {"\u2197\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique à {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K\u20AC. Ta négociation commence par ce chiffre.
                       </div>
                     </div>
                   )}
@@ -239,7 +239,7 @@ export function CVPreview({ bricks }) {
           )}
           {validated.length >= TARGET_BRICKS && (
             <div style={{ fontSize: 11, color: "#4ecca3", marginTop: 8, textAlign: "center" }}>
-              CV complet. Chaque ligne est une preuve. Le recruteur n'a rien a deviner.
+              CV complet. Chaque ligne est une preuve. Le recruteur n'a rien à deviner.
             </div>
           )}
         </div>
@@ -320,7 +320,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
   var qualityLevel = blindedCount >= 3 ? "blinde" : blindedCount >= 1 ? "partiel" : "nu";
   var qualityColor = qualityLevel === "blinde" ? "#4ecca3" : qualityLevel === "partiel" ? "#ff9800" : "#e94560";
-  var qualityLabel = qualityLevel === "blinde" ? "PREUVE BLINDEE" : qualityLevel === "partiel" ? "PARTIELLEMENT BLINDE" : "SANS PREUVE CHIFFREE";
+  var qualityLabel = qualityLevel === "blinde" ? "PREUVE BLINDÉE" : qualityLevel === "partiel" ? "PARTIELLEMENT BLINDÉ" : "SANS PREUVE CHIFFRÉE";
 
   function handleCopy(text, id) {
     if (navigator.clipboard) { navigator.clipboard.writeText(text); }
@@ -354,8 +354,8 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>AVERTISSEMENT</div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
                 {qualityLevel === "nu"
-                  ? "Tes scripts n'ont aucune preuve chiffree. Le hiring manager sera intrigue, pas convaincu. Blinde tes briques pour passer de \"interessant\" a \"evident.\""
-                  : "Certaines briques ne sont pas blindees (" + blindedCount + "/" + validated.length + " blindees). Le script utilise la meilleure preuve disponible. Blinde le reste pour renforcer l'arsenal."}
+                  ? "Tes scripts n'ont aucune preuve chiffrée. Le hiring manager sera intrigué, pas convaincu. Blinde tes briques pour passer de \"intéressant\" à \"évident.\""
+                  : "Certaines briques ne sont pas blindées (" + blindedCount + "/" + validated.length + " blindées). Le script utilise la meilleure preuve disponible. Blinde le reste pour renforcer l'arsenal."}
               </div>
             </div>
           )}
@@ -507,7 +507,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>DASHBOARD</div>
         <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 380, margin: "0 auto", fontStyle: "italic" }}>
-          Ton expertise resout des problemes a 6 chiffres. Ce dashboard existe pour que le marche le sache.
+          Ton expertise résout des problèmes à 6 chiffres. Ce dashboard existe pour que le marché le sache.
         </div>
       </div>
 
@@ -535,33 +535,33 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
       <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 20, borderLeft: "4px solid #e94560" }}>
         <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>THERMOSTAT</div>
 
-        {/* Ligne 1 — Valeur prouvee */}
+        {/* Ligne 1 — Valeur prouvée */}
         <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #16213e" }}>
-          <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>VALEUR PROUVEE</div>
+          <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>VALEUR PROUVÉE</div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-            Tu resous {covered.length} cauchemar{covered.length > 1 ? "s" : ""} pour un cout cumule de {formatCost(totalCostLow)}-{formatCost(totalCostHigh)} par an. Preuve : {blinded.length} brique{blinded.length > 1 ? "s" : ""} blindee{blinded.length > 1 ? "s" : ""} dans ton Coffre-Fort.
+            Tu résous {covered.length} cauchemar{covered.length > 1 ? "s" : ""} pour un coût cumulé de {formatCost(totalCostLow)}-{formatCost(totalCostHigh)} par an. Preuve : {blinded.length} brique{blinded.length > 1 ? "s" : ""} blindée{blinded.length > 1 ? "s" : ""} dans ton Coffre-Fort.
           </div>
         </div>
 
-        {/* Ligne 2 — Visibilite */}
+        {/* Ligne 2 — Visibilité */}
         <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #16213e" }}>
-          <div style={{ fontSize: 12, color: "#ff9800", fontWeight: 700, marginBottom: 4 }}>VISIBILITE</div>
+          <div style={{ fontSize: 12, color: "#ff9800", fontWeight: 700, marginBottom: 4 }}>VISIBILITÉ</div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-            Dernier post declare : {thermoState.lastPostDate ? "il y a " + thermoState.weeksInactive + " semaine" + (thermoState.weeksInactive > 1 ? "s" : "") : "aucun"}.
+            Dernier post déclaré : {thermoState.lastPostDate ? "il y a " + thermoState.weeksInactive + " semaine" + (thermoState.weeksInactive > 1 ? "s" : "") : "aucun"}.
             {" "}Registre : {diltsLabel.name} ({thermoState.effectiveLevel}/5).
             {" "}Prochain registre : {DILTS_EDITORIAL_MAPPING[diltsTarget.targetLevel] ? DILTS_EDITORIAL_MAPPING[diltsTarget.targetLevel].registre : "Comportement"}.
           </div>
         </div>
 
-        {/* Ligne 3 — Cout du silence */}
+        {/* Ligne 3 — Coût du silence */}
         <div>
-          <div style={{ fontSize: 12, color: thermoState.decay > 0 ? "#e94560" : thermoState.isAlert ? "#ff9800" : "#8892b0", fontWeight: 700, marginBottom: 4 }}>COUT DU SILENCE</div>
+          <div style={{ fontSize: 12, color: thermoState.decay > 0 ? "#e94560" : thermoState.isAlert ? "#ff9800" : "#8892b0", fontWeight: 700, marginBottom: 4 }}>COÛT DU SILENCE</div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
             {thermoState.decay > 0
-              ? "Ton thermostat a baisse. Plafond atteint : " + getDiltsLabel(thermoState.plafond).name + ". Niveau effectif : " + diltsLabel.name + ". Chaque semaine sans signal, tu sors du top 5% des profils visibles. 2 millions de posts par jour sur LinkedIn. Sans signal, ton profil descend."
+              ? "Ton thermostat a baissé. Plafond atteint : " + getDiltsLabel(thermoState.plafond).name + ". Niveau effectif : " + diltsLabel.name + ". Chaque semaine sans signal, tu sors du top 5% des profils visibles. 2 millions de posts par jour sur LinkedIn. Sans signal, ton profil descend."
               : thermoState.isAlert
               ? "1 semaine sans signal. Tu es encore visible mais le compteur tourne. 94.8% des utilisateurs LinkedIn ne publient jamais. 1 post ou 2-3 commentaires cette semaine te maintiennent dans les 5% qui existent."
-              : "Ton thermostat est stable. 1 signal par semaine minimum. Au-dela de 5, le bruit te dessert. Le cadre senior publie peu mais juste."
+              : "Ton thermostat est stable. 1 signal par semaine minimum. Au-delà de 5, le bruit te dessert. Le cadre senior publie peu mais juste."
             }
           </div>
         </div>
@@ -571,12 +571,12 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
       <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 20, borderLeft: "4px solid #4ecca3" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1 }}>POSTS DE LA SEMAINE</div>
-          <span style={{ fontSize: 10, color: "#8892b0" }}>{posts.length} pret{posts.length > 1 ? "s" : ""}{rejected.length > 0 ? ", " + rejected.length + " ecarte" + (rejected.length > 1 ? "s" : "") : ""}</span>
+          <span style={{ fontSize: 10, color: "#8892b0" }}>{posts.length} prêt{posts.length > 1 ? "s" : ""}{rejected.length > 0 ? ", " + rejected.length + " écarté" + (rejected.length > 1 ? "s" : "") : ""}</span>
         </div>
 
         {posts.length === 0 && (
           <div style={{ fontSize: 12, color: "#495670", textAlign: "center", padding: 20 }}>
-            Pas assez de briques blindees pour generer des posts. Blinde ton Coffre-Fort.
+            Pas assez de briques blindées pour générer des posts. Blinde ton Coffre-Fort.
           </div>
         )}
 
@@ -592,7 +592,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
                 <span style={{ fontSize: 9, color: "#8892b0", background: "#1a1a2e", padding: "2px 6px", borderRadius: 6 }}>{post.formatLabel}</span>
                 {post.marieScore && <span style={{ fontSize: 9, color: post.marieScore >= 7 ? "#4ecca3" : "#ff9800", background: "#1a1a2e", padding: "2px 6px", borderRadius: 6 }}>Marie {post.marieScore}/10</span>}
                 {post.stockPotential && <span style={{ fontSize: 9, color: "#9b59b6", background: "#9b59b6" + "22", padding: "2px 6px", borderRadius: 6 }}>Stock</span>}
-                {!post.isBlinded && <span style={{ fontSize: 9, color: "#e94560", background: "#e94560" + "22", padding: "2px 6px", borderRadius: 6 }}>brique non blindee</span>}
+                {!post.isBlinded && <span style={{ fontSize: 9, color: "#e94560", background: "#e94560" + "22", padding: "2px 6px", borderRadius: 6 }}>brique non blindée</span>}
               </div>
 
               {/* Brick source */}
@@ -620,7 +620,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
                   padding: "4px 12px", fontSize: 10, borderRadius: 6, cursor: "pointer", fontWeight: 600,
                   background: isPublished ? "#4ecca3" + "22" : "#1a1a2e", color: isPublished ? "#4ecca3" : "#495670",
                   border: "1px solid " + (isPublished ? "#4ecca3" : "#16213e"),
-                }}>{isPublished ? "\u2705 Publie" : "Publie"}</button>
+                }}>{isPublished ? "\u2705 Publié" : "Publié"}</button>
               </div>
             </div>
           );
@@ -631,11 +631,11 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
           <div style={{ marginTop: 10 }}>
             <button onClick={function() { setShowRejected(!showRejected); }} style={{
               background: "none", border: "none", cursor: "pointer", fontSize: 10, color: "#495670", fontWeight: 600, padding: 0,
-            }}>{showRejected ? "\u25B2" : "\u25BC"} {rejected.length} post{rejected.length > 1 ? "s" : ""} ecarte{rejected.length > 1 ? "s" : ""}</button>
+            }}>{showRejected ? "\u25B2" : "\u25BC"} {rejected.length} post{rejected.length > 1 ? "s" : ""} écarté{rejected.length > 1 ? "s" : ""}</button>
             {showRejected && rejected.map(function(r, i) {
               return (
                 <div key={"rej-" + i} style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginTop: 6, opacity: 0.6 }}>
-                  <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>Ecarte par {r.rejectSource}</div>
+                  <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>Écarté par {r.rejectSource}</div>
                   <div style={{ fontSize: 10, color: "#8892b0", lineHeight: 1.5, marginBottom: 4 }}>{r.rejectReason}</div>
                   <div style={{ fontSize: 10, color: "#495670", whiteSpace: "pre-wrap" }}>{r.text}</div>
                 </div>
@@ -655,7 +655,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#4ecca3" }}>{blinded.length}</div>
-            <div style={{ fontSize: 10, color: "#8892b0" }}>blindees</div>
+            <div style={{ fontSize: 10, color: "#8892b0" }}>blindées</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#ff9800" }}>{covered.length}</div>
@@ -725,7 +725,7 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 16 }}>{hasBetterPath ? "\uD83D\uDEA9" : "\uD83D\uDDFA\uFE0F"}</span>
             <span style={{ color: hasBetterPath ? "#3498db" : "#ccd6f6", fontWeight: 700, fontSize: 13 }}>
-              {hasBetterPath ? "TERRAIN ALTERNATIF DETECTE" : "PARCOURS ALTERNATIFS"}
+              {hasBetterPath ? "TERRAIN ALTERNATIF DÉTECTÉ" : "PARCOURS ALTERNATIFS"}
             </span>
           </div>
           <span style={{ fontSize: 12, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
@@ -782,10 +782,10 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
                   {isBetter
                     ? isJySuis
-                      ? "Tes preuves couvrent mieux ce poste que celui que tu occupes. Tu as construit des preuves qui ouvrent un terrain que tu n'avais pas cible."
+                      ? "Tes preuves couvrent mieux ce poste que celui que tu occupes. Tu as construit des preuves qui ouvrent un terrain que tu n'avais pas ciblé."
                       : isJyVais
-                      ? "Ce poste est plus directement atteignable avec tes preuves actuelles. C'est une marche intermediaire credible avant ton objectif final."
-                      : "Couverture supérieure a ton choix. Tes briques matchent ce terrain."
+                      ? "Ce poste est plus directement atteignable avec tes preuves actuelles. C'est une marche intermédiaire crédible avant ton objectif final."
+                      : "Couverture supérieure à ton choix. Tes briques matchent ce terrain."
                     : "Terrain accessible. Tes briques couvrent une partie des KPIs élastiques de ce poste."
                   }
                 </div>
@@ -818,7 +818,7 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
           })}
 
           <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5, marginTop: 8 }}>
-            Ce croisement tourne a chaque Rendez-vous de Souverainete. Les briques que tu accumules en poste ouvrent progressivement de nouveaux terrains. Le système détecté quand tu es pret.
+            Ce croisement tourne à chaque Rendez-vous de Souveraineté. Les briques que tu accumules en poste ouvrent progressivement de nouveaux terrains. Le système détecte quand tu es prêt.
           </div>
         </div>
       )}
