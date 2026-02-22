@@ -145,6 +145,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       setTakes(function(prev) { return prev.concat([take]); });
       // Also store in bricks array for seed tracking (so allSeedsDone works)
       setBricks(function(prev) { return prev.concat([{ id: seed.id, text: seed.takeText, kpi: null, skills: [], usedIn: seed.usedIn, status: "validated", type: "take", brickType: "take" }]); });
+      setVault(function(prev) {
+        var sp = prev.selectedPillars || [];
+        sp = sp.concat([{ id: seed.id, title: seed.pillarPreview ? seed.pillarPreview.title : "", desc: seed.pillarPreview ? seed.pillarPreview.desc : "", source: "take" }]);
+        return Object.assign({}, prev, { pillars: sp.length, selectedPillars: sp });
+      });
       return;
     }
 
