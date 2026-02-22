@@ -916,7 +916,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                       upd[fKey] = e.target.value;
                       setFields(upd);
                       // Assemble all fields into answer for downstream compat
-                      var assembled = fieldDefs.map(function(fd, j) { return upd["f" + (j + 1)] || ""; }).filter(function(v) { return v.trim().length > 0; }).join(". ") + ".";
+                      var assembled = fieldDefs.map(function(fd, j) { return upd["f" + (j + 1)] || ""; }).filter(function(v) { return v.trim().length > 0; }).join("\n\n");
                       setAnswer(assembled);
                     }}
                     placeholder={f.placeholder}
