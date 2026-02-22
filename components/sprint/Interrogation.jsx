@@ -17,7 +17,7 @@ export function FeedbackToast({ brick, onDone }) {
     var t3 = setTimeout(function() { onDone(); }, 3800);
     return function() { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   });
-  var catLabel = brick.brickCategory && CATEGORY_LABELS[brick.brickCategory] ? CATEGORY_LABELS[brick.brickCategory].label : "";
+  var catLabel = brick.brickType === "cicatrice" ? "Cicatrice" : brick.brickType === "take" ? "Prise de position" : brick.brickCategory && CATEGORY_LABELS[brick.brickCategory] ? CATEGORY_LABELS[brick.brickCategory].label : "";
   var isHard = brick.brickCategory === "decision" || brick.brickCategory === "influence" || brick.brickType === "cicatrice";
   return (
     <div style={{
