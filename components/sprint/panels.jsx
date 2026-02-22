@@ -173,18 +173,56 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
 }
 
 export function CVPreview({ bricks }) {
-  var validated = bricks.filter(function(b) { return b.status === "validated"; });
+  var validated = bricks.filter(function(b) { return b.status === "validated" && b.brickType !== "take"; });
   if (validated.length === 0) return null;
   var TARGET_BRICKS = 5;
+
+  // Score each brick for CV ranking
+  var cauchemars = getActiveCauchemars();
+  var scored = validated.map(function(b) {
+    var score = 0;
+    if (b.kpi && cauchemars.some(function(c) { return c.kpis.some(function(k) { return b.kpi.indexOf(k.slice(0, 6)) !== -1 || k.indexOf((b.kpi || "").slice(0, 6)) !== -1; }); })) score += 10;
+    if (/\d/.test(b.text)) score += 5;
+    if (/via|grâce à|méthode|process|déployé|mis en place|construit|structuré/i.test(b.text)) score += 3;
+    if (b.elasticity === "élastique") score += 2;
+    return { brick: b, score: score };
+  });
+  scored.sort(function(a, b) { return b.score - a.score; });
+
+  // Greedy select: prioritize cauchemar coverage, then by score
+  var selected = [];
+  var coveredCauchIds = {};
+  scored.forEach(function(s) {
+    if (selected.length >= TARGET_BRICKS) return;
+    var coversNew = s.brick.kpi && cauchemars.some(function(c) {
+      if (coveredCauchIds[c.id]) return false;
+      return c.kpis.some(function(k) { return s.brick.kpi.indexOf(k.slice(0, 6)) !== -1 || k.indexOf(s.brick.kpi.slice(0, 6)) !== -1; });
+    });
+    if (coversNew) {
+      selected.push(s);
+      cauchemars.forEach(function(c) {
+        if (c.kpis.some(function(k) { return s.brick.kpi.indexOf(k.slice(0, 6)) !== -1 || k.indexOf(s.brick.kpi.slice(0, 6)) !== -1; })) coveredCauchIds[c.id] = true;
+      });
+    }
+  });
+  scored.forEach(function(s) {
+    if (selected.length >= TARGET_BRICKS) return;
+    if (selected.indexOf(s) === -1) selected.push(s);
+  });
+
+  var cvBricks = selected.map(function(s) { return s.brick; });
+  var excluded = validated.filter(function(b) { return cvBricks.indexOf(b) === -1; });
+
   var cvSlots = [];
   for (var i = 0; i < TARGET_BRICKS; i++) {
-    if (i < validated.length) {
-      cvSlots.push({ filled: true, text: validated[i].text, category: validated[i].brickCategory });
+    if (i < cvBricks.length) {
+      cvSlots.push({ filled: true, text: cvBricks[i].text, category: cvBricks[i].brickCategory });
     } else {
       cvSlots.push({ filled: false, text: "", category: null });
     }
   }
-  var pct = Math.round((validated.length / TARGET_BRICKS) * 100);
+  var filledCount = Math.min(cvBricks.length, TARGET_BRICKS);
+  var pct = Math.round((filledCount / TARGET_BRICKS) * 100);
   var cvState = useState(false);
   var expanded = cvState[0];
   var setExpanded = cvState[1];
@@ -199,7 +237,7 @@ export function CVPreview({ bricks }) {
             <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>TON CV EN CONSTRUCTION</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12, color: pct >= 100 ? "#4ecca3" : "#e94560", fontWeight: 700 }}>{validated.length}/{TARGET_BRICKS}</span>
+            <span style={{ fontSize: 12, color: pct >= 100 ? "#4ecca3" : "#e94560", fontWeight: 700 }}>{filledCount}/{TARGET_BRICKS}</span>
             <span style={{ fontSize: 12, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
           </div>
         </div>
@@ -232,14 +270,32 @@ export function CVPreview({ bricks }) {
               );
             })}
           </div>
-          {validated.length < TARGET_BRICKS && (
+          {filledCount < TARGET_BRICKS && (
             <div style={{ fontSize: 11, color: "#e94560", marginTop: 8, textAlign: "center" }}>
-              {TARGET_BRICKS - validated.length} ligne{TARGET_BRICKS - validated.length > 1 ? "s" : ""} vide{TARGET_BRICKS - validated.length > 1 ? "s" : ""}. Le recruteur voit les trous.
+              {TARGET_BRICKS - filledCount} ligne{TARGET_BRICKS - filledCount > 1 ? "s" : ""} vide{TARGET_BRICKS - filledCount > 1 ? "s" : ""}. Le recruteur voit les trous.
             </div>
           )}
-          {validated.length >= TARGET_BRICKS && (
+          {filledCount >= TARGET_BRICKS && (
             <div style={{ fontSize: 11, color: "#4ecca3", marginTop: 8, textAlign: "center" }}>
               CV complet. Chaque ligne est une preuve. Le recruteur n'a rien à deviner.
+            </div>
+          )}
+          {excluded.length > 0 && (
+            <div style={{ marginTop: 12, borderTop: "1px solid #1a1a2e", paddingTop: 10 }}>
+              <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>BRIQUES HORS CV ({excluded.length})</div>
+              <div style={{ fontSize: 10, color: "#495670", marginBottom: 8 }}>Ces briques alimentent le Duel et les scripts mais pas le CV.</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {excluded.map(function(b, idx) {
+                  var catColor = b.brickCategory && CATEGORY_LABELS[b.brickCategory] ? CATEGORY_LABELS[b.brickCategory].color : "#495670";
+                  return (
+                    <div key={idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid " + catColor, opacity: 0.5 }}>
+                      <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
+                        {b.text.length > 70 ? b.text.slice(0, 70) + "..." : b.text}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
