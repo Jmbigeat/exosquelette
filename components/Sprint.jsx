@@ -75,9 +75,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var setUrgenceMode = urgenceState[1];
 
   // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
-  if (parsedOffers && parsedOffers.cauchemars) {
-    setActiveCauchemarsGlobal(parsedOffers.cauchemars);
-  } else if (targetRoleId) {
+  if (targetRoleId) {
     setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
   }
 
@@ -87,9 +85,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   function recalcOffersSignals(updatedOffers) {
     var merged = mergeOfferSignals(updatedOffers, targetRoleId);
     setParsedOffers(merged);
-    if (merged && merged.cauchemars) {
-      setActiveCauchemarsGlobal(merged.cauchemars);
-    } else if (targetRoleId) {
+    if (targetRoleId) {
       setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
     }
   }
@@ -108,14 +104,12 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     recalcOffersSignals(updated);
   }
 
-  // Set global active cauchemars whenever role or parsed offers change
+  // Set global active cauchemars whenever role changes
   useEffect(function() {
-    if (parsedOffers && parsedOffers.cauchemars) {
-      setActiveCauchemarsGlobal(parsedOffers.cauchemars);
-    } else if (targetRoleId) {
+    if (targetRoleId) {
       setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
     }
-  }, [parsedOffers, targetRoleId]);
+  }, [targetRoleId]);
 
   // Persistence : notify parent on every meaningful state change
   var persistRef = useRef(null);
