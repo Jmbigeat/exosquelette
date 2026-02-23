@@ -4,7 +4,7 @@ import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/l
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, formatCost } from "@/lib/sprint/scoring";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, generateCVLine } from "@/lib/sprint/generators";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
@@ -214,15 +214,11 @@ export function CVPreview({ bricks }) {
   var cvBricks = selected.map(function(s) { return s.brick; });
   var excluded = validated.filter(function(b) { return cvBricks.indexOf(b) === -1; });
 
-  var cvSlots = [];
-  for (var i = 0; i < TARGET_BRICKS; i++) {
-    if (i < cvBricks.length) {
-      cvSlots.push({ filled: true, text: cvBricks[i].text, category: cvBricks[i].brickCategory });
-    } else {
-      cvSlots.push({ filled: false, text: "", category: null });
-    }
-  }
-  var filledCount = Math.min(cvBricks.length, TARGET_BRICKS);
+  // Split CV bricks: those with a number go in CV, others need retouching
+  var cvReady = cvBricks.filter(function(b) { return /\d/.test(b.text); });
+  var needsNumber = cvBricks.filter(function(b) { return !/\d/.test(b.text); });
+
+  var filledCount = cvReady.length;
   var pct = Math.round((filledCount / TARGET_BRICKS) * 100);
   var cvState = useState(false);
   var expanded = cvState[0];
@@ -249,21 +245,22 @@ export function CVPreview({ bricks }) {
           <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 6, height: 4, overflow: "hidden", marginBottom: 12 }}>
             <div style={{ width: Math.min(pct, 100) + "%", height: "100%", background: pct >= 100 ? "#4ecca3" : "linear-gradient(90deg, #e94560, #ff6b6b)", borderRadius: 6, transition: "width 0.5s ease" }} />
           </div>
-          {/* CV Slots */}
+          {/* CV Lines */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {cvSlots.map(function(slot, idx) {
-              var catColor = slot.category && CATEGORY_LABELS[slot.category] ? CATEGORY_LABELS[slot.category].color : "#495670";
-              if (slot.filled) {
-                return (
-                  <div key={idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid " + catColor }}>
-                    <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.4 }}>
-                      {slot.text.length > 80 ? slot.text.slice(0, 80) + "..." : slot.text}
-                    </div>
-                  </div>
-                );
-              }
+            {cvReady.map(function(b, idx) {
+              var catColor = b.brickCategory && CATEGORY_LABELS[b.brickCategory] ? CATEGORY_LABELS[b.brickCategory].color : "#495670";
               return (
-                <div key={idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid #1a1a2e", opacity: 0.3 }}>
+                <div key={idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid " + catColor }}>
+                  <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.4 }}>
+                    {generateCVLine(b)}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Empty slots */}
+            {Array.from({ length: Math.max(0, TARGET_BRICKS - cvReady.length) }).map(function(_, idx) {
+              return (
+                <div key={"empty" + idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid #1a1a2e", opacity: 0.3 }}>
                   <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.4 }}>
                     {"\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588"}
                   </div>
@@ -281,6 +278,24 @@ export function CVPreview({ bricks }) {
               CV complet. Chaque ligne est une preuve. Le recruteur n'a rien à deviner.
             </div>
           )}
+          {needsNumber.length > 0 && (
+            <div style={{ marginTop: 12, borderTop: "1px solid #1a1a2e", paddingTop: 10 }}>
+              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 6 }}>BRIQUES À RETOUCHER ({needsNumber.length})</div>
+              <div style={{ fontSize: 10, color: "#495670", marginBottom: 8 }}>Ajoute un chiffre pour intégrer le CV.</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {needsNumber.map(function(b, idx) {
+                  var catColor = b.brickCategory && CATEGORY_LABELS[b.brickCategory] ? CATEGORY_LABELS[b.brickCategory].color : "#495670";
+                  return (
+                    <div key={"need" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid #ff9800", opacity: 0.7 }}>
+                      <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
+                        {generateCVLine(b)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {excluded.length > 0 && (
             <div style={{ marginTop: 12, borderTop: "1px solid #1a1a2e", paddingTop: 10 }}>
               <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>BRIQUES HORS CV ({excluded.length})</div>
@@ -289,9 +304,9 @@ export function CVPreview({ bricks }) {
                 {excluded.map(function(b, idx) {
                   var catColor = b.brickCategory && CATEGORY_LABELS[b.brickCategory] ? CATEGORY_LABELS[b.brickCategory].color : "#495670";
                   return (
-                    <div key={idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid " + catColor, opacity: 0.5 }}>
+                    <div key={"ex" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid " + catColor, opacity: 0.5 }}>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
-                        {b.text.length > 70 ? b.text.slice(0, 70) + "..." : b.text}
+                        {generateCVLine(b)}
                       </div>
                     </div>
                   );
