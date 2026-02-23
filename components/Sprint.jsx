@@ -8,6 +8,7 @@ import { parseOfferSignals, buildActiveCauchemars, mergeOfferSignals, checkOffer
 import { generateAdaptiveSeeds, matchKpiToReference, getAdaptivePillars, generateBrickVersions } from "@/lib/sprint/bricks";
 import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest } from "@/lib/sprint/generators";
 import { getMaturityLevel } from "@/lib/sprint/analysis";
+import { migrateState, CURRENT_VERSION } from "@/lib/sprint/migrations";
 
 // Component modules
 import { Bar, Nav, Pillars, Locked, OffersManager } from "@/components/sprint/ui";
@@ -18,6 +19,7 @@ import { EndScreen } from "@/components/sprint/EndScreen";
 import { Onboarding } from "@/components/sprint/Onboarding";
 
 export default function Sprint({ initialState, onStateChange, onScan }) {
+  if (initialState) initialState = migrateState(initialState);
   var scrState = useState(initialState && initialState.screen ? initialState.screen : "onboarding");
   var screen = scrState[0];
   var setScreen = scrState[1];
@@ -119,7 +121,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
       targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
       trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, _savedAt: Date.now(),
+      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, _version: CURRENT_VERSION, _savedAt: Date.now(),
     };
     // Immediate localStorage save (no debounce)
     try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
