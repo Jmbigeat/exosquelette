@@ -146,7 +146,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       };
       setTakes(function(prev) { return prev.concat([take]); });
       // Also store in bricks array for seed tracking (so allSeedsDone works)
-      setBricks(function(prev) { return prev.concat([{ id: seed.id, text: seed.takeText, kpi: null, skills: [], usedIn: seed.usedIn, status: "validated", type: "take", brickType: "take" }]); });
+      setBricks(function(prev) { return prev.concat([{ id: seed.id, text: seed.takeText, kpi: null, skills: [], usedIn: seed.usedIn, status: "validated", type: "take", brickType: "take", sideProject: seed.sideProject || false }]); });
       setVault(function(prev) {
         var sp = prev.selectedPillars || [];
         sp = sp.concat([{ id: seed.id, title: seed.pillarPreview ? seed.pillarPreview.title : "", desc: seed.pillarPreview ? seed.pillarPreview.desc : "", source: "take" }]);
@@ -169,7 +169,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(seed.generatedText, seed.brickCategory, seed.type, seed.elasticity),
       controlRisk: seed.controlRisk || null,
       advocacyText: seed.advocacyText || generateAdvocacyText(seed.generatedText, seed.brickCategory, seed.type, seed.nightmareText),
-      type: "brick", corrected: false,
+      type: "brick", corrected: false, sideProject: seed.sideProject || false,
     };
     var versions = generateBrickVersions(brick, targetRoleId);
     brick.cvVersion = versions.cvVersion;
@@ -196,7 +196,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(correctedText, seed.brickCategory, seed.type, seed.elasticity),
       controlRisk: seed.controlRisk || null,
       advocacyText: seed.advocacyText || generateAdvocacyText(correctedText, seed.brickCategory, seed.type, seed.nightmareText),
-      type: "brick", corrected: true,
+      type: "brick", corrected: true, sideProject: seed.sideProject || false,
     };
     var versions = generateBrickVersions(brick, targetRoleId);
     brick.cvVersion = versions.cvVersion;
@@ -211,7 +211,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   function handleMission(seed) {
     var mission = {
       id: seed.id, text: seed.missionText, kpi: seed.kpi,
-      skills: [], usedIn: [], status: "pending", owned: false, type: "mission",
+      skills: [], usedIn: [], status: "pending", owned: false, type: "mission", sideProject: false,
     };
     setBricks(function(prev) { return prev.concat([mission]); });
     setVault(function(prev) { return Object.assign({}, prev, { missions: prev.missions + 1 }); });
@@ -219,11 +219,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   }
 
   function handleSkip(id) {
-    setBricks(function(prev) { return prev.concat([{ id: id, text: "", kpi: "", skills: [], usedIn: [], status: "skipped", type: "brick" }]); });
+    setBricks(function(prev) { return prev.concat([{ id: id, text: "", kpi: "", skills: [], usedIn: [], status: "skipped", type: "brick", sideProject: false }]); });
   }
 
   function handleAddBrick(text, kpi, category) {
-    var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: "brick", corrected: false };
+    var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: "brick", corrected: false, sideProject: false };
     var versions = generateBrickVersions(newBrick, targetRoleId);
     newBrick.cvVersion = versions.cvVersion;
     newBrick.interviewVersions = versions.interviewVersions;

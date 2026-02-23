@@ -21,6 +21,7 @@ Le client a colle son CV/profil et des offres cibles. Ton travail :
 2. Identifier 2-3 KPIs caches dans les offres (ce que le recruteur cherche sans le dire)
 3. Identifier les compétences clés croisées entre le profil et les offres
 4. Détecter les décalages (ce que le profil montre vs ce que les offres demandent)
+5. Pour chaque brique, détecte si elle décrit un projet personnel, side project, contribution open source, bénévolat, association, blog personnel, ou tout projet sans employeur. Si oui, retourne sideProject: true. Si la brique décrit une expérience dans le cadre d'un emploi salarié ou d'une mission freelance facturée, retourne sideProject: false.
 
 PROFIL DU CLIENT :
 ${cv.slice(0, 3000)}
@@ -33,7 +34,7 @@ ROLE DETECTE OU CHOISI : ${roleId}
 Reponds en JSON strict, sans backticks, sans preamble. Format :
 {
   "bricks": [
-    { "text": "description de la brique hypothetique", "kpi": "nom du KPI", "category": "chiffre|decision|influence", "confidence": "haute|moyenne" }
+    { "text": "description de la brique hypothetique", "kpi": "nom du KPI", "category": "chiffre|decision|influence", "confidence": "haute|moyenne", "sideProject": false }
   ],
   "hiddenKpis": [
     { "name": "nom du KPI", "why": "pourquoi c'est cache dans l'offre" }
