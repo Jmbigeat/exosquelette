@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Bar({ pct }) {
   return (
@@ -56,6 +56,9 @@ export function Pillars({ pillars, takes, onVal }) {
   var sel = useState([]);
   var selected = sel[0];
   var setSelected = sel[1];
+  var recState = useState(null);
+  var recommendations = recState[0];
+  var setRecommendations = recState[1];
 
   // Takes become primary pillars, AI pillars are complement
   var takePillars = takes.filter(function(t) { return t.status === "validated" && t.pillar; }).map(function(t, i) {
@@ -64,6 +67,29 @@ export function Pillars({ pillars, takes, onVal }) {
   var aiPillars = pillars.map(function(p) {
     return { id: "ai_" + p.id, title: p.title, desc: p.desc, source: "ai" };
   });
+
+  var hasAllFour = takePillars.length >= 4;
+
+  useEffect(function() {
+    if (hasAllFour || aiPillars.length === 0) return;
+    var cancelled = false;
+    fetch("/api/recommend-pillars", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pillars: pillars.map(function(p) { return { id: p.id, title: p.title, desc: p.desc }; }),
+        takes: takePillars.map(function(t) { return { title: t.title, desc: t.desc, text: t.text }; }),
+      }),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!cancelled && Array.isArray(data)) setRecommendations(data);
+      })
+      .catch(function() {
+        if (!cancelled) setRecommendations([]);
+      });
+    return function() { cancelled = true; };
+  }, []);
 
   function toggle(id) {
     setSelected(function(prev) {
@@ -76,10 +102,10 @@ export function Pillars({ pillars, takes, onVal }) {
   var hasTakes = takePillars.length > 0;
   var takeCount = takePillars.length;
   var remaining = 4 - takeCount;
-  var hasAllFour = takeCount >= 4;
 
   return (
     <div>
+      <style>{`@keyframes pillarPulse { 0%, 100% { background: #1a1a2e; } 50% { background: #16213e; } }`}</style>
       {/* HEADER */}
       <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>TES PRISES DE POSITION</div>
       <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 16, lineHeight: 1.5 }}>
@@ -119,13 +145,27 @@ export function Pillars({ pillars, takes, onVal }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {aiPillars.map(function(p) {
               var isSel = selected.includes(p.id);
+              var numId = parseInt(p.id.replace("ai_", ""), 10);
+              var rec = recommendations ? recommendations.find(function(r) { return r.id === numId; }) : null;
+              var isRec = rec && rec.recommended;
               return (
                 <button key={p.id} onClick={function() { toggle(p.id); }} style={{
-                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : "2px solid #16213e",
+                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : isRec ? "2px solid #4ecca3" : "2px solid #16213e",
                   borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
                 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#e94560" : "#ccd6f6", marginBottom: 3 }}>{isSel ? "\u2713 " : ""}{p.title}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#e94560" : "#ccd6f6" }}>{isSel ? "\u2713 " : ""}{p.title}</div>
+                    {recommendations === null && (
+                      <span style={{ display: "inline-block", width: 60, height: 14, borderRadius: 4, background: "#1a1a2e", animation: "pillarPulse 1.5s ease-in-out infinite" }} />
+                    )}
+                    {isRec && (
+                      <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>recommandé</span>
+                    )}
+                  </div>
                   <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
+                  {isRec && rec.reason && (
+                    <div style={{ fontSize: 12, color: "#4ecca3", marginTop: 4 }}>{rec.reason}</div>
+                  )}
                 </button>
               );
             })}
