@@ -322,7 +322,7 @@ export function BricksRecap({ bricks }) {
                 </div>
                 <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
                   <span style={{ fontSize: 10, color: cat ? cat.color : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap" }}>
-                    {b.brickType === "cicatrice" ? "cicatrice" : cat ? cat.label.toLowerCase() : "preuve"}
+                    {b.brickType === "cicatrice" ? "cicatrice" : b.brickType === "take" ? "position" : cat ? cat.label.toLowerCase() : "preuve"}
                   </span>
                 </div>
               </div>
