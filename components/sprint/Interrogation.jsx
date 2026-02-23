@@ -499,9 +499,10 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
             <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 8 }}>
               <span style={{ fontSize: 11, color: "#3498db", fontWeight: 600, letterSpacing: 1 }}>PRISE DE POSITION {takeAnalysis.level === "deep" ? "FORGÉE" : "DÉTECTÉE"}</span>
-              <span style={{ fontSize: 10, color: takeAnalysis.level === "deep" ? "#4ecca3" : takeAnalysis.level === "partial" ? "#ff9800" : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>
-                {takeAnalysis.level === "deep" ? "profonde" : takeAnalysis.level === "partial" ? "partielle" : "surface"}
-              </span>
+              {(function() { var ready = /(\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([\+\-]\s*\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([x×]\s*\d[\d.,]*)/.test(answer || ""); return (
+              <span style={{ fontSize: 10, color: ready ? "#4ecca3" : "#ff9800", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>
+                {ready ? "prête" : "à armer"}
+              </span>); })()}
             </div>
             <div style={{ fontSize: 14, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 14, fontStyle: "italic" }}>"{answer}"</div>
 

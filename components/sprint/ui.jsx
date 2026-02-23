@@ -59,7 +59,7 @@ export function Pillars({ pillars, takes, onVal }) {
 
   // Takes become primary pillars, AI pillars are complement
   var takePillars = takes.filter(function(t) { return t.status === "validated" && t.pillar; }).map(function(t, i) {
-    return { id: "take_" + t.id, title: t.pillar.title, desc: t.pillar.desc, source: "take", depth: t.analysis ? t.analysis.level : "partial" };
+    return { id: "take_" + t.id, title: t.pillar.title, desc: t.pillar.desc, source: "take", depth: t.analysis ? t.analysis.level : "partial", text: t.text };
   });
   var aiPillars = pillars.map(function(p) {
     return { id: "ai_" + p.id, title: p.title, desc: p.desc, source: "ai" };
@@ -74,30 +74,54 @@ export function Pillars({ pillars, takes, onVal }) {
   }
 
   var hasTakes = takePillars.length > 0;
+  var takeCount = takePillars.length;
+  var remaining = 4 - takeCount;
+  var hasAllFour = takeCount >= 4;
 
   return (
     <div>
-      {/* TAKES — primary, from the client */}
-      {hasTakes && (
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>TES PRISES DE POSITION</div>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12, lineHeight: 1.5 }}>
-            Extraites de tes réponses. Ces piliers viennent de toi. L'IA les a structurés, pas inventés. Ils pèsent plus lourd que les piliers générés.
+      {/* HEADER */}
+      <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>TES PRISES DE POSITION</div>
+      <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 16, lineHeight: 1.5 }}>
+        Ce sont les convictions que le recruteur ne trouvera pas sur un autre CV. Elles alimentent tes posts LinkedIn et ton pitch en entretien.
+      </div>
+
+      {/* DYNAMIC INSTRUCTION */}
+      {hasAllFour ? (
+        <div style={{ background: "#4ecca3" + "22", borderRadius: 8, padding: 12, marginBottom: 16, borderLeft: "3px solid #4ecca3" }}>
+          <div style={{ fontSize: 13, color: "#4ecca3", fontWeight: 600, lineHeight: 1.6 }}>
+            Tes 4 positions sont prêtes. Elles alimentent tes posts LinkedIn et ton pitch en entretien.
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-            {takePillars.map(function(p) {
+        </div>
+      ) : (
+        <div style={{ background: "#0f3460", borderRadius: 8, padding: 12, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6 }}>
+            Tu as {takeCount} position{takeCount > 1 ? "s" : ""} sur 4. Choisis {remaining} pilier{remaining > 1 ? "s" : ""} complémentaire{remaining > 1 ? "s" : ""} parmi les suggestions ci-dessous. Chaque pilier sélectionné alimente tes posts LinkedIn et ton pitch en entretien. Un candidat avec 4 positions défendables se distingue de 94% des profils silencieux.
+          </div>
+        </div>
+      )}
+
+      {/* AI PILLARS — suggestions to validate (shown first) */}
+      {!hasAllFour && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>
+            {hasTakes ? "PILIERS COMPLÉMENTAIRES — GÉNÉRÉS PAR L'IA" : "PILIERS DÉTECTÉS PAR L'IA"}
+          </div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12, lineHeight: 1.5 }}>
+            {hasTakes
+              ? "L'IA a croisé tes briques et ton secteur pour proposer des angles complémentaires. Sélectionne ceux qui reflètent ta vision."
+              : "J'ai croisé tes briques et ton secteur. Tu n'as pas formulé de prise de position pendant l'interrogatoire. Ces piliers sont générés. Ils servent de base, mais ils ne viennent pas de toi. La Forge suivante te posera la question."
+            }
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {aiPillars.map(function(p) {
               var isSel = selected.includes(p.id);
               return (
                 <button key={p.id} onClick={function() { toggle(p.id); }} style={{
-                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #3498db" : "2px solid #16213e",
+                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : "2px solid #16213e",
                   borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
                 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#3498db" : "#ccd6f6" }}>{isSel ? "\u2713 " : ""}{p.title}</div>
-                    <span style={{ fontSize: 9, color: p.depth === "deep" ? "#4ecca3" : "#ff9800", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>
-                      {p.depth === "deep" ? "profonde" : "partielle"}
-                    </span>
-                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#e94560" : "#ccd6f6", marginBottom: 3 }}>{isSel ? "\u2713 " : ""}{p.title}</div>
                   <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
                 </button>
               );
@@ -106,39 +130,39 @@ export function Pillars({ pillars, takes, onVal }) {
         </div>
       )}
 
-      {/* AI PILLARS — complement */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>
-          {hasTakes ? "PILIERS COMPLÉMENTAIRES — GÉNÉRÉS PAR L'IA" : "PILIERS DÉTECTÉS PAR L'IA"}
-        </div>
-        <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12, lineHeight: 1.5 }}>
-          {hasTakes
-            ? "L'IA a croisé tes briques et ton secteur pour proposer des angles complémentaires. Sélectionne ceux qui reflètent ta vision."
-            : "J'ai croisé tes briques et ton secteur. Tu n'as pas formulé de prise de position pendant l'interrogatoire. Ces piliers sont générés. Ils servent de base, mais ils ne viennent pas de toi. La Forge suivante te posera la question."
-          }
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {aiPillars.map(function(p) {
-            var isSel = selected.includes(p.id);
-            return (
-              <button key={p.id} onClick={function() { toggle(p.id); }} style={{
-                background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : "2px solid #16213e",
-                borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
-              }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#e94560" : "#ccd6f6", marginBottom: 3 }}>{isSel ? "\u2713 " : ""}{p.title}</div>
-                <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* NO TAKES WARNING */}
       {!hasTakes && (
         <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 12, marginBottom: 16, borderLeft: "3px solid #e94560" }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>DIAGNOSTIC : AUCUNE PRISE DE POSITION FORMULÉE</div>
           <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
             Tu n'as formulé aucune thèse contrariante sur ton secteur. Les piliers ci-dessus sont générés. Ils fonctionnent, mais ils ne te séparent pas des autres candidats qui utilisent l'IA pour écrire. Au prochain Rendez-vous, le système te reposera la question.
+          </div>
+        </div>
+      )}
+
+      {/* TAKES — validated positions (shown second, as final result) */}
+      {hasTakes && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>POSITIONS VALIDÉES</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+            {takePillars.map(function(p) {
+              var isSel = selected.includes(p.id);
+              var hasNumber = /(\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([\+\-]\s*\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([x×]\s*\d[\d.,]*)/.test(p.text || "");
+              return (
+                <button key={p.id} onClick={function() { toggle(p.id); }} style={{
+                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #3498db" : "2px solid #16213e",
+                  borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#3498db" : "#ccd6f6" }}>{isSel ? "\u2713 " : ""}{p.title}</div>
+                    <span style={{ fontSize: 9, color: hasNumber ? "#4ecca3" : "#ff9800", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>
+                      {hasNumber ? "prête" : "à armer"}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
