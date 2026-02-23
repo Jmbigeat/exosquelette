@@ -65,7 +65,8 @@ export function Pillars({ pillars, takes, onVal }) {
     return { id: "take_" + t.id, title: t.pillar.title, desc: t.pillar.desc, source: "take", depth: t.analysis ? t.analysis.level : "partial", text: t.text };
   });
   var aiPillars = pillars.map(function(p) {
-    return { id: "ai_" + p.id, title: p.title, desc: p.desc, source: "ai" };
+    var rec = recommendations ? recommendations.find(function(r) { return r.id === p.id; }) : null;
+    return { id: "ai_" + p.id, title: p.title, desc: p.desc, source: "ai", recommended: rec ? rec.recommended : false, reason: rec ? rec.reason : "" };
   });
 
   var hasAllFour = takePillars.length >= 4;
@@ -145,26 +146,23 @@ export function Pillars({ pillars, takes, onVal }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {aiPillars.map(function(p) {
               var isSel = selected.includes(p.id);
-              var numId = parseInt(p.id.replace("ai_", ""), 10);
-              var rec = recommendations ? recommendations.find(function(r) { return r.id === numId; }) : null;
-              var isRec = rec && rec.recommended;
               return (
                 <button key={p.id} onClick={function() { toggle(p.id); }} style={{
-                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : isRec ? "2px solid #4ecca3" : "2px solid #16213e",
+                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #e94560" : "2px solid #16213e",
                   borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#e94560" : "#ccd6f6" }}>{isSel ? "\u2713 " : ""}{p.title}</div>
                     {recommendations === null && (
                       <span style={{ display: "inline-block", width: 60, height: 14, borderRadius: 4, background: "#1a1a2e", animation: "pillarPulse 1.5s ease-in-out infinite" }} />
                     )}
-                    {isRec && (
-                      <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>recommandé</span>
+                    {p.recommended && (
+                      <span style={{ fontSize: 9, color: "#4ecca3", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>complémentaire</span>
                     )}
                   </div>
                   <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
-                  {isRec && rec.reason && (
-                    <div style={{ fontSize: 12, color: "#4ecca3", marginTop: 4 }}>{rec.reason}</div>
+                  {p.recommended && p.reason && (
+                    <div style={{ fontSize: 12, color: "#4ecca3", marginTop: 4 }}>{p.reason}</div>
                   )}
                 </button>
               );
