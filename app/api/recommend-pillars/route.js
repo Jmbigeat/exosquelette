@@ -36,6 +36,7 @@ ${pillarsList}
 RÈGLES :
 - Maximum 2 piliers peuvent être marqués "recommended": true
 - Complémentaire signifie couvrir un territoire ABSENT des positions existantes. Un pilier qui renforce, approfondit ou nuance une position existante n'est PAS complémentaire. Deux piliers recommandés ne doivent pas non plus couvrir le même territoire entre eux. Privilégie la diversité maximale des angles couverts.
+- Deux positions partagent le même territoire si elles s'appuient sur le même axe de tension (ex: junior vs senior, quantité vs qualité, exécution vs stratégie), même si l'angle d'attaque diffère (technologique vs organisationnel vs managérial). Teste chaque pilier candidat : reformule son argument central en une opposition de 3 mots. Si cette opposition existe déjà dans une position validée, le pilier N'EST PAS complémentaire.
 - Si le candidat n'a aucune prise de position, recommande les 2 piliers les plus différenciants pour le rôle
 - La raison doit être courte (1 phrase) et expliquer pourquoi ce pilier complète le profil
 
