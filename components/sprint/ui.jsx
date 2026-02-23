@@ -162,6 +162,7 @@ export function Pillars({ pillars, takes, onVal }) {
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
+                  {!hasNumber && <div style={{ fontSize: 12, color: "#ff9800", marginTop: 6 }}>Ajoute un chiffre de résultat (%, €, x...) pour armer cette position.</div>}
                 </div>
               );
             })}
