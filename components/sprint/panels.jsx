@@ -252,7 +252,7 @@ export function CVPreview({ bricks }) {
               return (
                 <div key={idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid " + catColor }}>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.4 }}>
-                    {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "") + ")"}</span> : null}
+                    {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "").replace(/\(([^)]+)\)/g, "— $1") + ")"}</span> : null}
                   </div>
                 </div>
               );
@@ -288,7 +288,7 @@ export function CVPreview({ bricks }) {
                   return (
                     <div key={"need" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid #ff9800", opacity: 0.7 }}>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
-                        {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "") + ")"}</span> : null}
+                        {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "").replace(/\(([^)]+)\)/g, "— $1") + ")"}</span> : null}
                       </div>
                     </div>
                   );
@@ -306,7 +306,7 @@ export function CVPreview({ bricks }) {
                   return (
                     <div key={"ex" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid " + catColor, opacity: 0.5 }}>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
-                        {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "") + ")"}</span> : null}
+                        {extractBrickSummary(b.text)}{b.kpi ? <span style={{ color: "#8892b0" }}>{" (" + b.kpi.trim().replace(/\.$/, "").replace(/\(([^)]+)\)/g, "— $1") + ")"}</span> : null}
                       </div>
                     </div>
                   );
