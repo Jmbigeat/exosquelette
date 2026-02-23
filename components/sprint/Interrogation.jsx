@@ -7,6 +7,15 @@ import { analyzeTakeDepth, auditBrickVulnerability, getBrickFields, matchKpiToRe
 import { generateAdvocacyText, generateInternalAdvocacy } from "@/lib/sprint/generators";
 import { BricksRecap } from "@/components/sprint/panels";
 
+var SIDE_PROJECT_OWNERSHIP = /sur\s+mon\s+temps\s+libre|à\s+titre\s+personnel|sans\s+employeur|sans\s+client|en\s+dehors\s+du\s+boulot|mon\s+projet|ma\s+passion|j'ai\s+créé\s+seul|de\s+zéro\s+sans\s+équipe/i;
+var SIDE_PROJECT_TYPE = /side.?project|projet\s+perso|open.?source|bénévolat|association|blog|app|outil|contribution\s+libre/i;
+var SIDE_PROJECT_EXPLICIT = /side.?project|projet\s+personnel/i;
+
+function detectSideProject(text) {
+  var t = text || "";
+  return (SIDE_PROJECT_OWNERSHIP.test(t) && SIDE_PROJECT_TYPE.test(t)) || SIDE_PROJECT_EXPLICIT.test(t);
+}
+
 export function FeedbackToast({ brick, onDone }) {
   var opState = useState(0);
   var opacity = opState[0];
@@ -384,7 +393,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         confirmedAt: Date.now(),
         findingsAtConfirm: finalAudit.totalFindings,
       };
-      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
+      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, sideProject: detectSideProject(effectiveText), anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
       if (isCorrection) {
         onCorrect(reviewedSeed, editText.trim());
         setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setEditText(""); setAnonEdit(""); setAnonAudit(null); setVerbData(null); setVerbDismissed(false); setCicOverride(null);
@@ -784,7 +793,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         {/* THREE-WAY ACTION: Archiver / Corriger / Rejeter */}
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
-            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
+            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, sideProject: detectSideProject(effectiveText), advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
             if (seed.anonymizedText) { setAnonEdit(seed.anonymizedText); setPhase("anon_review"); }
             else { onForge(forgedSeed); setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setVerbData(null); setVerbDismissed(false); setCicOverride(null); }
           }} style={{
