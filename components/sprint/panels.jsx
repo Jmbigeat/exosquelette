@@ -4,7 +4,7 @@ import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/l
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, formatCost } from "@/lib/sprint/scoring";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, generateCVLine } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum } from "@/lib/sprint/generators";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
@@ -215,8 +215,8 @@ export function CVPreview({ bricks }) {
   var excluded = validated.filter(function(b) { return cvBricks.indexOf(b) === -1; });
 
   // Split CV bricks: those with a number go in CV, others need retouching
-  var cvReady = cvBricks.filter(function(b) { return /\d/.test(b.text); });
-  var needsNumber = cvBricks.filter(function(b) { return !/\d/.test(b.text); });
+  var cvReady = cvBricks.filter(function(b) { return extractBestNum(b.text || "") !== null; });
+  var needsNumber = cvBricks.filter(function(b) { return extractBestNum(b.text || "") === null; });
 
   var filledCount = cvReady.length;
   var pct = Math.round((filledCount / TARGET_BRICKS) * 100);
@@ -252,8 +252,9 @@ export function CVPreview({ bricks }) {
               return (
                 <div key={idx} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", borderLeft: "3px solid " + catColor }}>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.4 }}>
-                    {generateCVLine(b)}
+                    {extractBrickSummary(b.text)}
                   </div>
+                  {b.kpi && <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>{b.kpi.trim().replace(/\.$/, "")}</div>}
                 </div>
               );
             })}
@@ -288,8 +289,9 @@ export function CVPreview({ bricks }) {
                   return (
                     <div key={"need" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid #ff9800", opacity: 0.7 }}>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
-                        {generateCVLine(b)}
+                        {extractBrickSummary(b.text)}
                       </div>
+                      {b.kpi && <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>{b.kpi.trim().replace(/\.$/, "")}</div>}
                     </div>
                   );
                 })}
@@ -306,8 +308,9 @@ export function CVPreview({ bricks }) {
                   return (
                     <div key={"ex" + idx} style={{ background: "#1a1a2e", borderRadius: 6, padding: "6px 10px", borderLeft: "2px solid " + catColor, opacity: 0.5 }}>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
-                        {generateCVLine(b)}
+                        {extractBrickSummary(b.text)}
                       </div>
+                      {b.kpi && <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>{b.kpi.trim().replace(/\.$/, "")}</div>}
                     </div>
                   );
                 })}
