@@ -35,7 +35,7 @@ ${pillarsList}
 
 RÈGLES :
 - Maximum 2 piliers peuvent être marqués "recommended": true
-- Privilégie les piliers qui couvrent des territoires ABSENTS des takes existants
+- Complémentaire signifie couvrir un territoire ABSENT des positions existantes. Un pilier qui renforce, approfondit ou nuance une position existante n'est PAS complémentaire. Deux piliers recommandés ne doivent pas non plus couvrir le même territoire entre eux. Privilégie la diversité maximale des angles couverts.
 - Si le candidat n'a aucune prise de position, recommande les 2 piliers les plus différenciants pour le rôle
 - La raison doit être courte (1 phrase) et expliquer pourquoi ce pilier complète le profil
 
