@@ -70,7 +70,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var offerNextIdState = useState(initialState && initialState.offerNextId ? initialState.offerNextId : 1);
   var offerNextId = offerNextIdState[0];
   var setOfferNextId = offerNextIdState[1];
-  var urgenceState = useState(false);
+  var urgenceState = useState(initialState && initialState.urgenceMode ? initialState.urgenceMode : false);
   var urgenceMode = urgenceState[0];
   var setUrgenceMode = urgenceState[1];
 
@@ -119,7 +119,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
       targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
       trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, _savedAt: Date.now(),
+      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, _savedAt: Date.now(),
     };
     // Immediate localStorage save (no debounce)
     try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
