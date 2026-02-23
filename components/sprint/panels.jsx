@@ -95,8 +95,8 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
       {bricks && bricks.length > 0 && (
         <div style={{ marginTop: 12, background: "#1a1a2e", borderRadius: 8, padding: "10px 12px" }}>
           <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>{"\uD83D\uDCA2"} Cauchemars couverts</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: coveredCount === 3 ? "#4ecca3" : "#e94560", marginBottom: 8 }}>
-            {coveredCount} <span style={{ fontSize: 12, color: "#495670", fontWeight: 400 }}>/ 3</span>
+          <div style={{ fontSize: 18, fontWeight: 700, color: coveredCount === coverage.length ? "#4ecca3" : "#e94560", marginBottom: 8 }}>
+            {coveredCount} <span style={{ fontSize: 12, color: "#495670", fontWeight: 400 }}>/ {coverage.length}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {coverage.map(function(c) {
@@ -158,8 +158,8 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
               );
             })}
           </div>
-          {coveredCount < 3 && (
-            <div style={{ fontSize: 11, color: "#e94560", marginTop: 6 }}>{3 - coveredCount} cauchemar{3 - coveredCount > 1 ? "s" : ""} sans remède. Le recruteur le verra.</div>
+          {coveredCount < coverage.length && (
+            <div style={{ fontSize: 11, color: "#e94560", marginTop: 6 }}>{coverage.length - coveredCount} cauchemar{coverage.length - coveredCount > 1 ? "s" : ""} sans remède. Le recruteur le verra.</div>
           )}
           {coverage.some(function(c) { return c.covered && c.vulnerability && c.vulnerability.level === "vulnerable"; }) && (
             <div style={{ background: "#e94560" + "22", borderRadius: 6, padding: 8, marginTop: 8 }}>
