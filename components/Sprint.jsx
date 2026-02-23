@@ -302,7 +302,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
                 <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"🔒"} Verrou de Blindage</div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-                  {!brickOk && ("Il faut au moins 3 briques validées pour passer à la Forge. Tu en as " + density.details.brickCount + ". ")}
+                  {!brickOk && ("Il faut au moins 3 briques validées pour passer à l'Assemblage. Tu en as " + density.details.brickCount + ". ")}
                   {!covOk && ("Couverture cauchemars incomplète : " + cov.filter(function(c) { return c.covered; }).length + "/" + cov.length + ". Couvre tous les cauchemars actifs.")}
                   {brickOk && covOk && "Verrou en cours de calcul…"}
                 </div>
@@ -322,7 +322,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               <button onClick={function() { setActiveStep(3); }} style={{
                 width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
                 border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-              }}>Passer à l'Armement {"\u2192"}</button>
+              }}>Passer à la Calibration {"\u2192"}</button>
             </div>
           ) : (
             <div>
@@ -330,7 +330,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               <div style={{ background: "#e94560" + "22", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
                 <div style={{ fontSize: 13, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>{"\uD83D\uDD12"} Densité insuffisante : {density.score}%</div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-                  L'Armement s'ouvre à 70%. {density.details.blindedCount === 0 ? "Aucune brique blindée. Corrige et enrichis tes briques." : density.details.blindedRatio + "% de briques blindées. Continue."}
+                  La Calibration s'ouvre à 70%. {density.details.blindedCount === 0 ? "Aucune brique blindée. Corrige et enrichis tes briques." : density.details.blindedRatio + "% de briques blindées. Continue."}
                   {density.details.cauchemarCoverage < 3 ? " " + (3 - density.details.cauchemarCoverage) + " cauchemar" + (3 - density.details.cauchemarCoverage > 1 ? "s" : "") + " non couvert" + (3 - density.details.cauchemarCoverage > 1 ? "s" : "") + "." : ""}
                   {!density.details.hasCicatrice ? " Aucune cicatrice assumée." : ""}
                 </div>
