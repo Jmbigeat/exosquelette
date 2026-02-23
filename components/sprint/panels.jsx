@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/lib/sprint/references";
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
+import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, formatCost } from "@/lib/sprint/scoring";
 import { generateCV, generateBio, generateContactScripts, generateTransitionScript } from "@/lib/sprint/generators";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
@@ -307,7 +308,26 @@ export function CVPreview({ bricks }) {
 export function BricksRecap({ bricks }) {
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   var missions = bricks.filter(function(b) { return b.type === "mission"; });
+  var expandedState = useState({});
+  var expanded = expandedState[0];
+  var setExpanded = expandedState[1];
+  var coverage = computeCauchemarCoverage(bricks);
   if (validated.length === 0 && missions.length === 0) return null;
+
+  function isCovering(brick) {
+    return coverage.some(function(c) {
+      return c.covered && c.coveringBricks && c.coveringBricks.some(function(cb) { return cb.id === brick.id; });
+    });
+  }
+
+  function toggleExpand(id) {
+    setExpanded(function(prev) {
+      var next = Object.assign({}, prev);
+      next[id] = !next[id];
+      return next;
+    });
+  }
+
   return (
     <div style={{ marginTop: 16 }}>
       {validated.length > 0 && (
@@ -315,15 +335,28 @@ export function BricksRecap({ bricks }) {
           <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>{"\uD83E\uDDF1"} BRIQUES ({validated.length})</div>
           {validated.map(function(b) {
             var cat = b.brickCategory && CATEGORY_LABELS[b.brickCategory];
+            var covering = isCovering(b);
+            var isOpen = expanded[b.id];
             return (
-              <div key={b.id} style={{ background: "#0f3460", borderRadius: 8, padding: "8px 12px", marginBottom: 6, borderLeft: "3px solid " + (cat ? cat.color : "#e94560"), display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ flex: 1, fontSize: 12, color: "#8892b0", lineHeight: 1.4 }}>
-                  {b.text.length > 80 ? b.text.slice(0, 80) + "..." : b.text}
-                </div>
-                <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
+              <div key={b.id} onClick={function() { toggleExpand(b.id); }} style={{ background: "#0f3460", borderRadius: 8, padding: "8px 12px", marginBottom: 6, borderLeft: "3px solid " + (cat ? cat.color : "#e94560"), cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
                   <span style={{ fontSize: 10, color: cat ? cat.color : "#e94560", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap" }}>
                     {b.brickType === "cicatrice" ? "cicatrice" : b.brickType === "take" ? "position" : cat ? cat.label.toLowerCase() : "preuve"}
                   </span>
+                  {b.kpi && (
+                    <span style={{ fontSize: 10, color: "#8892b0", background: "#1a1a2e", padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap" }}>
+                      {b.kpi.length > 30 ? b.kpi.slice(0, 27) + "..." : b.kpi}
+                    </span>
+                  )}
+                  {covering && (
+                    <span style={{ fontSize: 10, color: "#4ecca3", background: "#4ecca3" + "22", padding: "2px 8px", borderRadius: 10, whiteSpace: "nowrap" }}>
+                      {"\u2705"} cauchemar
+                    </span>
+                  )}
+                  <span style={{ fontSize: 10, color: "#495670", marginLeft: "auto" }}>{isOpen ? "\u25B2" : "\u25BC"}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.4 }}>
+                  {isOpen ? b.text : extractBrickSummary(b.text)}
                 </div>
               </div>
             );
@@ -334,10 +367,15 @@ export function BricksRecap({ bricks }) {
         <div style={{ marginTop: validated.length > 0 ? 12 : 0 }}>
           <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCCB"} MISSIONS ({missions.length})</div>
           {missions.map(function(m) {
+            var isMOpen = expanded["m" + m.id];
             return (
-              <div key={m.id} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", marginBottom: 6, borderLeft: "3px solid #495670" }}>
+              <div key={m.id} onClick={function() { toggleExpand("m" + m.id); }} style={{ background: "#1a1a2e", borderRadius: 8, padding: "8px 12px", marginBottom: 6, borderLeft: "3px solid #495670", cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 10, color: "#495670", background: "#0f3460", padding: "2px 8px", borderRadius: 10 }}>mission</span>
+                  <span style={{ fontSize: 10, color: "#495670", marginLeft: "auto" }}>{isMOpen ? "\u25B2" : "\u25BC"}</span>
+                </div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.4 }}>
-                  {m.text.length > 80 ? m.text.slice(0, 80) + "..." : m.text}
+                  {isMOpen ? m.text : extractBrickSummary(m.text)}
                 </div>
                 <span style={{ fontSize: 10, color: "#495670", marginTop: 4, display: "inline-block" }}>en attente de preuve</span>
               </div>
