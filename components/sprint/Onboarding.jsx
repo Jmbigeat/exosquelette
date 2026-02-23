@@ -477,7 +477,7 @@ export function Onboarding({ onStart, onScan }) {
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
               color: "#fff", border: "none", borderRadius: 12, cursor: "pointer", fontWeight: 700, fontSize: 16,
               boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-            }}>Passer à la Forge</button>
+            }}>Passer à l'Assemblage</button>
             <div style={{ fontSize: 11, color: "#495670", marginTop: 10 }}>Le profil que tu as collé est déjà chargé. Ajoute tes offres cibles et choisis ton poste.</div>
           </div>
         ) : (

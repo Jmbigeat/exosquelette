@@ -292,7 +292,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <button onClick={function() { setActiveStep(1); }} style={{
               width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
               border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-            }}>Passer à la Forge {"\u2192"}</button>
+            }}>Passer à l'Assemblage {"\u2192"}</button>
           )}
           {allSeedsDone && !density.unlocks.forge && (function() {
             var cov = computeCauchemarCoverage(bricks);
