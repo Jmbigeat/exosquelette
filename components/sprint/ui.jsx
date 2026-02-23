@@ -96,7 +96,10 @@ export function Pillars({ pillars, takes, onVal }) {
       ) : (
         <div style={{ background: "#0f3460", borderRadius: 8, padding: 12, marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6 }}>
-            Tu as {takeCount} position{takeCount > 1 ? "s" : ""} sur 4. Choisis {remaining} pilier{remaining > 1 ? "s" : ""} complémentaire{remaining > 1 ? "s" : ""} parmi les suggestions ci-dessous. Chaque pilier sélectionné alimente tes posts LinkedIn et ton pitch en entretien. Un candidat avec 4 positions défendables se distingue de 94% des profils silencieux.
+            {takeCount > 0
+              ? "Tes " + takeCount + " position" + (takeCount > 1 ? "s" : "") + " " + (takeCount > 1 ? "sont acquises" : "est acquise") + ". Sélectionne " + remaining + " pilier" + (remaining > 1 ? "s" : "") + " complémentaire" + (remaining > 1 ? "s" : "") + " pour compléter tes 4 territoires. Un candidat avec 4 positions défendables se distingue de 94% des profils silencieux."
+              : "Tu as 0 position sur 4. Choisis 4 piliers parmi les suggestions ci-dessous. Un candidat avec 4 positions défendables se distingue de 94% des profils silencieux."
+            }
           </div>
         </div>
       )}
@@ -146,21 +149,20 @@ export function Pillars({ pillars, takes, onVal }) {
           <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>POSITIONS VALIDÉES</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
             {takePillars.map(function(p) {
-              var isSel = selected.includes(p.id);
               var hasNumber = /(\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([\+\-]\s*\d[\d.,]*\s*[KkMm]?\s*[%€$£])|([x×]\s*\d[\d.,]*)/.test(p.text || "");
               return (
-                <button key={p.id} onClick={function() { toggle(p.id); }} style={{
-                  background: isSel ? "#0f3460" : "#1a1a2e", border: isSel ? "2px solid #3498db" : "2px solid #16213e",
-                  borderRadius: 10, padding: 14, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
+                <div key={p.id} style={{
+                  background: "#0f3460", border: "2px solid #3498db",
+                  borderRadius: 10, padding: 14, textAlign: "left",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? "#3498db" : "#ccd6f6" }}>{isSel ? "\u2713 " : ""}{p.title}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#3498db" }}>{"\u2713 "}{p.title}</div>
                     <span style={{ fontSize: 9, color: hasNumber ? "#4ecca3" : "#ff9800", background: "#1a1a2e", padding: "2px 8px", borderRadius: 6 }}>
                       {hasNumber ? "prête" : "à armer"}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: "#8892b0" }}>{p.desc}</div>
-                </button>
+                </div>
               );
             })}
           </div>
