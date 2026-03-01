@@ -13,7 +13,7 @@ import { migrateState, CURRENT_VERSION } from "@/lib/sprint/migrations";
 // Component modules
 import { Bar, Nav, Pillars, OffersManager } from "@/components/sprint/ui";
 import { Vault, CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight } from "@/components/sprint/panels";
-import { FeedbackToast, Interrogation } from "@/components/sprint/Interrogation";
+import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/sprint/Interrogation";
 import { Duel } from "@/components/sprint/Duel";
 import { EndScreen } from "@/components/sprint/EndScreen";
 import { Onboarding } from "@/components/sprint/Onboarding";
@@ -276,6 +276,12 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     setSprintDone(true);
   }
 
+  function handleBrickUpdate(updatedBrick) {
+    setBricks(function(prev) {
+      return prev.map(function(b) { return b.id === updatedBrick.id ? updatedBrick : b; });
+    });
+  }
+
   var allSeedsDone = seeds.every(function(s) {
     return bricks.some(function(b) { return b.id === s.id; });
   });
@@ -338,7 +344,12 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         </div>
       );
     }
-    if (activeStep === 1) return <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} recommendations={aiPillarRecs} onRefresh={handleRefreshPillarRecs} />;
+    if (activeStep === 1) return (
+      <div>
+        <BrickStressTest bricks={bricks} onBrickUpdate={handleBrickUpdate} nightmareCosts={nightmareCosts} offersArray={offersArray} />
+        <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} recommendations={aiPillarRecs} onRefresh={handleRefreshPillarRecs} />
+      </div>
+    );
     if (activeStep === 2) {
       return <Duel questions={DUEL_QUESTIONS} bricks={bricks} onComplete={handleDuelComplete} targetRoleId={targetRoleId} />;
     }

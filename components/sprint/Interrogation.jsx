@@ -2,7 +2,7 @@
 import { useState, useRef, useCallback } from "react";
 import { CATEGORY_LABELS, ELASTICITY_LABELS } from "@/lib/sprint/references";
 import { analyzeVerbs, auditAnonymization, hasBlame, hasDecisionMarkers, hasExternalization, hasInfluenceMarkers, hasNumbers } from "@/lib/sprint/analysis";
-import { formatCost, getActiveCauchemars } from "@/lib/sprint/scoring";
+import { formatCost, getActiveCauchemars, assessBrickArmor } from "@/lib/sprint/scoring";
 import { analyzeTakeDepth, auditBrickVulnerability, getBrickFields, matchKpiToReference, takeToiPillar } from "@/lib/sprint/bricks";
 import { generateAdvocacyText, generateInternalAdvocacy } from "@/lib/sprint/generators";
 import { BricksRecap } from "@/components/sprint/panels";
@@ -954,6 +954,399 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         }}>Passer</button>
       </div>
       <BricksRecap bricks={bricks} />
+    </div>
+  );
+}
+
+/* ==============================
+   STRESS TEST — Chantier 4
+   Deuxième lame d'extraction dans l'Assemblage
+   ============================== */
+
+var STRESS_ANGLES = [
+  {
+    key: "angle1",
+    armorCase: "chiffres",
+    attack: "Prouve-le avec des chiffres. Pas un ordre de grandeur. Le chiffre exact.",
+    fields: [
+      { key: "exact", label: "Le chiffre exact", placeholder: "Ex : +34% en 6 mois sur 12 comptes" },
+      { key: "period", label: "Sur quelle période", placeholder: "Ex : entre janvier et juin 2024" },
+      { key: "baseline", label: "Comparé à quoi", placeholder: "Ex : la moyenne équipe était +8%" },
+    ],
+  },
+  {
+    key: "angle2",
+    armorCase: "décision",
+    attack: "Tu exécutais ou tu décidais ? Quelle décision as-tu prise que personne d'autre n'aurait prise ?",
+    fields: [
+      { key: "situation", label: "Quelle était la situation", placeholder: "Ex : le board voulait couper le budget R&D de 40%" },
+      { key: "decision", label: "Qu'as-tu décidé", placeholder: "Ex : j'ai proposé un pivot vers le segment mid-market" },
+      { key: "result", label: "Quel résultat", placeholder: "Ex : pipeline +60% en Q3 sans augmentation de budget" },
+    ],
+  },
+  {
+    key: "angle3",
+    armorCase: "transférabilité",
+    attack: "Tu l'as fait là-bas. Tu le refais ici ? Qu'est-ce qui était spécifique au contexte et qu'est-ce qui marche partout ?",
+    fields: [
+      { key: "specific", label: "Le contexte était spécifique comment ?", placeholder: "Ex : un marché de niche avec 200 prospects identifiés" },
+      { key: "transferable", label: "Qu'est-ce qui marche quel que soit le contexte ?", placeholder: "Ex : le framework de qualification en 4 étapes que j'ai structuré" },
+    ],
+  },
+  {
+    key: "angle4",
+    armorCase: "influence",
+    attack: "Qui as-tu embarqué ? Le résultat c'est une chose. Qui a bougé grâce à toi ?",
+    fields: [
+      { key: "who", label: "Qui a bougé grâce à toi", placeholder: "Ex : 3 directeurs régionaux qui bloquaient le déploiement" },
+      { key: "how", label: "Comment tu les as convaincus", placeholder: "Ex : présentation du coût d'inaction chiffré devant le COMEX" },
+    ],
+  },
+  {
+    key: "angle5",
+    armorCase: null,
+    attack: "Le marché dit que ce problème coûte cher. Comment ta preuve se compare au benchmark ?",
+    fields: [
+      { key: "benchmark", label: "Ton résultat vs le marché", placeholder: "Ex : la moyenne secteur est 15%, j'ai atteint 34%" },
+    ],
+  },
+];
+
+var ARMOR_COLORS = { armored: "#4ecca3", credible: "#3498db", vulnerable: "#e94560" };
+var ARMOR_LABELS = { armored: "Blindée", credible: "Crédible", vulnerable: "Vulnérable" };
+var VERDICT_COLORS = { complete: "#4ecca3", partial: "#ff9800", empty: "#495670" };
+var VERDICT_LABELS = { complete: "Matériau complet", partial: "Matériau partiel", empty: "Rien de nouveau" };
+
+function analyzeStressResponse(angleKey, responseFields) {
+  var fullText = Object.keys(responseFields).map(function(k) { return responseFields[k] || ""; }).join(" ").toLowerCase();
+  if (fullText.trim().length < 5) return "empty";
+
+  if (angleKey === "angle1") {
+    var hasDigit = /\d/.test(fullText);
+    var hasPeriod = ["mois", "semaine", "trimestre", "an", "jour", "q1", "q2", "q3", "q4", "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre", "2024", "2025", "2023", "2022"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasComparison = ["%", "moyenne", "comparé", "compare", "versus", "vs", "base", "avant", "après", "apres"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    if (hasDigit && (hasPeriod || hasComparison)) return "complete";
+    if (hasDigit) return "partial";
+    return "empty";
+  }
+
+  if (angleKey === "angle2") {
+    var hasDecision = ["décidé", "decide", "choisi", "tranché", "tranche", "proposé", "propose", "arbitré", "arbitre", "recommandé", "recommande", "imposé", "impose"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasTension = ["voulait", "bloquait", "refusait", "poussait", "exigeait", "insistait", "demandait", "situation", "contexte", "problème", "probleme"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasResult = /\d/.test(fullText) || ["résultat", "resultat", "impact", "obtenu", "atteint", "gagné", "gagne"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    if (hasDecision && hasTension && hasResult) return "complete";
+    if (hasDecision || (hasTension && hasResult)) return "partial";
+    return "empty";
+  }
+
+  if (angleKey === "angle3") {
+    var hasSpecific = ["spécifique", "specifique", "contexte", "particulier", "niche", "secteur", "marché", "marche", "entreprise"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasTransferable = ["process", "méthode", "methode", "framework", "système", "systeme", "outil", "template", "playbook", "reproductible", "scalable", "structuré", "structure", "automatisé", "automatise", "partout", "quel que soit", "applicable", "universel"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    if (hasSpecific && hasTransferable) return "complete";
+    if (hasTransferable) return "partial";
+    return "empty";
+  }
+
+  if (angleKey === "angle4") {
+    var hasWho = ["directeur", "manager", "équipe", "equipe", "collègue", "collegue", "cto", "ceo", "vp", "board", "comité", "comite", "stakeholder", "sponsor", "direction"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasHow = ["convaincu", "présenté", "presente", "démontré", "demontre", "aligné", "aligne", "embarqué", "embarque", "mobilisé", "mobilise", "fédéré", "federe", "pitch", "montré", "montre"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    if (hasWho && hasHow) return "complete";
+    if (hasWho || hasHow) return "partial";
+    return "empty";
+  }
+
+  if (angleKey === "angle5") {
+    var hasBenchmark = /\d/.test(fullText) && ["moyenne", "marché", "marche", "benchmark", "secteur", "industrie", "comparé", "compare", "%"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    if (hasBenchmark) return "complete";
+    if (/\d/.test(fullText)) return "partial";
+    return "empty";
+  }
+
+  return "empty";
+}
+
+function getVerdictMessage(angleKey, verdict) {
+  if (verdict === "complete") {
+    var msgs = {
+      angle1: "Chiffre, période et comparaison. La case se coche.",
+      angle2: "Situation, décision et résultat. Tu ne récitais pas un process. Tu décidais.",
+      angle3: "Tu sépares le spécifique du transférable. Ta méthode voyage avec toi.",
+      angle4: "Tu as nommé qui a bougé et comment. L'influence est documentée.",
+      angle5: "Ton résultat est ancré dans un benchmark. Le recruteur a un repère.",
+    };
+    return msgs[angleKey] || "Matériau complet.";
+  }
+  if (verdict === "partial") {
+    var partialMsgs = {
+      angle1: "Tu as un chiffre mais sans période ni comparaison. Ça reste fragile.",
+      angle2: "Il y a un signal de décision mais le triptyque situation/décision/résultat est incomplet.",
+      angle3: "Tu évoques la méthode mais le contraste spécifique/transférable n'est pas clair.",
+      angle4: "Tu mentionnes des acteurs mais le mécanisme de conviction n'est pas visible.",
+      angle5: "Il y a un chiffre mais sans benchmark sectoriel, le recruteur ne peut pas ancrer.",
+    };
+    return partialMsgs[angleKey] || "Signal détecté mais pas assez fort.";
+  }
+  var emptyMsgs = {
+    angle1: "L'outil cherchait un chiffre, une période et une comparaison. Rien détecté.",
+    angle2: "L'outil cherchait une situation, une décision et un résultat. Rien détecté.",
+    angle3: "L'outil cherchait la distinction entre le spécifique et le transférable. Rien détecté.",
+    angle4: "L'outil cherchait qui a bougé et comment tu les as convaincus. Rien détecté.",
+    angle5: "L'outil cherchait un chiffre comparé à un benchmark marché. Rien détecté.",
+  };
+  return emptyMsgs[angleKey] || "Aucun marqueur détecté.";
+}
+
+/**
+ * BrickStressTest — V2 Chantier 4
+ * Renders validated bricks with expandable stress test interface.
+ * Each brick shows 5 attack angles; 1 recommended based on missing armor case.
+ * Armored bricks (4/4) hide the buttons.
+ * @param {{ bricks: Array, onBrickUpdate: Function, nightmareCosts: object, offersArray: Array }} props
+ */
+export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersArray }) {
+  var expandedState = useState(null);
+  var expandedId = expandedState[0];
+  var setExpandedId = expandedState[1];
+  var activeAngleState = useState(null);
+  var activeAngle = activeAngleState[0];
+  var setActiveAngle = activeAngleState[1];
+  var responseState = useState({});
+  var responseFields = responseState[0];
+  var setResponseFields = responseState[1];
+
+  var validated = bricks.filter(function(b) { return b.status === "validated" && b.type === "brick"; });
+
+  if (validated.length === 0) return null;
+
+  function getRecommendedAngle(armor) {
+    if (!armor.hasNumbers) return "angle1";
+    if (!armor.hasDecisionMarkers) return "angle2";
+    if (!armor.hasTransferability) return "angle3";
+    if (!armor.hasInfluenceMarkers) return "angle4";
+    return "angle3"; // When first 3 cases are checked, recommend transferability
+  }
+
+  function findCoveredNightmare(brick) {
+    var cauchemars = getActiveCauchemars();
+    if (!cauchemars || !brick.kpi) return null;
+    var found = null;
+    cauchemars.forEach(function(c) {
+      if (!found && c.kpis && c.kpis.some(function(k) { return brick.kpi.indexOf(k) !== -1 || k.indexOf(brick.kpi) !== -1; })) {
+        found = c;
+      }
+    });
+    return found;
+  }
+
+  function handleValidate(brick, angle) {
+    var verdict = analyzeStressResponse(angle.key, responseFields);
+    var updatedBrick = Object.assign({}, brick);
+    if (!updatedBrick.stressTest) {
+      updatedBrick.stressTest = {
+        angle1: { attempted: false, response: null, verdict: null },
+        angle2: { attempted: false, response: null, verdict: null },
+        angle3: { attempted: false, response: null, verdict: null },
+        angle4: { attempted: false, response: null, verdict: null },
+        angle5: { attempted: false, response: null, verdict: null },
+      };
+    }
+    updatedBrick.stressTest[angle.key] = {
+      attempted: true,
+      response: Object.assign({}, responseFields),
+      verdict: verdict,
+    };
+    // Angle 3 transferability: set flag if complete
+    if (angle.key === "angle3" && verdict === "complete") {
+      updatedBrick.stressTestAngle3Validated = true;
+    }
+    onBrickUpdate(updatedBrick);
+    setResponseFields({});
+    setActiveAngle(null);
+  }
+
+  function hasOfferData() {
+    return offersArray && offersArray.length > 0 && offersArray.some(function(o) { return o.parsedSignals && o.parsedSignals.totalSignals > 0; });
+  }
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>STRESS TEST — BLINDAGE DES BRIQUES</div>
+      <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 16, lineHeight: 1.5 }}>
+        Chaque brique est testée sur 4 axes. L'angle recommandé remplit la case manquante dans ton blindage.
+      </div>
+      {validated.map(function(brick) {
+        var armor = assessBrickArmor(brick);
+        var isExpanded = expandedId === brick.id;
+        var isArmored = armor.status === "armored";
+        var recommended = isArmored ? null : getRecommendedAngle(armor);
+        var nightmare = findCoveredNightmare(brick);
+
+        return (
+          <div key={brick.id} style={{ background: "#1a1a2e", borderRadius: 10, marginBottom: 8, border: "1px solid " + (isArmored ? "#4ecca3" + "44" : "#16213e"), overflow: "hidden" }}>
+            {/* BRICK HEADER — clickable toggle */}
+            <div onClick={function() { setExpandedId(isExpanded ? null : brick.id); setActiveAngle(null); setResponseFields({}); }} style={{
+              padding: 14, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center",
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 10, color: ARMOR_COLORS[armor.status], background: ARMOR_COLORS[armor.status] + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>
+                    {ARMOR_LABELS[armor.status]} {armor.depth}/4
+                  </span>
+                  {armor.depth > 0 && armor.depth < 4 && (
+                    <span style={{ fontSize: 9, color: "#495670" }}>manque : {armor.missing.join(", ")}</span>
+                  )}
+                  {isArmored && <span style={{ fontSize: 9, color: "#4ecca3" }}>4 cases validées</span>}
+                </div>
+                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>
+                  {brick.text.length > 100 ? brick.text.slice(0, 100) + "..." : brick.text}
+                </div>
+              </div>
+              <span style={{ fontSize: 14, color: "#495670", marginLeft: 8, flexShrink: 0 }}>{isExpanded ? "\u25B2" : "\u25BC"}</span>
+            </div>
+
+            {/* EXPANDED CONTENT */}
+            {isExpanded && (
+              <div style={{ padding: "0 14px 14px 14px" }}>
+                {/* Full text in gray */}
+                <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.6, marginBottom: 12, fontStyle: "italic", borderLeft: "2px solid #16213e", paddingLeft: 10 }}>
+                  {brick.text}
+                </div>
+
+                {/* 4 ARMOR CASES VISUAL */}
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  {[
+                    { key: "hasNumbers", label: "Chiffres", ok: armor.hasNumbers },
+                    { key: "hasDecisionMarkers", label: "Décision", ok: armor.hasDecisionMarkers },
+                    { key: "hasInfluenceMarkers", label: "Influence", ok: armor.hasInfluenceMarkers },
+                    { key: "hasTransferability", label: "Transférabilité", ok: armor.hasTransferability },
+                  ].map(function(c) {
+                    return (
+                      <div key={c.key} style={{
+                        flex: 1, padding: "6px 4px", borderRadius: 6, textAlign: "center",
+                        background: c.ok ? "#4ecca3" + "22" : "#16213e",
+                        border: "1px solid " + (c.ok ? "#4ecca3" : "#495670" + "44"),
+                      }}>
+                        <div style={{ fontSize: 12, marginBottom: 2 }}>{c.ok ? "\u2705" : "\u2B1C"}</div>
+                        <div style={{ fontSize: 9, color: c.ok ? "#4ecca3" : "#495670", fontWeight: 600 }}>{c.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* PREVIOUS STRESS TEST RESULTS */}
+                {brick.stressTest && (function() {
+                  var pastResults = STRESS_ANGLES.filter(function(a) { return brick.stressTest[a.key] && brick.stressTest[a.key].attempted; });
+                  if (pastResults.length === 0) return null;
+                  return (
+                    <div style={{ marginBottom: 12 }}>
+                      {pastResults.map(function(a) {
+                        var st = brick.stressTest[a.key];
+                        return (
+                          <div key={a.key} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: VERDICT_COLORS[st.verdict], fontWeight: 600 }}>{VERDICT_LABELS[st.verdict]}</span>
+                            <span style={{ fontSize: 10, color: "#495670" }}>— {a.armorCase || "benchmark"}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* ANGLE BUTTONS — hidden for armored bricks */}
+                {!isArmored && !activeAngle && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {STRESS_ANGLES.map(function(angle) {
+                      // Angle 5 only shows if offer/benchmark data exists
+                      if (angle.key === "angle5" && !hasOfferData()) return null;
+                      var alreadyAttempted = brick.stressTest && brick.stressTest[angle.key] && brick.stressTest[angle.key].attempted;
+                      var isRec = angle.key === recommended;
+                      return (
+                        <button key={angle.key} disabled={alreadyAttempted}
+                          onClick={function() { if (!alreadyAttempted) { setActiveAngle(angle); setResponseFields({}); } }}
+                          style={{
+                            padding: "10px 14px", textAlign: "left", cursor: alreadyAttempted ? "default" : "pointer",
+                            background: alreadyAttempted ? "#0a0a1a" : isRec ? "#e94560" + "22" : "#0f3460",
+                            border: alreadyAttempted ? "1px solid #16213e" : isRec ? "2px solid #e94560" : "1px solid #16213e",
+                            borderRadius: 8, opacity: alreadyAttempted ? 0.4 : 1,
+                            textDecoration: alreadyAttempted ? "line-through" : "none",
+                          }}>
+                          <div style={{ fontSize: 12, color: alreadyAttempted ? "#495670" : isRec ? "#e94560" : "#8892b0", fontWeight: isRec ? 700 : 600 }}>
+                            {isRec && !alreadyAttempted ? "\u2192 " : ""}{angle.attack.split(".")[0]}
+                          </div>
+                          {isRec && !alreadyAttempted && (
+                            <div style={{ fontSize: 10, color: "#e94560", marginTop: 2 }}>Recommandé — remplit la case « {angle.armorCase} »</div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* ACTIVE ANGLE — attack + cost + response fields */}
+                {activeAngle && (
+                  <div>
+                    {/* Attack in red */}
+                    <div style={{ background: "#e94560" + "22", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: "3px solid #e94560" }}>
+                      <div style={{ fontSize: 14, color: "#e94560", fontWeight: 700, lineHeight: 1.6 }}>{activeAngle.attack}</div>
+                    </div>
+
+                    {/* Nightmare cost anchor */}
+                    {nightmare && (
+                      <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid #ff9800" }}>
+                        <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>COÛT DU CAUCHEMAR — {nightmare.label.toUpperCase()}</div>
+                        <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5 }}>
+                          {formatCost(nightmare.costRange[0])}-{formatCost(nightmare.costRange[1])}{"\u20AC"}/{nightmare.costUnit}. {nightmare.costContext}
+                        </div>
+                      </div>
+                    )}
+                    {!nightmare && (
+                      <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 10 }}>
+                        <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>Chaque réponse crédible réduit le risque perçu par le recruteur. Ton chiffre est ton bouclier.</div>
+                      </div>
+                    )}
+
+                    {/* Response fields */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+                      {activeAngle.fields.map(function(f) {
+                        return (
+                          <div key={f.key}>
+                            <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, marginBottom: 3 }}>{f.label}</div>
+                            <input
+                              value={responseFields[f.key] || ""}
+                              onChange={function(e) {
+                                var upd = Object.assign({}, responseFields);
+                                upd[f.key] = e.target.value;
+                                setResponseFields(upd);
+                              }}
+                              placeholder={f.placeholder}
+                              style={{ width: "100%", padding: 10, background: "#0a0a1a", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 13, lineHeight: 1.4, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Validate + Cancel */}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={function() { handleValidate(brick, activeAngle); }}
+                        disabled={Object.keys(responseFields).every(function(k) { return !responseFields[k] || responseFields[k].trim().length === 0; })}
+                        style={{
+                          flex: 1, padding: 12,
+                          background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+                          border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 13,
+                        }}>Valider ma défense</button>
+                      <button onClick={function() { setActiveAngle(null); setResponseFields({}); }} style={{
+                        padding: "12px 16px", background: "#1a1a2e", color: "#8892b0",
+                        border: "1px solid #495670", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 12,
+                      }}>Annuler</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
