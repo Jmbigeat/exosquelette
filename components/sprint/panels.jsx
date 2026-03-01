@@ -4,7 +4,7 @@ import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/l
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
-import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
+import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
 import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
@@ -404,7 +404,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature }) {
   var expandState = useState(false);
   var expanded = expandState[0];
   var setExpanded = expandState[1];
@@ -430,18 +430,27 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
   // Generate scripts for selected offer or global
   var targetOffer = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
-  var scripts = generateContactScripts(bricks, targetRoleId, targetOffer);
-  var cvText = generateCV(bricks, targetRoleId, trajectoryToggle);
-  var bioText = validated.length >= 2 ? generateBio(bricks, vault, trajectoryToggle) : null;
-  var plan30jText = generatePlan30jRH(bricks, targetRoleId, targetOffer ? targetOffer.parsedSignals : null);
+  var rawScripts = generateContactScripts(bricks, targetRoleId, targetOffer);
+  var scripts = rawScripts && signature
+    ? { dm: applySignatureFilter(rawScripts.dm, signature), email: applySignatureFilter(rawScripts.email, signature) }
+    : rawScripts;
+  var rawCV = generateCV(bricks, targetRoleId, trajectoryToggle);
+  var cvText = signature ? applySignatureFilter(rawCV, signature) : rawCV;
+  var rawBio = validated.length >= 2 ? generateBio(bricks, vault, trajectoryToggle) : null;
+  var bioText = rawBio && signature ? applySignatureFilter(rawBio, signature) : rawBio;
+  var rawPlan30j = generatePlan30jRH(bricks, targetRoleId, targetOffer ? targetOffer.parsedSignals : null);
+  var plan30jText = signature ? applySignatureFilter(rawPlan30j, signature) : rawPlan30j;
 
   // Internal generators
   var internalSignals = internalDesc.trim().length > 10 ? parseInternalSignals(internalDesc, targetRoleId) : null;
   var salaryNum = currentSalary ? parseInt(currentSalary) : null;
   if (salaryNum && isNaN(salaryNum)) salaryNum = null;
-  var replacementText = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals);
-  var raiseText = generateRaiseArgument(bricks, targetRoleId, salaryNum);
-  var plan90jText = generatePlan90jN1(bricks, targetRoleId, internalSignals);
+  var rawReplacement = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals);
+  var replacementText = signature ? applySignatureFilter(rawReplacement, signature) : rawReplacement;
+  var rawRaise = generateRaiseArgument(bricks, targetRoleId, salaryNum);
+  var raiseText = signature ? applySignatureFilter(rawRaise, signature) : rawRaise;
+  var rawPlan90j = generatePlan90jN1(bricks, targetRoleId, internalSignals);
+  var plan90jText = signature ? applySignatureFilter(rawPlan90j, signature) : rawPlan90j;
 
   var qualityLevel = blindedCount >= 3 ? "blinde" : blindedCount >= 1 ? "partiel" : "nu";
   var qualityColor = qualityLevel === "blinde" ? "#4ecca3" : qualityLevel === "partiel" ? "#ff9800" : "#e94560";

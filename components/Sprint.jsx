@@ -860,7 +860,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Pause la Forge. Tes briques restent.</div>
         </div>
       )}
-      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} />}
+      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} />}
       <div style={{ background: "#16213e", borderRadius: 12, padding: 20 }}>
         {renderContent()}
       </div>
