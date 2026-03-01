@@ -3,7 +3,7 @@ import { useState } from "react";
 import { KPI_REFERENCE, ROLE_CLUSTERS, SCAN_STEPS_ACTIF, SCAN_STEPS_PASSIF, MARKET_DATA, CAUCHEMARS_CIBLES } from "@/lib/sprint/references";
 import { estimateReadiness } from "@/lib/sprint/analysis";
 import { formatCost } from "@/lib/sprint/scoring";
-import { parseOfferSignals } from "@/lib/sprint/offers";
+import { parseOfferSignals, buildActiveCauchemars } from "@/lib/sprint/offers";
 import { generateDiagnostic } from "@/lib/sprint/generators";
 
 /* Global active cauchemars — set by Sprint component, used by all utility functions */
@@ -11,7 +11,7 @@ var _activeCauchemars = null;
 export function getActiveCauchemars() { return _activeCauchemars || CAUCHEMARS_CIBLES; }
 export function setActiveCauchemarsGlobal(c) { _activeCauchemars = c; }
 
-export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readiness, trajectory, onStartSprint }) {
+export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readiness, onStartSprint }) {
   if (!diagnostic) return null;
   var b1 = diagnostic.bloc1;
   var b2 = diagnostic.bloc2;
@@ -155,17 +155,6 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
         </div>
       )}
 
-      {/* Trajectory */}
-      {trajectory && (
-        <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14 }}>{trajectory === "j_y_suis" ? "\uD83D\uDCCD" : "\uD83D\uDE80"}</span>
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>{trajectory === "j_y_suis" ? "J'y suis" : "J'y vais"}</div>
-            <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachée dans ce que tu fais déjà." : "La Forge cherche les preuves transférables vers le poste visé."}</div>
-          </div>
-        </div>
-      )}
-
       {/* CTA */}
       <button onClick={function() { onStartSprint(); }} style={{
         width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",
@@ -216,9 +205,6 @@ export function Onboarding({ onStart, onScan }) {
   var roleState = useState(null);
   var targetRole = roleState[0];
   var setTargetRole = roleState[1];
-  var toggleState = useState(null);
-  var trajectory = toggleState[0];
-  var setTrajectory = toggleState[1];
   var cvState = useState("");
   var cv = cvState[0];
   var setCv = cvState[1];
@@ -242,7 +228,7 @@ export function Onboarding({ onStart, onScan }) {
   var setOfferSignals = offerSignalsState[1];
 
   var isPassif = mode === "passif";
-  var canStart = isPassif ? cv.trim().length > 20 : (cv.trim().length > 20 && offers.trim().length > 20 && targetRole !== null && trajectory !== null);
+  var canStart = isPassif ? cv.trim().length > 20 : (cv.trim().length > 20 && targetRole !== null);
 
   function handleScan() {
     setPhase("scanning");
@@ -258,6 +244,9 @@ export function Onboarding({ onStart, onScan }) {
       if (signals && signals.cauchemars) {
         setActiveCauchemarsGlobal(signals.cauchemars);
       }
+    } else if (!isPassif && targetRole) {
+      // No offer — use generic cauchemars from role templates
+      setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRole));
     }
 
     // Show progress messages
@@ -426,17 +415,6 @@ export function Onboarding({ onStart, onScan }) {
           </div>
         )}
 
-        {/* TRAJECTORY TOGGLE indicator */}
-        {!isPassif && trajectory && (
-          <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>{trajectory === "j_y_suis" ? "\uD83D\uDCCD" : "\uD83D\uDE80"}</span>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>{trajectory === "j_y_suis" ? "J'y suis" : "J'y vais"}</div>
-              <div style={{ fontSize: 10, color: "#8892b0" }}>{trajectory === "j_y_suis" ? "La Forge cherche la valeur cachée dans ce que tu fais déjà." : "La Forge cherche les preuves transférables vers le poste visé."}</div>
-            </div>
-          </div>
-        )}
-
         {/* LIGHT CROSS-ROLE HINT — pre-Forge signal based on CV keywords */}
         {!isPassif && targetRole && (function() {
           var cvLower = cv.toLowerCase();
@@ -487,8 +465,7 @@ export function Onboarding({ onStart, onScan }) {
             offerText={offers}
             roleId={targetRole}
             readiness={readiness}
-            trajectory={trajectory}
-            onStartSprint={function() { onStart(targetRole, trajectory, offerSignals, offers); }}
+            onStartSprint={function() { onStart(targetRole, offerSignals, offers); }}
           />
         )}
       </div>
@@ -557,13 +534,13 @@ export function Onboarding({ onStart, onScan }) {
             <span style={{ fontSize: 16 }}>{"\uD83C\uDFAF"}</span>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Tes cibles</span>
           </div>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 à 3 offres d'emploi, ou décris le poste que tu vises.</div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Optionnel — colle une offre d'emploi pour affiner les cauchemars détectés.</div>
           <textarea value={offers} onChange={function(e) { setOffers(e.target.value); }}
             placeholder="Ex : Account Executive Mid-Market — Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. CRM requis. OTE 80-120K euros..."
             style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
-          <div style={{ fontSize: 11, color: offers.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
-            {offers.trim().length > 20 ? "Suffisant" : "Minimum 20 caractères"}
+          <div style={{ fontSize: 11, color: "#495670", marginTop: 4, textAlign: "right" }}>
+            {offers.trim().length > 20 ? "Offre détectée" : "Optionnel — cauchemars génériques du rôle"}
           </div>
         </div>
       )}
@@ -623,44 +600,6 @@ export function Onboarding({ onStart, onScan }) {
             </div>
           )}
 
-          {/* ITERATION 1 — TOGGLE "J'Y SUIS / J'Y VAIS" */}
-          {targetRole && (
-            <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 700, marginBottom: 8 }}>Tu y es déjà ou tu veux y accéder ?</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={function() { setTrajectory("j_y_suis"); }} style={{
-                  flex: 1, padding: "14px 8px",
-                  background: trajectory === "j_y_suis" ? "#0f3460" : "#1a1a2e",
-                  border: trajectory === "j_y_suis" ? "2px solid #e94560" : "2px solid #16213e",
-                  borderRadius: 10, cursor: "pointer", textAlign: "center", transition: "all 0.2s",
-                }}>
-                  <div style={{ fontSize: 20, marginBottom: 4 }}>{"\uD83D\uDCCD"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: trajectory === "j_y_suis" ? "#e94560" : "#ccd6f6" }}>J'y suis</div>
-                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je fais déjà ce métier. Je veux être mieux positionné.</div>
-                </button>
-                <button onClick={function() { setTrajectory("j_y_vais"); }} style={{
-                  flex: 1, padding: "14px 8px",
-                  background: trajectory === "j_y_vais" ? "#0f3460" : "#1a1a2e",
-                  border: trajectory === "j_y_vais" ? "2px solid #e94560" : "2px solid #16213e",
-                  borderRadius: 10, cursor: "pointer", textAlign: "center", transition: "all 0.2s",
-                }}>
-                  <div style={{ fontSize: 20, marginBottom: 4 }}>{"\uD83D\uDE80"}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: trajectory === "j_y_vais" ? "#e94560" : "#ccd6f6" }}>J'y vais</div>
-                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>Je vise ce métier. Je viens d'un autre poste.</div>
-                </button>
-              </div>
-              {trajectory && (
-                <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginTop: 8 }}>
-                  <div style={{ fontSize: 11, color: trajectory === "j_y_suis" ? "#4ecca3" : "#3498db", lineHeight: 1.5 }}>
-                    {trajectory === "j_y_suis"
-                      ? "La Forge va chercher la valeur cachée dans ce que tu fais déjà. Quels accomplissements valent cher ? Lesquels ne valent plus rien face à l'IA ? L'angle est : tu es expert, montre-le."
-                      : "La Forge va chercher les preuves transférables dans ton expérience. Quels indicateurs du poste visé couvres-tu déjà ? Quels trous faut-il combler ? L'angle est : tu as fait le travail, tu n'avais pas le titre."
-                    }
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
       {/* Contexte IA — juste avant La Forge */}
@@ -680,7 +619,7 @@ export function Onboarding({ onStart, onScan }) {
         boxShadow: canStart ? "0 4px 20px rgba(233,69,96,0.3)" : "none",
       }}>{canStart ? (isPassif ? "Scanner ma visibilité" : "Lancer l'extraction") : "Remplis les champs pour commencer"}</button>
       <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-        <button onClick={function() { setMode(null); setCv(""); setOffers(""); setTargetRole(null); setTrajectory(null); }} style={{
+        <button onClick={function() { setMode(null); setCv(""); setOffers(""); setTargetRole(null); }} style={{
           flex: 1, padding: 10, background: "#1a1a2e", color: "#495670", border: "1px solid #16213e",
           borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600,
         }}>{"\u2190"} Changer de mode</button>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export function Bar({ pct }) {
   return (
@@ -52,13 +52,10 @@ export function CopyBtn({ text, label }) {
   );
 }
 
-export function Pillars({ pillars, takes, onVal }) {
+export function Pillars({ pillars, takes, onVal, recommendations, onRefresh }) {
   var sel = useState([]);
   var selected = sel[0];
   var setSelected = sel[1];
-  var recState = useState(null);
-  var recommendations = recState[0];
-  var setRecommendations = recState[1];
 
   // Takes become primary pillars, AI pillars are complement
   var takePillars = takes.filter(function(t) { return t.status === "validated" && t.pillar; }).map(function(t, i) {
@@ -70,27 +67,6 @@ export function Pillars({ pillars, takes, onVal }) {
   });
 
   var hasAllFour = takePillars.length >= 4;
-
-  useEffect(function() {
-    if (hasAllFour || aiPillars.length === 0) return;
-    var cancelled = false;
-    fetch("/api/recommend-pillars", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pillars: pillars.map(function(p) { return { id: p.id, title: p.title, desc: p.desc }; }),
-        takes: takePillars.map(function(t) { return { title: t.title, desc: t.desc, text: t.text }; }),
-      }),
-    })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!cancelled && Array.isArray(data)) setRecommendations(data);
-      })
-      .catch(function() {
-        if (!cancelled) setRecommendations([]);
-      });
-    return function() { cancelled = true; };
-  }, []);
 
   function toggle(id) {
     setSelected(function(prev) {
@@ -168,6 +144,12 @@ export function Pillars({ pillars, takes, onVal }) {
               );
             })}
           </div>
+          {onRefresh && (
+            <button onClick={onRefresh} style={{
+              background: "#1a1a2e", border: "1px solid #495670", color: "#8892b0",
+              fontSize: 11, padding: "6px 12px", borderRadius: 6, marginTop: 8, cursor: "pointer",
+            }}>Régénérer les suggestions</button>
+          )}
         </div>
       )}
 

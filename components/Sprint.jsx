@@ -52,9 +52,6 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var costState = useState(initialState && initialState.nightmareCosts ? initialState.nightmareCosts : {});
   var nightmareCosts = costState[0];
   var setNightmareCosts = costState[1];
-  var trajState = useState(initialState && initialState.trajectoryToggle ? initialState.trajectoryToggle : null);
-  var trajectoryToggle = trajState[0];
-  var setTrajectoryToggle = trajState[1];
   var takesState = useState(initialState && initialState.takes ? initialState.takes : []);
   var takes = takesState[0];
   var setTakes = takesState[1];
@@ -75,6 +72,9 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var urgenceState = useState(initialState && initialState.urgenceMode ? initialState.urgenceMode : false);
   var urgenceMode = urgenceState[0];
   var setUrgenceMode = urgenceState[1];
+  var aiPillarRecsState = useState(initialState && initialState.aiPillarRecs != null ? initialState.aiPillarRecs : null);
+  var aiPillarRecs = aiPillarRecsState[0];
+  var setAiPillarRecs = aiPillarRecsState[1];
 
   // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
   if (targetRoleId) {
@@ -120,8 +120,8 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
       targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
-      trajectoryToggle: trajectoryToggle, takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, _version: CURRENT_VERSION, _savedAt: Date.now(),
+      takes: takes, parsedOffers: parsedOffers,
+      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, aiPillarRecs: aiPillarRecs, _version: CURRENT_VERSION, _savedAt: Date.now(),
     };
     // Immediate localStorage save (no debounce)
     try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
@@ -130,7 +130,32 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     persistRef.current = setTimeout(function() {
       onStateChange(stateObj);
     }, 500);
-  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, trajectoryToggle, takes, parsedOffers, offersArray, offerNextId]);
+  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, takes, parsedOffers, offersArray, offerNextId, aiPillarRecs]);
+
+  // Fetch AI pillar recommendations ONCE, persist result
+  useEffect(function() {
+    if (aiPillarRecs !== null || !targetRoleId) return;
+    var pillars = getAdaptivePillars(targetRoleId);
+    var takePillars = takes.filter(function(t) { return t.status === "validated" && t.pillar; });
+    if (pillars.length === 0) return;
+    var cancelled = false;
+    fetch("/api/recommend-pillars", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pillars: pillars.map(function(p) { return { id: p.id, title: p.title, desc: p.desc }; }),
+        takes: takePillars.map(function(t) { return { title: t.pillar.title, desc: t.pillar.desc, text: t.text }; }),
+      }),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) { if (!cancelled && Array.isArray(data)) setAiPillarRecs(data); })
+      .catch(function() { if (!cancelled) setAiPillarRecs([]); });
+    return function() { cancelled = true; };
+  }, [aiPillarRecs, targetRoleId]);
+
+  function handleRefreshPillarRecs() {
+    setAiPillarRecs(null);
+  }
 
   var maturity = getMaturityLevel(bricks);
 
@@ -268,9 +293,8 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   if (screen === "onboarding") {
     return (
       <div style={wrap}>
-        <Onboarding onStart={function(role, traj, offerSignals, rawOfferText) {
+        <Onboarding onStart={function(role, offerSignals, rawOfferText) {
           setTargetRoleId(role);
-          setTrajectoryToggle(traj);
           setParsedOffers(offerSignals);
           setSeeds(generateAdaptiveSeeds(role));
           if (rawOfferText && rawOfferText.trim().length > 20) {
@@ -285,11 +309,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   }
 
   function renderContent() {
-    if (sprintDone) return <EndScreen vault={vault} setVault={setVault} bricks={bricks} duelResults={duelResults} maturity={maturity} targetRoleId={targetRoleId} nightmareCosts={nightmareCosts} trajectoryToggle={trajectoryToggle} offersArray={offersArray} />;
+    if (sprintDone) return <EndScreen vault={vault} setVault={setVault} bricks={bricks} duelResults={duelResults} maturity={maturity} targetRoleId={targetRoleId} nightmareCosts={nightmareCosts} offersArray={offersArray} />;
     if (activeStep === 0) {
       return (
         <div>
-          <Interrogation seeds={seeds} bricks={bricks} onForge={handleForge} onCorrect={handleCorrect} onMission={handleMission} onSkip={handleSkip} onAddBrick={handleAddBrick} paranoMode={paranoMode} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} />
+          <Interrogation seeds={seeds} bricks={bricks} onForge={handleForge} onCorrect={handleCorrect} onMission={handleMission} onSkip={handleSkip} onAddBrick={handleAddBrick} paranoMode={paranoMode} targetRoleId={targetRoleId} />
           {allSeedsDone && density.unlocks.forge && (
             <button onClick={function() { setActiveStep(1); }} style={{
               width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
@@ -314,7 +338,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         </div>
       );
     }
-    if (activeStep === 1) return <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} />;
+    if (activeStep === 1) return <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} recommendations={aiPillarRecs} onRefresh={handleRefreshPillarRecs} />;
     if (activeStep === 2) {
       return (
         <div>
@@ -358,7 +382,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ABNEG@TION</div>
         <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>La Forge {"—"} Calibrage en cours</div>
         {targetRoleId && KPI_REFERENCE[targetRoleId] && (
-          <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>{"\uD83C\uDFAF"} {KPI_REFERENCE[targetRoleId].role} ({KPI_REFERENCE[targetRoleId].sector}) {trajectoryToggle === "j_y_suis" ? "\u00B7 J'y suis" : trajectoryToggle === "j_y_vais" ? "\u00B7 J'y vais" : ""}</div>
+          <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>{"\uD83C\uDFAF"} {KPI_REFERENCE[targetRoleId].role} ({KPI_REFERENCE[targetRoleId].sector})</div>
         )}
       </div>
       {!sprintDone && (
@@ -379,7 +403,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       {!sprintDone && <Vault v={vault} maturity={maturity} bricks={bricks} nightmareCosts={nightmareCosts} onCostChange={function(cId, val) { setNightmareCosts(function(prev) { var next = Object.assign({}, prev); next[cId] = val; return next; }); }} />}
       {!sprintDone && <CVPreview bricks={bricks} />}
       {!sprintDone && <InvestmentIndex bricks={bricks} />}
-      {!sprintDone && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} />}
+      {!sprintDone && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} />}
       {!sprintDone && vault.bricks > 0 && (
         <div style={{ marginBottom: 12 }}>
           <button onClick={function() {
@@ -437,7 +461,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Pause la Forge. Tes briques restent.</div>
         </div>
       )}
-      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} vault={vault} offersArray={offersArray} isActive={urgenceMode} />}
+      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} />}
       <div style={{ background: "#16213e", borderRadius: 12, padding: 20 }}>
         {renderContent()}
       </div>
