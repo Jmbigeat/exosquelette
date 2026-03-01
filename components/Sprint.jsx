@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 
 // Lib modules
 import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
-import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage } from "@/lib/sprint/scoring";
+import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
 import { parseOfferSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence } from "@/lib/sprint/offers";
 import { generateAdaptiveSeeds, matchKpiToReference, getAdaptivePillars, generateBrickVersions } from "@/lib/sprint/bricks";
 import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest } from "@/lib/sprint/generators";
@@ -271,9 +271,92 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     setActiveStep(2);
   }
 
+  /**
+   * buildDuelQuestions — Chantier 5
+   * Fusionne questions classiques (DUEL_QUESTIONS) + questions dérivées des briques.
+   * Shuffle l'ensemble. Retourne au format attendu par Duel.jsx.
+   */
+  function buildDuelQuestions(classicQuestions, allBricks, roleId) {
+    var validated = allBricks.filter(function(b) { return b.status === "validated" && b.type === "brick"; });
+    var strong = validated.filter(function(b) {
+      var armor = assessBrickArmor(b);
+      return armor.status === "armored" || armor.status === "credible";
+    });
+
+    function snippet(b) {
+      var t = b.text || "";
+      return t.length > 60 ? t.slice(0, 60) + "..." : t;
+    }
+
+    var attackTemplates = [
+      { intent: "Reproductibilité", make: function(b) { return "Vous dites : \"" + snippet(b) + "\". C'est dans un contexte précis. Qu'est-ce qui garantit que ça marche ici ?"; }, danger: "Si tu ne peux pas séparer le contexte de la méthode, ta brique est contextuelle. Le recruteur lit : chanceux, pas compétent.", idealAngle: "Sépare le spécifique du transférable. Nomme la méthode, pas seulement le résultat." },
+      { intent: "Attribution", make: function(b) { return "\"" + snippet(b) + "\" — c'est ton travail ou celui de l'équipe ?"; }, danger: "Si tu dis 'c'était collectif' sans nuancer, le recruteur ne sait plus quel est ton impact individuel.", idealAngle: "Nomme ta contribution spécifique. 'L'équipe exécutait, j'ai structuré le framework et arbitré les priorités.'" },
+      { intent: "Résistance au doute", make: function(b) { return "\"" + snippet(b) + "\" — le recruteur dit : 'J'ai du mal à y croire. Prouvez-le.'"; }, danger: "Si tu te justifies avec des mots, tu perds. Les données parlent.", idealAngle: "Réponds avec le chiffre, la période, et la méthode. Pas d'émotion. Des faits." },
+      { intent: "Obsolescence", make: function(b) { return "\"" + snippet(b) + "\" — c'était il y a combien de temps ? Le marché a changé depuis, non ?"; }, danger: "Si tu ne montres pas que ta compétence est à jour, le recruteur classe : profil passé.", idealAngle: "Montre que le principe est intemporel même si le contexte change. 'La méthode s'applique quel que soit le cycle.'" },
+    ];
+
+    var personalQuestions = [];
+    strong.forEach(function(b, i) {
+      if (i >= 4) return;
+      var tpl = attackTemplates[i % attackTemplates.length];
+      personalQuestions.push({
+        id: 100 + i,
+        question: tpl.make(b),
+        intent: tpl.intent,
+        brickRef: "brick_" + b.id,
+        danger: tpl.danger,
+        idealAngle: tpl.idealAngle,
+      });
+    });
+
+    var all = classicQuestions.concat(personalQuestions);
+    // Fisher-Yates shuffle
+    for (var i = all.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = all[i];
+      all[i] = all[j];
+      all[j] = temp;
+    }
+    return all;
+  }
+
+  var duelQRef = useRef(null);
+
+  /**
+   * handleDuelComplete — Chantier 5
+   * Stocke le résultat du Duel, flag les briques mobilisées.
+   * Ne met PAS sprintDone à true pour permettre le recommencement.
+   */
   function handleDuelComplete(results) {
     setDuelResults(results);
-    setSprintDone(true);
+    // Flag mobilized bricks
+    var answeredRefs = results.filter(function(r) { return r.answer; }).map(function(r) { return r.brickRef; });
+    setBricks(function(prev) {
+      return prev.map(function(b) {
+        if (b.status !== "validated" || b.type !== "brick") return b;
+        // Direct match for generated questions (brickRef = "brick_" + id)
+        var directMatch = answeredRefs.some(function(ref) { return ref === "brick_" + b.id; });
+        // Text match: check if any answer contains keywords from the brick
+        var textMatch = false;
+        if (!directMatch && b.text) {
+          var brickWords = b.text.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 4; });
+          results.forEach(function(r) {
+            if (r.answer) {
+              var aLower = r.answer.toLowerCase();
+              var matches = brickWords.filter(function(w) { return aLower.indexOf(w) !== -1; });
+              if (matches.length >= 2) textMatch = true;
+            }
+          });
+        }
+        if (directMatch || textMatch) return Object.assign({}, b, { duelTested: true });
+        return b;
+      });
+    });
+  }
+
+  function handleDuelRedo() {
+    setDuelResults([]);
+    duelQRef.current = null;
   }
 
   function handleBrickUpdate(updatedBrick) {
@@ -351,7 +434,38 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       </div>
     );
     if (activeStep === 2) {
-      return <Duel questions={DUEL_QUESTIONS} bricks={bricks} onComplete={handleDuelComplete} targetRoleId={targetRoleId} />;
+      if (duelResults.length > 0) {
+        var answeredCount = duelResults.filter(function(r) { return r.answer; }).length;
+        var testedBricks = bricks.filter(function(b) { return b.duelTested; });
+        return (
+          <div style={{ textAlign: "center", padding: 24 }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>{"\uD83D\uDEE1\uFE0F"}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>
+              Duel terminé — {answeredCount} réponse{answeredCount > 1 ? "s" : ""} forgée{answeredCount > 1 ? "s" : ""}
+            </div>
+            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 6 }}>
+              {testedBricks.length} brique{testedBricks.length > 1 ? "s" : ""} mobilisée{testedBricks.length > 1 ? "s" : ""} pendant le Duel.
+            </div>
+            <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.5, marginBottom: 20 }}>
+              Score de densité mis à jour. Tu peux refaire le Duel avec de nouvelles questions ou terminer la Forge.
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={handleDuelRedo} style={{
+                flex: 1, padding: 14, background: "#0f3460", color: "#ccd6f6",
+                border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+              }}>Refaire le Duel</button>
+              <button onClick={function() { setSprintDone(true); }} style={{
+                flex: 1, padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+                border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
+              }}>Terminer la Forge</button>
+            </div>
+          </div>
+        );
+      }
+      if (!duelQRef.current) {
+        duelQRef.current = buildDuelQuestions(DUEL_QUESTIONS, bricks, targetRoleId);
+      }
+      return <Duel questions={duelQRef.current} bricks={bricks} onComplete={handleDuelComplete} targetRoleId={targetRoleId} />;
     }
     return null;
   }
