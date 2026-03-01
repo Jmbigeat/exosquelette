@@ -13,10 +13,9 @@ import { hasReachedSignatureThreshold, generateMaskedHypotheses, computeMetaPatt
 
 // Component modules
 import { Bar, Nav, Pillars, OffersManager } from "@/components/sprint/ui";
-import { Vault, CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight, Arsenal } from "@/components/sprint/panels";
+import { CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight, Arsenal } from "@/components/sprint/panels";
 import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/sprint/Interrogation";
 import { Duel } from "@/components/sprint/Duel";
-import { EndScreen } from "@/components/sprint/EndScreen";
 import { Onboarding } from "@/components/sprint/Onboarding";
 
 export default function Sprint({ initialState, onStateChange, onScan }) {
@@ -70,9 +69,19 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var offerNextIdState = useState(initialState && initialState.offerNextId ? initialState.offerNextId : 1);
   var offerNextId = offerNextIdState[0];
   var setOfferNextId = offerNextIdState[1];
-  var urgenceState = useState(initialState && initialState.urgenceMode ? initialState.urgenceMode : false);
-  var urgenceMode = urgenceState[0];
-  var setUrgenceMode = urgenceState[1];
+  var etabliState = useState(false);
+  var etabliOpen = etabliState[0];
+  var setEtabliOpen = etabliState[1];
+  // Chantier 10B — pieces counter (TODO chantier 12: consumption logic)
+  var piecesState = useState(initialState && initialState.pieces != null ? initialState.pieces : 7);
+  var pieces = piecesState[0];
+  var setPieces = piecesState[1];
+  var arsenalOpenState = useState(false);
+  var arsenalOpen = arsenalOpenState[0];
+  var setArsenalOpen = arsenalOpenState[1];
+  var navigateToBrickState = useState(null);
+  var navigateToBrick = navigateToBrickState[0];
+  var setNavigateToBrick = navigateToBrickState[1];
   var aiPillarRecsState = useState(initialState && initialState.aiPillarRecs != null ? initialState.aiPillarRecs : null);
   var aiPillarRecs = aiPillarRecsState[0];
   var setAiPillarRecs = aiPillarRecsState[1];
@@ -146,7 +155,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
       targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
       takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, aiPillarRecs: aiPillarRecs, currentSalary: currentSalary, signature: signature, _version: CURRENT_VERSION, _savedAt: Date.now(),
+      offersArray: offersArray, offerNextId: offerNextId, aiPillarRecs: aiPillarRecs, currentSalary: currentSalary, signature: signature, pieces: pieces, _version: CURRENT_VERSION, _savedAt: Date.now(),
     };
     // Immediate localStorage save (no debounce)
     try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
@@ -155,7 +164,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     persistRef.current = setTimeout(function() {
       onStateChange(stateObj);
     }, 500);
-  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, takes, parsedOffers, offersArray, offerNextId, aiPillarRecs, signature]);
+  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, takes, parsedOffers, offersArray, offerNextId, aiPillarRecs, signature, pieces]);
 
   // Fetch AI pillar recommendations ONCE, persist result
   useEffect(function() {
@@ -388,6 +397,28 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     setBricks(function(prev) {
       return prev.map(function(b) { return b.id === updatedBrick.id ? updatedBrick : b; });
     });
+  }
+
+  // Chantier 10B — "Aller à la brique" callback from Arsenal
+  function handleGoToBrick(nightmareId, angle) {
+    setArsenalOpen(false);
+    setEtabliOpen(false);
+    setActiveStep(1);
+    // Find a brick that covers the recommended nightmare
+    var targetBrick = null;
+    var cauchemars = getActiveCauchemars();
+    var nightmare = cauchemars.find(function(c) { return c.id === nightmareId; });
+    if (nightmare) {
+      var validatedBricks = bricks.filter(function(b) { return b.status === "validated" && b.type === "brick"; });
+      validatedBricks.forEach(function(b) {
+        if (!targetBrick && b.kpi && nightmare.kpis && nightmare.kpis.some(function(k) {
+          return b.kpi.indexOf(k) !== -1 || k.indexOf(b.kpi) !== -1;
+        })) {
+          targetBrick = b;
+        }
+      });
+    }
+    setNavigateToBrick({ brickId: targetBrick ? targetBrick.id : null, angle: angle });
   }
 
   var allSeedsDone = seeds.every(function(s) {
@@ -674,7 +705,17 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   }
 
   function renderContent() {
-    if (sprintDone) return <EndScreen vault={vault} setVault={setVault} bricks={bricks} duelResults={duelResults} maturity={maturity} targetRoleId={targetRoleId} nightmareCosts={nightmareCosts} offersArray={offersArray} />;
+    if (sprintDone) return (
+      <div style={{ textAlign: "center", padding: 32 }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>{"\u23F8\uFE0F"}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>Forge en veille</div>
+        <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 20 }}>Tes briques sont sauvegard{"\u00E9"}es. Reprends quand tu veux.</div>
+        <button onClick={function() { setSprintDone(false); }} style={{
+          padding: "12px 24px", background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+          border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
+        }}>Reprendre la Forge</button>
+      </div>
+    );
     if (activeStep === 0) {
       return (
         <div>
@@ -705,7 +746,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     }
     if (activeStep === 1) return (
       <div>
-        <BrickStressTest bricks={bricks} onBrickUpdate={handleBrickUpdate} nightmareCosts={nightmareCosts} offersArray={offersArray} />
+        <BrickStressTest bricks={bricks} onBrickUpdate={handleBrickUpdate} nightmareCosts={nightmareCosts} offersArray={offersArray} navigateToBrick={navigateToBrick} onNavigateDone={function() { setNavigateToBrick(null); }} />
         <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} recommendations={aiPillarRecs} onRefresh={handleRefreshPillarRecs} />
       </div>
     );
@@ -725,16 +766,10 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <div style={{ fontSize: 12, color: "#495670", lineHeight: 1.5, marginBottom: 20 }}>
               Score de densité mis à jour. Tu peux refaire le Duel avec de nouvelles questions ou terminer la Forge.
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={handleDuelRedo} style={{
-                flex: 1, padding: 14, background: "#0f3460", color: "#ccd6f6",
-                border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-              }}>Refaire le Duel</button>
-              <button onClick={function() { setSprintDone(true); }} style={{
-                flex: 1, padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
-                border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-              }}>Terminer la Forge</button>
-            </div>
+            <button onClick={handleDuelRedo} style={{
+              width: "100%", padding: 14, background: "#0f3460", color: "#ccd6f6",
+              border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+            }}>Refaire le Duel</button>
           </div>
         );
       }
@@ -746,29 +781,56 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     return null;
   }
 
+  var hasValidatedBricks = bricks.some(function(b) { return b.status === "validated"; });
+  var densityColor = density.score >= 70 ? "#4ecca3" : density.score >= 50 ? "#3498db" : "#e94560";
+  var etabliEnabled = hasValidatedBricks;
+
   return (
     <div style={wrap}>
+      <style>{"\
+        @keyframes arsenalSlideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }\
+        @keyframes arsenalSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }\
+      "}</style>
       {renderSignatureOverlay()}
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ABNEG@TION</div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: "#ccd6f6" }}>La Forge {"—"} Calibrage en cours</div>
-        {targetRoleId && KPI_REFERENCE[targetRoleId] && (
-          <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>{"\uD83C\uDFAF"} {KPI_REFERENCE[targetRoleId].role} ({KPI_REFERENCE[targetRoleId].sector})</div>
-        )}
+
+      {/* ===== HEADER — Région 2 (MESURER) : score cliquable + compteur pièces ===== */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        marginBottom: 12, padding: "12px 16px", background: "#16213e", borderRadius: 12,
+      }}>
+        <div>
+          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 2 }}>ABNEG@TION</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#ccd6f6" }}>La Forge</div>
+          {targetRoleId && KPI_REFERENCE[targetRoleId] && (
+            <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>{KPI_REFERENCE[targetRoleId].role}</div>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={function() { if (activeStep >= 1) setArsenalOpen(true); }} title={activeStep < 1 ? "Disponible d\u00E8s l\u2019Assemblage" : "Ouvrir l\u2019Arsenal"} style={{
+            background: "none", border: "1px solid " + densityColor + "60",
+            borderRadius: 8, padding: "6px 14px", cursor: activeStep >= 1 ? "pointer" : "default",
+            opacity: activeStep >= 1 ? 1 : 0.4, transition: "all 0.3s",
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: densityColor, whiteSpace: "nowrap" }}>
+              {hasValidatedBricks ? "Densit\u00E9 : " + density.score + "%" : "Densit\u00E9 : \u2014"}
+            </div>
+          </button>
+          {pieces > 0 && (
+            <div style={{ fontSize: 12, color: "#8892b0", fontWeight: 600, whiteSpace: "nowrap" }}>
+              {pieces} pi{"\u00E8"}ce{pieces > 1 ? "s" : ""}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Density bar */}
       {!sprintDone && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#8892b0", marginBottom: 6 }}>
-            <span style={{ color: density.score >= 70 ? "#4ecca3" : density.score >= 50 ? "#3498db" : "#e94560" }}>
-              Densité : {density.score}%
-            </span>
-            <span>
-              {density.score < 50 ? "Verrou actif — blinde tes briques" : density.score < 70 ? "Seuil de sortie : 70%" : "\uD83D\uDD13 Arsenal prêt"}
-            </span>
-          </div>
+        <div style={{ marginBottom: 12 }}>
           <Bar pct={density.score} />
         </div>
       )}
+
+      {/* Signature display */}
       {!sprintDone && signature && (
         <div style={{ marginBottom: 12, padding: 12, background: "#4ecca3" + "10", border: "1px solid #4ecca3" + "30", borderRadius: 10 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -786,71 +848,31 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           </div>
         </div>
       )}
-      {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={setActiveStep} density={density} />}
-      {!sprintDone && activeStep >= 1 && (
-        <Arsenal
-          density={density}
-          bricks={bricks}
-          nightmares={getActiveCauchemars()}
-          signatureThreshold={hasReachedSignatureThreshold(bricks)}
-          signature={signature}
-          vault={vault}
-          duelResults={duelResults}
-        />
-      )}
+
+      {/* ===== NAV — with Établi button ===== */}
+      {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={function(i) { setEtabliOpen(false); setActiveStep(i); }} density={density} etabliOpen={etabliOpen} onEtabliToggle={function() { if (etabliEnabled) setEtabliOpen(!etabliOpen); }} etabliEnabled={etabliEnabled} />}
+
+      {/* Offers manager */}
       {!sprintDone && offersArray.length > 0 && <OffersManager offersArray={offersArray} onAdd={handleAddOffer} onRemove={handleRemoveOffer} coherence={offerCoherence} targetRoleId={targetRoleId} />}
-      {!sprintDone && <Vault v={vault} maturity={maturity} bricks={bricks} nightmareCosts={nightmareCosts} onCostChange={function(cId, val) { setNightmareCosts(function(prev) { var next = Object.assign({}, prev); next[cId] = val; return next; }); }} />}
-      {!sprintDone && <CVPreview bricks={bricks} />}
-      {!sprintDone && <InvestmentIndex bricks={bricks} />}
-      {!sprintDone && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} />}
-      {!sprintDone && vault.bricks > 0 && (
-        <div style={{ marginBottom: 12 }}>
-          <button onClick={function() {
-            if (!urgenceMode) {
-              if (confirm("L'Établi : tes scripts seront construits avec les briques disponibles, blindées ou non. Un script sans preuve chiffrée ouvre une conversation. Il ne la ferme pas. Activer ?")) {
-                setUrgenceMode(true);
-              }
-            } else {
-              setUrgenceMode(false);
-            }
-          }} style={{
-            width: "100%", padding: "10px 16px", background: urgenceMode ? "#e94560" + "22" : "#1a1a2e",
-            border: "1px solid " + (urgenceMode ? "#e94560" : "#16213e"), borderRadius: 10,
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14 }}>{urgenceMode ? "\u26A1" : "\u26A1"}</span>
-              <span style={{ fontSize: 12, color: urgenceMode ? "#e94560" : "#495670", fontWeight: 700 }}>
-                {urgenceMode ? "ÉTABLI ACTIF" : "Activer l'Établi"}
-              </span>
-            </div>
-            <div style={{
-              width: 36, height: 20, borderRadius: 10, background: urgenceMode ? "#e94560" : "#0f3460",
-              position: "relative", transition: "background 0.3s",
-            }}>
-              <div style={{
-                width: 16, height: 16, borderRadius: 8, background: "#ccd6f6",
-                position: "absolute", top: 2, left: urgenceMode ? 18 : 2, transition: "left 0.3s",
-              }} />
-            </div>
-          </button>
-          {!urgenceMode && (
-            <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Active l'Établi pour recevoir tes scripts et CV pendant la Forge.</div>
-          )}
-        </div>
-      )}
-      {!sprintDone && (
+
+      {/* Secondary panels */}
+      {!sprintDone && !etabliOpen && <CVPreview bricks={bricks} />}
+      {!sprintDone && !etabliOpen && <InvestmentIndex bricks={bricks} />}
+      {!sprintDone && !etabliOpen && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} />}
+
+      {/* Mise en Veille */}
+      {!sprintDone && !etabliOpen && (
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #16213e" }}>
           <button onClick={function() {
             var v = bricks.filter(function(b) { return b.status === "validated"; });
             var bl = v.filter(function(b) { return b.blinded; });
             var cov = computeCauchemarCoverage(bricks).filter(function(c) { return c.covered; });
             var mis = bricks.filter(function(b) { return b.type === "mission"; });
-            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forgée" + (v.length > 1 ? "s" : "") + ". "
-              + bl.length + " blindée" + (bl.length > 1 ? "s" : "") + ". "
+            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forg\u00E9e" + (v.length > 1 ? "s" : "") + ". "
+              + bl.length + " blind\u00E9e" + (bl.length > 1 ? "s" : "") + ". "
               + cov.length + " cauchemar" + (cov.length > 1 ? "s" : "") + " couvert" + (cov.length > 1 ? "s" : "") + "."
               + (mis.length > 0 ? " " + mis.length + " mission" + (mis.length > 1 ? "s" : "") + " en attente." : "")
-              + "\n\nTon Score est sauvegardé. Tu reviens quand tu veux.";
+              + "\n\nTon Score est sauvegard\u00E9. Tu reviens quand tu veux.";
             if (confirm(summary)) { setSprintDone(true); }
           }} style={{
             width: "100%", padding: "10px 16px", background: "none",
@@ -860,10 +882,64 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Pause la Forge. Tes briques restent.</div>
         </div>
       )}
-      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} />}
-      <div style={{ background: "#16213e", borderRadius: 12, padding: 20 }}>
-        {renderContent()}
-      </div>
+
+      {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
+      {etabliOpen && (
+        <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} />
+        </div>
+      )}
+
+      {/* ===== CONTENT ZONE — Région 1 (flux principal) ===== */}
+      {!etabliOpen && (
+        <div style={{ background: "#16213e", borderRadius: 12, padding: 20 }}>
+          {renderContent()}
+        </div>
+      )}
+
+      {/* ===== ARSENAL DRAWER — Région 3 (ORIENTER) ===== */}
+      {arsenalOpen && (
+        <div>
+          {/* Backdrop */}
+          <div onClick={function() { setArsenalOpen(false); }} style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(10,10,26,0.6)", zIndex: 900,
+          }} />
+          {/* Drawer — desktop: right panel, mobile: bottom sheet (via media query in style tag above would require classes, so we use responsive width) */}
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0,
+            width: "min(400px, 85vw)",
+            background: "#0d1b2a", zIndex: 901,
+            overflowY: "auto", borderLeft: "1px solid #e94560" + "44",
+            animation: "arsenalSlideRight 0.3s ease",
+          }}>
+            <div style={{ padding: "16px 16px 8px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #16213e" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{"\uD83E\uDDED"}</span>
+                <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 14 }}>ARSENAL</span>
+              </div>
+              <button onClick={function() { setArsenalOpen(false); }} style={{
+                background: "none", border: "none", color: "#8892b0", cursor: "pointer", fontSize: 20, padding: "4px 8px",
+              }}>{"\u2715"}</button>
+            </div>
+            <div style={{ padding: 16 }}>
+              <Arsenal
+                density={density}
+                bricks={bricks}
+                nightmares={getActiveCauchemars()}
+                signatureThreshold={hasReachedSignatureThreshold(bricks)}
+                signature={signature}
+                vault={vault}
+                duelResults={duelResults}
+                pieces={pieces}
+                onGoToBrick={handleGoToBrick}
+                onClose={function() { setArsenalOpen(false); }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {toastBrick && <FeedbackToast brick={toastBrick} onDone={function() { setToastBrick(null); }} />}
     </div>
   );

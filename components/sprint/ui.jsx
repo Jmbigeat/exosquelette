@@ -9,12 +9,12 @@ export function Bar({ pct }) {
   );
 }
 
-export function Nav({ steps, active, onSelect, density }) {
+export function Nav({ steps, active, onSelect, density, etabliOpen, onEtabliToggle, etabliEnabled }) {
   var unlockStates = density ? [true, density.unlocks.forge, density.unlocks.armement] : [true, false, false];
   return (
     <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
       {steps.map(function(s, i) {
-        var isAct = i === active;
+        var isAct = i === active && !etabliOpen;
         var isDone = i < active;
         var isLocked = !unlockStates[i] && !isDone;
         return (
@@ -30,6 +30,17 @@ export function Nav({ steps, active, onSelect, density }) {
           </button>
         );
       })}
+      <button onClick={function() { if (etabliEnabled && onEtabliToggle) onEtabliToggle(); }} style={{
+        padding: "12px 12px", cursor: etabliEnabled ? "pointer" : "default",
+        background: etabliOpen ? "#e94560" + "22" : "#1a1a2e",
+        border: etabliOpen ? "2px solid #e94560" : "2px solid " + (etabliEnabled ? "#e94560" + "60" : "#16213e"),
+        borderRadius: 10, opacity: etabliEnabled ? 1 : 0.3,
+        transition: "all 0.3s", whiteSpace: "nowrap",
+      }}>
+        <div style={{ fontSize: 18, marginBottom: 2 }}>{"\u26A1"}</div>
+        <div style={{ fontSize: 9, color: etabliEnabled ? "#e94560" : "#495670", fontWeight: 600 }}>GARDE: 1+</div>
+        <div style={{ fontSize: 12, color: etabliOpen ? "#e94560" : "#ccd6f6", fontWeight: 700 }}>{"\u00C9tabli"}</div>
+      </button>
     </div>
   );
 }

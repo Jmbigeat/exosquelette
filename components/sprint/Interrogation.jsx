@@ -1103,7 +1103,7 @@ function getVerdictMessage(angleKey, verdict) {
  * Armored bricks (4/4) hide the buttons.
  * @param {{ bricks: Array, onBrickUpdate: Function, nightmareCosts: object, offersArray: Array }} props
  */
-export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersArray }) {
+export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersArray, navigateToBrick, onNavigateDone }) {
   var expandedState = useState(null);
   var expandedId = expandedState[0];
   var setExpandedId = expandedState[1];
@@ -1113,6 +1113,16 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
   var responseState = useState({});
   var responseFields = responseState[0];
   var setResponseFields = responseState[1];
+
+  // Chantier 10B — external navigation from Arsenal "Aller à la brique"
+  var navRef = useRef(null);
+  if (navigateToBrick && navigateToBrick !== navRef.current) {
+    navRef.current = navigateToBrick;
+    if (navigateToBrick.brickId) {
+      setExpandedId(navigateToBrick.brickId);
+    }
+    if (onNavigateDone) onNavigateDone();
+  }
 
   var validated = bricks.filter(function(b) { return b.status === "validated" && b.type === "brick"; });
 

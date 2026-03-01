@@ -404,10 +404,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature }) {
-  var expandState = useState(false);
-  var expanded = expandState[0];
-  var setExpanded = expandState[1];
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
   var setSelectedOfferIdx = selectedOfferState[1];
@@ -427,6 +424,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   if (validated.length === 0) return null;
 
   var blindedCount = validated.filter(function(b) { return b.blinded; }).length;
+  var duelPassed = duelResults && duelResults.length > 0;
 
   // Generate scripts for selected offer or global
   var targetOffer = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
@@ -466,24 +464,27 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var interneCount = 3; // replacement, raise, plan 90j
 
   return (
-    <div style={{ background: "#0d1b2a", border: "1px solid " + qualityColor + "44", borderRadius: 12, marginBottom: 16, overflow: "hidden" }}>
-      <button onClick={function() { setExpanded(!expanded); }} style={{
-        width: "100%", background: "none", border: "none", cursor: "pointer", padding: "12px 16px", textAlign: "left",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
+    <div style={{ background: "#0d1b2a", borderRadius: 12, overflow: "hidden" }}>
+      {/* HEADER — with close button */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 16px 12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14 }}>{"\u26A1"}</span>
-          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>L'ÉTABLI</span>
+          <span style={{ fontSize: 16 }}>{"\u26A1"}</span>
+          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 15 }}>L'{"\u00C9"}TABLI</span>
           <span style={{ fontSize: 10, color: qualityColor, background: qualityColor + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>{externeCount + interneCount} armes</span>
           <span style={{ fontSize: 9, color: qualityColor, background: qualityColor + "15", padding: "1px 6px", borderRadius: 6 }}>{qualityLabel}</span>
         </div>
-        <span style={{ fontSize: 12, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
-      </button>
+        {onClose && (
+          <button onClick={onClose} style={{
+            background: "none", border: "1px solid #495670", borderRadius: 8,
+            color: "#8892b0", cursor: "pointer", padding: "4px 12px", fontSize: 12, fontWeight: 600,
+            display: "flex", alignItems: "center", gap: 4,
+          }}>{"\u2190"} Retour</button>
+        )}
+      </div>
 
-      {expanded && (
-        <div style={{ padding: "0 16px 16px" }}>
+      <div style={{ padding: "0 16px 16px" }}>
 
-          {/* ONGLETS */}
+          {/* ONGLETS — 3 tabs */}
           <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
             <button onClick={function() { setActiveTab("externe"); }} style={{
               flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1, cursor: "pointer",
@@ -497,8 +498,17 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               background: activeTab === "interne" ? "#3498db" + "22" : "#1a1a2e",
               color: activeTab === "interne" ? "#3498db" : "#495670",
               border: "1px solid " + (activeTab === "interne" ? "#3498db" : "#16213e"),
-              borderRadius: "0 8px 8px 0",
+              borderRadius: "0 0 0 0",
             }}>INTERNE</button>
+            <button onClick={function() { setActiveTab("preparation"); }} style={{
+              flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1,
+              cursor: duelPassed ? "pointer" : "default",
+              background: activeTab === "preparation" ? "#ff9800" + "22" : "#1a1a2e",
+              color: activeTab === "preparation" ? "#ff9800" : (duelPassed ? "#495670" : "#495670"),
+              border: "1px solid " + (activeTab === "preparation" ? "#ff9800" : "#16213e"),
+              borderRadius: "0 8px 8px 0",
+              opacity: duelPassed ? 1 : 0.4,
+            }}>PR{"\u00C9"}PARATION</button>
           </div>
 
           {/* Avertissement qualité */}
@@ -712,8 +722,37 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               </div>
             </div>
           )}
+
+          {/* ======== ONGLET PRÉPARATION ======== */}
+          {activeTab === "preparation" && (
+            <div>
+              {duelPassed ? (
+                <div>
+                  <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>FICHES DE PR{"\u00C9"}PARATION</div>
+                  <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 16 }}>
+                    Tes fiches de combat et de pr{"\u00E9"}paration Duel seront g{"\u00E9"}n{"\u00E9"}r{"\u00E9"}es ici.
+                  </div>
+                  {/* TODO chantier 12+ — contenu des fiches de préparation */}
+                  <div style={{ padding: 24, background: "#1a1a2e", borderRadius: 10, textAlign: "center" }}>
+                    <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                      Contenu en cours de construction.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: 32 }}>
+                  <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.5 }}>{"\uD83D\uDEE1\uFE0F"}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>
+                    Pr{"\u00E9"}paration verrouill{"\u00E9"}e
+                  </div>
+                  <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
+                    Passe le Duel pour d{"\u00E9"}bloquer tes fiches de pr{"\u00E9"}paration.
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
     </div>
   );
 }
@@ -1103,16 +1142,25 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
    Zéro donnée nouvelle : affichage des calculs existants
    ============================== */
 
-export function Arsenal({ density, bricks, nightmares, signatureThreshold, signature, vault, duelResults }) {
-  var exState = useState(false);
-  var expanded = exState[0];
-  var setExpanded = exState[1];
-
-  if (!density || !density.axes || density.axes.length === 0) return null;
+export function Arsenal({ density, bricks, nightmares, signatureThreshold, signature, vault, duelResults, pieces, onGoToBrick, onClose }) {
+  if (!density || !density.axes || density.axes.length === 0) {
+    return (
+      <div style={{ padding: 20, textAlign: "center" }}>
+        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Pas encore de donn{"\u00E9"}es. Forge tes premi{"\u00E8"}res briques.</div>
+      </div>
+    );
+  }
   var validated = (bricks || []).filter(function(b) { return b.status === "validated"; });
-  if (validated.length === 0) return null;
+  if (validated.length === 0) {
+    return (
+      <div style={{ padding: 20, textAlign: "center" }}>
+        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Aucune brique valid{"\u00E9"}e. Forge ta premi{"\u00E8"}re brique pour activer l{"'"}Arsenal.</div>
+      </div>
+    );
+  }
 
   var axes = density.axes;
+  var isVitrine = pieces != null && pieces <= 0;
 
   // Weakest axis
   var weakest = axes.reduce(function(min, ax) {
@@ -1128,63 +1176,34 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
   var recommendation = null;
   if (uncovered.length > 0 && nightmares) {
     var scored = uncovered.map(function(unc) {
-      // Find full nightmare object with kpis
       var nightmareObj = nightmares.find(function(n) { return n.id === unc.id; });
       var fakeKpi = nightmareObj && nightmareObj.kpis ? nightmareObj.kpis[0] : "";
-
-      // Simulate adding an armored brick covering this nightmare
       var fakeBrick = {
         id: 99999,
         text: "R\u00E9sultat de 100K\u20AC via m\u00E9thode structur\u00E9e d\u00E9ploy\u00E9e aupr\u00E8s de l'\u00E9quipe de 12 personnes en 3 mois, d\u00E9cision valid\u00E9e par le comit\u00E9",
-        kpi: fakeKpi,
-        skills: [],
-        usedIn: [],
-        status: "validated",
-        type: "brick",
-        brickType: "preuve",
-        brickCategory: "chiffre",
-        stressTestAngle3Validated: true,
-        owned: true,
-        corrected: false,
+        kpi: fakeKpi, skills: [], usedIn: [], status: "validated", type: "brick",
+        brickType: "preuve", brickCategory: "chiffre", stressTestAngle3Validated: true, owned: true, corrected: false,
       };
-
       var simBricks = (bricks || []).concat([fakeBrick]);
       var simDensity = computeDensityScore({
-        bricks: simBricks,
-        nightmares: nightmares,
-        pillars: vault || null,
-        signature: signature || null,
-        duelResults: duelResults || [],
-        cvBricks: [],
+        bricks: simBricks, nightmares: nightmares, pillars: vault || null,
+        signature: signature || null, duelResults: duelResults || [], cvBricks: [],
       });
-
-      // Count improved axes
       var axesImproved = [];
       simDensity.axes.forEach(function(simAx, i) {
-        if (simAx.pct > axes[i].pct) {
-          axesImproved.push(axes[i].name);
-        }
+        if (simAx.pct > axes[i].pct) axesImproved.push(axes[i].name);
       });
-
-      // Check if simulation would trigger signature threshold
       var wouldTriggerSig = !signatureThreshold && !signature && hasReachedSignatureThreshold(simBricks);
-
       return {
-        nightmare: unc,
-        nightmareObj: nightmareObj,
-        axesImproved: axesImproved,
-        axesCount: axesImproved.length,
-        scoreDelta: simDensity.score - density.score,
-        simScore: simDensity.score,
-        wouldTriggerSig: wouldTriggerSig,
+        nightmare: unc, nightmareObj: nightmareObj, axesImproved: axesImproved,
+        axesCount: axesImproved.length, scoreDelta: simDensity.score - density.score,
+        simScore: simDensity.score, wouldTriggerSig: wouldTriggerSig,
       };
     });
-
     scored.sort(function(a, b) {
       if (b.axesCount !== a.axesCount) return b.axesCount - a.axesCount;
       return b.scoreDelta - a.scoreDelta;
     });
-
     recommendation = scored[0];
   }
 
@@ -1194,151 +1213,159 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
     return "#e94560";
   }
 
+  // Determine recommended angle for "Aller à la brique"
+  var recommendedAngle = recommendation && recommendation.axesImproved.length > 0
+    ? recommendation.axesImproved[0] : null;
+
   return (
-    <div style={{ background: "#0d1b2a", border: "1px solid #e94560" + "44", borderRadius: 12, marginBottom: 16, overflow: "hidden" }}>
-      <button onClick={function() { setExpanded(!expanded); }} style={{
-        width: "100%", background: "none", border: "none", cursor: "pointer", padding: "12px 16px", textAlign: "left",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14 }}>{"\uD83E\uDDED"}</span>
-          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>ARSENAL</span>
-          {uncovered.length > 0 && (
-            <span style={{ fontSize: 10, color: "#e94560", background: "#e94560" + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>
-              {uncovered.length} trou{uncovered.length > 1 ? "s" : ""}
-            </span>
-          )}
-          {uncovered.length === 0 && (
-            <span style={{ fontSize: 10, color: "#4ecca3", background: "#4ecca3" + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>
-              couvert
-            </span>
+    <div>
+
+      {/* BLOC 1 — LE RADAR */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RADAR 6 AXES</div>
+        {axes.map(function(ax, i) {
+          var isWeakest = ax.name === weakest.name;
+          var color = axeColor(ax.pct);
+          return (
+            <div key={i} style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                <span style={{ fontSize: 11, color: isWeakest ? "#e94560" : "#8892b0", fontWeight: isWeakest ? 700 : 400 }}>
+                  {isWeakest ? "\u25CF " : ""}{ax.name} <span style={{ fontSize: 9, color: "#495670" }}>({ax.weight}%)</span>
+                </span>
+                <span style={{ fontSize: 11, color: color, fontWeight: 700 }}>{ax.pct}%</span>
+              </div>
+              <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 4, height: 6, overflow: "hidden" }}>
+                <div style={{
+                  width: Math.min(ax.pct, 100) + "%", height: "100%",
+                  background: isWeakest ? "#e94560" : color, borderRadius: 4, transition: "width 0.5s ease",
+                }} />
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ marginTop: 10, padding: 10, background: "#1a1a2e", borderRadius: 8, borderLeft: "3px solid #e94560" }}>
+          <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
+            {"Axe faible : "}
+            <span style={{ color: "#e94560", fontWeight: 700 }}>{weakest.name}</span>
+            {" (" + weakest.pct + "%)."}
+            {uncovered.length > 0
+              ? " Cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + " : " + uncoveredLabels.join(", ") + "."
+              : " Tous les cauchemars sont couverts."
+            }
+          </div>
+        </div>
+      </div>
+
+      {/* BLOC 2 — LA PROCHAINE ACTION */}
+      {recommendation && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAINE ACTION</div>
+          <div style={{ padding: 12, background: "#0f3460", borderRadius: 10, borderLeft: "3px solid #3498db" }}>
+            <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
+              {"Prochaine action : blinde ta brique \u00AB "}
+              <span style={{ color: "#e94560", fontWeight: 700 }}>{recommendation.nightmare.label}</span>
+              {" \u00BB"}
+              {recommendation.axesImproved.length > 0
+                ? " sur l'angle " + recommendation.axesImproved.join(" et ") + "."
+                : "."
+              }
+            </div>
+            {recommendation.nightmare.nightmareShort && (
+              <div style={{ fontSize: 11, color: "#8892b0", marginTop: 6, fontStyle: "italic", lineHeight: 1.5 }}>
+                {recommendation.nightmare.nightmareShort}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* BLOC 3 — LA SIMULATION */}
+      {recommendation && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>SIMULATION</div>
+          <div style={{ padding: 12, background: "#1a1a2e", borderRadius: 10, borderLeft: "3px solid #4ecca3" }}>
+            <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
+              {"Si tu blindes cette brique, ton score passe de "}
+              <span style={{ color: "#e94560", fontWeight: 700 }}>{density.score}%</span>
+              {" \u00E0 "}
+              <span style={{ color: "#4ecca3", fontWeight: 700 }}>{recommendation.simScore}%</span>
+              {"."}
+              {recommendation.scoreDelta > 0 ? " (+" + recommendation.scoreDelta + " points)" : ""}
+            </div>
+            {recommendation.wouldTriggerSig && (
+              <div style={{ marginTop: 8, padding: 8, background: "#4ecca3" + "15", borderRadius: 6, border: "1px solid #4ecca3" + "40" }}>
+                <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5, fontWeight: 600 }}>
+                  {"Tu d\u00E9clenches l'\u00E9cran signature. Tes livrables \u00C9tabli gagnent le filtre pattern."}
+                </div>
+              </div>
+            )}
+            {signatureThreshold && !signature && (
+              <div style={{ marginTop: 8, padding: 8, background: "#4ecca3" + "15", borderRadius: 6, border: "1px solid #4ecca3" + "40" }}>
+                <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5, fontWeight: 600 }}>
+                  {"Seuil signature atteint. Blinde cette brique pour armer ta signature."}
+                </div>
+              </div>
+            )}
+
+            {/* BOUTON — Aller à la brique / Vitrine CTA */}
+            {!isVitrine && onGoToBrick && (
+              <button onClick={function() {
+                var nightmareId = recommendation.nightmare ? recommendation.nightmare.id : null;
+                onGoToBrick(nightmareId, recommendedAngle);
+              }} style={{
+                width: "100%", marginTop: 12, padding: 12,
+                background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+                border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+              }}>Aller {"\u00E0"} la brique</button>
+            )}
+            {isVitrine && (
+              <div style={{ marginTop: 12 }}>
+                <button style={{
+                  width: "100%", padding: 14,
+                  background: "linear-gradient(135deg, #4ecca3, #2ecc71)", color: "#0a0a1a",
+                  border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
+                }}>Continuer {"\u00E0"} forger {"\u2014"} 10{"\u20AC"}/mois</button>
+                <div style={{ fontSize: 11, color: "#8892b0", textAlign: "center", marginTop: 6, lineHeight: 1.5 }}>
+                  {"Ton score est \u00E0 " + density.score + "%. " + uncovered.length + " cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + ". La Forge reste ouverte."}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* All covered */}
+      {uncovered.length === 0 && (
+        <div style={{ padding: 12, background: "#4ecca3" + "15", borderRadius: 10, border: "1px solid #4ecca3" + "40", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: "#4ecca3", lineHeight: 1.6 }}>
+            {"Tous les cauchemars sont couverts. Concentre-toi sur le blindage de tes briques les plus faibles pour monter en densit\u00E9."}
+          </div>
+          {/* Vitrine CTA when all covered but pieces = 0 */}
+          {isVitrine && (
+            <div style={{ marginTop: 12 }}>
+              <button style={{
+                width: "100%", padding: 14,
+                background: "linear-gradient(135deg, #4ecca3, #2ecc71)", color: "#0a0a1a",
+                border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
+              }}>Continuer {"\u00E0"} forger {"\u2014"} 10{"\u20AC"}/mois</button>
+              <div style={{ fontSize: 11, color: "#8892b0", textAlign: "center", marginTop: 6, lineHeight: 1.5 }}>
+                {"Ton score est \u00E0 " + density.score + "%. La Forge reste ouverte."}
+              </div>
+            </div>
           )}
         </div>
-        <span style={{ fontSize: 12, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
-      </button>
+      )}
 
-      {expanded && (
-        <div style={{ padding: "0 16px 16px" }}>
-
-          {/* BLOC 1 — LE RADAR */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RADAR 6 AXES</div>
-            {axes.map(function(ax, i) {
-              var isWeakest = ax.name === weakest.name;
-              var color = axeColor(ax.pct);
-              return (
-                <div key={i} style={{ marginBottom: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                    <span style={{ fontSize: 11, color: isWeakest ? "#e94560" : "#8892b0", fontWeight: isWeakest ? 700 : 400 }}>
-                      {isWeakest ? "\u25CF " : ""}{ax.name} <span style={{ fontSize: 9, color: "#495670" }}>({ax.weight}%)</span>
-                    </span>
-                    <span style={{ fontSize: 11, color: color, fontWeight: 700 }}>{ax.pct}%</span>
-                  </div>
-                  <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 4, height: 6, overflow: "hidden" }}>
-                    <div style={{
-                      width: Math.min(ax.pct, 100) + "%",
-                      height: "100%",
-                      background: isWeakest ? "#e94560" : color,
-                      borderRadius: 4,
-                      transition: "width 0.5s ease",
-                    }} />
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Diagnostic */}
-            <div style={{ marginTop: 10, padding: 10, background: "#1a1a2e", borderRadius: 8, borderLeft: "3px solid #e94560" }}>
-              <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-                {"Axe faible : "}
-                <span style={{ color: "#e94560", fontWeight: 700 }}>{weakest.name}</span>
-                {" (" + weakest.pct + "%)."}
-                {uncovered.length > 0
-                  ? " Cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + " : " + uncoveredLabels.join(", ") + "."
-                  : " Tous les cauchemars sont couverts."
-                }
+      {/* Warnings from density */}
+      {density.warnings && density.warnings.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          {density.warnings.map(function(w, i) {
+            return (
+              <div key={i} style={{ fontSize: 11, color: "#ff9800", lineHeight: 1.5, marginBottom: 4, paddingLeft: 8, borderLeft: "2px solid #ff9800" + "44" }}>
+                {w}
               </div>
-            </div>
-          </div>
-
-          {/* BLOC 2 — LA PROCHAINE ACTION */}
-          {recommendation && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 10, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAINE ACTION</div>
-              <div style={{ padding: 12, background: "#0f3460", borderRadius: 10, borderLeft: "3px solid #3498db" }}>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-                  {"Prochaine action : blinde ta brique \u00AB "}
-                  <span style={{ color: "#e94560", fontWeight: 700 }}>{recommendation.nightmare.label}</span>
-                  {" \u00BB"}
-                  {recommendation.axesImproved.length > 0
-                    ? " sur l'angle " + recommendation.axesImproved.join(" et ") + "."
-                    : "."
-                  }
-                </div>
-                {recommendation.nightmare.nightmareShort && (
-                  <div style={{ fontSize: 11, color: "#8892b0", marginTop: 6, fontStyle: "italic", lineHeight: 1.5 }}>
-                    {recommendation.nightmare.nightmareShort}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* BLOC 3 — LA SIMULATION */}
-          {recommendation && (
-            <div style={{ marginBottom: uncovered.length === 0 ? 0 : 16 }}>
-              <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>SIMULATION</div>
-              <div style={{ padding: 12, background: "#1a1a2e", borderRadius: 10, borderLeft: "3px solid #4ecca3" }}>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-                  {"Si tu blindes cette brique, ton score passe de "}
-                  <span style={{ color: "#e94560", fontWeight: 700 }}>{density.score}%</span>
-                  {" \u00E0 "}
-                  <span style={{ color: "#4ecca3", fontWeight: 700 }}>{recommendation.simScore}%</span>
-                  {"."}
-                  {recommendation.scoreDelta > 0
-                    ? " (+" + recommendation.scoreDelta + " points)"
-                    : ""
-                  }
-                </div>
-                {recommendation.wouldTriggerSig && (
-                  <div style={{ marginTop: 8, padding: 8, background: "#4ecca3" + "15", borderRadius: 6, border: "1px solid #4ecca3" + "40" }}>
-                    <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5, fontWeight: 600 }}>
-                      {"Tu d\u00E9clenches l'\u00E9cran signature. Tes livrables \u00C9tabli gagnent le filtre pattern."}
-                    </div>
-                  </div>
-                )}
-                {signatureThreshold && !signature && (
-                  <div style={{ marginTop: 8, padding: 8, background: "#4ecca3" + "15", borderRadius: 6, border: "1px solid #4ecca3" + "40" }}>
-                    <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5, fontWeight: 600 }}>
-                      {"Seuil signature atteint. Blinde cette brique pour armer ta signature."}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* All covered */}
-          {uncovered.length === 0 && (
-            <div style={{ padding: 12, background: "#4ecca3" + "15", borderRadius: 10, border: "1px solid #4ecca3" + "40" }}>
-              <div style={{ fontSize: 12, color: "#4ecca3", lineHeight: 1.6 }}>
-                {"Tous les cauchemars sont couverts. Concentre-toi sur le blindage de tes briques les plus faibles pour monter en densit\u00E9."}
-              </div>
-            </div>
-          )}
-
-          {/* Warnings from density */}
-          {density.warnings && density.warnings.length > 0 && (
-            <div style={{ marginTop: 12 }}>
-              {density.warnings.map(function(w, i) {
-                return (
-                  <div key={i} style={{ fontSize: 11, color: "#ff9800", lineHeight: 1.5, marginBottom: 4, paddingLeft: 8, borderLeft: "2px solid #ff9800" + "44" }}>
-                    {w}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
