@@ -166,7 +166,7 @@ export default function SprintPage() {
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Sprint — 49 euros</div>
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
-            7 jours. 11 questions. Un Coffre-Fort plein. CV, bio, script, positions, rapport d'impact. Tu valides. L'IA fait le reste.
+            7 jours. 11 questions. Un Score plein. CV, bio, script, positions, rapport d'impact. Tu valides. L'IA fait le reste.
           </div>
         </div>
 
@@ -175,7 +175,7 @@ export default function SprintPage() {
             Le marché ne paie pas la performance. Il paie la rareté. L'outil te montre où tu es rare, où tu es substituable, et comment inverser le rapport de force.
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-            Interrogatoire structuré (4 champs par brique). Confrontation automatique. Générateurs de livrables. Simulateur d'entretien avec crises imprévues. Rapport d'impact avec zones d'excellence et de rupture. Détection de métiers alternatifs.
+            Interrogatoire structuré (4 champs par brique). Confrontation automatique. Livrables calibrés. Simulateur d'entretien avec crises imprévues. Rapport d'impact avec zones d'excellence et de rupture. Détection de métiers alternatifs.
           </div>
         </div>
 

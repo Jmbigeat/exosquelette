@@ -180,7 +180,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           lines.push("APRÈS (après Forge) : " + b4.transformation.after);
           if (b4.transformation.isSimulated) lines.push("(Transformation simulée. La Forge extrait TES vrais chiffres.)");
         }
-        lines.push("\n---\nDiagnostic généré par Abneg@tion — L'Exosquelette");
+        lines.push("\n---\nDiagnostic produit par Abneg@tion — L'Exosquelette");
         var text = lines.join("\n");
         if (navigator.clipboard) { navigator.clipboard.writeText(text); }
         if (typeof onCopied === "function") onCopied();
@@ -519,9 +519,9 @@ export function Onboarding({ onStart, onScan }) {
           <span style={{ fontSize: 16 }}>{"\uD83D\uDC64"}</span>
           <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Ton profil</span>
         </div>
-        <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle ton CV, ta bio LinkedIn, ou décris ton dernier poste.</div>
+        <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle ton CV, ta bio LinkedIn, ou décris ton dernier poste en quelques lignes.</div>
         <textarea value={cv} onChange={function(e) { setCv(e.target.value); }}
-          placeholder="Ex : Account Executive chez [Entreprise SaaS] (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR géré 1.2M euros..."
+          placeholder="Ex : Account Executive chez Spendesk (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR géré 1.2M€..."
           style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
         />
         <div style={{ fontSize: 11, color: cv.trim().length > 20 ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
@@ -532,11 +532,11 @@ export function Onboarding({ onStart, onScan }) {
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <span style={{ fontSize: 16 }}>{"\uD83C\uDFAF"}</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Tes cibles</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Une offre qui t'intéresse (optionnel)</span>
           </div>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Optionnel — colle une offre d'emploi pour affiner les cauchemars détectés.</div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 8 }}>Colle 1 à 3 offres d'emploi, ou décris le poste que tu vises.</div>
           <textarea value={offers} onChange={function(e) { setOffers(e.target.value); }}
-            placeholder="Ex : Account Executive Mid-Market — Scale-up SaaS B2B série B. Prospection outbound, demos, closing. 3+ ans expérience SaaS. CRM requis. OTE 80-120K euros..."
+            placeholder="Ex : Account Executive Mid-Market — Scale-up SaaS B2B série B. Prospection outbound, démos, closing. 3+ ans expérience SaaS..."
             style={{ width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6", fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
           />
           <div style={{ fontSize: 11, color: "#495670", marginTop: 4, textAlign: "right" }}>
@@ -549,7 +549,7 @@ export function Onboarding({ onStart, onScan }) {
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <span style={{ fontSize: 16 }}>{"\uD83D\uDCBC"}</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Ton poste cible</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Quel poste tu vises ?</span>
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12 }}>Choisis la famille de métier. L'IA classe tes briques contre les 5 KPIs de ce poste.</div>
 
@@ -618,6 +618,7 @@ export function Onboarding({ onStart, onScan }) {
         borderRadius: 12, cursor: canStart ? "pointer" : "not-allowed", fontWeight: 700, fontSize: 15,
         boxShadow: canStart ? "0 4px 20px rgba(233,69,96,0.3)" : "none",
       }}>{canStart ? (isPassif ? "Scanner ma visibilité" : "Lancer l'extraction") : "Remplis les champs pour commencer"}</button>
+      <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 8 }}>Gratuit. Sans compte. Tes données ne sont pas stockées.</div>
       <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
         <button onClick={function() { setMode(null); setCv(""); setOffers(""); setTargetRole(null); }} style={{
           flex: 1, padding: 10, background: "#1a1a2e", color: "#495670", border: "1px solid #16213e",

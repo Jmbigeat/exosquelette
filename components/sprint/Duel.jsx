@@ -151,7 +151,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
     var discoveryQs = {
       enterprise_ae: "Quels sont les enjeux de croissance principaux de votre équipe cette année ?",
       head_of_growth: "Quel canal d'acquisition vous préoccupe le plus en ce moment ?",
-      strategic_csm: "Quel est le segment de clients qui génère le plus de friction aujourd'hui ?",
+      strategic_csm: "Quel est le segment de clients qui produit le plus de friction aujourd'hui ?",
       senior_pm: "Quel est l'arbitrage produit le plus difficile que l'équipe n'a pas encore tranché ?",
       ai_architect: "Quel cas d'usage IA est bloqué depuis le plus longtemps ?",
       engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas à débloquer ?",

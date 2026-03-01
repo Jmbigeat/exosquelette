@@ -111,12 +111,12 @@ export function Pillars({ pillars, takes, onVal, recommendations, onRefresh }) {
       {!hasAllFour && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>
-            {hasTakes ? "PILIERS COMPLÉMENTAIRES — GÉNÉRÉS PAR L'IA" : "PILIERS DÉTECTÉS PAR L'IA"}
+            {hasTakes ? "PILIERS COMPLÉMENTAIRES — DÉTECTÉS PAR L'IA" : "PILIERS DÉTECTÉS PAR L'IA"}
           </div>
           <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12, lineHeight: 1.5 }}>
             {hasTakes
               ? "L'IA a croisé tes briques et ton secteur pour proposer des angles complémentaires. Sélectionne ceux qui reflètent ta vision."
-              : "J'ai croisé tes briques et ton secteur. Tu n'as pas formulé de prise de position pendant l'interrogatoire. Ces piliers sont générés. Ils servent de base, mais ils ne viennent pas de toi. La Forge suivante te posera la question."
+              : "J'ai croisé tes briques et ton secteur. Tu n'as pas formulé de prise de position pendant l'interrogatoire. Ces piliers sont extraits de tes données. Ils servent de base, mais ils ne viennent pas de toi. La Forge suivante te posera la question."
             }
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -148,7 +148,7 @@ export function Pillars({ pillars, takes, onVal, recommendations, onRefresh }) {
             <button onClick={onRefresh} style={{
               background: "#1a1a2e", border: "1px solid #495670", color: "#8892b0",
               fontSize: 11, padding: "6px 12px", borderRadius: 6, marginTop: 8, cursor: "pointer",
-            }}>Régénérer les suggestions</button>
+            }}>Recharger les suggestions</button>
           )}
         </div>
       )}
@@ -158,7 +158,7 @@ export function Pillars({ pillars, takes, onVal, recommendations, onRefresh }) {
         <div style={{ background: "#e94560" + "15", borderRadius: 8, padding: 12, marginBottom: 16, borderLeft: "3px solid #e94560" }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>DIAGNOSTIC : AUCUNE PRISE DE POSITION FORMULÉE</div>
           <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-            Tu n'as formulé aucune thèse contrariante sur ton secteur. Les piliers ci-dessus sont générés. Ils fonctionnent, mais ils ne te séparent pas des autres candidats qui utilisent l'IA pour écrire. Au prochain Rendez-vous, le système te reposera la question.
+            Tu n'as formulé aucune thèse contrariante sur ton secteur. Les piliers ci-dessus sont extraits de tes données. Ils fonctionnent, mais ils ne te séparent pas des autres candidats qui utilisent l'IA pour écrire. Au prochain Rendez-vous, le système te reposera la question.
           </div>
         </div>
       )}

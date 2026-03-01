@@ -807,7 +807,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         <div style={{ marginBottom: 12 }}>
           <button onClick={function() {
             if (!urgenceMode) {
-              if (confirm("L'Établi : tes scripts seront générés avec les briques disponibles, blindées ou non. Un script sans preuve chiffrée ouvre une conversation. Il ne la ferme pas. Activer ?")) {
+              if (confirm("L'Établi : tes scripts seront construits avec les briques disponibles, blindées ou non. Un script sans preuve chiffrée ouvre une conversation. Il ne la ferme pas. Activer ?")) {
                 setUrgenceMode(true);
               }
             } else {
@@ -850,7 +850,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               + bl.length + " blindée" + (bl.length > 1 ? "s" : "") + ". "
               + cov.length + " cauchemar" + (cov.length > 1 ? "s" : "") + " couvert" + (cov.length > 1 ? "s" : "") + "."
               + (mis.length > 0 ? " " + mis.length + " mission" + (mis.length > 1 ? "s" : "") + " en attente." : "")
-              + "\n\nTon Coffre-Fort est sauvegardé. Tu reviens quand tu veux.";
+              + "\n\nTon Score est sauvegardé. Tu reviens quand tu veux.";
             if (confirm(summary)) { setSprintDone(true); }
           }} style={{
             width: "100%", padding: "10px 16px", background: "none",

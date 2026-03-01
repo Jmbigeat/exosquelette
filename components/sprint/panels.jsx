@@ -42,7 +42,7 @@ export function InvestmentIndex({ bricks }) {
         <div style={{ marginTop: 12 }}>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
             {level === "dense"
-              ? "Tu as fait un travail que la majorité des candidats ne fera jamais. Le recruteur verra la différence entre quelqu'un qui a préparé et quelqu'un qui a généré."
+              ? "Tu as fait un travail que la majorité des candidats ne fera jamais. Le recruteur verra la différence entre quelqu'un qui a préparé et quelqu'un qui a récité."
               : level === "solide"
               ? "Investissement solide. Chaque brique supplémentaire creuse l'écart avec les candidats qui arrivent les mains vides."
               : level === "en cours"
@@ -67,14 +67,14 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
     { l: "Missions en cours", val: v.missions, mx: 5, e: "\uD83D\uDCCB" },
     { l: "Piliers Singularité", val: v.pillars, mx: 4, e: "\uD83C\uDFDB\uFE0F" },
   ];
-  var matLabels = { executant: "Exécutant", optimiseur: "Optimiseur", architecte: "Architecte" };
+  var matLabels = { executant: "Exécutant", optimiseur: "Accélérateur", architecte: "Architecte" };
   var matColors = { executant: "#495670", optimiseur: "#e94560", architecte: "#4ecca3" };
   return (
     <div style={{ background: "#16213e", borderRadius: 12, padding: 20, marginBottom: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 20 }}>{"\uD83D\uDD10"}</span>
-          <span style={{ color: "#e94560", fontWeight: 700, fontSize: 14, letterSpacing: 1 }}>COFFRE-FORT</span>
+          <span style={{ color: "#e94560", fontWeight: 700, fontSize: 14, letterSpacing: 1 }}>SCORE</span>
         </div>
         {maturity && (
           <span style={{ fontSize: 10, color: matColors[maturity] || "#495670", background: "#1a1a2e", padding: "4px 10px", borderRadius: 10, fontWeight: 700, letterSpacing: 1 }}>
@@ -626,11 +626,11 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               {/* Champ salaire */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <label style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, display: "block", marginBottom: 6 }}>
-                  Salaire actuel (optionnel — affine le rapport de remplacement)
+                  Salaire actuel (optionnel)
                 </label>
                 <input
                   type="number"
-                  placeholder="Ex : 55000"
+                  placeholder="Ex : 65 000€"
                   value={currentSalary || ""}
                   onChange={function(e) { onSalaryChange(e.target.value ? parseInt(e.target.value) : null); }}
                   style={{
@@ -722,7 +722,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
    SUBSCRIPTION DASHBOARD
    Zone 1 — Thermostat (3 lignes)
    Zone 2 — Posts de la semaine (2-3 survivants)
-   Zone 3 — Resume Coffre-Fort
+   Zone 3 — Resume Score
    Zone grisee — Posts ecartes (optionnelle)
    ============================== */
 
@@ -787,7 +787,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
         {[
           { color: "#e94560", label: "Thermostat", count: 3 },
           { color: "#4ecca3", label: "Posts", count: posts.length },
-          { color: "#ff9800", label: "Coffre-Fort", count: validated.length },
+          { color: "#ff9800", label: "Score", count: validated.length },
           { color: "#3498db", label: "Actions", count: (sleepComment ? 1 : 0) + (sleepBrick ? 1 : 0) },
         ].map(function(z, i) {
           return (
@@ -810,7 +810,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
         <div style={{ marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #16213e" }}>
           <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>VALEUR PROUVÉE</div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-            Tu résous {covered.length} cauchemar{covered.length > 1 ? "s" : ""} pour un coût cumulé de {formatCost(totalCostLow)}-{formatCost(totalCostHigh)} par an. Preuve : {blinded.length} brique{blinded.length > 1 ? "s" : ""} blindée{blinded.length > 1 ? "s" : ""} dans ton Coffre-Fort.
+            Tu résous {covered.length} cauchemar{covered.length > 1 ? "s" : ""} pour un coût cumulé de {formatCost(totalCostLow)}-{formatCost(totalCostHigh)} par an. Preuve : {blinded.length} brique{blinded.length > 1 ? "s" : ""} blindée{blinded.length > 1 ? "s" : ""} dans ton Score.
           </div>
         </div>
 
@@ -847,7 +847,7 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
 
         {posts.length === 0 && (
           <div style={{ fontSize: 12, color: "#495670", textAlign: "center", padding: 20 }}>
-            Pas assez de briques blindées pour générer des posts. Blinde ton Coffre-Fort.
+            Pas assez de briques blindées pour produire des posts. Blinde ton Score.
           </div>
         )}
 
@@ -916,9 +916,9 @@ export function SubscriptionDashboard({ bricks, vault, targetRoleId, trajectoryT
         )}
       </div>
 
-      {/* ZONE 3 — RESUME COFFRE-FORT */}
+      {/* ZONE 3 — RESUME SCORE */}
       <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 20, borderLeft: "4px solid #ff9800" }}>
-        <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>COFFRE-FORT</div>
+        <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>SCORE</div>
         <div style={{ display: "flex", justifyContent: "center", gap: 20 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#ccd6f6" }}>{validated.length}</div>
@@ -1070,7 +1070,7 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
                         setTScripts(upd);
                       }} style={{
                         padding: "6px 12px", fontSize: 11, background: "#1a1a2e", color: "#3498db", border: "1px solid #3498db", borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                      }}>Générer un script de transition</button>
+                      }}>Produire un script de transition</button>
                     )}
                     {tScripts[alt.roleId] && (
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginTop: 6 }}>
@@ -1250,11 +1250,11 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
             {/* Diagnostic */}
             <div style={{ marginTop: 10, padding: 10, background: "#1a1a2e", borderRadius: 8, borderLeft: "3px solid #e94560" }}>
               <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
-                {"Ton axe le plus faible : "}
+                {"Axe faible : "}
                 <span style={{ color: "#e94560", fontWeight: 700 }}>{weakest.name}</span>
                 {" (" + weakest.pct + "%)."}
                 {uncovered.length > 0
-                  ? " " + uncovered.length + " cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + " : " + uncoveredLabels.join(", ") + "."
+                  ? " Cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + " : " + uncoveredLabels.join(", ") + "."
                   : " Tous les cauchemars sont couverts."
                 }
               </div>
@@ -1267,12 +1267,12 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
               <div style={{ fontSize: 10, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAINE ACTION</div>
               <div style={{ padding: 12, background: "#0f3460", borderRadius: 10, borderLeft: "3px solid #3498db" }}>
                 <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-                  {"Forge une brique sur "}
+                  {"Prochaine action : blinde ta brique \u00AB "}
                   <span style={{ color: "#e94560", fontWeight: 700 }}>{recommendation.nightmare.label}</span>
-                  {"."}
+                  {" \u00BB"}
                   {recommendation.axesImproved.length > 0
-                    ? " Elle fera monter " + recommendation.axesImproved.join(" et ") + "."
-                    : ""
+                    ? " sur l'angle " + recommendation.axesImproved.join(" et ") + "."
+                    : "."
                   }
                 </div>
                 {recommendation.nightmare.nightmareShort && (
@@ -1290,7 +1290,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
               <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>SIMULATION</div>
               <div style={{ padding: 12, background: "#1a1a2e", borderRadius: 10, borderLeft: "3px solid #4ecca3" }}>
                 <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-                  {"Si tu blindes cette brique, ton score densit\u00E9 passe de "}
+                  {"Si tu blindes cette brique, ton score passe de "}
                   <span style={{ color: "#e94560", fontWeight: 700 }}>{density.score}%</span>
                   {" \u00E0 "}
                   <span style={{ color: "#4ecca3", fontWeight: 700 }}>{recommendation.simScore}%</span>

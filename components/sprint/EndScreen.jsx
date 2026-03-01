@@ -311,7 +311,7 @@ export function SignalField({ bricks, targetRoleId }) {
   return (
     <div>
       <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 10 }}>
-        Tu as repéré un signal ? Levée de fonds, recrutement, départ d'un dirigeant, expansion. Colle-le ici. Le système croise avec ton Coffre-Fort et génère un script d'approche.
+        Tu as repéré un signal ? Levée de fonds, recrutement, départ d'un dirigeant, expansion. Colle-le ici. Le système croise avec ton Score et produit un script d'approche.
       </div>
       <textarea
         value={signalInput}
@@ -334,7 +334,7 @@ export function SignalField({ bricks, targetRoleId }) {
           borderRadius: 8, cursor: signalInput.trim().length >= 10 ? "pointer" : "not-allowed",
           fontWeight: 700, fontSize: 13, transition: "all 0.3s",
         }}
-      >Générer le script d'approche</button>
+      >Produire le script d'approche</button>
 
       {result && (
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 14, marginTop: 12, borderLeft: "3px solid #4ecca3" }}>
@@ -347,7 +347,7 @@ export function SignalField({ bricks, targetRoleId }) {
           </div>
           <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-line" }}>{result.script}</div>
           <div style={{ fontSize: 10, color: "#8892b0", marginTop: 8, lineHeight: 1.4 }}>
-            Ce script est généré depuis ton Coffre-Fort. Il cite tes briques les plus fortes et le cauchemar probable de l'entreprise. Ajuste le ton et envoie.
+            Ce script est produit depuis ton Score. Il cite tes briques les plus fortes et le cauchemar probable de l'entreprise. Ajuste le ton et envoie.
           </div>
         </div>
       )}
@@ -374,7 +374,7 @@ export function CommentField({ bricks, vault, targetRoleId }) {
   return (
     <div>
       <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5, marginBottom: 10 }}>
-        Colle un post LinkedIn. Le système vérifie 3 filtres avant de générer. Si le post ne passe pas, il te dit pourquoi.
+        Colle un post LinkedIn. Le système vérifie 3 filtres avant de produire. Si le post ne passe pas, il te dit pourquoi.
       </div>
       <textarea
         value={postInput}
@@ -397,7 +397,7 @@ export function CommentField({ bricks, vault, targetRoleId }) {
           borderRadius: 8, cursor: postInput.trim().length >= 20 ? "pointer" : "not-allowed",
           fontWeight: 700, fontSize: 13, transition: "all 0.3s",
         }}
-      >Analyser + Générer</button>
+      >Analyser + Produire</button>
 
       {result && result.filterResult && (
         <div style={{ marginTop: 12 }}>
@@ -586,7 +586,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
     ],
     freelance: [
       { month: "Janvier", text: "Quelles sont les 3 décisions les plus coûteuses que tu as prises ce mois pour ton client ? Ton rapport de valeur en dépend." },
-      { month: "Février", text: "Ton client pense que 'tout va bien' parce que tu fais bien ton job. Quelles catastrophes as-tu évitées ce mois ? L'IA génère ton rapport de valeur." },
+      { month: "Février", text: "Ton client pense que 'tout va bien' parce que tu fais bien ton job. Quelles catastrophes as-tu évitées ce mois ? L'IA produit ton rapport de valeur." },
       { month: "Mars", text: "Quel indicateur as-tu fait bouger ce mois chez ton client ? Mets le chiffre dans ton rapport. Pas de chiffre, pas de justification d'honoraires." },
     ],
   };
@@ -608,7 +608,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           </button>
           {arsenalSection === "scripts" && (function() {
             var scripts = generateContactScripts(bricks, targetRoleId);
-            if (!scripts) return <Deliverable emoji={"\uD83C\uDFAF"} title="Script de contact" content="[Valide des briques pour générer les scripts.]" lines={2} />;
+            if (!scripts) return <Deliverable emoji={"\uD83C\uDFAF"} title="Script de contact" content="[Valide des briques pour produire les scripts.]" lines={2} />;
             var variants = { email: scripts.email, dm: scripts.dm, n1: scripts.n1, rh: scripts.rh };
             var currentText = variants[scriptTab] || scripts.email;
             var currentScore = scoreContactScript(currentText, bricks);
@@ -741,7 +741,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             var positions = generatePositions(bricks, vault);
             if (positions.length === 0) return (
               <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, borderLeft: "3px solid #495670" }}>
-                <div style={{ fontSize: 12, color: "#495670" }}>Aucune prise de position générée. Valide des piliers et des briques d'abord.</div>
+                <div style={{ fontSize: 12, color: "#495670" }}>Aucune prise de position produite. Valide des piliers et des briques d'abord.</div>
               </div>
             );
             return positions.map(function(p, i) { return <PositionCard key={i} pos={p} idx={i} />; });
@@ -858,7 +858,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
 
             return (
               <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>POSTS LINKEDIN GÉNÉRÉS ({posts.length})</div>
+                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>POSTS LINKEDIN PRODUITS ({posts.length})</div>
 
                 {/* CALIBREUR DILTS */}
                 <div style={{ background: "#0a192f", borderRadius: 10, padding: 14, marginBottom: 16, border: "1px solid " + targetInfo.color }}>
@@ -1043,7 +1043,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>
                           {topBrick
                             ? "\"" + topBrick.text + "\""
-                            : "Copie ta brique blindée la plus forte depuis ton Coffre-Fort."
+                            : "Copie ta brique blindée la plus forte depuis ton Score."
                           }
                         </div>
                         {topBrick && <CopyBtn text={topBrick.text} label="Copier" />}
@@ -1058,7 +1058,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       </div>
 
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, marginTop: 12 }}>
-                        Trois paragraphes. Un coût. Une preuve. Une question. Le recruteur lit un chiffre ancré, pas une liste de qualités. Ta lettre ne ressemble à aucune autre parce qu'elle contient ce que l'IA ne génère pas : tes vrais chiffres.
+                        Trois paragraphes. Un coût. Une preuve. Une question. Le recruteur lit un chiffre ancré, pas une liste de qualités. Ta lettre ne ressemble à aucune autre parce qu'elle contient ce que l'IA ne produit pas : tes vrais chiffres.
                       </div>
                     </div>
                   );
@@ -1097,7 +1097,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                   var discoveryQsLocal = {
                     enterprise_ae: "Quels sont les enjeux de croissance principaux de votre équipe cette année ?",
                     head_of_growth: "Quel canal d'acquisition vous préoccupe le plus en ce moment ?",
-                    strategic_csm: "Quel est le segment de clients qui génère le plus de friction aujourd'hui ?",
+                    strategic_csm: "Quel est le segment de clients qui produit le plus de friction aujourd'hui ?",
                     senior_pm: "Quel est l'arbitrage produit le plus difficile que l'équipe n'a pas encore tranché ?",
                     ai_architect: "Quel cas d'usage IA est bloqué depuis le plus longtemps ?",
                     engineering_manager: "Quel est le frein technique que l'équipe n'arrive pas à débloquer ?",
@@ -1169,7 +1169,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         html += "</div>";
                       });
                     } else {
-                      html += "<div class='card'><span style='color:#495670'>Coffre-Fort vide.</span></div>";
+                      html += "<div class='card'><span style='color:#495670'>Score vide.</span></div>";
                     }
 
                     // Questions discovery
@@ -1265,7 +1265,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
                         <div style={{ fontSize: 10, color: "#4ecca3", fontWeight: 700, marginBottom: 4 }}>BRIQUES + CONTRE-ARGUMENTS</div>
                         <div style={{ fontSize: 12, color: top3.length > 0 ? "#ccd6f6" : "#495670" }}>
-                          {top3.length > 0 ? top3.length + " brique" + (top3.length > 1 ? "s" : "") + " avec stress test" : "Coffre-Fort vide"}
+                          {top3.length > 0 ? top3.length + " brique" + (top3.length > 1 ? "s" : "") + " avec stress test" : "Score vide"}
                         </div>
                       </div>
                       <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 8 }}>
@@ -1286,7 +1286,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         border: "none", borderRadius: 10, cursor: ready ? "pointer" : "default",
                         fontWeight: 700, fontSize: 14,
                       }}>
-                        {ready ? "Générer la Fiche de Combat \u2192" : "Valide au moins 1 brique pour générer"}
+                        {ready ? "Produire la Fiche de Combat \u2192" : "Valide au moins 1 brique pour produire"}
                       </button>
                       {ready && (
                         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 8 }}>
@@ -1344,10 +1344,10 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
         {(trajectoryToggle === "j_y_suis" ? [
           { id: "arsenal", label: "Ton Arsenal", emoji: "\u2694\uFE0F" },
           { id: "thermostat", label: "Thermostat", emoji: "\uD83C\uDF21\uFE0F" },
-          { id: "coffre", label: "Coffre-Fort", emoji: "\uD83D\uDD10" },
+          { id: "coffre", label: "Score", emoji: "\uD83D\uDD10" },
         ] : [
           { id: "arsenal", label: "Ton Arsenal", emoji: "\u2694\uFE0F" },
-          { id: "coffre", label: "Coffre-Fort", emoji: "\uD83D\uDD10" },
+          { id: "coffre", label: "Score", emoji: "\uD83D\uDD10" },
         ]).map(function(t) {
           var act = tab === t.id;
           return (
@@ -1534,7 +1534,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                   </div>
                   {weeklyPosts.length === 0 && (
                     <div style={{ fontSize: 12, color: "#495670", textAlign: "center", padding: 12 }}>
-                      Pas assez de briques blindées pour générer des posts. Blinde ton Coffre-Fort.
+                      Pas assez de briques blindées pour produire des posts. Blinde ton Score.
                     </div>
                   )}
                   {weeklyPosts.map(function(post, pi) {
@@ -1659,7 +1659,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     {activeView === "rh" && (b.interviewVersions ? b.interviewVersions.rh : b.text)}
                     {activeView === "n1" && (b.interviewVersions ? b.interviewVersions.n1 : b.text)}
                     {activeView === "dir" && (b.interviewVersions ? b.interviewVersions.direction : b.text)}
-                    {activeView === "disco" && (b.discoveryQuestions ? b.discoveryQuestions.join("\n\n") : "Aucune question générée.")}
+                    {activeView === "disco" && (b.discoveryQuestions ? b.discoveryQuestions.join("\n\n") : "Aucune question produite.")}
                     {activeView === "stress" && b.stressTest && (
                       <div>
                         <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, marginBottom: 8 }}>STRESS TEST — {b.stressTest.length} angles d'attaque</div>
@@ -1793,7 +1793,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           {/* PILIERS */}
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{"\uD83C\uDFDB\uFE0F"} Piliers ({vault.pillars})</div>
-            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tes piliers définissent l'angle de chaque livrable. L'IA injecte tes convictions comme des variables fixes dans chaque texte généré.</div>
+            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>Tes piliers définissent l'angle de chaque livrable. L'IA injecte tes convictions comme des variables fixes dans chaque texte produit.</div>
           </div>
 
           {/* STYLE ENGINE — now tracks corrections */}
@@ -1860,7 +1860,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, border: "1px solid #16213e" }}>
               {capturePhase === "freelance" && (
                 <div style={{ fontSize: 12, color: "#4ecca3", lineHeight: 1.5, marginBottom: 12, padding: "8px 10px", background: "#1a1a2e", borderRadius: 8, borderLeft: "3px solid #4ecca3" }}>
-                  Mode freelance : chaque ping génère un rapport de valeur que tu envoies à ton client pour justifier tes honoraires. Tu ne notes pas pour te souvenir. Tu blindes pour facturer.
+                  Mode freelance : chaque ping produit un rapport de valeur que tu envoies à ton client pour justifier tes honoraires. Tu ne notes pas pour te souvenir. Tu blindes pour facturer.
                 </div>
               )}
               {pings.map(function(ping, i) {
@@ -2062,7 +2062,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           <div style={{ borderTop: "1px solid #495670", paddingTop: 20, marginTop: 8, textAlign: "center" }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>Le Thermostat surveille. Tu décides.</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 16 }}>
-              Score de fraîcheur de chaque brique. Alerte quand ton signal se dégrade. Rendez-vous de Souveraineté programmés. Duel illimité. Coffre-Fort mis à jour en continu.
+              Score de fraîcheur de chaque brique. Alerte quand ton signal se dégrade. Rendez-vous de Souveraineté programmés. Duel illimité. Score mis à jour en continu.
             </div>
             <button style={{
               width: "100%", padding: 16, background: "linear-gradient(135deg, #e94560, #c81d4e)",

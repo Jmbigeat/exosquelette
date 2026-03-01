@@ -53,7 +53,7 @@ export function FeedbackToast({ brick, onDone }) {
       )}
       {isHard && brick.type !== "mission" && (
         <div style={{ fontSize: 11, color: "#4ecca3", marginTop: 8, borderTop: "1px solid #16213e", paddingTop: 6 }}>
-          {brick.brickType === "cicatrice" ? "Échec assumé. C'est la brique la plus rare de ton Coffre-Fort." : brick.brickCategory === "decision" ? "Arbitrage documenté. Aucun générateur de CV ne produit ça." : "Influence prouvée. Le recruteur ne peut pas tester ça autrement qu'en entretien."}
+          {brick.brickType === "cicatrice" ? "Échec assumé. C'est la brique la plus rare de ton Score." : brick.brickCategory === "decision" ? "Arbitrage documenté. Aucun outil de CV ne produit ça." : "Influence prouvée. Le recruteur ne peut pas tester ça autrement qu'en entretien."}
         </div>
       )}
     </div>
@@ -132,7 +132,7 @@ export function AddBrick({ onAdd }) {
           background: text.trim().length >= 10 ? "linear-gradient(135deg, #e94560, #c81d4e)" : "#1a1a2e",
           color: text.trim().length >= 10 ? "#fff" : "#495670",
           border: "none", borderRadius: 8, cursor: text.trim().length >= 10 ? "pointer" : "default", fontWeight: 700, fontSize: 13,
-        }}>Ajouter au Coffre-Fort</button>
+        }}>Ajouter au Score</button>
         <button onClick={function() { setIsOpen(false); setText(""); setKpi(""); }} style={{
           padding: "12px 16px", background: "#1a1a2e", color: "#8892b0", border: "2px solid #495670", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 13,
         }}>Annuler</button>
@@ -195,7 +195,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             {validated.length} brique{validated.length > 1 ? "s" : ""} + {missionItems.length} mission{missionItems.length > 1 ? "s" : ""}
           </div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
-            {missionItems.length > 0 ? "Les missions deviennent des briques quand tu apportes la preuve." : "Forgées à partir de tes réponses. Tu les incarnes. Tu les défendras."}
+            {missionItems.length > 0 ? "Les missions deviennent des briques quand tu apportes la preuve." : "Elles alimenteront ton CV, tes réponses d'entretien et tes posts LinkedIn automatiquement."}
           </div>
         </div>
         <BricksRecap bricks={bricks} />
@@ -785,7 +785,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             })}
           </div>
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, borderLeft: "3px solid #e94560" }}>
-            <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>CETTE BRIQUE ALIMENTERA :</div>
+            <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>SI VALIDÉE, CETTE BRIQUE ALIMENTERA :</div>
             {seed.usedIn.map(function(u, i) { return <div key={i} style={{ fontSize: 12, color: "#8892b0", marginBottom: 2 }}>{"\u2192"} {u}</div>; })}
           </div>
         </div>
@@ -878,8 +878,8 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
   }
 
   // Determine question label based on brick category
-  var categoryLabels = { chiffre: "CHIFFRE", decision: "DÉCISION", influence: "INFLUENCE" };
-  var qLabel = seed.type === "take" ? "PRISE DE POSITION" : seed.type === "cicatrice" ? "CICATRICE" : categoryLabels[seed.brickCategory] || "INTERROGATOIRE";
+  var categoryLabels = { chiffre: "HYPOTHÈSE", decision: "HYPOTHÈSE", influence: "HYPOTHÈSE" };
+  var qLabel = seed.type === "take" ? "PRISE DE POSITION" : seed.type === "cicatrice" ? "CICATRICE" : categoryLabels[seed.brickCategory] || "HYPOTHÈSE";
 
   return (
     <div>
@@ -895,7 +895,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
       <div style={{ background: "#0f3460", borderRadius: 10, padding: 20, marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
           <span style={{ fontSize: 11, color: seed.type === "take" ? "#3498db" : seed.type === "cicatrice" ? "#ff9800" : CATEGORY_LABELS[seed.brickCategory] ? CATEGORY_LABELS[seed.brickCategory].color : "#e94560", fontWeight: 600, letterSpacing: 1 }}>
-            {qLabel} #{seed.id}
+            {qLabel} #{seed.id}{seed.type !== "take" && seed.type !== "cicatrice" ? " — Basée sur ton profil × le marché" : ""}
           </span>
           {seed.elasticity && ELASTICITY_LABELS[seed.elasticity] && (
             <span style={{ fontSize: 10, color: ELASTICITY_LABELS[seed.elasticity].color, background: "#1a1a2e", padding: "2px 8px", borderRadius: 10 }}>
