@@ -280,7 +280,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     return bricks.some(function(b) { return b.id === s.id; });
   });
 
-  var density = computeDensityScore(bricks, getActiveCauchemars());
+  var density = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: null, duelResults: duelResults, cvBricks: [] });
 
   var wrap = {
     color: "#ccd6f6",
