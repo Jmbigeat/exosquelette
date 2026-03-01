@@ -13,7 +13,7 @@ import { hasReachedSignatureThreshold, generateMaskedHypotheses, computeMetaPatt
 
 // Component modules
 import { Bar, Nav, Pillars, OffersManager } from "@/components/sprint/ui";
-import { Vault, CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight } from "@/components/sprint/panels";
+import { Vault, CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight, Arsenal } from "@/components/sprint/panels";
 import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/sprint/Interrogation";
 import { Duel } from "@/components/sprint/Duel";
 import { EndScreen } from "@/components/sprint/EndScreen";
@@ -787,6 +787,17 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         </div>
       )}
       {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={setActiveStep} density={density} />}
+      {!sprintDone && activeStep >= 1 && (
+        <Arsenal
+          density={density}
+          bricks={bricks}
+          nightmares={getActiveCauchemars()}
+          signatureThreshold={hasReachedSignatureThreshold(bricks)}
+          signature={signature}
+          vault={vault}
+          duelResults={duelResults}
+        />
+      )}
       {!sprintDone && offersArray.length > 0 && <OffersManager offersArray={offersArray} onAdd={handleAddOffer} onRemove={handleRemoveOffer} coherence={offerCoherence} targetRoleId={targetRoleId} />}
       {!sprintDone && <Vault v={vault} maturity={maturity} bricks={bricks} nightmareCosts={nightmareCosts} onCostChange={function(cId, val) { setNightmareCosts(function(prev) { var next = Object.assign({}, prev); next[cId] = val; return next; }); }} />}
       {!sprintDone && <CVPreview bricks={bricks} />}
