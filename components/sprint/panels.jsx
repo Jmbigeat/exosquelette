@@ -4,7 +4,8 @@ import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/l
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, formatCost } from "@/lib/sprint/scoring";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1 } from "@/lib/sprint/generators";
+import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
@@ -402,7 +403,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange }) {
   var expandState = useState(false);
   var expanded = expandState[0];
   var setExpanded = expandState[1];
@@ -412,6 +413,12 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var copiedState = useState(null);
   var copiedId = copiedState[0];
   var setCopiedId = copiedState[1];
+  var tabState = useState("externe");
+  var activeTab = tabState[0];
+  var setActiveTab = tabState[1];
+  var internalDescState = useState("");
+  var internalDesc = internalDescState[0];
+  var setInternalDesc = internalDescState[1];
 
   if (!isActive) return null;
 
@@ -419,13 +426,21 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   if (validated.length === 0) return null;
 
   var blindedCount = validated.filter(function(b) { return b.blinded; }).length;
-  var isBlinded = function(b) { return b.blinded; };
 
   // Generate scripts for selected offer or global
   var targetOffer = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
   var scripts = generateContactScripts(bricks, targetRoleId, targetOffer);
   var cvText = generateCV(bricks, targetRoleId, trajectoryToggle);
   var bioText = validated.length >= 2 ? generateBio(bricks, vault, trajectoryToggle) : null;
+  var plan30jText = generatePlan30jRH(bricks, targetRoleId, targetOffer ? targetOffer.parsedSignals : null);
+
+  // Internal generators
+  var internalSignals = internalDesc.trim().length > 10 ? parseInternalSignals(internalDesc, targetRoleId) : null;
+  var salaryNum = currentSalary ? parseInt(currentSalary) : null;
+  if (salaryNum && isNaN(salaryNum)) salaryNum = null;
+  var replacementText = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals);
+  var raiseText = generateRaiseArgument(bricks, targetRoleId, salaryNum);
+  var plan90jText = generatePlan90jN1(bricks, targetRoleId, internalSignals);
 
   var qualityLevel = blindedCount >= 3 ? "blinde" : blindedCount >= 1 ? "partiel" : "nu";
   var qualityColor = qualityLevel === "blinde" ? "#4ecca3" : qualityLevel === "partiel" ? "#ff9800" : "#e94560";
@@ -437,7 +452,8 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
     setTimeout(function() { setCopiedId(null); }, 2000);
   }
 
-  var armeCount = (scripts ? 1 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0);
+  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1; // +1 for plan 30j
+  var interneCount = 3; // replacement, raise, plan 90j
 
   return (
     <div style={{ background: "#0d1b2a", border: "1px solid " + qualityColor + "44", borderRadius: 12, marginBottom: 16, overflow: "hidden" }}>
@@ -448,7 +464,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 14 }}>{"\u26A1"}</span>
           <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 13 }}>L'ÉTABLI</span>
-          <span style={{ fontSize: 10, color: qualityColor, background: qualityColor + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>{armeCount} arme{armeCount > 1 ? "s" : ""}</span>
+          <span style={{ fontSize: 10, color: qualityColor, background: qualityColor + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>{externeCount + interneCount} armes</span>
           <span style={{ fontSize: 9, color: qualityColor, background: qualityColor + "15", padding: "1px 6px", borderRadius: 6 }}>{qualityLabel}</span>
         </div>
         <span style={{ fontSize: 12, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
@@ -456,6 +472,24 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
       {expanded && (
         <div style={{ padding: "0 16px 16px" }}>
+
+          {/* ONGLETS */}
+          <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
+            <button onClick={function() { setActiveTab("externe"); }} style={{
+              flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1, cursor: "pointer",
+              background: activeTab === "externe" ? "#e94560" + "22" : "#1a1a2e",
+              color: activeTab === "externe" ? "#e94560" : "#495670",
+              border: "1px solid " + (activeTab === "externe" ? "#e94560" : "#16213e"),
+              borderRadius: "8px 0 0 8px",
+            }}>EXTERNE</button>
+            <button onClick={function() { setActiveTab("interne"); }} style={{
+              flex: 1, padding: "8px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1, cursor: "pointer",
+              background: activeTab === "interne" ? "#3498db" + "22" : "#1a1a2e",
+              color: activeTab === "interne" ? "#3498db" : "#495670",
+              border: "1px solid " + (activeTab === "interne" ? "#3498db" : "#16213e"),
+              borderRadius: "0 8px 8px 0",
+            }}>INTERNE</button>
+          </div>
 
           {/* Avertissement qualité */}
           {qualityLevel !== "blinde" && (
@@ -469,85 +503,203 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
             </div>
           )}
 
-          {/* Sélecteur d'offre */}
-          {offersArray && offersArray.length > 1 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 10, color: "#495670", fontWeight: 600, marginBottom: 4, letterSpacing: 1 }}>CALIBRER SUR :</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {offersArray.map(function(o, i) {
-                  var isSelected = i === selectedOfferIdx;
-                  var shortLabel = o.text.slice(0, 40).replace(/\n/g, " ") + "...";
-                  return (
-                    <button key={o.id} onClick={function() { setSelectedOfferIdx(i); }} style={{
-                      padding: "4px 10px", fontSize: 10, borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                      background: isSelected ? qualityColor + "22" : "#1a1a2e", border: "1px solid " + (isSelected ? qualityColor : "#16213e"),
-                      color: isSelected ? qualityColor : "#8892b0",
-                    }}>{"\uD83C\uDFAF"} Offre {i + 1}</button>
-                  );
-                })}
+          {/* ======== ONGLET EXTERNE ======== */}
+          {activeTab === "externe" && (
+            <div>
+              <div style={{ fontSize: 10, color: "#495670", marginBottom: 10, lineHeight: 1.4 }}>
+                Destinataire : recruteur, RH, hiring manager. Il ne te connaît pas. Tu dois prouver ta valeur.
+              </div>
+
+              {/* Sélecteur d'offre */}
+              {offersArray && offersArray.length > 1 && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, color: "#495670", fontWeight: 600, marginBottom: 4, letterSpacing: 1 }}>CALIBRER SUR :</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {offersArray.map(function(o, i) {
+                      var isSelected = i === selectedOfferIdx;
+                      return (
+                        <button key={o.id} onClick={function() { setSelectedOfferIdx(i); }} style={{
+                          padding: "4px 10px", fontSize: 10, borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                          background: isSelected ? qualityColor + "22" : "#1a1a2e", border: "1px solid " + (isSelected ? qualityColor : "#16213e"),
+                          color: isSelected ? qualityColor : "#8892b0",
+                        }}>{"\uD83C\uDFAF"} Offre {i + 1}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* DM LINKEDIN */}
+              {scripts && (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
+                    <button onClick={function() { handleCopy(scripts.dm, "dm"); }} style={{
+                      padding: "3px 10px", fontSize: 10, background: copiedId === "dm" ? "#4ecca3" : "#0f3460",
+                      color: copiedId === "dm" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "dm" ? "#4ecca3" : "#16213e"),
+                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                    }}>{copiedId === "dm" ? "\u2705 Copié" : "Copier"}</button>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
+                </div>
+              )}
+
+              {/* EMAIL */}
+              {scripts && (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\u2709\uFE0F"} EMAIL</div>
+                    <button onClick={function() { handleCopy(scripts.email, "email"); }} style={{
+                      padding: "3px 10px", fontSize: 10, background: copiedId === "email" ? "#4ecca3" : "#0f3460",
+                      color: copiedId === "email" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "email" ? "#4ecca3" : "#16213e"),
+                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                    }}>{copiedId === "email" ? "\u2705 Copié" : "Copier"}</button>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
+                </div>
+              )}
+
+              {/* CV */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})</div>
+                  <button onClick={function() { handleCopy(cvText, "cv"); }} style={{
+                    padding: "3px 10px", fontSize: 10, background: copiedId === "cv" ? "#4ecca3" : "#0f3460",
+                    color: copiedId === "cv" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "cv" ? "#4ecca3" : "#16213e"),
+                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                  }}>{copiedId === "cv" ? "\u2705 Copié" : "Copier"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 100, overflow: "auto" }}>{cvText}</div>
+              </div>
+
+              {/* BIO LINKEDIN */}
+              {bioText ? (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDC64"} BIO LINKEDIN</div>
+                    <button onClick={function() { handleCopy(bioText, "bio"); }} style={{
+                      padding: "3px 10px", fontSize: 10, background: copiedId === "bio" ? "#4ecca3" : "#0f3460",
+                      color: copiedId === "bio" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "bio" ? "#4ecca3" : "#16213e"),
+                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                    }}>{copiedId === "bio" ? "\u2705 Copié" : "Copier"}</button>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
+                </div>
+              ) : (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
+                  <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} BIO LINKEDIN — 2 briques minimum</div>
+                </div>
+              )}
+
+              {/* PLAN 30 JOURS RH */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC5"} PLAN 30 JOURS RH</div>
+                  <button onClick={function() { handleCopy(plan30jText, "plan30j"); }} style={{
+                    padding: "3px 10px", fontSize: 10, background: copiedId === "plan30j" ? "#4ecca3" : "#0f3460",
+                    color: copiedId === "plan30j" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "plan30j" ? "#4ecca3" : "#16213e"),
+                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                  }}>{copiedId === "plan30j" ? "\u2705 Copié" : "Copier"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan30jText}</div>
               </div>
             </div>
           )}
 
-          {/* SCRIPT DE CONTACT */}
-          {scripts && (
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
-                <button onClick={function() { handleCopy(scripts.dm, "dm"); }} style={{
-                  padding: "3px 10px", fontSize: 10, background: copiedId === "dm" ? "#4ecca3" : "#0f3460",
-                  color: copiedId === "dm" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "dm" ? "#4ecca3" : "#16213e"),
-                  borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                }}>{copiedId === "dm" ? "\u2705 Copie" : "Copier"}</button>
+          {/* ======== ONGLET INTERNE ======== */}
+          {activeTab === "interne" && (
+            <div>
+              <div style={{ fontSize: 10, color: "#495670", marginBottom: 10, lineHeight: 1.4 }}>
+                Destinataire : ton manager actuel (N+1). Il te connaît. Tu dois prouver le coût de ton départ.
               </div>
-              <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
-            </div>
-          )}
 
-          {/* EMAIL */}
-          {scripts && (
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\u2709\uFE0F"} EMAIL</div>
-                <button onClick={function() { handleCopy(scripts.email, "email"); }} style={{
-                  padding: "3px 10px", fontSize: 10, background: copiedId === "email" ? "#4ecca3" : "#0f3460",
-                  color: copiedId === "email" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "email" ? "#4ecca3" : "#16213e"),
-                  borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                }}>{copiedId === "email" ? "\u2705 Copie" : "Copier"}</button>
+              {/* Champ salaire */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <label style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                  Salaire actuel (optionnel — affine le rapport de remplacement)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ex : 55000"
+                  value={currentSalary || ""}
+                  onChange={function(e) { onSalaryChange(e.target.value ? parseInt(e.target.value) : null); }}
+                  style={{
+                    width: "100%", background: "#0a0a1a", border: "1px solid #16213e", borderRadius: 6,
+                    padding: "8px 12px", color: "#ccd6f6", fontSize: 12, outline: "none", fontFamily: "inherit",
+                    boxSizing: "border-box",
+                  }}
+                />
               </div>
-              <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
-            </div>
-          )}
 
-          {/* CV EN CONSTRUCTION */}
-          <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})</div>
-              <button onClick={function() { handleCopy(cvText, "cv"); }} style={{
-                padding: "3px 10px", fontSize: 10, background: copiedId === "cv" ? "#4ecca3" : "#0f3460",
-                color: copiedId === "cv" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "cv" ? "#4ecca3" : "#16213e"),
-                borderRadius: 6, cursor: "pointer", fontWeight: 600,
-              }}>{copiedId === "cv" ? "\u2705 Copie" : "Copier"}</button>
-            </div>
-            <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 100, overflow: "auto" }}>{cvText}</div>
-          </div>
-
-          {/* BIO LINKEDIN */}
-          {bioText ? (
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDC64"} BIO LINKEDIN</div>
-                <button onClick={function() { handleCopy(bioText, "bio"); }} style={{
-                  padding: "3px 10px", fontSize: 10, background: copiedId === "bio" ? "#4ecca3" : "#0f3460",
-                  color: copiedId === "bio" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "bio" ? "#4ecca3" : "#16213e"),
-                  borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                }}>{copiedId === "bio" ? "\u2705 Copie" : "Copier"}</button>
+              {/* Champ contexte interne (optionnel) */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <label style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                  Contexte interne (optionnel — colle la description de ton poste ou les enjeux de ton équipe)
+                </label>
+                <textarea
+                  placeholder="Ex : L'équipe est en surcharge depuis 3 mois, 2 départs récents, objectifs Q2 en retard..."
+                  value={internalDesc}
+                  onChange={function(e) { setInternalDesc(e.target.value); }}
+                  rows={3}
+                  style={{
+                    width: "100%", background: "#0a0a1a", border: "1px solid #16213e", borderRadius: 6,
+                    padding: "8px 12px", color: "#ccd6f6", fontSize: 11, outline: "none", fontFamily: "inherit",
+                    resize: "vertical", lineHeight: 1.5, boxSizing: "border-box",
+                  }}
+                />
+                {internalSignals && internalSignals.detected && (
+                  <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 4 }}>
+                    {internalSignals.signals.map(function(s) {
+                      var strengthColor = s.strength === "fort" ? "#e94560" : s.strength === "moyen" ? "#ff9800" : "#495670";
+                      return (
+                        <span key={s.id} style={{
+                          fontSize: 9, color: strengthColor, background: strengthColor + "22",
+                          padding: "2px 6px", borderRadius: 4, fontWeight: 600,
+                        }}>{s.label}</span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
-            </div>
-          ) : (
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>
-              <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} BIO LINKEDIN — 2 briques minimum</div>
+
+              {/* RAPPORT DE REMPLACEMENT */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCCA"} RAPPORT DE REMPLACEMENT</div>
+                  <button onClick={function() { handleCopy(replacementText, "replacement"); }} style={{
+                    padding: "3px 10px", fontSize: 10, background: copiedId === "replacement" ? "#4ecca3" : "#0f3460",
+                    color: copiedId === "replacement" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "replacement" ? "#4ecca3" : "#16213e"),
+                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                  }}>{copiedId === "replacement" ? "\u2705 Copié" : "Copier"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{replacementText}</div>
+              </div>
+
+              {/* ARGUMENTAIRE D'AUGMENTATION */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCB0"} ARGUMENTAIRE D'AUGMENTATION</div>
+                  <button onClick={function() { handleCopy(raiseText, "raise"); }} style={{
+                    padding: "3px 10px", fontSize: 10, background: copiedId === "raise" ? "#4ecca3" : "#0f3460",
+                    color: copiedId === "raise" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "raise" ? "#4ecca3" : "#16213e"),
+                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                  }}>{copiedId === "raise" ? "\u2705 Copié" : "Copier"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{raiseText}</div>
+              </div>
+
+              {/* PLAN 90 JOURS N+1 */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC5"} PLAN 90 JOURS N+1</div>
+                  <button onClick={function() { handleCopy(plan90jText, "plan90j"); }} style={{
+                    padding: "3px 10px", fontSize: 10, background: copiedId === "plan90j" ? "#4ecca3" : "#0f3460",
+                    color: copiedId === "plan90j" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "plan90j" ? "#4ecca3" : "#16213e"),
+                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                  }}>{copiedId === "plan90j" ? "\u2705 Copié" : "Copier"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan90jText}</div>
+              </div>
             </div>
           )}
         </div>

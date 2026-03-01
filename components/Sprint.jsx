@@ -75,6 +75,9 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var aiPillarRecsState = useState(initialState && initialState.aiPillarRecs != null ? initialState.aiPillarRecs : null);
   var aiPillarRecs = aiPillarRecsState[0];
   var setAiPillarRecs = aiPillarRecsState[1];
+  var currentSalaryState = useState(initialState && initialState.currentSalary != null ? initialState.currentSalary : null);
+  var currentSalary = currentSalaryState[0];
+  var setCurrentSalary = currentSalaryState[1];
 
   // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
   if (targetRoleId) {
@@ -121,7 +124,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
       targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
       takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, aiPillarRecs: aiPillarRecs, _version: CURRENT_VERSION, _savedAt: Date.now(),
+      offersArray: offersArray, offerNextId: offerNextId, urgenceMode: urgenceMode, aiPillarRecs: aiPillarRecs, currentSalary: currentSalary, _version: CURRENT_VERSION, _savedAt: Date.now(),
     };
     // Immediate localStorage save (no debounce)
     try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
@@ -555,7 +558,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Pause la Forge. Tes briques restent.</div>
         </div>
       )}
-      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} />}
+      {!sprintDone && <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={urgenceMode} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} />}
       <div style={{ background: "#16213e", borderRadius: 12, padding: 20 }}>
         {renderContent()}
       </div>
