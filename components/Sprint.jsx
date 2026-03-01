@@ -256,6 +256,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       controlRisk: seed.controlRisk || null,
       advocacyText: seed.advocacyText || generateAdvocacyText(correctedText, seed.brickCategory, seed.type, seed.nightmareText),
       type: "brick", corrected: true, sideProject: seed.sideProject || false,
+      originalText: seed.originalText || null,
     };
     var versions = generateBrickVersions(brick, targetRoleId);
     brick.cvVersion = versions.cvVersion;
@@ -281,8 +282,8 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
     setBricks(function(prev) { return prev.concat([{ id: id, text: "", kpi: "", skills: [], usedIn: [], status: "skipped", type: "brick", sideProject: false }]); });
   }
 
-  function handleAddBrick(text, kpi, category) {
-    var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: "brick", corrected: false, sideProject: false };
+  function handleAddBrick(text, kpi, category, brickSourceType) {
+    var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: brickSourceType || "brick", corrected: false, sideProject: false };
     var versions = generateBrickVersions(newBrick, targetRoleId);
     newBrick.cvVersion = versions.cvVersion;
     newBrick.interviewVersions = versions.interviewVersions;

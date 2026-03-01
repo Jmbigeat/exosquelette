@@ -7,7 +7,7 @@ import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCa
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
 import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
-import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
+import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
 
@@ -439,6 +439,9 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var rawPlan30j = generatePlan30jRH(bricks, targetRoleId, targetOffer ? targetOffer.parsedSignals : null);
   var plan30jText = signature ? applySignatureFilter(rawPlan30j, signature) : rawPlan30j;
 
+  // LinkedIn posts by pillar
+  var linkedInPosts = generateLinkedInPosts(bricks, vault, targetRoleId);
+
   // Internal generators
   var internalSignals = internalDesc.trim().length > 10 ? parseInternalSignals(internalDesc, targetRoleId) : null;
   var salaryNum = currentSalary ? parseInt(currentSalary) : null;
@@ -460,7 +463,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
     setTimeout(function() { setCopiedId(null); }, 2000);
   }
 
-  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1; // +1 for plan 30j
+  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1 + (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0); // +1 for plan 30j, +1 for posts piliers
   var interneCount = 3; // replacement, raise, plan 90j
 
   return (
@@ -612,7 +615,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               )}
 
               {/* PLAN 30 JOURS RH */}
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC5"} PLAN 30 JOURS RH</div>
                   <button onClick={function() { handleCopy(plan30jText, "plan30j"); }} style={{
@@ -623,6 +626,37 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 </div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan30jText}</div>
               </div>
+
+              {/* POSTS LINKEDIN (PILIERS) */}
+              {linkedInPosts && linkedInPosts.length > 0 ? (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
+                  <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>{"\uD83D\uDCDD"} POSTS (PILIERS)</div>
+                  {linkedInPosts.map(function(p, idx) {
+                    var postText = signature ? applySignatureFilter(p.text, signature) : p.text;
+                    var postCopyId = "post_" + idx;
+                    return (
+                      <div key={idx} style={{ background: "#0d1b2a", borderRadius: 8, padding: 12, marginBottom: idx < linkedInPosts.length - 1 ? 10 : 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                          <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600 }}>Pilier : {p.pillar}</div>
+                          <button onClick={function() { handleCopy(postText, postCopyId); }} style={{
+                            padding: "3px 10px", fontSize: 10, background: copiedId === postCopyId ? "#4ecca3" : "#0f3460",
+                            color: copiedId === postCopyId ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === postCopyId ? "#4ecca3" : "#16213e"),
+                            borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                          }}>{copiedId === postCopyId ? "\u2705 Copi\u00E9" : "Copier"}</button>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto" }}>{postText}</div>
+                        {p.contextLine && (
+                          <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", marginTop: 8, lineHeight: 1.4 }}>{p.contextLine}</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>
+                  <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} POSTS (PILIERS) {"\u2014"} 2 briques + piliers requis</div>
+                </div>
+              )}
             </div>
           )}
 

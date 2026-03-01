@@ -79,7 +79,7 @@ export function AddBrick({ onAdd }) {
   var setJustAdded = doneState[1];
   function handleAdd() {
     if (text.trim().length < 10) return;
-    onAdd(text.trim(), kpi.trim() || "À définir", category);
+    onAdd(text.trim(), kpi.trim() || "À définir", category, "manual");
     setText(""); setKpi("");
     setJustAdded(true);
     setTimeout(function() { setJustAdded(false); setIsOpen(false); }, 1800);
@@ -98,7 +98,10 @@ export function AddBrick({ onAdd }) {
         width: "100%", marginTop: 16, padding: 14, background: "#1a1a2e",
         border: "2px dashed #495670", borderRadius: 10, cursor: "pointer",
         color: "#8892b0", fontSize: 13, fontWeight: 600, textAlign: "center",
-      }}>{"\u2795"} L'IA a raté quelque chose ? Ajoute ta brique.</button>
+      }}>
+        <div>{"\u2795"} L'IA a rat{"\u00E9"} quelque chose ?</div>
+        <div style={{ fontSize: 11, fontWeight: 400, color: "#495670", marginTop: 4 }}>D{"\u00E9"}cris-le en 1 phrase, je le structure pour toi.</div>
+      </button>
     );
   }
   return (
@@ -180,6 +183,12 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
   var anonAuditState = useState(null);
   var anonAudit = anonAuditState[0];
   var setAnonAudit = anonAuditState[1];
+  var almostEditState = useState(false);
+  var almostEditing = almostEditState[0];
+  var setAlmostEditing = almostEditState[1];
+  var almostTextState = useState("");
+  var almostText = almostTextState[0];
+  var setAlmostText = almostTextState[1];
 
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   var missionItems = bricks.filter(function(b) { return b.type === "mission"; });
@@ -790,7 +799,42 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           </div>
         </div>
 
-        {/* THREE-WAY ACTION: Archiver / Corriger / Rejeter */}
+        {/* INLINE ALMOST-EDIT MODE */}
+        {almostEditing && (
+          <div style={{ background: "#1a1a2e", borderRadius: 10, padding: 16, marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>TA VERSION</div>
+            <textarea value={almostText} onChange={function(e) { setAlmostText(e.target.value); }}
+              style={{ width: "100%", minHeight: 90, padding: 14, background: "#0f3460", border: "2px solid #ff9800", borderRadius: 10, color: "#ccd6f6", fontSize: 14, lineHeight: 1.6, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12 }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={function() {
+                if (almostText.trim().length < 10) return;
+                var correctedSeed = Object.assign({}, seed, { generatedText: effectiveText, originalText: effectiveText, sideProject: detectSideProject(almostText.trim()), advocacyText: generateAdvocacyText(almostText.trim(), seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(almostText.trim(), seed.brickCategory, seed.type, seed.elasticity) });
+                if (seed.anonymizedText) {
+                  correctedSeed._correctedText = almostText.trim();
+                  setAnonEdit(seed.anonymizedText);
+                  setEditText(almostText.trim());
+                  setAlmostEditing(false); setAlmostText("");
+                  setPhase("anon_review_correct");
+                } else {
+                  onCorrect(correctedSeed, almostText.trim());
+                  setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setVerbData(null); setVerbDismissed(false); setCicOverride(null); setAlmostEditing(false); setAlmostText("");
+                }
+              }} disabled={almostText.trim().length < 10} style={{
+                flex: 1, padding: 14,
+                background: almostText.trim().length >= 10 ? "linear-gradient(135deg, #ff9800, #e67e22)" : "#1a1a2e",
+                color: almostText.trim().length >= 10 ? "#fff" : "#495670",
+                border: "none", borderRadius: 10, cursor: almostText.trim().length >= 10 ? "pointer" : "default", fontWeight: 700, fontSize: 14,
+              }}>Valider ma version</button>
+              <button onClick={function() { setAlmostEditing(false); setAlmostText(""); }} style={{
+                padding: "14px 16px", background: "#1a1a2e", color: "#8892b0", border: "2px solid #495670", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+              }}>Annuler</button>
+            </div>
+          </div>
+        )}
+
+        {/* THREE-WAY ACTION: Archiver / Presque / Retoucher / Rejeter */}
+        {!almostEditing && (
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
             var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, sideProject: detectSideProject(effectiveText), advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
@@ -799,13 +843,17 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           }} style={{
             flex: 1, padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
           }}>Archiver</button>
+          <button onClick={function() { setAlmostText(effectiveText); setAlmostEditing(true); }} style={{
+            flex: 1, padding: 14, background: "#0f3460", color: "#ff9800", border: "2px solid #ff9800", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 11,
+          }}>Presque {"\u2014"} voici ma version</button>
           <button onClick={function() { setEditText(effectiveText); setPhase("correcting"); }} style={{
-            flex: 1, padding: 14, background: "#0f3460", color: "#9b59b6", border: "2px solid #9b59b6", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+            padding: "14px 12px", background: "#0f3460", color: "#9b59b6", border: "2px solid #9b59b6", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 12,
           }}>Retoucher</button>
           <button onClick={function() { setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setVerbData(null); setVerbDismissed(false); setCicOverride(null); }} style={{
             padding: "14px 12px", background: "#1a1a2e", color: "#495670", border: "2px solid #1a1a2e", borderRadius: 10, cursor: "pointer", fontWeight: 600, fontSize: 12,
           }}>Rejeter</button>
         </div>
+        )}
       </div>
     );
   }
