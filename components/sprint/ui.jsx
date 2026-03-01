@@ -10,7 +10,7 @@ export function Bar({ pct }) {
 }
 
 export function Nav({ steps, active, onSelect, density }) {
-  var unlockStates = density ? [true, density.unlocks.forge, density.unlocks.affutage, density.unlocks.armement] : [true, false, false, false];
+  var unlockStates = density ? [true, density.unlocks.forge, density.unlocks.armement] : [true, false, false];
   return (
     <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
       {steps.map(function(s, i) {
