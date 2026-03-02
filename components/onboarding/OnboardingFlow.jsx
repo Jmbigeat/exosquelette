@@ -67,7 +67,7 @@ export function OnboardingFlow({ onComplete }) {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Quel poste tu vises ?</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
             Choisis la famille de métier. L'IA classe tes briques contre les 5 KPIs de ce poste.
@@ -134,7 +134,7 @@ export function OnboardingFlow({ onComplete }) {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Ton profil</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
             Colle ton CV, ta bio LinkedIn, ou décris ton dernier poste.
@@ -168,10 +168,10 @@ export function OnboardingFlow({ onComplete }) {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Tes offres cibles</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
-            Colle 1 à 3 offres qui t'intéressent. Optionnel. Le Sprint fonctionne aussi sans offre.
+            Colle 1 à 3 offres qui t'intéressent. Optionnel. La Forge fonctionne aussi sans offre.
           </div>
         </div>
 
@@ -283,7 +283,7 @@ export function OnboardingFlow({ onComplete }) {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>ABNEG@TION</div>
 
           {/* Score circle */}
           <div style={{ position: "relative", width: 140, height: 140, margin: "0 auto 16px" }}>

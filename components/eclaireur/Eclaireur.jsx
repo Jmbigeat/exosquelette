@@ -54,7 +54,7 @@ export function Eclaireur() {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Colle une offre. Je te montre ce que le recruteur cache.</div>
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>Gratuit. Pas de compte. 30 secondes.</div>
         </div>
@@ -133,7 +133,7 @@ export function Eclaireur() {
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
+          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
           <div style={{ fontSize: 10, color: "#495670", marginBottom: 4 }}>Rôle détecté : {result.detectedRoleLabel}</div>
         </div>
 
@@ -207,7 +207,7 @@ export function Eclaireur() {
           }}>
             <div style={{ textAlign: "center", padding: 20 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Analyse complète verrouillée</div>
-              <div style={{ fontSize: 12, color: "#8892b0" }}>Le Sprint débloque les 4 KPIs, les briques de preuve et la carte du marché.</div>
+              <div style={{ fontSize: 12, color: "#8892b0" }}>La Forge débloque les 4 KPIs, les briques de preuve et la carte du marché.</div>
             </div>
           </div>
         </div>
@@ -218,7 +218,7 @@ export function Eclaireur() {
         {/* CTA */}
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6", marginBottom: 8, lineHeight: 1.5 }}>
-            Tu as vu le problème. Le Sprint te donne la solution.
+            Tu as vu le problème. La Forge te donne la solution.
           </div>
         </div>
 
@@ -228,7 +228,7 @@ export function Eclaireur() {
           color: "#fff", border: "none", borderRadius: 12, cursor: "pointer",
           fontWeight: 700, fontSize: 16,
           boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-        }}>Lancer mon Sprint — 49{"€"}</button>
+        }}>Lancer ma Forge — 49{"€"}</button>
 
         <div style={{ fontSize: 12, color: "#8892b0", textAlign: "center", marginTop: 10, lineHeight: 1.6 }}>
           CV réécrit. Bio calibrée. Script de contact. Préparation entretien. Score de densité.
