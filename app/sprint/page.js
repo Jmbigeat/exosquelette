@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 import { loadSprint, saveSprint, checkPaid } from "@/lib/sprint-db";
+import { parseOfferSignals } from "@/lib/sprint/offers";
 import Sprint from "@/components/Sprint";
 
 export default function SprintPage() {
@@ -27,26 +28,45 @@ export default function SprintPage() {
   var loading = loadingSt[0];
   var setLoading = loadingSt[1];
 
-  var checkoutLoadingSt = useState(false);
-  var checkoutLoading = checkoutLoadingSt[0];
-  var setCheckoutLoading = checkoutLoadingSt[1];
-
   var saveTimerRef = useRef(null);
+  var onboardingConsumedRef = useRef(false);
 
   // Check auth on mount
   useEffect(function() {
+    // Dev bypass : skip toutes les gates
+    if (process.env.NODE_ENV === "development") {
+      setUser({ id: "dev", email: "dev@localhost" });
+      setPaid(true);
+      // Tenter de charger un state existant, sinon mock
+      try {
+        var cached = localStorage.getItem("sprint_state");
+        if (cached) setSavedState(JSON.parse(cached));
+      } catch (e) {}
+      if (!savedState) {
+        setSavedState({
+          screen: "sprint",
+          targetRoleId: "enterprise_ae",
+          pieces: 7,
+          activeStep: 0,
+          bricks: [],
+        });
+      }
+      setLoading(false);
+      return;
+    }
+
     supabase.auth.getUser().then(function(res) {
       if (res.data && res.data.user) {
         setUser(res.data.user);
       } else {
-        window.location.href = "/auth";
+        window.location.href = "/eclaireur";
       }
     });
   }, []);
 
-  // Load sprint + payment status (localStorage as immediate fallback)
+  // Load sprint + payment status
   useEffect(function() {
-    if (!user) return;
+    if (!user || user.id === "dev") return;
 
     // Restore from localStorage immediately while Supabase loads
     try {
@@ -57,13 +77,22 @@ export default function SprintPage() {
       }
     } catch (e) {}
 
-    Promise.all([loadSprint(user.id), checkPaid(user.id)]).then(function(results) {
+    // Vérifier session_id si présent
+    var params = new URLSearchParams(window.location.search);
+    var sessionId = params.get("session_id");
+    var verifyPromise = sessionId
+      ? fetch("/api/checkout/verify?session_id=" + sessionId).then(function(r) { return r.json(); }).then(function(d) { return d.paid; }).catch(function() { return false; })
+      : Promise.resolve(null);
+
+    Promise.all([loadSprint(user.id), checkPaid(user.id), verifyPromise]).then(function(results) {
       var sprint = results[0];
-      var isPaid = results[1];
+      var isPaidDb = results[1];
+      var isPaidSession = results[2];
+
+      var isPaid = isPaidDb || isPaidSession === true;
 
       if (sprint) {
         setSprintId(sprint.id);
-        // Compare timestamps: use whichever is more recent
         try {
           var cached = localStorage.getItem("sprint_state");
           if (cached) {
@@ -80,14 +109,59 @@ export default function SprintPage() {
           setSavedState(sprint.state);
         }
       }
+
       setPaid(isPaid);
       setLoading(false);
     });
   }, [user]);
 
+  // Consommer les données d'onboarding depuis sessionStorage
+  useEffect(function() {
+    if (loading || !paid || onboardingConsumedRef.current) return;
+
+    // Si un state existant est déjà chargé (sprint en cours), ne pas écraser
+    if (savedState && savedState.screen === "sprint" && savedState.targetRoleId) return;
+
+    try {
+      var raw = sessionStorage.getItem("onboarding_data");
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (!data.targetRoleId) return;
+
+      onboardingConsumedRef.current = true;
+
+      // Construire l'initialState pour Sprint à partir de l'onboarding
+      var offersArray = [];
+      var parsedOffers = null;
+      if (data.offersText && data.offersText.trim().length > 20) {
+        parsedOffers = data.offerSignals || parseOfferSignals(data.offersText, data.targetRoleId);
+        offersArray = [{ id: 1, text: data.offersText.trim(), parsedSignals: parsedOffers }];
+      }
+
+      setSavedState({
+        screen: "sprint",
+        targetRoleId: data.targetRoleId,
+        pieces: 7,
+        activeStep: 0,
+        bricks: [],
+        vault: { bricks: 0, missions: 0, pillars: 0, corrections: 0, diltsHistory: [] },
+        parsedOffers: parsedOffers,
+        offersArray: offersArray,
+        offerNextId: offersArray.length > 0 ? 2 : 1,
+        takes: [],
+        duelResults: [],
+        sprintDone: false,
+        nextId: 100,
+      });
+
+      // Effacer sessionStorage après consommation
+      sessionStorage.removeItem("onboarding_data");
+    } catch (e) {}
+  }, [loading, paid, savedState]);
+
   // Auto-save with debounce (2 seconds after last change)
   var handleStateChange = useCallback(function(state) {
-    if (!user) return;
+    if (!user || user.id === "dev") return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
     saveTimerRef.current = setTimeout(function() {
@@ -98,24 +172,6 @@ export default function SprintPage() {
       });
     }, 2000);
   }, [user, sprintId]);
-
-  // Stripe checkout
-  async function handleCheckout() {
-    if (!user) return;
-    setCheckoutLoading(true);
-    try {
-      var res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, email: user.email }),
-      });
-      var data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch (err) {
-      console.error("Checkout error:", err);
-    }
-    setCheckoutLoading(false);
-  }
 
   // Logout
   function handleLogout() {
@@ -148,59 +204,41 @@ export default function SprintPage() {
     );
   }
 
-  var wrapPaywall = {
-    minHeight: "100vh", padding: "24px 16px", maxWidth: 520, margin: "0 auto",
-    fontFamily: "'Inter', -apple-system, sans-serif",
-  };
+  // GATE : pas payé → redirect éclaireur
+  if (!paid) {
+    window.location.href = "/eclaireur";
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: 14, color: "#8892b0" }}>Redirection...</div>
+      </div>
+    );
+  }
+
+  // GATE : pas de données onboarding ni de sprint existant → redirect onboarding
+  if (!savedState || (!savedState.targetRoleId && savedState.screen !== "onboarding")) {
+    // Permettre le fallback vers l'onboarding interne si screen === "onboarding"
+    // Sinon rediriger vers le nouvel onboarding
+    if (!savedState) {
+      window.location.href = "/onboarding";
+      return (
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ fontSize: 14, color: "#8892b0" }}>Redirection...</div>
+        </div>
+      );
+    }
+  }
 
   var wrapSprint = {
     minHeight: "100vh", padding: "24px 16px", maxWidth: 1200, margin: "0 auto",
     fontFamily: "'Inter', -apple-system, sans-serif",
   };
 
-  // PAYWALL : l'utilisateur n'a pas paye
-  if (!paid) {
-    return (
-      <div style={wrapPaywall}>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>ABNEG@TION</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Sprint — 49 euros</div>
-          <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.7, maxWidth: 380, margin: "0 auto" }}>
-            7 jours. 11 questions. Un Score plein. CV, bio, script, positions, rapport d'impact. Tu valides. L'IA fait le reste.
-          </div>
-        </div>
-
-        <div style={{ background: "#16213e", borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 16 }}>
-            Le marché ne paie pas la performance. Il paie la rareté. L'outil te montre où tu es rare, où tu es substituable, et comment inverser le rapport de force.
-          </div>
-          <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
-            Interrogatoire structuré (4 champs par brique). Confrontation automatique. Livrables calibrés. Simulateur d'entretien avec crises imprévues. Rapport d'impact avec zones d'excellence et de rupture. Détection de métiers alternatifs.
-          </div>
-        </div>
-
-        <button onClick={handleCheckout} disabled={checkoutLoading} style={{
-          width: "100%", padding: 18, background: "linear-gradient(135deg, #e94560, #c81d4e)",
-          color: "#fff", border: "none", borderRadius: 12, cursor: checkoutLoading ? "wait" : "pointer",
-          fontWeight: 700, fontSize: 16, opacity: checkoutLoading ? 0.6 : 1,
-          boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-        }}>
-          {checkoutLoading ? "Redirection vers Stripe..." : "Commencer le Sprint — 49\u20AC"}
-        </button>
-
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 12, cursor: "pointer" }}>Se déconnecter</button>
-        </div>
-      </div>
-    );
-  }
-
-  // SPRINT : l'utilisateur a paye
+  // SPRINT : l'utilisateur a payé et a les données
   return (
     <div style={wrapSprint}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 11, color: "#495670" }}>{user.email}</div>
-        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>Déconnexion</button>
+        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>D\u00e9connexion</button>
       </div>
       <Sprint
         initialState={savedState}
