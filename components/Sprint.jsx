@@ -17,6 +17,7 @@ import { CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight, Arsenal } from
 import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/sprint/Interrogation";
 import { Duel } from "@/components/sprint/Duel";
 import { Onboarding } from "@/components/sprint/Onboarding";
+import { Toast } from "@/components/sprint/Toast";
 
 export default function Sprint({ initialState, onStateChange, onScan }) {
   if (initialState) initialState = migrateState(initialState);
@@ -72,10 +73,36 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var etabliState = useState(false);
   var etabliOpen = etabliState[0];
   var setEtabliOpen = etabliState[1];
-  // Chantier 10B — pieces counter (TODO chantier 12: consumption logic)
+  // Chantier 14 — Pièces : state, consommation, mode vitrine
   var piecesState = useState(initialState && initialState.pieces != null ? initialState.pieces : 7);
   var pieces = piecesState[0];
   var setPieces = piecesState[1];
+  var isSubscribedState = useState(false);
+  var isSubscribed = isSubscribedState[0];
+  var setIsSubscribed = isSubscribedState[1];
+  var piecesToastState = useState(null);
+  var piecesToast = piecesToastState[0];
+  var setPiecesToast = piecesToastState[1];
+
+  var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
+
+  function consumePiece(livrableType) {
+    if (isSubscribed) return true;
+    if (pieces <= 0) {
+      setPiecesToast({ type: "empty", message: "Plus de pi\u00E8ces." });
+      setTimeout(function() { setPiecesToast(null); }, 3000);
+      return false;
+    }
+    var remaining = pieces - 1;
+    setPieces(remaining);
+    setPiecesToast({
+      type: "consumed",
+      message: "1 pi\u00E8ce utilis\u00E9e. Il t\u2019en reste " + remaining + ".",
+    });
+    setTimeout(function() { setPiecesToast(null); }, 3000);
+    return true;
+  }
+
   var arsenalOpenState = useState(false);
   var arsenalOpen = arsenalOpenState[0];
   var setArsenalOpen = arsenalOpenState[1];
@@ -427,6 +454,29 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   });
 
   var density = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: signature, duelResults: duelResults, cvBricks: [] });
+
+  // Chantier 14 — Query params: Sprint Éclair refill + Abonnement
+  useEffect(function() {
+    var params = new URLSearchParams(window.location.search);
+    var refill = params.get("refill");
+    var sessionId = params.get("session_id");
+    if (refill === "eclair" && sessionId) {
+      fetch("/api/checkout/verify?session_id=" + encodeURIComponent(sessionId))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.paid && data.type === "sprint_eclair") {
+            setPieces(function(prev) { return prev + 3; });
+          }
+        })
+        .catch(function() {});
+      window.history.replaceState({}, "", "/sprint");
+    }
+    var subscribed = params.get("subscribed");
+    if (subscribed === "true") {
+      setIsSubscribed(true);
+      window.history.replaceState({}, "", "/sprint");
+    }
+  }, []);
 
   // Chantier 7 — Ta signature: threshold check
   var sigThresholdReached = !signature && hasReachedSignatureThreshold(bricks);
@@ -791,6 +841,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       <style>{"\
         @keyframes arsenalSlideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }\
         @keyframes arsenalSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }\
+        @keyframes piecesPulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }\
       "}</style>
       {renderSignatureOverlay()}
 
@@ -816,10 +867,17 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               {hasValidatedBricks ? "Densit\u00E9 : " + density.score + "%" : "Densit\u00E9 : \u2014"}
             </div>
           </button>
-          {pieces > 0 && (
-            <div style={{ fontSize: 12, color: "#8892b0", fontWeight: 600, whiteSpace: "nowrap" }}>
-              {pieces} pi{"\u00E8"}ce{pieces > 1 ? "s" : ""}
+          {(isSubscribed || pieces > 0) && (
+            <div key={pieces} style={{
+              fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
+              color: isSubscribed ? "#ccd6f6" : pieces >= 3 ? "#ccd6f6" : "#ff6b6b",
+              animation: "piecesPulse 0.3s ease-out",
+            }}>
+              {isSubscribed ? "\u221E pi\u00E8ces" : "\uD83E\uDE99 " + pieces + " pi\u00E8ce" + (pieces > 1 ? "s" : "")}
             </div>
+          )}
+          {!isSubscribed && pieces === 0 && (
+            <div style={{ fontSize: 10, color: "#e94560", fontWeight: 600 }}>Mode Vitrine</div>
           )}
         </div>
       </div>
@@ -887,7 +945,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
-          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} />
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} />
         </div>
       )}
 
@@ -933,6 +991,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
                 vault={vault}
                 duelResults={duelResults}
                 pieces={pieces}
+                displayMode={displayMode}
                 onGoToBrick={handleGoToBrick}
                 onClose={function() { setArsenalOpen(false); }}
               />
@@ -942,6 +1001,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       )}
 
       {toastBrick && <FeedbackToast brick={toastBrick} onDone={function() { setToastBrick(null); }} />}
+      <Toast toast={piecesToast} />
     </div>
   );
 }
