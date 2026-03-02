@@ -238,12 +238,13 @@ export default function SprintPage() {
     <div style={wrapSprint}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 11, color: "#495670" }}>{user.email}</div>
-        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>D\u00e9connexion</button>
+        <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#495670", fontSize: 11, cursor: "pointer" }}>Déconnexion</button>
       </div>
       <Sprint
         initialState={savedState}
         onStateChange={handleStateChange}
         onScan={handleScan}
+        user={user}
       />
     </div>
   );

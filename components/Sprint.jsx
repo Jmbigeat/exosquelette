@@ -17,8 +17,9 @@ import { CVPreview, InvestmentIndex, WorkBench, CrossRoleInsight, Arsenal } from
 import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/sprint/Interrogation";
 import { Duel } from "@/components/sprint/Duel";
 import { Onboarding } from "@/components/sprint/Onboarding";
+import { Toast } from "@/components/sprint/Toast";
 
-export default function Sprint({ initialState, onStateChange, onScan }) {
+export default function Sprint({ initialState, onStateChange, onScan, user }) {
   if (initialState) initialState = migrateState(initialState);
   var scrState = useState(initialState && initialState.screen ? initialState.screen : "onboarding");
   var screen = scrState[0];
@@ -72,10 +73,36 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
   var etabliState = useState(false);
   var etabliOpen = etabliState[0];
   var setEtabliOpen = etabliState[1];
-  // Chantier 10B — pieces counter (TODO chantier 12: consumption logic)
+  // Chantier 14 — Pièces : state, consommation, mode vitrine
   var piecesState = useState(initialState && initialState.pieces != null ? initialState.pieces : 7);
   var pieces = piecesState[0];
   var setPieces = piecesState[1];
+  var isSubscribedState = useState(false);
+  var isSubscribed = isSubscribedState[0];
+  var setIsSubscribed = isSubscribedState[1];
+  var piecesToastState = useState(null);
+  var piecesToast = piecesToastState[0];
+  var setPiecesToast = piecesToastState[1];
+
+  var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
+
+  function consumePiece(livrableType) {
+    if (isSubscribed) return true;
+    if (pieces <= 0) {
+      setPiecesToast({ type: "empty", message: "Plus de pièces." });
+      setTimeout(function() { setPiecesToast(null); }, 3000);
+      return false;
+    }
+    var remaining = pieces - 1;
+    setPieces(remaining);
+    setPiecesToast({
+      type: "consumed",
+      message: "1 pièce utilisée. Il t'en reste " + remaining + ".",
+    });
+    setTimeout(function() { setPiecesToast(null); }, 3000);
+    return true;
+  }
+
   var arsenalOpenState = useState(false);
   var arsenalOpen = arsenalOpenState[0];
   var setArsenalOpen = arsenalOpenState[1];
@@ -428,6 +455,29 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
 
   var density = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: signature, duelResults: duelResults, cvBricks: [] });
 
+  // Chantier 14 — Query params: Sprint Éclair refill + Abonnement
+  useEffect(function() {
+    var params = new URLSearchParams(window.location.search);
+    var refill = params.get("refill");
+    var sessionId = params.get("session_id");
+    if (refill === "eclair" && sessionId) {
+      fetch("/api/checkout/verify?session_id=" + encodeURIComponent(sessionId))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.paid && data.type === "sprint_eclair") {
+            setPieces(function(prev) { return prev + 3; });
+          }
+        })
+        .catch(function() {});
+      window.history.replaceState({}, "", "/sprint");
+    }
+    var subscribed = params.get("subscribed");
+    if (subscribed === "true") {
+      setIsSubscribed(true);
+      window.history.replaceState({}, "", "/sprint");
+    }
+  }, []);
+
   // Chantier 7 — Ta signature: threshold check
   var sigThresholdReached = !signature && hasReachedSignatureThreshold(bricks);
   // Auto-trigger signature screens when threshold is reached (once per session)
@@ -530,7 +580,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <div style={subtitleStyle}>TA SIGNATURE</div>
             <div style={titleStyle}>La question</div>
             <div style={labelStyle}>
-              Pour quoi tes anciens coll{"\u00E8"}gues ou ton manager te sollicitent quand personne d{"'"}autre ne r{"\u00E9"}sout le probl{"\u00E8"}me ?
+              Pour quoi tes anciens collègues ou ton manager te sollicitent quand personne d{"'"}autre ne résout le problème ?
             </div>
             <textarea
               style={inputStyle}
@@ -541,7 +591,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             />
             {showFallback && (
               <div style={{ fontSize: 12, color: "#e94560", marginTop: 8, lineHeight: 1.5 }}>
-                Pense {"\u00E0"} la derni{"\u00E8"}re fois qu{"'"}un coll{"\u00E8"}gue t{"'"}a appel{"\u00E9"} en urgence. C{"'"}{"é"}tait pour r{"\u00E9"}soudre quoi exactement ?
+                Pense à la dernière fois qu{"'"}un collègue t{"'"}a appelé en urgence. C{"'"}était pour résoudre quoi exactement ?
               </div>
             )}
             <button style={btnStyle(isEnough)} onClick={isEnough ? handleSigQuestionNext : undefined}>
@@ -562,7 +612,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             <div style={subtitleStyle}>TA SIGNATURE</div>
             <div style={titleStyle}>Le croisement</div>
             <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 16, padding: 12, background: "#0a0a1a", borderRadius: 8, borderLeft: "3px solid #e94560" }}>
-              {"\u00AB"} {sigResponse} {"\u00BB"}
+              {"«"} {sigResponse} {"»"}
             </div>
 
             {cross.type === "convergence" && (
@@ -570,7 +620,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
                 <div style={{ fontSize: 13, color: "#4ecca3", fontWeight: 700, marginBottom: 8 }}>Convergence forte</div>
                 <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 8 }}>{cross.diagnostic}</div>
                 <div style={{ padding: 12, background: "#4ecca3" + "15", border: "1px solid #4ecca3" + "40", borderRadius: 8, marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>Hypoth{"\u00E8"}se confirm{"\u00E9"}e</div>
+                  <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>Hypothèse confirmée</div>
                   <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{cross.matchedHypothesis ? cross.matchedHypothesis.text : ""}</div>
                 </div>
                 <button style={btnStyle(true)} onClick={function() { handleSigCrossNext(null); }}>Suivant</button>
@@ -584,7 +634,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
                 {hyps.map(function(h, i) {
                   return (
                     <div key={i} style={{ padding: 12, background: "#3498db" + "10", border: "1px solid #3498db" + "30", borderRadius: 8, marginBottom: 8 }}>
-                      <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>Hypoth{"\u00E8"}se {i + 1}</div>
+                      <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>Hypothèse {i + 1}</div>
                       <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{h.text}</div>
                     </div>
                   );
@@ -605,7 +655,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
                       border: "1px solid #e94560" + "60", borderRadius: 10, cursor: "pointer",
                       textAlign: "left",
                     }}>
-                      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>Hypoth{"\u00E8"}se {i + 1}</div>
+                      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>Hypothèse {i + 1}</div>
                       <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{h.text}</div>
                     </button>
                   );
@@ -635,7 +685,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
               <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{cross2.diagnostic || ""}</div>
             </div>
             <div style={labelStyle}>
-              En une phrase, qu{"'"}est-ce que tu es le seul {"\u00E0"} prouver ?
+              En une phrase, qu{"'"}est-ce que tu es le seul à prouver ?
             </div>
             <textarea
               style={inputStyle}
@@ -656,7 +706,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             )}
             {showAssist && assistHyp && (
               <div style={{ marginTop: 12, padding: 14, background: "#e94560" + "12", border: "1px dashed #e94560" + "60", borderRadius: 10 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>Suggestion assist{"\u00E9"}e</div>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>Suggestion assistée</div>
                 <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, fontStyle: "italic" }}>{assistHyp.text}</div>
                 <button onClick={function() { setSigFormulation(assistHyp.text); setSigValidationError(null); }} style={{
                   marginTop: 8, padding: "6px 12px", background: "#e94560" + "30",
@@ -710,7 +760,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       <div style={{ textAlign: "center", padding: 32 }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>{"\u23F8\uFE0F"}</div>
         <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>Forge en veille</div>
-        <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 20 }}>Tes briques sont sauvegard{"\u00E9"}es. Reprends quand tu veux.</div>
+        <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 20 }}>Tes briques sont sauvegardées. Reprends quand tu veux.</div>
         <button onClick={function() { setSprintDone(false); }} style={{
           padding: "12px 24px", background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
           border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
@@ -791,6 +841,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       <style>{"\
         @keyframes arsenalSlideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }\
         @keyframes arsenalSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }\
+        @keyframes piecesPulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }\
       "}</style>
       {renderSignatureOverlay()}
 
@@ -807,19 +858,26 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={function() { if (activeStep >= 1) setArsenalOpen(true); }} title={activeStep < 1 ? "Disponible d\u00E8s l\u2019Assemblage" : "Ouvrir l\u2019Arsenal"} style={{
+          <button onClick={function() { if (activeStep >= 1) setArsenalOpen(true); }} title={activeStep < 1 ? "Disponible dès l'Assemblage" : "Ouvrir l'Arsenal"} style={{
             background: "none", border: "1px solid " + densityColor + "60",
             borderRadius: 8, padding: "6px 14px", cursor: activeStep >= 1 ? "pointer" : "default",
             opacity: activeStep >= 1 ? 1 : 0.4, transition: "all 0.3s",
           }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: densityColor, whiteSpace: "nowrap" }}>
-              {hasValidatedBricks ? "Densit\u00E9 : " + density.score + "%" : "Densit\u00E9 : \u2014"}
+              {hasValidatedBricks ? "Densité : " + density.score + "%" : "Densité : —"}
             </div>
           </button>
-          {pieces > 0 && (
-            <div style={{ fontSize: 12, color: "#8892b0", fontWeight: 600, whiteSpace: "nowrap" }}>
-              {pieces} pi{"\u00E8"}ce{pieces > 1 ? "s" : ""}
+          {(isSubscribed || pieces > 0) && (
+            <div key={pieces} style={{
+              fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
+              color: isSubscribed ? "#ccd6f6" : pieces >= 3 ? "#ccd6f6" : "#ff6b6b",
+              animation: "piecesPulse 0.3s ease-out",
+            }}>
+              {isSubscribed ? "∞ pièces" : "🪙 " + pieces + " pièce" + (pieces > 1 ? "s" : "")}
             </div>
+          )}
+          {!isSubscribed && pieces === 0 && (
+            <div style={{ fontSize: 10, color: "#e94560", fontWeight: 600 }}>Mode Vitrine</div>
           )}
         </div>
       </div>
@@ -836,12 +894,12 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
         <div style={{ marginBottom: 12, padding: 12, background: "#4ecca3" + "10", border: "1px solid #4ecca3" + "30", borderRadius: 10 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
-              <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, marginBottom: 2 }}>TA SIGNATURE {signature.armored ? "\u2014 BLIND\u00C9E" : ""}</div>
+              <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, marginBottom: 2 }}>TA SIGNATURE {signature.armored ? "— BLINDÉE" : ""}</div>
               <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.4 }}>{signature.formulation}</div>
               {signature.metaPatterns && (
                 <div style={{ fontSize: 10, color: "#495670", marginTop: 4 }}>
-                  Arch{"\u00E9"}type : {signature.metaPatterns.archetype} | Tempo : {signature.metaPatterns.tempo} | Modificateur : {signature.metaPatterns.modifier}
-                  {signature.assistedFormulation ? " | Assist\u00E9e" : ""}
+                  Archétype : {signature.metaPatterns.archetype} | Tempo : {signature.metaPatterns.tempo} | Modificateur : {signature.metaPatterns.modifier}
+                  {signature.assistedFormulation ? " | Assistée" : ""}
                 </div>
               )}
             </div>
@@ -869,11 +927,11 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
             var bl = v.filter(function(b) { return b.blinded; });
             var cov = computeCauchemarCoverage(bricks).filter(function(c) { return c.covered; });
             var mis = bricks.filter(function(b) { return b.type === "mission"; });
-            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forg\u00E9e" + (v.length > 1 ? "s" : "") + ". "
-              + bl.length + " blind\u00E9e" + (bl.length > 1 ? "s" : "") + ". "
+            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forgée" + (v.length > 1 ? "s" : "") + ". "
+              + bl.length + " blindée" + (bl.length > 1 ? "s" : "") + ". "
               + cov.length + " cauchemar" + (cov.length > 1 ? "s" : "") + " couvert" + (cov.length > 1 ? "s" : "") + "."
               + (mis.length > 0 ? " " + mis.length + " mission" + (mis.length > 1 ? "s" : "") + " en attente." : "")
-              + "\n\nTon Score est sauvegard\u00E9. Tu reviens quand tu veux.";
+              + "\n\nTon Score est sauvegardé. Tu reviens quand tu veux.";
             if (confirm(summary)) { setSprintDone(true); }
           }} style={{
             width: "100%", padding: "10px 16px", background: "none",
@@ -887,7 +945,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
-          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} />
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} />
         </div>
       )}
 
@@ -933,6 +991,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
                 vault={vault}
                 duelResults={duelResults}
                 pieces={pieces}
+                displayMode={displayMode}
                 onGoToBrick={handleGoToBrick}
                 onClose={function() { setArsenalOpen(false); }}
               />
@@ -942,6 +1001,7 @@ export default function Sprint({ initialState, onStateChange, onScan }) {
       )}
 
       {toastBrick && <FeedbackToast brick={toastBrick} onDone={function() { setToastBrick(null); }} />}
+      <Toast toast={piecesToast} />
     </div>
   );
 }
