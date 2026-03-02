@@ -231,7 +231,7 @@ export function Eclaireur() {
         }}>Lancer mon Sprint — 49{"€"}</button>
 
         <div style={{ fontSize: 12, color: "#8892b0", textAlign: "center", marginTop: 10, lineHeight: 1.6 }}>
-          7 jours. CV réécrit. Bio calibrée. Script de contact. Préparation entretien.
+          CV réécrit. Bio calibrée. Script de contact. Préparation entretien. Score de densité.
         </div>
         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 6 }}>
           Paiement sécurisé Stripe. Satisfait ou remboursé 48h.
