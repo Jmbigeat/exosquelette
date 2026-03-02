@@ -1311,6 +1311,23 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
   return (
     <div>
 
+      {/* Chantier 14 — Bandeau Mode Vitrine */}
+      {displayMode === "vitrine" && (
+        <div style={{
+          background: "#1a1a2e",
+          border: "1px solid #495670",
+          borderRadius: 8,
+          padding: "10px 14px",
+          marginBottom: 16,
+          fontSize: 12,
+          color: "#8892b0",
+          lineHeight: 1.5
+        }}>
+          <span style={{ color: "#ff6b6b", fontWeight: 700 }}>Mode Vitrine</span>
+          {" — Tes livrables sont figés. La forge reste ouverte."}
+        </div>
+      )}
+
       {/* BLOC 1 — LE RADAR */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>RADAR 6 AXES</div>
