@@ -404,7 +404,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
   var setSelectedOfferIdx = selectedOfferState[1];
@@ -417,6 +417,24 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var internalDescState = useState("");
   var internalDesc = internalDescState[0];
   var setInternalDesc = internalDescState[1];
+
+  // Chantier 14 — tracking première génération par type de livrable
+  var generatedOnceState = useState({});
+  var generatedOnce = generatedOnceState[0];
+  var setGeneratedOnce = generatedOnceState[1];
+
+  function handleGenerate(type, generatorFn) {
+    if (!generatedOnce[type]) {
+      setGeneratedOnce(function(prev) { return Object.assign({}, prev, (function() { var o = {}; o[type] = true; return o; })()); });
+      generatorFn();
+      return;
+    }
+    var allowed = consumePiece ? consumePiece(type) : true;
+    if (!allowed) return;
+    generatorFn();
+  }
+
+  var isVitrine = displayMode === "vitrine";
 
   if (!isActive) return null;
 
@@ -486,6 +504,13 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
       </div>
 
       <div style={{ padding: "0 16px 16px" }}>
+
+          {/* Chantier 14 — Alerte à 2 pièces */}
+          {!isSubscribed && pieces != null && pieces <= 2 && pieces > 0 && (
+            <div style={{ background: "#1a1a2e", fontSize: 12, color: "#ff6b6b", padding: "10px 16px", borderRadius: 8, marginBottom: 12 }}>
+              {"\uD83E\uDE99"} {pieces} pi{"\u00E8"}ce{pieces > 1 ? "s" : ""} restante{pieces > 1 ? "s" : ""}. Chaque r{"\u00E9"}g{"\u00E9"}n{"\u00E9"}ration en consomme 1.
+            </div>
+          )}
 
           {/* ONGLETS — 3 tabs */}
           <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
@@ -784,6 +809,38 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Chantier 14 — Vitrine CTA (pièces = 0) */}
+          {isVitrine && (
+            <div style={{ marginTop: 20, padding: 20, background: "#1a1a2e", borderRadius: 12, textAlign: "center" }}>
+              <div style={{ fontSize: 14, color: "#ccd6f6", fontWeight: 700, marginBottom: 16, lineHeight: 1.5 }}>
+                Tes livrables sont figés.
+              </div>
+              <button onClick={function() {
+                var userId = user && user.id ? user.id : "";
+                var email = user && user.email ? user.email : "";
+                fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: userId, email: email, type: "subscription" }) })
+                  .then(function(r) { return r.json(); })
+                  .then(function(data) { if (data.url) window.location.href = data.url; });
+              }} style={{
+                width: "100%", padding: 14, marginBottom: 10,
+                background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+                border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
+              }}>Continuer à forger — 10€/mois</button>
+              <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 10 }}>ou</div>
+              <button onClick={function() {
+                var userId = user && user.id ? user.id : "";
+                var email = user && user.email ? user.email : "";
+                fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: userId, email: email, type: "sprint_eclair" }) })
+                  .then(function(r) { return r.json(); })
+                  .then(function(data) { if (data.url) window.location.href = data.url; });
+              }} style={{
+                width: "100%", padding: 12,
+                background: "#0f3460", color: "#ccd6f6",
+                border: "1px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
+              }}>Sprint Éclair — 3 pièces, 19€</button>
             </div>
           )}
         </div>

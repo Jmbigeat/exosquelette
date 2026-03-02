@@ -244,6 +244,7 @@ export default function SprintPage() {
         initialState={savedState}
         onStateChange={handleStateChange}
         onScan={handleScan}
+        user={user}
       />
     </div>
   );
