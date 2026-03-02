@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 export default function Home() {
   useEffect(function() {
-    window.location.href = "/sprint";
+    window.location.href = "/eclaireur";
   }, []);
 
   return (
