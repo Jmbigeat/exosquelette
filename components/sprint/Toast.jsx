@@ -18,7 +18,7 @@ export function Toast({ toast }) {
         boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
         maxWidth: 360,
       }}>
-        <span style={{ fontSize: 16, flexShrink: 0 }}>{isConsumed ? "\uD83E\uDE99" : "\u26A0\uFE0F"}</span>
+        <span style={{ fontSize: 16, flexShrink: 0 }}>{isConsumed ? "🪙" : "⚠️"}</span>
         <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, lineHeight: 1.4 }}>{toast.message}</span>
       </div>
       <style>{"\

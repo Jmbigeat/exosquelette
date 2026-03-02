@@ -118,14 +118,14 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
                   {/* Reference cost range */}
                   {c.costRange && (
                     <div style={{ fontSize: 10, color: "#e94560", marginBottom: 3 }}>
-                      {"\uD83D\uDCB0"} Coût sectoriel : {(c.costRange[0] / 1000).toFixed(0)}K - {(c.costRange[1] / 1000).toFixed(0)}K\u20AC/{c.costUnit}
+                      {"\uD83D\uDCB0"} Coût sectoriel : {(c.costRange[0] / 1000).toFixed(0)}K - {(c.costRange[1] / 1000).toFixed(0)}K€/{c.costUnit}
                     </div>
                   )}
                   {/* Negotiation framing for covered cauchemars */}
                   {c.covered && c.costRange && c.hasElasticCovering && (
                     <div style={{ background: "#4ecca3" + "15", borderRadius: 4, padding: 6, marginBottom: 3 }}>
                       <div style={{ fontSize: 10, color: "#4ecca3", lineHeight: 1.4 }}>
-                        {"\u2197\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique à {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K\u20AC. Ta négociation commence par ce chiffre.
+                        {"\u2197\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique à {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K€. Ta négociation commence par ce chiffre.
                       </div>
                     </div>
                   )}
@@ -490,7 +490,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 16px 12px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 16 }}>{"\u26A1"}</span>
-          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 15 }}>L'{"\u00C9"}TABLI</span>
+          <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 15 }}>L'ÉTABLI</span>
           <span style={{ fontSize: 10, color: qualityColor, background: qualityColor + "22", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>{externeCount + interneCount} armes</span>
           <span style={{ fontSize: 9, color: qualityColor, background: qualityColor + "15", padding: "1px 6px", borderRadius: 6 }}>{qualityLabel}</span>
         </div>
@@ -508,7 +508,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
           {/* Chantier 14 — Alerte à 2 pièces */}
           {!isSubscribed && pieces != null && pieces <= 2 && pieces > 0 && (
             <div style={{ background: "#1a1a2e", fontSize: 12, color: "#ff6b6b", padding: "10px 16px", borderRadius: 8, marginBottom: 12 }}>
-              {"\uD83E\uDE99"} {pieces} pi{"\u00E8"}ce{pieces > 1 ? "s" : ""} restante{pieces > 1 ? "s" : ""}. Chaque r{"\u00E9"}g{"\u00E9"}n{"\u00E9"}ration en consomme 1.
+              🪙 {pieces} pièce{pieces > 1 ? "s" : ""} restante{pieces > 1 ? "s" : ""}. Chaque régénération en consomme 1.
             </div>
           )}
 
@@ -536,7 +536,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               border: "1px solid " + (activeTab === "preparation" ? "#ff9800" : "#16213e"),
               borderRadius: "0 8px 8px 0",
               opacity: duelPassed ? 1 : 0.4,
-            }}>PR{"\u00C9"}PARATION</button>
+            }}>PRÉPARATION</button>
           </div>
 
           {/* Avertissement qualité */}
@@ -667,7 +667,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                             padding: "3px 10px", fontSize: 10, background: copiedId === postCopyId ? "#4ecca3" : "#0f3460",
                             color: copiedId === postCopyId ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === postCopyId ? "#4ecca3" : "#16213e"),
                             borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                          }}>{copiedId === postCopyId ? "\u2705 Copi\u00E9" : "Copier"}</button>
+                          }}>{copiedId === postCopyId ? "\u2705 Copié" : "Copier"}</button>
                         </div>
                         <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto" }}>{postText}</div>
                         {p.contextLine && (
@@ -679,7 +679,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 </div>
               ) : (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>
-                  <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} POSTS (PILIERS) {"\u2014"} 2 briques + piliers requis</div>
+                  <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} POSTS (PILIERS) — 2 briques + piliers requis</div>
                 </div>
               )}
             </div>
@@ -787,9 +787,9 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
             <div>
               {duelPassed ? (
                 <div>
-                  <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>FICHES DE PR{"\u00C9"}PARATION</div>
+                  <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>FICHES DE PRÉPARATION</div>
                   <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 16 }}>
-                    Tes fiches de combat et de pr{"\u00E9"}paration Duel seront g{"\u00E9"}n{"\u00E9"}r{"\u00E9"}es ici.
+                    Tes fiches de combat et de préparation Duel seront générées ici.
                   </div>
                   {/* TODO chantier 12+ — contenu des fiches de préparation */}
                   <div style={{ padding: 24, background: "#1a1a2e", borderRadius: 10, textAlign: "center" }}>
@@ -802,10 +802,10 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ textAlign: "center", padding: 32 }}>
                   <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.5 }}>{"\uD83D\uDEE1\uFE0F"}</div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>
-                    Pr{"\u00E9"}paration verrouill{"\u00E9"}e
+                    Préparation verrouillée
                   </div>
                   <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
-                    Passe le Duel pour d{"\u00E9"}bloquer tes fiches de pr{"\u00E9"}paration.
+                    Passe le Duel pour débloquer tes fiches de préparation.
                   </div>
                 </div>
               )}
@@ -1237,7 +1237,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
   if (!density || !density.axes || density.axes.length === 0) {
     return (
       <div style={{ padding: 20, textAlign: "center" }}>
-        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Pas encore de donn{"\u00E9"}es. Forge tes premi{"\u00E8"}res briques.</div>
+        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Pas encore de données. Forge tes premières briques.</div>
       </div>
     );
   }
@@ -1245,7 +1245,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
   if (validated.length === 0) {
     return (
       <div style={{ padding: 20, textAlign: "center" }}>
-        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Aucune brique valid{"\u00E9"}e. Forge ta premi{"\u00E8"}re brique pour activer l{"'"}Arsenal.</div>
+        <div style={{ fontSize: 13, color: "#495670", lineHeight: 1.6 }}>Aucune brique validée. Forge ta première brique pour activer l{"'"}Arsenal.</div>
       </div>
     );
   }
@@ -1271,7 +1271,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
       var fakeKpi = nightmareObj && nightmareObj.kpis ? nightmareObj.kpis[0] : "";
       var fakeBrick = {
         id: 99999,
-        text: "R\u00E9sultat de 100K\u20AC via m\u00E9thode structur\u00E9e d\u00E9ploy\u00E9e aupr\u00E8s de l'\u00E9quipe de 12 personnes en 3 mois, d\u00E9cision valid\u00E9e par le comit\u00E9",
+        text: "Résultat de 100K€ via méthode structurée déployée auprès de l'équipe de 12 personnes en 3 mois, décision validée par le comité",
         kpi: fakeKpi, skills: [], usedIn: [], status: "validated", type: "brick",
         brickType: "preuve", brickCategory: "chiffre", stressTestAngle3Validated: true, owned: true, corrected: false,
       };
