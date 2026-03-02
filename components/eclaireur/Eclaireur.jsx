@@ -7,8 +7,8 @@ var SCAN_MESSAGES = [
   "Lecture de l'offre...",
   "Extraction des signaux du recruteur...",
   "Identification du cauchemar principal...",
-  "Calcul du KPI cach\u00e9...",
-  "Croisement march\u00e9 termin\u00e9.",
+  "Calcul du KPI caché...",
+  "Croisement marché terminé.",
 ];
 
 export function Eclaireur() {
@@ -63,7 +63,7 @@ export function Eclaireur() {
           <textarea
             value={text}
             onChange={function(e) { setText(e.target.value); }}
-            placeholder="Colle ici l'int\u00e9gralit\u00e9 d'une offre d'emploi (description de poste, missions, comp\u00e9tences demand\u00e9es...)"
+            placeholder="Colle ici l'intégralité d'une offre d'emploi (description de poste, missions, compétences demandées...)"
             style={{
               width: "100%", minHeight: 160, padding: 14, background: "#1a1a2e",
               border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6",
@@ -72,7 +72,7 @@ export function Eclaireur() {
             }}
           />
           <div style={{ fontSize: 11, color: canScan ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
-            {canScan ? text.trim().length + " caract\u00e8res" : "Minimum 50 caract\u00e8res (" + text.trim().length + "/50)"}
+            {canScan ? text.trim().length + " caractères" : "Minimum 50 caractères (" + text.trim().length + "/50)"}
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export function Eclaireur() {
         }}>Scanner l'offre</button>
 
         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 10 }}>
-          {"\uD83D\uDD12"} L'offre n'est ni stock\u00e9e ni partag\u00e9e.
+          {"\uD83D\uDD12"} L'offre n'est ni stockée ni partagée.
         </div>
       </div>
     );
@@ -126,24 +126,24 @@ export function Eclaireur() {
   if (phase === "result" && result) {
     var nm = result.mainNightmare;
     var kpi = result.revealedKpi;
-    var eColor = kpi && kpi.elasticity === "\u00e9lastique" ? "#4ecca3" : kpi && kpi.elasticity === "sous_pression" ? "#e94560" : "#8892b0";
-    var eLabel = kpi && kpi.elasticity === "\u00e9lastique" ? "\u00e9lastique" : kpi && kpi.elasticity === "stable" ? "stable" : kpi && kpi.elasticity === "sous_pression" ? "sous pression" : "";
+    var eColor = kpi && kpi.elasticity === "élastique" ? "#4ecca3" : kpi && kpi.elasticity === "sous_pression" ? "#e94560" : "#8892b0";
+    var eLabel = kpi && kpi.elasticity === "élastique" ? "élastique" : kpi && kpi.elasticity === "stable" ? "stable" : kpi && kpi.elasticity === "sous_pression" ? "sous pression" : "";
     var costStr = nm.costRange ? formatCost(nm.costRange[0]) + " - " + formatCost(nm.costRange[1]) + " / an" : "";
 
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
-          <div style={{ fontSize: 10, color: "#495670", marginBottom: 4 }}>R\u00f4le d\u00e9tect\u00e9 : {result.detectedRoleLabel}</div>
+          <div style={{ fontSize: 10, color: "#495670", marginBottom: 4 }}>Rôle détecté : {result.detectedRoleLabel}</div>
         </div>
 
         {/* BLOC RÉVÉLÉ */}
         <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>KPI CACH\u00c9 DU RECRUTEUR</div>
+          <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>KPI CACHÉ DU RECRUTEUR</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>{nm.label}</div>
           <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 10 }}>{nm.nightmareShort}</div>
           {costStr && (
-            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, marginBottom: 12 }}>Co\u00fbt du probl\u00e8me : {costStr}</div>
+            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, marginBottom: 12 }}>Coût du problème : {costStr}</div>
           )}
 
           {kpi && (
@@ -169,27 +169,27 @@ export function Eclaireur() {
         <div style={{ position: "relative", marginBottom: 20 }}>
           <div style={{ filter: "blur(6px)", userSelect: "none", pointerEvents: "none" }}>
             <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 8 }}>
-              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>3 AUTRES KPIS CACH\u00c9S</div>
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>3 AUTRES KPIS CACHÉS</div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Capacit\u00e9 de r\u00e9tention des talents cl\u00e9s</div>
-                <div style={{ fontSize: 11, color: "#8892b0" }}>Le recruteur cherche quelqu'un qui emp\u00eache les d\u00e9parts en cha\u00eene. Co\u00fbt cach\u00e9 : 150K-400K / an.</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Capacité de rétention des talents clés</div>
+                <div style={{ fontSize: 11, color: "#8892b0" }}>Le recruteur cherche quelqu'un qui empêche les départs en chaîne. Coût caché : 150K-400K / an.</div>
               </div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Vitesse d'ex\u00e9cution strat\u00e9gique</div>
-                <div style={{ fontSize: 11, color: "#8892b0" }}>L'\u00e9quipe produit des slides. Le board veut des r\u00e9sultats. Co\u00fbt de l'inertie : 200K-600K / an.</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Vitesse d'exécution stratégique</div>
+                <div style={{ fontSize: 11, color: "#8892b0" }}>L'équipe produit des slides. Le board veut des résultats. Coût de l'inertie : 200K-600K / an.</div>
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Alignement inter-\u00e9quipes</div>
-                <div style={{ fontSize: 11, color: "#8892b0" }}>Trois d\u00e9partements travaillent en silo. Le projet avance trois fois moins vite que pr\u00e9vu.</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#ccd6f6", marginBottom: 2 }}>Alignement inter-équipes</div>
+                <div style={{ fontSize: 11, color: "#8892b0" }}>Trois départements travaillent en silo. Le projet avance trois fois moins vite que prévu.</div>
               </div>
             </div>
             <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 8 }}>
-              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>BRIQUES DE PREUVE RECOMMAND\u00c9ES</div>
-              <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>4 briques identifi\u00e9es dans ton profil. Chaque brique couvre un cauchemar sp\u00e9cifique et transforme ton CV en arsenal de n\u00e9gociation.</div>
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>BRIQUES DE PREUVE RECOMMANDÉES</div>
+              <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>4 briques identifiées dans ton profil. Chaque brique couvre un cauchemar spécifique et transforme ton CV en arsenal de négociation.</div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <div style={{ flex: 1, background: "#0f3460", borderRadius: 12, padding: 12 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>CARTE DU MARCH\u00c9</div>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, marginBottom: 4 }}>CARTE DU MARCHÉ</div>
                 <div style={{ fontSize: 11, color: "#8892b0" }}>3 signaux d'urgence. Poste ouvert depuis 8 semaines.</div>
               </div>
               <div style={{ flex: 1, background: "#0f3460", borderRadius: 12, padding: 12 }}>
@@ -206,8 +206,8 @@ export function Eclaireur() {
             background: "rgba(10,10,26,0.4)", borderRadius: 12,
           }}>
             <div style={{ textAlign: "center", padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Analyse compl\u00e8te verrouill\u00e9e</div>
-              <div style={{ fontSize: 12, color: "#8892b0" }}>Le Sprint d\u00e9bloque les 4 KPIs, les briques de preuve et la carte du march\u00e9.</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Analyse complète verrouillée</div>
+              <div style={{ fontSize: 12, color: "#8892b0" }}>Le Sprint débloque les 4 KPIs, les briques de preuve et la carte du marché.</div>
             </div>
           </div>
         </div>
@@ -218,7 +218,7 @@ export function Eclaireur() {
         {/* CTA */}
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6", marginBottom: 8, lineHeight: 1.5 }}>
-            Tu as vu le probl\u00e8me. Le Sprint te donne la solution.
+            Tu as vu le problème. Le Sprint te donne la solution.
           </div>
         </div>
 
@@ -228,13 +228,13 @@ export function Eclaireur() {
           color: "#fff", border: "none", borderRadius: 12, cursor: "pointer",
           fontWeight: 700, fontSize: 16,
           boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-        }}>Lancer mon Sprint — 49{"\u20AC"}</button>
+        }}>Lancer mon Sprint — 49{"€"}</button>
 
         <div style={{ fontSize: 12, color: "#8892b0", textAlign: "center", marginTop: 10, lineHeight: 1.6 }}>
-          7 jours. CV r\u00e9\u00e9crit. Bio calibr\u00e9e. Script de contact. Pr\u00e9paration entretien.
+          7 jours. CV réécrit. Bio calibrée. Script de contact. Préparation entretien.
         </div>
         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 6 }}>
-          Paiement s\u00e9curis\u00e9 Stripe. Satisfait ou rembours\u00e9 48h.
+          Paiement sécurisé Stripe. Satisfait ou remboursé 48h.
         </div>
 
         {/* Recommencer */}

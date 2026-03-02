@@ -70,7 +70,7 @@ export function OnboardingFlow({ onComplete }) {
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Quel poste tu vises ?</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
-            Choisis la famille de m\u00e9tier. L'IA classe tes briques contre les 5 KPIs de ce poste.
+            Choisis la famille de métier. L'IA classe tes briques contre les 5 KPIs de ce poste.
           </div>
         </div>
 
@@ -103,19 +103,19 @@ export function OnboardingFlow({ onComplete }) {
           <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginTop: 8, marginBottom: 16 }}>
             <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>5 KPIS DE CE POSTE</div>
             {KPI_REFERENCE[targetRole].kpis.map(function(k, i) {
-              var eColor = k.elasticity === "\u00e9lastique" ? "#4ecca3" : k.elasticity === "stable" ? "#8892b0" : "#e94560";
-              var eLabel = k.elasticity === "\u00e9lastique" ? "\u2197\uFE0F" : k.elasticity === "stable" ? "\u2194\uFE0F" : "\u2198\uFE0F";
+              var eColor = k.elasticity === "élastique" ? "#4ecca3" : k.elasticity === "stable" ? "#8892b0" : "#e94560";
+              var eLabel = k.elasticity === "élastique" ? "\u2197\uFE0F" : k.elasticity === "stable" ? "\u2194\uFE0F" : "\u2198\uFE0F";
               return (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                   <span style={{ fontSize: 10, color: eColor }}>{eLabel}</span>
                   <span style={{ fontSize: 11, color: "#ccd6f6" }}>{k.name}</span>
-                  <span style={{ fontSize: 9, color: eColor, background: "#1a1a2e", padding: "1px 6px", borderRadius: 6 }}>{k.elasticity === "\u00e9lastique" ? "\u00e9lastique" : k.elasticity === "stable" ? "stable" : "sous pression"}</span>
+                  <span style={{ fontSize: 9, color: eColor, background: "#1a1a2e", padding: "1px 6px", borderRadius: 6 }}>{k.elasticity === "élastique" ? "élastique" : k.elasticity === "stable" ? "stable" : "sous pression"}</span>
                 </div>
               );
             })}
             <div style={{ borderTop: "1px solid #16213e", marginTop: 8, paddingTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: 12 }}>{"\uD83D\uDD54"}</span>
-              <span style={{ fontSize: 11, color: "#ccd6f6" }}>Rendez-vous de Souverainet\u00e9 : {KPI_REFERENCE[targetRole].cadenceLabel}</span>
+              <span style={{ fontSize: 11, color: "#ccd6f6" }}>Rendez-vous de Souveraineté : {KPI_REFERENCE[targetRole].cadenceLabel}</span>
               <span style={{ fontSize: 9, color: "#495670" }}>({KPI_REFERENCE[targetRole].cadence}j)</span>
             </div>
             <div style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4 }}>{KPI_REFERENCE[targetRole].cadenceReason}</div>
@@ -137,7 +137,7 @@ export function OnboardingFlow({ onComplete }) {
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Ton profil</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
-            Colle ton CV, ta bio LinkedIn, ou d\u00e9cris ton dernier poste.
+            Colle ton CV, ta bio LinkedIn, ou décris ton dernier poste.
           </div>
         </div>
 
@@ -145,11 +145,11 @@ export function OnboardingFlow({ onComplete }) {
           <textarea
             value={profileText}
             onChange={function(e) { setProfileText(e.target.value); }}
-            placeholder="Ex : Account Executive chez Spendesk (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR g\u00e9r\u00e9 1.2M\u20AC..."
+            placeholder="Ex : Account Executive chez Spendesk (2 ans). Cycle de vente complet Mid-Market. Portefeuille de 45 comptes, ARR géré 1.2M€..."
             style={textareaStyle}
           />
           <div style={{ fontSize: 11, color: canNext ? "#495670" : "#e94560", marginTop: 4, textAlign: "right" }}>
-            {canNext ? profileText.trim().length + " caract\u00e8res" : "Minimum 20 caract\u00e8res (" + profileText.trim().length + "/20)"}
+            {canNext ? profileText.trim().length + " caractères" : "Minimum 20 caractères (" + profileText.trim().length + "/20)"}
           </div>
         </div>
 
@@ -171,7 +171,7 @@ export function OnboardingFlow({ onComplete }) {
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 6 }}>L'EXOSQUELETTE</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#ccd6f6", marginBottom: 8 }}>Tes offres cibles</div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
-            Colle 1 \u00e0 3 offres qui t'int\u00e9ressent. Optionnel. Le Sprint fonctionne aussi sans offre.
+            Colle 1 à 3 offres qui t'intéressent. Optionnel. Le Sprint fonctionne aussi sans offre.
           </div>
         </div>
 
@@ -179,11 +179,11 @@ export function OnboardingFlow({ onComplete }) {
           <textarea
             value={offersText}
             onChange={function(e) { setOffersText(e.target.value); }}
-            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B s\u00e9rie B. Prospection outbound, d\u00e9mos, closing. 3+ ans exp\u00e9rience SaaS..."
+            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, démos, closing. 3+ ans expérience SaaS..."
             style={textareaStyle}
           />
           <div style={{ fontSize: 11, color: "#495670", marginTop: 4, textAlign: "right" }}>
-            {offersText.trim().length > 20 ? "Offre d\u00e9tect\u00e9e" : "Optionnel \u2014 cauchemars g\u00e9n\u00e9riques du r\u00f4le si vide"}
+            {offersText.trim().length > 20 ? "Offre détectée" : "Optionnel \u2014 cauchemars génériques du rôle si vide"}
           </div>
         </div>
 
@@ -194,7 +194,7 @@ export function OnboardingFlow({ onComplete }) {
             padding: "10px 20px", background: "none", color: "#8892b0",
             border: "1px solid #16213e", borderRadius: 8, cursor: "pointer",
             fontSize: 12, fontWeight: 600,
-          }}>Passer cette \u00e9tape</button>
+          }}>Passer cette étape</button>
         </div>
       </div>
     );
@@ -240,7 +240,7 @@ export function OnboardingFlow({ onComplete }) {
       <div style={{ padding: "40px 20px" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>{"\uD83D\uDD0D"}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6" }}>L'IA scanne ton profil et le march\u00e9</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6" }}>L'IA scanne ton profil et le marché</div>
         </div>
         <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 8, height: 6, overflow: "hidden", marginBottom: 24 }}>
           <div style={{
@@ -299,19 +299,19 @@ export function OnboardingFlow({ onComplete }) {
           </div>
 
           <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>
-            Tu comprends {scorePct}% des enjeux r\u00e9els de tes offres cibles.
+            Tu comprends {scorePct}% des enjeux réels de tes offres cibles.
           </div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
             {detectedCount > 0
-              ? detectedCount + " enjeu" + (detectedCount > 1 ? "x" : "") + " critique" + (detectedCount > 1 ? "s" : "") + " d\u00e9tect\u00e9" + (detectedCount > 1 ? "s" : "") + " dans tes offres."
-              : "3 KPIs t'\u00e9chappent. La Forge va les extraire de ton parcours."}
+              ? detectedCount + " enjeu" + (detectedCount > 1 ? "x" : "") + " critique" + (detectedCount > 1 ? "s" : "") + " détecté" + (detectedCount > 1 ? "s" : "") + " dans tes offres."
+              : "3 KPIs t'échappent. La Forge va les extraire de ton parcours."}
           </div>
         </div>
 
         {/* Cauchemars détectés */}
         <div style={{ background: "#0f3460", borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "left" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1 }}>CAUCHEMARS D\u00c9TECT\u00c9S</div>
+            <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, letterSpacing: 1 }}>CAUCHEMARS DÉTECTÉS</div>
             {offerSignals && offerSignals.totalSignals > 0 && (
               <span style={{ fontSize: 10, color: "#4ecca3", background: "#1a1a2e", padding: "2px 8px", borderRadius: 8 }}>{offerSignals.totalSignals} signaux</span>
             )}
@@ -319,14 +319,14 @@ export function OnboardingFlow({ onComplete }) {
           {activeCauchemars.map(function(c, i) {
             var kpiRef = targetRole && KPI_REFERENCE[targetRole] ? KPI_REFERENCE[targetRole].kpis.find(function(k) { return c.kpis && c.kpis.indexOf(k.name) !== -1; }) : null;
             var elasticity = kpiRef ? kpiRef.elasticity : null;
-            var eColor = elasticity === "\u00e9lastique" ? "#4ecca3" : elasticity === "stable" ? "#8892b0" : elasticity === "sous_pression" ? "#e94560" : "#495670";
-            var eText = elasticity === "\u00e9lastique" ? "\u00e9lastique" : elasticity === "stable" ? "stable" : elasticity === "sous_pression" ? "sous pression" : "";
+            var eColor = elasticity === "élastique" ? "#4ecca3" : elasticity === "stable" ? "#8892b0" : elasticity === "sous_pression" ? "#e94560" : "#495670";
+            var eText = elasticity === "élastique" ? "élastique" : elasticity === "stable" ? "stable" : elasticity === "sous_pression" ? "sous pression" : "";
             return (
               <div key={i} style={{ marginBottom: i < activeCauchemars.length - 1 ? 10 : 0 }}>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 2 }}>
                   <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600 }}>{"\uD83C\uDFAF"} Cauchemar #{i + 1} : {c.label}</span>
                   {eText && <span style={{ fontSize: 10, color: eColor, background: "#1a1a2e", padding: "1px 6px", borderRadius: 8 }}>{eText}</span>}
-                  {c.detected && <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "1px 6px", borderRadius: 8 }}>d\u00e9tect\u00e9</span>}
+                  {c.detected && <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "1px 6px", borderRadius: 8 }}>détecté</span>}
                 </div>
                 <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{c.nightmareShort}</div>
                 {c.matchedKw && c.matchedKw.length > 0 && (
@@ -341,7 +341,7 @@ export function OnboardingFlow({ onComplete }) {
           })}
           {offerSignals && offerSignals.urgencyScore > 0 && (
             <div style={{ borderTop: "1px solid #16213e", marginTop: 10, paddingTop: 8, fontSize: 11, color: "#e94560", fontWeight: 600 }}>
-              {"\u26A1"} Signaux d'urgence d\u00e9tect\u00e9s ({offerSignals.urgencyScore}) : {offerSignals.urgencyHits.slice(0, 3).join(", ")}
+              {"\u26A1"} Signaux d'urgence détectés ({offerSignals.urgencyScore}) : {offerSignals.urgencyHits.slice(0, 3).join(", ")}
             </div>
           )}
         </div>
@@ -355,7 +355,7 @@ export function OnboardingFlow({ onComplete }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <span style={{ fontSize: 14 }}>{readiness.readiness === "fort" ? "\u26A1" : readiness.readiness === "moyen" ? "\u26A0\uFE0F" : "\uD83D\uDEA8"}</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: readiness.readiness === "fort" ? "#4ecca3" : readiness.readiness === "moyen" ? "#ff9800" : "#e94560" }}>
-              GISEMENT D\u00c9TECT\u00c9
+              GISEMENT DÉTECTÉ
             </span>
           </div>
           <div style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, marginBottom: 6 }}>
@@ -375,20 +375,20 @@ export function OnboardingFlow({ onComplete }) {
             {readiness.readiness === "fort"
               ? "Gisement dense. La Forge va extraire des briques fortes."
               : readiness.readiness === "moyen"
-              ? "Gisement partiel. Certaines zones resteront floues. Pr\u00e9pare-toi \u00e0 des missions."
-              : "Gisement faible. La Forge va r\u00e9v\u00e9ler tes trous. Si tu as acc\u00e8s \u00e0 tes anciens outils, r\u00e9cup\u00e8re tes chiffres."}
+              ? "Gisement partiel. Certaines zones resteront floues. Prépare-toi à des missions."
+              : "Gisement faible. La Forge va révéler tes trous. Si tu as accès à tes anciens outils, récupère tes chiffres."}
           </div>
         </div>
 
         {/* Message + CTA */}
         <div style={{ textAlign: "center", marginBottom: 12 }}>
           <div style={{ fontSize: 14, color: "#ccd6f6", fontWeight: 600, lineHeight: 1.5 }}>
-            Tes hypoth\u00e8ses sont pr\u00eates. \u00c0 toi de valider.
+            Tes hypothèses sont prêtes. À toi de valider.
           </div>
         </div>
 
         <button onClick={handleStart} style={btnPrimary(true)}>Commencer la Forge</button>
-        <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 10 }}>Ta premi\u00e8re munition en 20 minutes. Ton arsenal complet \u00e0 ton rythme.</div>
+        <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 10 }}>Ta première munition en 20 minutes. Ton arsenal complet à ton rythme.</div>
       </div>
     );
   }
