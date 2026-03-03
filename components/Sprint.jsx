@@ -455,22 +455,9 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
 
   var density = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: signature, duelResults: duelResults, cvBricks: [] });
 
-  // Chantier 14 — Query params: Sprint Éclair refill + Abonnement
+  // Chantier 14 — Query params: Abonnement
   useEffect(function() {
     var params = new URLSearchParams(window.location.search);
-    var refill = params.get("refill");
-    var sessionId = params.get("session_id");
-    if (refill === "eclair" && sessionId) {
-      fetch("/api/checkout/verify?session_id=" + encodeURIComponent(sessionId))
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.paid && data.type === "sprint_eclair") {
-            setPieces(function(prev) { return prev + 3; });
-          }
-        })
-        .catch(function() {});
-      window.history.replaceState({}, "", "/sprint");
-    }
     var subscribed = params.get("subscribed");
     if (subscribed === "true") {
       setIsSubscribed(true);

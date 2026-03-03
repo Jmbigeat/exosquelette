@@ -14,12 +14,6 @@ var CHECKOUT_CONFIGS = {
     successPath: "/sprint?subscribed=true",
     cancelPath: "/sprint?sub_cancelled=true",
   },
-  sprint_eclair: {
-    priceEnvKey: "STRIPE_PRICE_ECLAIR_ID",
-    mode: "payment",
-    successPath: "/sprint?refill=eclair",
-    cancelPath: "/sprint",
-  },
 };
 
 export async function POST(req) {

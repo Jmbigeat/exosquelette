@@ -829,18 +829,6 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
                 border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
               }}>Continuer à forger — 10€/mois</button>
-              <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 10 }}>ou</div>
-              <button onClick={function() {
-                var userId = user && user.id ? user.id : "";
-                var email = user && user.email ? user.email : "";
-                fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: userId, email: email, type: "sprint_eclair" }) })
-                  .then(function(r) { return r.json(); })
-                  .then(function(data) { if (data.url) window.location.href = data.url; });
-              }} style={{
-                width: "100%", padding: 12,
-                background: "#0f3460", color: "#ccd6f6",
-                border: "1px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-              }}>Sprint Éclair — 3 pièces, 19€</button>
             </div>
           )}
         </div>
