@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "ABNEG@TION - Sprint Carrière",
+  title: "ABNEG@TION - Forge Carrière",
   description: "Extrais tes preuves. Mesure ta rareté. Arme-toi.",
 };
 
