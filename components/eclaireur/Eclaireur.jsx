@@ -148,7 +148,7 @@ export function Eclaireur() {
 
           {kpi && (
             <div style={{ borderTop: "1px solid #16213e", paddingTop: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#ccd6f6" }}>{kpi.name}</span>
                 {eLabel && <span style={{ fontSize: 9, color: eColor, background: eColor + "22", padding: "1px 6px", borderRadius: 6 }}>{eLabel}</span>}
               </div>
