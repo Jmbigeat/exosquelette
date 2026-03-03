@@ -5,7 +5,7 @@ import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1 } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
@@ -460,6 +460,11 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   // LinkedIn posts by pillar
   var linkedInPosts = generateLinkedInPosts(bricks, vault, targetRoleId);
 
+  // Interview questions state
+  var questionsState = useState(null);
+  var questionsText = questionsState[0];
+  var setQuestionsText = questionsState[1];
+
   // Internal generators
   var internalSignals = internalDesc.trim().length > 10 ? parseInternalSignals(internalDesc, targetRoleId) : null;
   var salaryNum = currentSalary ? parseInt(currentSalary) : null;
@@ -481,7 +486,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
     setTimeout(function() { setCopiedId(null); }, 2000);
   }
 
-  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1 + (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0); // +1 for plan 30j, +1 for posts piliers
+  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1 + (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) + 1; // +1 plan 30j, +1 posts piliers, +1 questions entretien
   var interneCount = 3; // replacement, raise, plan 90j
 
   return (
@@ -682,6 +687,49 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                   <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>{"\uD83D\uDD12"} POSTS (PILIERS) — 2 briques + piliers requis</div>
                 </div>
               )}
+
+              {/* QUESTIONS ENTRETIEN */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>{"\uD83C\uDFAF"} QUESTIONS ENTRETIEN</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {questionsText && (
+                      <button onClick={function() { handleCopy(questionsText, "questions"); }} style={{
+                        padding: "3px 10px", fontSize: 10, background: copiedId === "questions" ? "#4ecca3" : "#0f3460",
+                        color: copiedId === "questions" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "questions" ? "#4ecca3" : "#16213e"),
+                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                      }}>{copiedId === "questions" ? "\u2705 Copié" : "Copier"}</button>
+                    )}
+                    {!isVitrine && (
+                      <button onClick={function() {
+                        handleGenerate("questions", function() {
+                          var targetOff = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
+                          var signals = targetOff ? targetOff.parsedSignals : null;
+                          var raw = generateInterviewQuestions(
+                            bricks.filter(function(b) { return b.status === "validated"; }),
+                            targetRoleId,
+                            getActiveCauchemars(),
+                            signals,
+                            signature
+                          );
+                          setQuestionsText(signature ? applySignatureFilter(raw, signature) : raw);
+                        });
+                      }} style={{
+                        padding: "3px 10px", fontSize: 10, background: "#0f3460",
+                        color: "#ccd6f6", border: "1px solid #16213e",
+                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                      }}>{generatedOnce["questions"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}</button>
+                    )}
+                  </div>
+                </div>
+                {questionsText ? (
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 300, overflow: "auto" }}>{questionsText}</div>
+                ) : (
+                  <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                    {isVitrine ? "Livrable figé en mode vitrine." : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
