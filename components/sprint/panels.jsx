@@ -5,7 +5,7 @@ import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
@@ -465,6 +465,14 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var questionsText = questionsState[0];
   var setQuestionsText = questionsState[1];
 
+  // Interview prep state (chantier 16)
+  var interviewPrepState = useState(null);
+  var interviewPrepData = interviewPrepState[0];
+  var setInterviewPrepData = interviewPrepState[1];
+  var interviewTabState = useState({});
+  var interviewTabs = interviewTabState[0];
+  var setInterviewTabs = interviewTabState[1];
+
   // Internal generators
   var internalSignals = internalDesc.trim().length > 10 ? parseInternalSignals(internalDesc, targetRoleId) : null;
   var salaryNum = currentSalary ? parseInt(currentSalary) : null;
@@ -623,6 +631,98 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                   }}>{copiedId === "cv" ? "\u2705 Copié" : "Copier"}</button>
                 </div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 100, overflow: "auto" }}>{cvText}</div>
+              </div>
+
+              {/* PRÉPARATION ENTRETIEN — chantier 16 */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>{"\uD83C\uDFA4"} PRÉPARATION ENTRETIEN</div>
+                    <div style={{ fontSize: 9, color: "#495670", marginTop: 2 }}>{validated.length} brique{validated.length > 1 ? "s" : ""} × 3 versions</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {interviewPrepData && (
+                      <button onClick={function() {
+                        var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
+                        var roleName = roleData ? roleData.role : "ce poste";
+                        var copyText = "# Préparation entretien — " + roleName + "\n\n";
+                        interviewPrepData.forEach(function(item, i) {
+                          copyText += "## Brique " + (i + 1) + " : " + item.summary + "\n";
+                          copyText += "Version CV : " + item.cvLine + "\n\n";
+                          copyText += "Version RH :\n" + item.versions.rh + "\n\n";
+                          copyText += "Version N+1 :\n" + item.versions.n1 + "\n\n";
+                          copyText += "Version Direction :\n" + item.versions.direction + "\n\n";
+                        });
+                        handleCopy(copyText.trim(), "interview_prep");
+                      }} style={{
+                        padding: "3px 10px", fontSize: 10,
+                        background: copiedId === "interview_prep" ? "#4ecca3" : "#0f3460",
+                        color: copiedId === "interview_prep" ? "#0a0a0a" : "#ccd6f6",
+                        border: "1px solid " + (copiedId === "interview_prep" ? "#4ecca3" : "#16213e"),
+                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                      }}>{copiedId === "interview_prep" ? "\u2705 Copié" : "Copier tout"}</button>
+                    )}
+                    {!isVitrine && (
+                      <button onClick={function() {
+                        handleGenerate("interview_prep", function() {
+                          var cauchs = getActiveCauchemars();
+                          var data = validated.map(function(b) {
+                            var cvLine = generateCVLine(b, targetRoleId);
+                            var versions = generateInterviewVersions(b, targetRoleId, cauchs);
+                            if (signature) {
+                              cvLine = applySignatureFilter(cvLine, signature);
+                              versions = { rh: applySignatureFilter(versions.rh, signature), n1: applySignatureFilter(versions.n1, signature), direction: applySignatureFilter(versions.direction, signature) };
+                            }
+                            return { summary: extractBrickSummary(b.text), cvLine: cvLine, versions: versions, brickType: b.brickType };
+                          });
+                          setInterviewPrepData(data);
+                        });
+                      }} style={{
+                        padding: "3px 10px", fontSize: 10, background: "#0f3460",
+                        color: "#ccd6f6", border: "1px solid #16213e",
+                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                      }}>{generatedOnce["interview_prep"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}</button>
+                    )}
+                  </div>
+                </div>
+                {interviewPrepData ? (
+                  <div>
+                    {interviewPrepData.map(function(item, idx) {
+                      var activeTab = interviewTabs[idx] || "rh";
+                      return (
+                        <div key={idx} style={{ borderTop: idx > 0 ? "1px solid #1a1a3e" : "none", paddingTop: idx > 0 ? 10 : 0, marginTop: idx > 0 ? 10 : 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>Brique {idx + 1} : {item.summary}</div>
+                          <div style={{ background: "#0d0d1a", borderRadius: 6, padding: 8, marginBottom: 8 }}>
+                            <div style={{ fontSize: 9, color: "#495670", fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}>VERSION CV (6 sec)</div>
+                            <div style={{ fontSize: 11, color: "#8892b0", fontFamily: "JetBrains Mono, monospace", lineHeight: 1.5 }}>{item.cvLine}</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
+                            {["rh", "n1", "direction"].map(function(tab) {
+                              var labels = { rh: "RH", n1: "N+1", direction: "Direction" };
+                              var isActiveTab = activeTab === tab;
+                              return (
+                                <button key={tab} onClick={function() { setInterviewTabs(function(prev) { var next = Object.assign({}, prev); next[idx] = tab; return next; }); }} style={{
+                                  padding: "3px 10px", fontSize: 10, fontWeight: 600,
+                                  background: isActiveTab ? "#e94560" : "transparent",
+                                  color: isActiveTab ? "#fff" : "#8892b0",
+                                  border: "1px solid " + (isActiveTab ? "#e94560" : "#1a1a3e"),
+                                  borderRadius: 6, cursor: "pointer",
+                                }}>{labels[tab]}</button>
+                              );
+                            })}
+                          </div>
+                          <div style={{ background: "#111125", borderRadius: 6, padding: 10 }}>
+                            <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{item.versions[activeTab]}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                    {isVitrine ? "Livrable figé en mode vitrine." : "Génère la version CV + 3 versions entretien (RH, N+1, Direction) pour chaque brique."}
+                  </div>
+                )}
               </div>
 
               {/* BIO LINKEDIN */}

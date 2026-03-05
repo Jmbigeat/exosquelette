@@ -52,7 +52,7 @@ function hashCode(str) {
 
 // ── Duel component ──
 
-export function Duel({ questions, bricks, onComplete, targetRoleId }) {
+export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoaching }) {
   var idxState = useState(0);
   var idx = idxState[0];
   var setIdx = idxState[1];
@@ -206,6 +206,15 @@ export function Duel({ questions, bricks, onComplete, targetRoleId }) {
               Le recruteur va se taire après ta réponse. Ne remplis pas le silence. Laisse-le revenir vers toi. Celui qui parle en premier après un silence perd le cadre de la négociation.
             </div>
           </div>
+          {interviewCoaching && (
+            <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginTop: 12, border: "1px solid #3498db33" }}>
+              <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>QUESTIONS À POSER EN ENTRETIEN</div>
+              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6, marginBottom: 10 }}>
+                Ces questions prouvent ta maîtrise sans rien affirmer. Pose-les quand le recruteur demande "Avez-vous des questions ?"
+              </div>
+              <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 300, overflow: "auto" }}>{interviewCoaching}</div>
+            </div>
+          )}
         </div>
         <button onClick={function() { setPhase("pitch_chrono"); }} style={{
           width: "100%", padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)",
