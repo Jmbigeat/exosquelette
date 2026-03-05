@@ -180,7 +180,7 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
           lines.push("APRÈS (après Forge) : " + b4.transformation.after);
           if (b4.transformation.isSimulated) lines.push("(Transformation simulée. La Forge extrait TES vrais chiffres.)");
         }
-        lines.push("\n---\nDiagnostic produit par Abneg@tion — L'Exosquelette");
+        lines.push("\n---\nDiagnostic produit par ABNEG@TION");
         var text = lines.join("\n");
         if (navigator.clipboard) { navigator.clipboard.writeText(text); }
         if (typeof onCopied === "function") onCopied();

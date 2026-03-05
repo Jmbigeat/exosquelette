@@ -1,4 +1,4 @@
-# L'Exosquelette — Guide de lancement
+# ABNEG@TION — Guide de lancement
 
 Ce dossier contient tout le code. Tu n'as rien a ecrire. Tu suis les etapes dans l'ordre.
 
@@ -104,7 +104,7 @@ Si tu vois "added XXX packages", c'est bon.
 
 1. Dans Stripe, clique "Products" dans le menu de gauche
 2. Clique "+ Add product"
-3. Nom : Sprint L'Exosquelette
+3. Nom : Sprint ABNEG@TION
 4. Prix : 49.00 EUR, paiement unique (One time)
 5. Clique "Save product"
 6. Sur la page du produit, tu vois le prix. Clique dessus.

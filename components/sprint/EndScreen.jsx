@@ -1141,7 +1141,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     html += "</style></head><body>";
 
                     // Header
-                    html += "<div class='header'><div class='header-tag'>Fiche de combat</div><div class='header-brand'>Abneg@tion - L'Exosquelette</div></div>";
+                    html += "<div class='header'><div class='header-tag'>Fiche de combat</div><div class='header-brand'>ABNEG@TION</div></div>";
                     html += "<div class='role'>" + roleName + "</div>";
 
                     // Cauchemars
