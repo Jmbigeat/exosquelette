@@ -6,7 +6,7 @@ import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
 import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
 import { parseOfferSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence } from "@/lib/sprint/offers";
 import { generateAdaptiveSeeds, matchKpiToReference, getAdaptivePillars, generateBrickVersions } from "@/lib/sprint/bricks";
-import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest } from "@/lib/sprint/generators";
+import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest, generateInterviewQuestions } from "@/lib/sprint/generators";
 import { getMaturityLevel } from "@/lib/sprint/analysis";
 import { migrateState, CURRENT_VERSION } from "@/lib/sprint/migrations";
 import { hasReachedSignatureThreshold, generateMaskedHypotheses, computeMetaPatterns, crossReferenceSignature, validateSignatureFormulation, isSignatureArmored } from "@/lib/sprint/signature";
@@ -814,7 +814,14 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       if (!duelQRef.current) {
         duelQRef.current = buildDuelQuestions(DUEL_QUESTIONS, bricks, targetRoleId);
       }
-      return <Duel questions={duelQRef.current} bricks={bricks} onComplete={handleDuelComplete} targetRoleId={targetRoleId} />;
+      var duelCoaching = generateInterviewQuestions(
+        bricks.filter(function(b) { return b.status === "validated"; }),
+        targetRoleId,
+        getActiveCauchemars(),
+        offersArray && offersArray.length > 0 ? (offersArray[0].parsedSignals || null) : null,
+        signature
+      );
+      return <Duel questions={duelQRef.current} bricks={bricks} onComplete={handleDuelComplete} targetRoleId={targetRoleId} interviewCoaching={duelCoaching} />;
     }
     return null;
   }
