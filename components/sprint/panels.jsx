@@ -8,7 +8,7 @@ import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint
 import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
-import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
+import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
 import { auditDeliverable } from "@/lib/audit";
 
@@ -804,6 +804,16 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
+                  {rawScripts && rawScripts.diltsProgression && rawScripts.diltsProgression.dm && (function() {
+                    var dp = rawScripts.diltsProgression.dm;
+                    var deltaColor = dp.delta >= 2 ? "#4ecca3" : dp.delta === 1 ? "#ff9800" : "#e94560";
+                    return (
+                      <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 6 }}>
+                        Dilts : Niveau {dp.opening} → Niveau {dp.closing} (progression {dp.delta >= 0 ? "+" : ""}{dp.delta})
+                        {dp.delta <= 0 && <span style={{ fontWeight: 400, fontSize: 10, marginLeft: 6 }}>Ton script ne monte pas. Monte la fermeture d{"'"}un cran.</span>}
+                      </div>
+                    );
+                  })()}
                   {renderObsoleteIndicator("dm")}
                   <AuditBlock auditResult={auditDm} text={scripts.dm} copyId="dm" copiedId={copiedId} onCopy={handleCopy} type="dm" isVitrine={isVitrine} corrections={corrCounters["dm"] || 0} onGoForge={onGoForge} onCorrect={function() {
                     handleCorrect("dm", function() {
@@ -820,6 +830,16 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\u2709\uFE0F"} EMAIL</div>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
+                  {rawScripts && rawScripts.diltsProgression && rawScripts.diltsProgression.email && (function() {
+                    var dp = rawScripts.diltsProgression.email;
+                    var deltaColor = dp.delta >= 2 ? "#4ecca3" : dp.delta === 1 ? "#ff9800" : "#e94560";
+                    return (
+                      <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 6 }}>
+                        Dilts : Niveau {dp.opening} → Niveau {dp.closing} (progression {dp.delta >= 0 ? "+" : ""}{dp.delta})
+                        {dp.delta <= 0 && <span style={{ fontWeight: 400, fontSize: 10, marginLeft: 6 }}>Ton script ne monte pas. Monte la fermeture d{"'"}un cran.</span>}
+                      </div>
+                    );
+                  })()}
                   {renderObsoleteIndicator("email")}
                   <AuditBlock auditResult={auditEmail} text={scripts.email} copyId="email" copiedId={copiedId} onCopy={handleCopy} type="email" isVitrine={isVitrine} corrections={corrCounters["email"] || 0} onGoForge={onGoForge} onCorrect={function() {
                     handleCorrect("email", function() {
@@ -1003,11 +1023,28 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                         {p.contextLine && (
                           <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", marginTop: 8, lineHeight: 1.4 }}>{p.contextLine}</div>
                         )}
+                        {p.diltsLevel && (
+                          <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, marginTop: 6 }}>
+                            Dilts : Niveau {p.diltsLevel} — {p.diltsName || getDiltsLabel(p.diltsLevel).name}
+                            {p.diltsTarget && p.diltsLevel < p.diltsTarget && (
+                              <span style={{ fontSize: 10, color: "#ff9800", marginLeft: 8 }}>(cible : niveau {p.diltsTarget})</span>
+                            )}
+                          </div>
+                        )}
                         {renderObsoleteIndicator("posts")}
                         <AuditBlock auditResult={postAudit} text={postText} copyId={postCopyId} copiedId={copiedId} onCopy={handleCopy} type="posts" isVitrine={isVitrine} corrections={corrCounters[postCopyId] || 0} onGoForge={onGoForge} />
                       </div>
                     );
                   })}
+                  {(function() {
+                    var stagnation = detectDiltsStagnation(linkedInPosts);
+                    if (!stagnation || !stagnation.stagnating) return null;
+                    return (
+                      <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginTop: 10, borderLeft: "3px solid #ff9800" }}>
+                        <div style={{ fontSize: 12, color: "#ff9800", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {stagnation.message}</div>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>

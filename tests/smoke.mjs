@@ -183,7 +183,48 @@ var cvNoHints = generators.generateCV(testBricks, "am", false);
 var cvWithHints = generators.generateCV(testBricks, "am", false, []);
 assert("generateCV with empty hints identical", typeof cvWithHints === "string" && cvWithHints.length > 0);
 
-// ─── 4c. Offers — aggregateOfferSignals & detectSectoralDispersion ──
+// ─── 4c. Dilts — detectDiltsLevel & detectDiltsStagnation ──────────
+
+console.log("\n=== DILTS SMOKE ===");
+
+assert("detectDiltsLevel exists", typeof dilts.detectDiltsLevel === "function");
+assert("detectDiltsStagnation exists", typeof dilts.detectDiltsStagnation === "function");
+
+// detectDiltsLevel returns { level, name, confidence }
+var diltsResult2 = dilts.detectDiltsLevel("j'ai réduit le pipe de 40% en 6 mois. J'ai lancé un projet.");
+assert("detectDiltsLevel returns level", typeof diltsResult2.level === "number");
+assert("detectDiltsLevel returns name", typeof diltsResult2.name === "string");
+assert("detectDiltsLevel returns confidence", typeof diltsResult2.confidence === "number");
+assert("detectDiltsLevel level 2 for action text", diltsResult2.level === 2);
+assert("detectDiltsLevel name is Comportement", diltsResult2.name === "Comportement");
+
+// Mixed text: level 2 + 4 → returns 4 (highest wins)
+var diltsMixed = dilts.detectDiltsLevel("j'ai réduit le pipe. Je crois que le vrai sujet est la méthode.");
+assert("detectDiltsLevel mixed 2+4 returns 4", diltsMixed.level >= 3);
+
+// Confidence: 1 marker = 0.3
+var dilts1Marker = dilts.detectDiltsLevel("j'ai fait un truc");
+assert("confidence 1 marker = 0.3", dilts1Marker.confidence === 0.3);
+
+// Confidence: 3+ markers = 1.0
+var dilts3Markers = dilts.detectDiltsLevel("j'ai fait, j'ai lancé, j'ai déployé, j'ai construit un système");
+assert("confidence 3+ markers = 1.0", dilts3Markers.confidence === 1.0);
+
+// detectDiltsStagnation: <3 posts → not stagnating
+var stagNone = dilts.detectDiltsStagnation([{ diltsLevel: 2 }, { diltsLevel: 2 }]);
+assert("detectDiltsStagnation <3 posts not stagnating", stagNone.stagnating === false);
+
+// detectDiltsStagnation: 3 same level → stagnating
+var stagYes = dilts.detectDiltsStagnation([{ diltsLevel: 2 }, { diltsLevel: 2 }, { diltsLevel: 2 }]);
+assert("detectDiltsStagnation 3 same = stagnating", stagYes.stagnating === true);
+assert("detectDiltsStagnation level is 2", stagYes.level === 2);
+assert("detectDiltsStagnation has message", typeof stagYes.message === "string" && stagYes.message.length > 0);
+
+// detectDiltsStagnation: 3 different → not stagnating
+var stagNo = dilts.detectDiltsStagnation([{ diltsLevel: 2 }, { diltsLevel: 3 }, { diltsLevel: 4 }]);
+assert("detectDiltsStagnation different = not stagnating", stagNo.stagnating === false);
+
+// ─── 4d. Offers — aggregateOfferSignals & detectSectoralDispersion ──────
 
 console.log("\n=== OFFERS SMOKE ===");
 
