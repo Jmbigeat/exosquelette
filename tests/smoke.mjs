@@ -35,6 +35,9 @@ assert("bricks.js imports", !!bricks);
 var generators = await import("../lib/sprint/generators.js");
 assert("generators.js imports", !!generators);
 
+var audit = await import("../lib/audit.js");
+assert("audit.js imports", !!audit);
+
 var redac = await import("../lib/sprint/redac.js");
 assert("redac.js imports", !!redac);
 
@@ -71,7 +74,7 @@ assert("generateBio exists", typeof generators.generateBio === "function");
 assert("generateCV exists", typeof generators.generateCV === "function");
 assert("generateContactScripts exists", typeof generators.generateContactScripts === "function");
 assert("generateImpactReport exists", typeof generators.generateImpactReport === "function");
-assert("auditDeliverable exists", typeof generators.auditDeliverable === "function");
+assert("auditDeliverable exists (audit.js)", typeof audit.auditDeliverable === "function");
 
 // redac.js
 assert("cleanRedac exists", typeof redac.cleanRedac === "function");
@@ -160,6 +163,25 @@ assert("generateBio filters take bricks", typeof bioTake === "string");
 // generateCV
 var cv = generators.generateCV(testBricks, "am", false);
 assert("generateCV returns string", typeof cv === "string" && cv.length > 0);
+
+// ─── 4b. Audit smoke ────────────────────────────────────────────
+
+console.log("\n=== AUDIT SMOKE ===");
+
+var auditResult = audit.auditDeliverable("dm", "Votre portefeuille stagne. Pipeline rattrapé de 400K€ à 1.2M€ en 4 mois.", testBricks, [], "external");
+assert("auditDeliverable returns score", typeof auditResult.score === "number");
+assert("auditDeliverable returns passed array", Array.isArray(auditResult.passed));
+assert("auditDeliverable returns failed array", Array.isArray(auditResult.failed));
+assert("auditDeliverable returns correctionHints array", Array.isArray(auditResult.correctionHints));
+
+// Generic text should fail principle A
+var auditGeneric = audit.auditDeliverable("dm", "Bonjour, je suis intéressé par votre offre.", [], [], "external");
+assert("audit generic text fails A", auditGeneric.passed.indexOf("A") === -1);
+
+// Generators accept hints=undefined (retrocompatibility)
+var cvNoHints = generators.generateCV(testBricks, "am", false);
+var cvWithHints = generators.generateCV(testBricks, "am", false, []);
+assert("generateCV with empty hints identical", typeof cvWithHints === "string" && cvWithHints.length > 0);
 
 // ─── 5. Dev server check ─────────────────────────────────────────
 
