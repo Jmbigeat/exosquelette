@@ -599,9 +599,11 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
               </div>
               <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 4 }}>{kpiMatch.why}</div>
               {isSousPression && (
-                <div style={{ background: "#e94560" + "22", borderRadius: 6, padding: 8, marginTop: 6 }}>
-                  <div style={{ fontSize: 12, color: "#e94560", fontWeight: 600, lineHeight: 1.5 }}>
-                    Ce KPI est automatisable. L'IA fait ça pour 0,01 euros. Si c'est ta meilleure preuve, tu négocies à la baisse. Trouve un angle élastique ou accepte que cette brique est faible.
+                <div style={{ background: (seed.generatedText && hasDecisionMarkers(seed.generatedText) ? "#ff9800" : "#e94560") + "22", borderRadius: 6, padding: 8, marginTop: 6 }}>
+                  <div style={{ fontSize: 12, color: seed.generatedText && hasDecisionMarkers(seed.generatedText) ? "#ff9800" : "#e94560", fontWeight: 600, lineHeight: 1.5 }}>
+                    {seed.generatedText && hasDecisionMarkers(seed.generatedText)
+                      ? "Ce KPI est automatisable, mais ta brique montre un arbitrage humain. Le recruteur verra la décision, pas juste le chiffre. Renforce l'angle décision pour blinder cette preuve."
+                      : "Ce KPI est automatisable. L'IA fait ça pour 0,01 euros. Si c'est ta meilleure preuve, tu négocies à la baisse. Trouve un angle élastique ou accepte que cette brique est faible."}
                   </div>
                 </div>
               )}
@@ -625,8 +627,10 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                   Ce cauchemar coûte {costStr}{"\u20AC"}/{matchedCauchemar.costUnit} dans le secteur. {matchedCauchemar.costContext}
                 </div>
                 {isSousPression ? (
-                  <div style={{ fontSize: 12, color: "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
-                    Tu couvres ce cauchemar avec un KPI automatisable. Le recruteur sait que l'IA fait ce travail. Tu es le remède avec un outil que tout le monde a. Trouve un angle élastique.
+                  <div style={{ fontSize: 12, color: seed.generatedText && hasDecisionMarkers(seed.generatedText) ? "#ff9800" : "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
+                    {seed.generatedText && hasDecisionMarkers(seed.generatedText)
+                      ? "Ce cauchemar est couvert par un KPI automatisable, mais ta brique montre un arbitrage. Le recruteur verra la décision. Renforce cet angle."
+                      : "Tu couvres ce cauchemar avec un KPI automatisable. Le recruteur sait que l'IA fait ce travail. Tu es le remède avec un outil que tout le monde a. Trouve un angle élastique."}
                   </div>
                 ) : (
                   <div>
