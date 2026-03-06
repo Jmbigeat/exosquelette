@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { detectSectoralDispersion } from "@/lib/sprint/offers";
 
 export function Bar({ pct }) {
   return (
@@ -224,73 +225,121 @@ export function OffersManager({ offersArray, onAdd, onRemove, coherence, targetR
   var inputState = useState("");
   var inputText = inputState[0];
   var setInputText = inputState[1];
-  var expandedState = useState(false);
-  var expanded = expandedState[0];
-  var setExpanded = expandedState[1];
+  var typeState = useState("external");
+  var offerType = typeState[0];
+  var setOfferType = typeState[1];
+
+  var minChars = 50;
 
   function handleAdd() {
-    if (inputText.trim().length < 20) return;
-    onAdd(inputText.trim());
+    if (inputText.trim().length < minChars) return;
+    onAdd(inputText.trim(), offerType);
     setInputText("");
   }
 
+  function formatDate(iso) {
+    if (!iso) return "";
+    var d = new Date(iso);
+    var dd = String(d.getDate()).padStart(2, "0");
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    var yyyy = d.getFullYear();
+    return "Ajoutée le " + dd + "/" + mm + "/" + yyyy;
+  }
+
+  function offerSummary(offer) {
+    var signals = offer.parsedSignals;
+    if (signals && signals.cauchemars && signals.cauchemars.length > 0) {
+      var first = signals.cauchemars.find(function(c) { return c.detected; });
+      if (first) return first.label;
+    }
+    return offer.text.length > 50 ? offer.text.slice(0, 50) + "..." : offer.text;
+  }
+
+  var dispersion = detectSectoralDispersion(offersArray);
+
   return (
-    <div style={{ background: "#16213e", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} onClick={function() { setExpanded(!expanded); }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 14 }}>{"\uD83C\uDFAF"}</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6" }}>Offres cibles ({offersArray.length})</span>
-        </div>
-        <span style={{ fontSize: 10, color: "#495670" }}>{expanded ? "\u25B2" : "\u25BC"}</span>
-      </div>
-
-      {coherence && !coherence.coherent && (
-        <div style={{ background: "#e94560" + "22", borderRadius: 8, padding: 8, marginTop: 8 }}>
-          <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {coherence.message}</div>
+    <div>
+      {/* Dispersion alert */}
+      {dispersion && (
+        <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 12, borderLeft: "3px solid #ff9800" }}>
+          <div style={{ fontSize: 11, color: "#ff9800", lineHeight: 1.5 }}>{"\u26A0\uFE0F"} {dispersion.message}</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
-            {coherence.sectors.map(function(s, i) { return <span key={i} style={{ fontSize: 9, color: "#e94560", background: "#1a1a2e", padding: "1px 6px", borderRadius: 6 }}>{s}</span>; })}
+            {dispersion.sectors.map(function(s, i) { return <span key={i} style={{ fontSize: 9, color: "#ff9800", background: "#0a0a1a", padding: "1px 6px", borderRadius: 6 }}>{s}</span>; })}
           </div>
         </div>
       )}
 
-      {expanded && (
-        <div style={{ marginTop: 12 }}>
-          {offersArray.map(function(offer, i) {
-            var signals = offer.parsedSignals;
-            var detected = signals ? signals.cauchemars.filter(function(c) { return c.detected; }).length : 0;
-            return (
-              <div key={offer.id} style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 8, borderLeft: "3px solid " + (detected > 0 ? "#4ecca3" : "#495670") }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.5 }}>{offer.text.length > 150 ? offer.text.slice(0, 150) + "..." : offer.text}</div>
-                    {signals && signals.totalSignals > 0 && (
-                      <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
-                        <span style={{ fontSize: 9, color: "#4ecca3" }}>{signals.totalSignals} signaux</span>
-                        <span style={{ fontSize: 9, color: "#8892b0" }}>{detected} cauchemar{detected > 1 ? "s" : ""}</span>
-                      </div>
-                    )}
-                  </div>
-                  <button onClick={function() { onRemove(offer.id); }} style={{ background: "none", border: "none", color: "#e94560", cursor: "pointer", fontSize: 14, padding: "0 4px", flexShrink: 0 }}>{"\u2715"}</button>
+      {/* Existing offers */}
+      {offersArray.map(function(offer, i) {
+        var signals = offer.parsedSignals;
+        var signalCount = 0;
+        var cauchemarCount = 0;
+        if (signals) {
+          if (signals.totalSignals != null) signalCount = signals.totalSignals;
+          if (signals.cauchemars) cauchemarCount = signals.cauchemars.filter(function(c) { return c.detected; }).length;
+          if (signals.signals) signalCount = signals.signals.length;
+        }
+        var isInternal = offer.type === "internal";
+        return (
+          <div key={offer.id} style={{ background: isInternal ? "#1a1a3e" : "#0f3460", borderRadius: 8, padding: 10, marginBottom: 8, borderLeft: "3px solid " + (signalCount > 0 || cauchemarCount > 0 ? "#4ecca3" : "#495670") }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <span style={{
+                    fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 4,
+                    background: isInternal ? "#1a1a3e" : "#0f3460",
+                    color: isInternal ? "#4ecca3" : "#ccd6f6",
+                    border: "1px solid " + (isInternal ? "#4ecca3" + "40" : "#16213e"),
+                  }}>{isInternal ? "interne" : "externe"}</span>
+                  {offer.addedAt && (
+                    <span style={{ fontSize: 9, color: "#495670" }}>{formatDate(offer.addedAt)}</span>
+                  )}
                 </div>
+                <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 2 }}>{offerSummary(offer)}</div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>{offer.text.length > 120 ? offer.text.slice(0, 120) + "..." : offer.text}</div>
+                {(signalCount > 0 || cauchemarCount > 0) && (
+                  <div style={{ fontSize: 9, color: "#4ecca3", marginTop: 4 }}>
+                    {signalCount} signaux détectés {cauchemarCount > 0 ? " · " + cauchemarCount + " cauchemar" + (cauchemarCount > 1 ? "s" : "") + " affiné" + (cauchemarCount > 1 ? "s" : "") : ""}
+                  </div>
+                )}
               </div>
-            );
-          })}
-
-          <div style={{ marginTop: 8 }}>
-            <textarea value={inputText} onChange={function(e) { setInputText(e.target.value); }}
-              placeholder="Colle une nouvelle offre d'emploi ici..."
-              style={{ width: "100%", minHeight: 80, padding: 10, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 12, lineHeight: 1.5, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
-            />
-            <button onClick={handleAdd} disabled={inputText.trim().length < 20} style={{
-              width: "100%", marginTop: 6, padding: 10,
-              background: inputText.trim().length >= 20 ? "#e94560" : "#1a1a2e",
-              color: inputText.trim().length >= 20 ? "#fff" : "#495670",
-              border: "none", borderRadius: 8, cursor: inputText.trim().length >= 20 ? "pointer" : "not-allowed",
-              fontWeight: 600, fontSize: 12,
-            }}>Ajouter cette offre</button>
+              <button onClick={function() { onRemove(offer.id); }} style={{ background: "none", border: "none", color: "#e94560", cursor: "pointer", fontSize: 14, padding: "0 4px", flexShrink: 0 }}>{"\u2715"}</button>
+            </div>
           </div>
+        );
+      })}
+
+      {/* Add offer form */}
+      <div style={{ marginTop: 12 }}>
+        <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+          <button onClick={function() { setOfferType("external"); }} style={{
+            flex: 1, padding: "6px 10px", fontSize: 11, fontWeight: 700, borderRadius: 6, cursor: "pointer",
+            background: offerType === "external" ? "#e94560" : "transparent",
+            color: offerType === "external" ? "#fff" : "#8892b0",
+            border: "1px solid " + (offerType === "external" ? "#e94560" : "#16213e"),
+          }}>Externe</button>
+          <button onClick={function() { setOfferType("internal"); }} style={{
+            flex: 1, padding: "6px 10px", fontSize: 11, fontWeight: 700, borderRadius: 6, cursor: "pointer",
+            background: offerType === "internal" ? "#4ecca3" : "transparent",
+            color: offerType === "internal" ? "#0a0a1a" : "#8892b0",
+            border: "1px solid " + (offerType === "internal" ? "#4ecca3" : "#16213e"),
+          }}>Interne</button>
         </div>
-      )}
+        <textarea value={inputText} onChange={function(e) { setInputText(e.target.value); }}
+          placeholder={offerType === "internal" ? "Décris le contexte interne (poste, objectifs, équipe)..." : "Colle une nouvelle offre d'emploi ici..."}
+          style={{ width: "100%", minHeight: 80, padding: 10, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 12, lineHeight: 1.5, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+        />
+        {inputText.trim().length > 0 && inputText.trim().length < minChars && (
+          <div style={{ fontSize: 10, color: "#e94560", marginTop: 4 }}>{minChars - inputText.trim().length} caractères restants (minimum {minChars})</div>
+        )}
+        <button onClick={handleAdd} disabled={inputText.trim().length < minChars} style={{
+          width: "100%", marginTop: 6, padding: 10,
+          background: inputText.trim().length >= minChars ? "#e94560" : "#1a1a2e",
+          color: inputText.trim().length >= minChars ? "#fff" : "#495670",
+          border: "none", borderRadius: 8, cursor: inputText.trim().length >= minChars ? "pointer" : "not-allowed",
+          fontWeight: 600, fontSize: 12,
+        }}>Ajouter cette offre</button>
+      </div>
     </div>
   );
 }

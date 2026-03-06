@@ -183,6 +183,28 @@ var cvNoHints = generators.generateCV(testBricks, "am", false);
 var cvWithHints = generators.generateCV(testBricks, "am", false, []);
 assert("generateCV with empty hints identical", typeof cvWithHints === "string" && cvWithHints.length > 0);
 
+// ─── 4c. Offers — aggregateOfferSignals & detectSectoralDispersion ──
+
+console.log("\n=== OFFERS SMOKE ===");
+
+assert("aggregateOfferSignals exists", typeof offers.aggregateOfferSignals === "function");
+assert("detectSectoralDispersion exists", typeof offers.detectSectoralDispersion === "function");
+
+// aggregateOfferSignals with empty array returns null
+var aggEmpty = offers.aggregateOfferSignals([], "am");
+assert("aggregateOfferSignals([]) returns null", aggEmpty === null);
+
+// detectSectoralDispersion with single offer returns null
+var dispSingle = offers.detectSectoralDispersion([{ id: 1, text: "Recherche commercial SaaS B2B avec expérience cloud computing", type: "external" }]);
+assert("detectSectoralDispersion single offer returns null", dispSingle === null);
+
+// detectSectoralDispersion with 2 divergent offers returns object
+var dispDiv = offers.detectSectoralDispersion([
+  { id: 1, text: "Recherche commercial SaaS B2B cloud computing logiciel", type: "external" },
+  { id: 2, text: "Nous recrutons dans le secteur banque finance assurance crédit", type: "external" },
+]);
+assert("detectSectoralDispersion 2 divergent offers returns object", dispDiv !== null && Array.isArray(dispDiv.sectors) && typeof dispDiv.message === "string");
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");

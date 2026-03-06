@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 // Lib modules
 import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
 import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
-import { parseOfferSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence } from "@/lib/sprint/offers";
+import { parseOfferSignals, parseInternalSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence, aggregateOfferSignals, detectSectoralDispersion } from "@/lib/sprint/offers";
 import { generateAdaptiveSeeds, matchKpiToReference, getAdaptivePillars, generateBrickVersions } from "@/lib/sprint/bricks";
 import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest, generateInterviewQuestions } from "@/lib/sprint/generators";
 import { getMaturityLevel } from "@/lib/sprint/analysis";
@@ -106,6 +106,13 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   var arsenalOpenState = useState(false);
   var arsenalOpen = arsenalOpenState[0];
   var setArsenalOpen = arsenalOpenState[1];
+  // Chantier 18 — Offers drawer + obsolete deliverables
+  var offersDrawerState = useState(false);
+  var offersDrawerOpen = offersDrawerState[0];
+  var setOffersDrawerOpen = offersDrawerState[1];
+  var obsoleteState = useState({});
+  var obsoleteDeliverables = obsoleteState[0];
+  var setObsoleteDeliverables = obsoleteState[1];
   var navigateToBrickState = useState(null);
   var navigateToBrick = navigateToBrickState[0];
   var setNavigateToBrick = navigateToBrickState[1];
@@ -137,9 +144,16 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   var setSigValidationError = sigValidationErrorState[1];
   var sigThresholdTriggeredRef = useRef(false);
 
+  function markDeliverablesObsolete() {
+    var types = ['cv','bio','dm','email','plan30j','posts','questions','interview_prep','report','argument','plan90j'];
+    var obs = {};
+    types.forEach(function(t) { obs[t] = true; });
+    setObsoleteDeliverables(obs);
+  }
+
   // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
   if (targetRoleId) {
-    setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+    setActiveCauchemarsGlobal(buildActiveCauchemars(parsedOffers, targetRoleId));
   }
 
   // Recalculate merged signals when offersArray changes
@@ -149,28 +163,41 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
     var merged = mergeOfferSignals(updatedOffers, targetRoleId);
     setParsedOffers(merged);
     if (targetRoleId) {
-      setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+      setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
     }
   }
 
-  function handleAddOffer(text) {
-    var newOffer = { id: offerNextId, text: text, parsedSignals: parseOfferSignals(text, targetRoleId) };
+  function handleAddOffer(text, type) {
+    var offerType = type || "external";
+    var signals = offerType === "internal"
+      ? parseInternalSignals(text, targetRoleId)
+      : parseOfferSignals(text, targetRoleId);
+    var newOffer = {
+      id: offerNextId,
+      text: text,
+      parsedSignals: signals,
+      type: offerType,
+      addedAt: new Date().toISOString()
+    };
     var updated = offersArray.concat([newOffer]);
     setOffersArray(updated);
     setOfferNextId(offerNextId + 1);
     recalcOffersSignals(updated);
+    markDeliverablesObsolete();
   }
 
   function handleRemoveOffer(offerId) {
     var updated = offersArray.filter(function(o) { return o.id !== offerId; });
     setOffersArray(updated);
     recalcOffersSignals(updated);
+    markDeliverablesObsolete();
   }
 
   // Set global active cauchemars whenever role changes
   useEffect(function() {
     if (targetRoleId) {
-      setActiveCauchemarsGlobal(buildActiveCauchemars(null, targetRoleId));
+      var merged = aggregateOfferSignals(offersArray, targetRoleId);
+      setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
     }
   }, [targetRoleId]);
 
@@ -852,7 +879,18 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={function() { if (activeStep >= 1) setArsenalOpen(true); }} title={activeStep < 1 ? "Disponible dès l'Assemblage" : "Ouvrir l'Arsenal"} style={{
+          <button onClick={function() { setArsenalOpen(false); setOffersDrawerOpen(!offersDrawerOpen); }} title="Gérer les offres" style={{
+            background: "none", border: "1px solid #0f3460",
+            borderRadius: 8, padding: "6px 10px", cursor: "pointer",
+            transition: "all 0.3s",
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", whiteSpace: "nowrap" }}>
+              {offersArray.length > 0
+                ? "\uD83D\uDCCB " + offersArray.length + " offre" + (offersArray.length > 1 ? "s" : "")
+                : "\uD83D\uDCCB Ajouter une offre"}
+            </div>
+          </button>
+          <button onClick={function() { setOffersDrawerOpen(false); if (activeStep >= 1) setArsenalOpen(true); }} title={activeStep < 1 ? "Disponible dès l'Assemblage" : "Ouvrir l'Arsenal"} style={{
             background: "none", border: "1px solid " + densityColor + "60",
             borderRadius: 8, padding: "6px 14px", cursor: activeStep >= 1 ? "pointer" : "default",
             opacity: activeStep >= 1 ? 1 : 0.4, transition: "all 0.3s",
@@ -905,9 +943,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       {/* ===== NAV — with Établi button ===== */}
       {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={function(i) { setEtabliOpen(false); setActiveStep(i); }} density={density} etabliOpen={etabliOpen} onEtabliToggle={function() { if (etabliEnabled) setEtabliOpen(!etabliOpen); }} etabliEnabled={etabliEnabled} />}
 
-      {/* Offers manager */}
-      {!sprintDone && offersArray.length > 0 && <OffersManager offersArray={offersArray} onAdd={handleAddOffer} onRemove={handleRemoveOffer} coherence={offerCoherence} targetRoleId={targetRoleId} />}
-
       {/* Secondary panels */}
       {!sprintDone && !etabliOpen && <CVPreview bricks={bricks} />}
       {!sprintDone && !etabliOpen && <InvestmentIndex bricks={bricks} />}
@@ -939,7 +974,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
-          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} onGoForge={function() { setEtabliOpen(false); setActiveStep(1); }} />
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} onGoForge={function() { setEtabliOpen(false); setActiveStep(1); }} obsoleteDeliverables={obsoleteDeliverables} setObsoleteDeliverables={setObsoleteDeliverables} />
         </div>
       )}
 
@@ -989,6 +1024,36 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
                 onGoToBrick={handleGoToBrick}
                 onClose={function() { setArsenalOpen(false); }}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== OFFERS DRAWER — Chantier 18 ===== */}
+      {offersDrawerOpen && (
+        <div>
+          <div onClick={function() { setOffersDrawerOpen(false); }} style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(10,10,26,0.6)", zIndex: 900,
+          }} />
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0,
+            width: "min(400px, 85vw)",
+            background: "#0d1b2a", zIndex: 901,
+            overflowY: "auto", borderLeft: "1px solid #e94560" + "44",
+            animation: "arsenalSlideRight 0.3s ease",
+          }}>
+            <div style={{ padding: "16px 16px 8px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #16213e" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{"\uD83D\uDCCB"}</span>
+                <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 14 }}>MES OFFRES</span>
+              </div>
+              <button onClick={function() { setOffersDrawerOpen(false); }} style={{
+                background: "none", border: "none", color: "#8892b0", cursor: "pointer", fontSize: 20, padding: "4px 8px",
+              }}>{"\u2715"}</button>
+            </div>
+            <div style={{ padding: 16 }}>
+              <OffersManager offersArray={offersArray} onAdd={handleAddOffer} onRemove={handleRemoveOffer} coherence={offerCoherence} targetRoleId={targetRoleId} />
             </div>
           </div>
         </div>

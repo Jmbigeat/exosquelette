@@ -541,7 +541,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user, onGoForge }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user, onGoForge, obsoleteDeliverables, setObsoleteDeliverables }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
   var setSelectedOfferIdx = selectedOfferState[1];
@@ -577,6 +577,34 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
     var allowed = consumePiece ? consumePiece(type) : true;
     if (!allowed) return;
     generatorFn();
+  }
+
+  function clearObsolete(type) {
+    if (setObsoleteDeliverables) {
+      setObsoleteDeliverables(function(prev) { var next = Object.assign({}, prev); delete next[type]; return next; });
+    }
+  }
+
+  function renderObsoleteIndicator(type, regenerateFn) {
+    if (!obsoleteDeliverables || !obsoleteDeliverables[type] || !generatedOnce[type]) return null;
+    return (
+      <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 8, borderLeft: "3px solid #ff9800" }}>
+        <div style={{ fontSize: 11, color: "#ff9800", lineHeight: 1.5, marginBottom: 6 }}>{"\u26A0\uFE0F"} Tes offres ont changé depuis la dernière génération de ce livrable.</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={function() {
+            if (regenerateFn) regenerateFn();
+            clearObsolete(type);
+          }} style={{
+            padding: "4px 12px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+            background: "#ff9800", color: "#0a0a1a", border: "none",
+          }}>Régénérer</button>
+          <button onClick={function() { clearObsolete(type); }} style={{
+            padding: "4px 12px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+            background: "transparent", color: "#8892b0", border: "1px solid #495670",
+          }}>Ignorer</button>
+        </div>
+      </div>
+    );
   }
 
   var isVitrine = displayMode === "vitrine";
@@ -776,6 +804,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
+                  {renderObsoleteIndicator("dm")}
                   <AuditBlock auditResult={auditDm} text={scripts.dm} copyId="dm" copiedId={copiedId} onCopy={handleCopy} type="dm" isVitrine={isVitrine} corrections={corrCounters["dm"] || 0} onGoForge={onGoForge} onCorrect={function() {
                     handleCorrect("dm", function() {
                       var hints = auditDm ? auditDm.correctionHints : [];
@@ -791,6 +820,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\u2709\uFE0F"} EMAIL</div>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
+                  {renderObsoleteIndicator("email")}
                   <AuditBlock auditResult={auditEmail} text={scripts.email} copyId="email" copiedId={copiedId} onCopy={handleCopy} type="email" isVitrine={isVitrine} corrections={corrCounters["email"] || 0} onGoForge={onGoForge} onCorrect={function() {
                     handleCorrect("email", function() {
                       var hints = auditEmail ? auditEmail.correctionHints : [];
@@ -805,6 +835,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 100, overflow: "auto" }}>{cvText}</div>
+                {renderObsoleteIndicator("cv")}
                 <AuditBlock auditResult={auditCv} text={cvText} copyId="cv" copiedId={copiedId} onCopy={handleCopy} type="cv" isVitrine={isVitrine} corrections={corrCounters["cv"] || 0} onGoForge={onGoForge} onCorrect={function() {
                   handleCorrect("cv", function() {
                     var hints = auditCv ? auditCv.correctionHints : [];
@@ -882,6 +913,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                         </div>
                       );
                     })}
+                    {renderObsoleteIndicator("interview_prep")}
                     <AuditBlock auditResult={interviewPrepAudit} text={(function() {
                       var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
                       var roleName = roleData ? roleData.role : "ce poste";
@@ -927,6 +959,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDC64"} BIO LINKEDIN</div>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
+                  {renderObsoleteIndicator("bio")}
                   <AuditBlock auditResult={auditBio} text={bioText} copyId="bio" copiedId={copiedId} onCopy={handleCopy} type="bio" isVitrine={isVitrine} corrections={corrCounters["bio"] || 0} onGoForge={onGoForge} onCorrect={function() {
                     handleCorrect("bio", function() {
                       var hints = auditBio ? auditBio.correctionHints : [];
@@ -945,6 +978,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC5"} PLAN 30 JOURS RH</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan30jText}</div>
+                {renderObsoleteIndicator("plan30j")}
                 <AuditBlock auditResult={auditPlan30j} text={plan30jText} copyId="plan30j" copiedId={copiedId} onCopy={handleCopy} type="plan30j" isVitrine={isVitrine} corrections={corrCounters["plan30j"] || 0} onGoForge={onGoForge} onCorrect={function() {
                   handleCorrect("plan30j", function() {
                     var hints = auditPlan30j ? auditPlan30j.correctionHints : [];
@@ -969,6 +1003,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                         {p.contextLine && (
                           <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", marginTop: 8, lineHeight: 1.4 }}>{p.contextLine}</div>
                         )}
+                        {renderObsoleteIndicator("posts")}
                         <AuditBlock auditResult={postAudit} text={postText} copyId={postCopyId} copiedId={copiedId} onCopy={handleCopy} type="posts" isVitrine={isVitrine} corrections={corrCounters[postCopyId] || 0} onGoForge={onGoForge} />
                       </div>
                     );
@@ -1012,6 +1047,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 {questionsText ? (
                   <div>
                     <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 300, overflow: "auto" }}>{questionsText}</div>
+                    {renderObsoleteIndicator("questions")}
                     <AuditBlock auditResult={questionsAudit} text={questionsText} copyId="questions" copiedId={copiedId} onCopy={handleCopy} type="questions" isVitrine={isVitrine} corrections={corrCounters["questions"] || 0} onGoForge={onGoForge} onCorrect={function() {
                       handleCorrect("questions", function() {
                         var hints = questionsAudit ? questionsAudit.correctionHints : [];
@@ -1093,6 +1129,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCCA"} RAPPORT DE REMPLACEMENT</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{replacementText}</div>
+                {renderObsoleteIndicator("report")}
                 <AuditBlock auditResult={auditReplacement} text={replacementText} copyId="replacement" copiedId={copiedId} onCopy={handleCopy} type="report" isVitrine={isVitrine} corrections={corrCounters["replacement"] || 0} onGoForge={onGoForge} onCorrect={function() {
                   handleCorrect("replacement", function() {
                     var hints = auditReplacement ? auditReplacement.correctionHints : [];
@@ -1106,6 +1143,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCB0"} ARGUMENTAIRE D'AUGMENTATION</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{raiseText}</div>
+                {renderObsoleteIndicator("argument")}
                 <AuditBlock auditResult={auditRaise} text={raiseText} copyId="raise" copiedId={copiedId} onCopy={handleCopy} type="argument" isVitrine={isVitrine} corrections={corrCounters["raise"] || 0} onGoForge={onGoForge} onCorrect={function() {
                   handleCorrect("raise", function() {
                     var hints = auditRaise ? auditRaise.correctionHints : [];
@@ -1119,6 +1157,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
                 <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC5"} PLAN 90 JOURS N+1</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan90jText}</div>
+                {renderObsoleteIndicator("plan90j")}
                 <AuditBlock auditResult={auditPlan90j} text={plan90jText} copyId="plan90j" copiedId={copiedId} onCopy={handleCopy} type="plan90j" isVitrine={isVitrine} corrections={corrCounters["plan90j"] || 0} onGoForge={onGoForge} onCorrect={function() {
                   handleCorrect("plan90j", function() {
                     var hints = auditPlan90j ? auditPlan90j.correctionHints : [];
