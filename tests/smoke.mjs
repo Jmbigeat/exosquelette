@@ -345,6 +345,48 @@ var dispDiv = offers.detectSectoralDispersion([
 ]);
 assert("detectSectoralDispersion 2 divergent offers returns object", dispDiv !== null && Array.isArray(dispDiv.sectors) && typeof dispDiv.message === "string");
 
+// ─── BRICK EXTRACTOR SMOKE ───────────────────────────────────────
+
+console.log("\n=== BRICK EXTRACTOR SMOKE ===");
+
+var brickExtractor = await import("../lib/sprint/brickExtractor.js");
+assert("brickExtractor.js imports", !!brickExtractor);
+assert("extractBrickCore exists", typeof brickExtractor.extractBrickCore === "function");
+assert("formatAnchorLine exists", typeof brickExtractor.formatAnchorLine === "function");
+assert("formatCVLine exists", typeof brickExtractor.formatCVLine === "function");
+assert("hasMentoringMarkers exists", typeof brickExtractor.hasMentoringMarkers === "function");
+
+// extractBrickCore with null brick
+var coreNull = brickExtractor.extractBrickCore(null);
+assert("extractBrickCore(null) returns object", coreNull !== null && typeof coreNull === "object");
+assert("extractBrickCore(null).mainNumber is null", coreNull.mainNumber === null);
+
+// extractBrickCore with real brick text
+var coreBrick = brickExtractor.extractBrickCore({ text: "J'ai réduit le churn de 15% à 8% en 6 mois sur un portefeuille mid-market de 200 comptes.", brickType: "proof" });
+assert("extractBrickCore finds mainNumber", coreBrick.mainNumber !== null);
+assert("extractBrickCore finds actionVerb", coreBrick.actionVerb !== null);
+assert("extractBrickCore finds resultNumber", coreBrick.resultNumber !== null);
+assert("extractBrickCore brickType is proof", coreBrick.brickType === "proof");
+
+// formatAnchorLine returns string ≤ 210 chars
+var anchor = brickExtractor.formatAnchorLine(coreBrick);
+assert("formatAnchorLine returns string", typeof anchor === "string" && anchor.length > 0);
+assert("formatAnchorLine ≤ 210 chars", anchor.length <= 211);
+
+// formatCVLine returns string ≤ 150 chars
+var cvLine = brickExtractor.formatCVLine(coreBrick, "proof");
+assert("formatCVLine returns string", typeof cvLine === "string" && cvLine.length > 0);
+assert("formatCVLine ≤ 150 chars", cvLine.length <= 151);
+
+// formatCVLine adapts by brickType
+var scarLine = brickExtractor.formatCVLine(coreBrick, "scar");
+assert("formatCVLine scar starts uppercase", /^[A-ZÀ-Ú]/.test(scarLine));
+
+// hasMentoringMarkers detection
+assert("hasMentoringMarkers detects formé", brickExtractor.hasMentoringMarkers("J'ai formé 5 juniors en 3 mois"));
+assert("hasMentoringMarkers false on empty", !brickExtractor.hasMentoringMarkers(""));
+assert("hasMentoringMarkers false on unrelated", !brickExtractor.hasMentoringMarkers("J'ai réduit le churn de 15%"));
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");
