@@ -73,6 +73,7 @@ assert("classifyCicatrice exists", typeof analysis.classifyCicatrice === "functi
 assert("generateBio exists", typeof generators.generateBio === "function");
 assert("generateCV exists", typeof generators.generateCV === "function");
 assert("generateContactScripts exists", typeof generators.generateContactScripts === "function");
+assert("scoreContactScript exists", typeof generators.scoreContactScript === "function");
 assert("generateImpactReport exists", typeof generators.generateImpactReport === "function");
 assert("auditDeliverable exists (audit.js)", typeof audit.auditDeliverable === "function");
 
@@ -223,6 +224,37 @@ assert("detectDiltsStagnation has message", typeof stagYes.message === "string" 
 // detectDiltsStagnation: 3 different → not stagnating
 var stagNo = dilts.detectDiltsStagnation([{ diltsLevel: 2 }, { diltsLevel: 3 }, { diltsLevel: 4 }]);
 assert("detectDiltsStagnation different = not stagnating", stagNo.stagnating === false);
+
+// ─── 4e. Contact Script Score — scoreContactScript (chantier 20) ──────
+
+console.log("\n=== CONTACT SCORE SMOKE ===");
+
+// scoreContactScript: empty text returns score 0
+var csEmpty = generators.scoreContactScript("", [], []);
+assert("scoreContactScript empty text score 0", csEmpty.score === 0);
+
+// scoreContactScript: returns tests array
+var csBasic = generators.scoreContactScript("[Prénom], votre pipeline stagne. J'ai réduit le churn de 15% en 6 mois. Ce type de situation coûte entre 80K et 200K par trimestre. Qu'est-ce qui rend ce recrutement difficile ?", testBricks, []);
+assert("scoreContactScript returns tests array", Array.isArray(csBasic.tests) && csBasic.tests.length === 6);
+assert("scoreContactScript returns passedCount", typeof csBasic.passedCount === "number");
+assert("scoreContactScript returns score", typeof csBasic.score === "number");
+
+// scoreContactScript: detects miroir (first line has "votre")
+assert("scoreContactScript miroir detected", csBasic.tests[0].passed === true);
+
+// scoreContactScript: generates 4 variants with generateContactScripts
+var contactScripts = generators.generateContactScripts(testBricks, "enterprise_ae", null);
+assert("generateContactScripts returns 4 variants", contactScripts !== null && typeof contactScripts.dm === "string" && typeof contactScripts.email === "string" && typeof contactScripts.n1 === "string" && typeof contactScripts.rh === "string");
+
+// scoreContactScript: each variant is scorable
+var dmScore = generators.scoreContactScript(contactScripts.dm, testBricks, []);
+var emailScore = generators.scoreContactScript(contactScripts.email, testBricks, []);
+var n1Score = generators.scoreContactScript(contactScripts.n1, testBricks, []);
+var rhScore = generators.scoreContactScript(contactScripts.rh, testBricks, []);
+assert("dm variant scorable", typeof dmScore.score === "number" && dmScore.tests.length === 6);
+assert("email variant scorable", typeof emailScore.score === "number" && emailScore.tests.length === 6);
+assert("n1 variant scorable", typeof n1Score.score === "number" && n1Score.tests.length === 6);
+assert("rh variant scorable", typeof rhScore.score === "number" && rhScore.tests.length === 6);
 
 // ─── 4d. Offers — aggregateOfferSignals & detectSectoralDispersion ──────
 
