@@ -5,7 +5,7 @@ import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript, generateFollowUp } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
@@ -21,6 +21,7 @@ var DELIVERABLE_AUDIENCE = {
   plan30j: "external",
   posts: "external",
   questions: "external",
+  followup: "external",
   interview_prep: "external",
   report: "internal",
   argument: "internal",
@@ -581,6 +582,17 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var postEditsState = useState({});
   var postEdits = postEditsState[0];
   var setPostEdits = postEditsState[1];
+
+  // Follow-up post-entretien
+  var followUpInputState = useState({ shared: "", ambition: "", challenges: ["", "", ""], interviewerName: "", timing: "" });
+  var followUpInput = followUpInputState[0];
+  var setFollowUpInput = followUpInputState[1];
+  var followUpTextState = useState(null);
+  var followUpText = followUpTextState[0];
+  var setFollowUpText = followUpTextState[1];
+  var followUpAuditState = useState(null);
+  var followUpAudit = followUpAuditState[0];
+  var setFollowUpAudit = followUpAuditState[1];
 
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
@@ -1349,6 +1361,102 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 ) : (
                   <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
                     {isVitrine ? "Livrable figé en mode vitrine." : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
+                  </div>
+                )}
+              </div>
+
+              {/* MESSAGE POST-ENTRETIEN */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCE8"} MESSAGE POST-ENTRETIEN</div>
+                </div>
+
+                {/* Formulaire d'input */}
+                {!followUpText && (
+                  <div style={{ background: "#0d0d1a", borderRadius: 8, padding: 10 }}>
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 4 }}>Ce que le recruteur a partagé :</div>
+                      <textarea value={followUpInput.shared} onChange={function(e) { setFollowUpInput(function(prev) { return Object.assign({}, prev, { shared: e.target.value }); }); }} placeholder="La tension entre croissance et rétention, le besoin de structurer..." style={{ width: "100%", minHeight: 50, background: "#1a1a2e", border: "1px solid #495670", borderRadius: 6, color: "#ccd6f6", fontSize: 12, padding: 8, resize: "vertical", fontFamily: "Inter, sans-serif" }} />
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 4 }}>L'ambition de l'équipe :</div>
+                      <textarea value={followUpInput.ambition} onChange={function(e) { setFollowUpInput(function(prev) { return Object.assign({}, prev, { ambition: e.target.value }); }); }} placeholder="Doubler le pipeline mid-market en 12 mois..." style={{ width: "100%", minHeight: 36, background: "#1a1a2e", border: "1px solid #495670", borderRadius: 6, color: "#ccd6f6", fontSize: 12, padding: 8, resize: "vertical", fontFamily: "Inter, sans-serif" }} />
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 4 }}>3 défis identifiés pendant l'entretien :</div>
+                      {[0, 1, 2].map(function(idx) {
+                        return (
+                          <input key={idx} type="text" value={followUpInput.challenges[idx] || ""} onChange={function(e) {
+                            setFollowUpInput(function(prev) {
+                              var newCh = prev.challenges.slice();
+                              newCh[idx] = e.target.value;
+                              return Object.assign({}, prev, { challenges: newCh });
+                            });
+                          }} placeholder={(idx + 1) + ". " + (idx < 2 ? "Défi identifié (min 10 car.)" : "Défi (optionnel)")} style={{ width: "100%", background: "#1a1a2e", border: "1px solid #495670", borderRadius: 6, color: "#ccd6f6", fontSize: 12, padding: "6px 8px", marginBottom: 4, fontFamily: "Inter, sans-serif" }} />
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 4 }}>Prénom de l'interlocuteur :</div>
+                        <input type="text" value={followUpInput.interviewerName} onChange={function(e) { setFollowUpInput(function(prev) { return Object.assign({}, prev, { interviewerName: e.target.value }); }); }} placeholder="(optionnel)" style={{ width: "100%", background: "#1a1a2e", border: "1px solid #495670", borderRadius: 6, color: "#ccd6f6", fontSize: 12, padding: "6px 8px", fontFamily: "Inter, sans-serif" }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 4 }}>Quand :</div>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          {["ce matin", "hier", "cette semaine"].map(function(t) {
+                            return (
+                              <button key={t} onClick={function() { setFollowUpInput(function(prev) { return Object.assign({}, prev, { timing: prev.timing === t ? "" : t }); }); }} style={{
+                                padding: "4px 8px", fontSize: 10, borderRadius: 6, cursor: "pointer", fontWeight: 600, border: "none",
+                                background: followUpInput.timing === t ? "#e94560" : "#1a1a3e",
+                                color: followUpInput.timing === t ? "#fff" : "#8892b0",
+                              }}>{t}</button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      {!isVitrine && (
+                        <button onClick={function() {
+                          handleGenerate("followup", function() {
+                            var raw = generateFollowUp(followUpInput, bricks, targetRoleId, getActiveCauchemars(), vault);
+                            var text = signature ? applySignatureFilter(raw, signature) : raw;
+                            setFollowUpText(text);
+                            setFollowUpAudit(auditDeliverable("followup", text, bricks, auditCauchemars, "external"));
+                          });
+                        }} disabled={followUpInput.shared.trim().length < 30 || followUpInput.ambition.trim().length < 10 || (followUpInput.challenges[0] || "").trim().length < 10 || (followUpInput.challenges[1] || "").trim().length < 10} style={{
+                          padding: "6px 16px", fontSize: 11, fontWeight: 700, borderRadius: 8, cursor: "pointer", border: "none",
+                          background: (followUpInput.shared.trim().length >= 30 && followUpInput.ambition.trim().length >= 10 && (followUpInput.challenges[0] || "").trim().length >= 10 && (followUpInput.challenges[1] || "").trim().length >= 10) ? "linear-gradient(135deg, #e94560, #c81d4e)" : "#1a1a3e",
+                          color: (followUpInput.shared.trim().length >= 30 && followUpInput.ambition.trim().length >= 10 && (followUpInput.challenges[0] || "").trim().length >= 10 && (followUpInput.challenges[1] || "").trim().length >= 10) ? "#fff" : "#495670",
+                        }}>Générer le message</button>
+                      )}
+                      <div style={{ fontSize: 11, color: "#8892b0" }}>Remplis au moins le premier champ et 2 défis.</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Résultat généré */}
+                {followUpText && (
+                  <div>
+                    <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 400, overflow: "auto" }}>{followUpText}</div>
+                    <div style={{ marginTop: 6 }}>
+                      <button onClick={function() { setFollowUpText(null); }} style={{
+                        padding: "3px 10px", fontSize: 10, background: "transparent",
+                        color: "#8892b0", border: "1px solid #495670",
+                        borderRadius: 6, cursor: "pointer", fontWeight: 600, marginRight: 6,
+                      }}>Modifier l'input</button>
+                    </div>
+                    {renderObsoleteIndicator("followup")}
+                    <AuditBlock auditResult={followUpAudit} text={followUpText} copyId="followup" copiedId={copiedId} onCopy={handleCopy} type="followup" isVitrine={isVitrine} corrections={corrCounters["followup"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                      handleCorrect("followup", function() {
+                        var hints = followUpAudit ? followUpAudit.correctionHints : [];
+                        var raw = generateFollowUp(followUpInput, bricks, targetRoleId, getActiveCauchemars(), vault, hints);
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setFollowUpText(text);
+                        setFollowUpAudit(auditDeliverable("followup", text, bricks, auditCauchemars, "external"));
+                      });
+                    }} />
                   </div>
                 )}
               </div>
