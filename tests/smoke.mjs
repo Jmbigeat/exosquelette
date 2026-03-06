@@ -165,6 +165,32 @@ assert("generateBio filters take bricks", typeof bioTake === "string");
 var cv = generators.generateCV(testBricks, "am", false);
 assert("generateCV returns string", typeof cv === "string" && cv.length > 0);
 
+// generateFollowUp
+assert("generateFollowUp exists", typeof generators.generateFollowUp === "function");
+var fuEmpty = generators.generateFollowUp({ shared: "", ambition: "", challenges: [] }, testBricks, "am", [], null);
+assert("generateFollowUp empty shared → fallback", typeof fuEmpty === "string" && fuEmpty.indexOf("recruteur") !== -1);
+var fuNoCh = generators.generateFollowUp({ shared: "Le segment Enterprise pose problème de rétention", ambition: "Doubler le pipe", challenges: [] }, testBricks, "am", [], null);
+assert("generateFollowUp 0 challenges → fallback", typeof fuNoCh === "string" && fuNoCh.indexOf("défi") !== -1);
+var fuFull = generators.generateFollowUp({
+  shared: "La tension entre croissance et rétention sur le segment Enterprise est critique",
+  ambition: "Doubler le pipeline mid-market en 12 mois",
+  challenges: ["Win rate en baisse depuis 3 trimestres", "Ramp-up des juniors trop long", "Churn sur le segment historique"],
+  interviewerName: "Sophie",
+  timing: "ce matin",
+}, testBricks, "enterprise_ae", [], null);
+assert("generateFollowUp full returns string", typeof fuFull === "string" && fuFull.length > 50);
+assert("generateFollowUp ≤ 2000 chars", fuFull.length <= 2000);
+assert("generateFollowUp starts with Merci", fuFull.indexOf("Merci") === 0);
+assert("generateFollowUp does not start with je", !/^je /i.test(fuFull));
+assert("generateFollowUp contains interviewerName", fuFull.indexOf("Sophie") !== -1);
+assert("generateFollowUp contains timing", fuFull.indexOf("ce matin") !== -1);
+var fuNoBricks = generators.generateFollowUp({
+  shared: "Le recruteur a partagé ses enjeux de croissance et de rétention client",
+  ambition: "Atteindre 10M ARR",
+  challenges: ["Pipeline insuffisant sur le mid-market", "Conversion en baisse"],
+}, [], "am", [], null);
+assert("generateFollowUp 0 bricks no crash", typeof fuNoBricks === "string" && fuNoBricks.length > 20);
+
 // ─── 4b. Audit smoke ────────────────────────────────────────────
 
 console.log("\n=== AUDIT SMOKE ===");
@@ -172,6 +198,11 @@ console.log("\n=== AUDIT SMOKE ===");
 var auditResult = audit.auditDeliverable("dm", "Votre portefeuille stagne. Pipeline rattrapé de 400K€ à 1.2M€ en 4 mois.", testBricks, [], "external");
 assert("auditDeliverable returns score", typeof auditResult.score === "number");
 assert("auditDeliverable returns passed array", Array.isArray(auditResult.passed));
+
+// Audit followup type
+var auditFollowUp = audit.auditDeliverable("followup", fuFull, testBricks, [], "external");
+assert("auditDeliverable followup returns score", typeof auditFollowUp.score === "number");
+assert("auditDeliverable followup channel calibration for ≤2000", auditFollowUp.score >= 0);
 assert("auditDeliverable returns failed array", Array.isArray(auditResult.failed));
 assert("auditDeliverable returns correctionHints array", Array.isArray(auditResult.correctionHints));
 
