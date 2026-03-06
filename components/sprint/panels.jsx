@@ -10,6 +10,143 @@ import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
+import { auditDeliverable } from "@/lib/audit";
+
+var DELIVERABLE_AUDIENCE = {
+  dm: "external",
+  email: "external",
+  cv: "external",
+  bio: "external",
+  plan30j: "external",
+  posts: "external",
+  questions: "external",
+  interview_prep: "external",
+  report: "internal",
+  argument: "internal",
+  plan90j: "internal",
+};
+
+var AUDIT_LABELS = {
+  A: { pass: "Éléments du Coffre-Fort présents", fail: "Livrable trop générique" },
+  B: { pass: "Preuve référencée", fail: "Aucune preuve référencée" },
+  C: { pass: "Orienté destinataire", fail: "Parle de toi avant le recruteur" },
+  D: { pass: "Format respecté", fail: "Dépasse le format" },
+};
+
+var AUDIT_C_FAIL_LABELS = {
+  external: "Parle de toi avant le recruteur",
+  internal: "Parle de toi avant le coût pour ton manager",
+  cv: "Compétences avant réalisations",
+  interview_prep: "Version entretien centrée sur toi",
+};
+
+var PRIORITY_ORDER = ["B", "A", "C", "D"];
+
+function AuditBlock(props) {
+  var auditResult = props.auditResult;
+  var onCopy = props.onCopy;
+  var copiedId = props.copiedId;
+  var copyId = props.copyId;
+  var text = props.text;
+  var onCorrect = props.onCorrect;
+  var corrections = props.corrections || 0;
+  var maxCorrections = 2;
+  var isVitrine = props.isVitrine;
+  var type = props.type || "";
+  var onGoForge = props.onGoForge;
+
+  if (!auditResult) return null;
+
+  var score = auditResult.score;
+  var scoreColor = score === 4 ? "#4ecca3" : score === 3 ? "#ff9800" : "#e94560";
+
+  // Find most impactful failed principle for redirection
+  var mostImpactant = null;
+  if (auditResult.failed.length > 0) {
+    for (var i = 0; i < PRIORITY_ORDER.length; i++) {
+      var p = PRIORITY_ORDER[i];
+      if (auditResult.failed.some(function(f) { return f.principle === p; })) {
+        mostImpactant = p;
+        break;
+      }
+    }
+  }
+
+  return (
+    <div style={{ background: "#0d0d1a", borderRadius: 8, padding: 10, marginTop: 8, borderLeft: "3px solid " + scoreColor }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor }}>Score : {score}/4</span>
+        {score === 4 && <span style={{ fontSize: 10, color: "#4ecca3" }}>Livrable prêt.</span>}
+      </div>
+
+      {score === 4 ? null : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 3, marginBottom: 8 }}>
+          {auditResult.passed.map(function(p) {
+            return (
+              <div key={p} style={{ fontSize: 10, color: "#4ecca3", lineHeight: 1.4 }}>
+                {"\u2713"} {AUDIT_LABELS[p] ? AUDIT_LABELS[p].pass : p}{p === "D" ? " " + type : ""}
+              </div>
+            );
+          })}
+          {auditResult.failed.map(function(f) {
+            var label = AUDIT_LABELS[f.principle] ? AUDIT_LABELS[f.principle].fail : f.principle;
+            if (f.principle === "C") {
+              if (type === "cv") label = AUDIT_C_FAIL_LABELS.cv;
+              else if (type === "interview_prep") label = AUDIT_C_FAIL_LABELS.interview_prep;
+              else if (DELIVERABLE_AUDIENCE[type] === "internal") label = AUDIT_C_FAIL_LABELS.internal;
+              else label = AUDIT_C_FAIL_LABELS.external;
+            }
+            if (f.principle === "D") label = "Dépasse le format " + type;
+            return (
+              <div key={f.principle} style={{ fontSize: 10, color: "#e94560", lineHeight: 1.4 }}>
+                {"\u2717"} {label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Correction exhausted — redirect to Forge */}
+      {corrections >= maxCorrections && score < 4 && (
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5, marginBottom: 6 }}>
+            Ton matériau ne suffit pas pour ce livrable. Retourne à la Forge et blinde une brique sur {mostImpactant === "B" ? "la preuve chiffrée" : mostImpactant === "A" ? "un contexte spécifique" : mostImpactant === "C" ? "l'orientation destinataire" : "le format du canal"}.
+          </div>
+          {onGoForge && (
+            <button onClick={onGoForge} style={{
+              padding: "5px 12px", fontSize: 10, background: "#e94560", color: "#fff",
+              border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600,
+            }}>Aller à la Forge</button>
+          )}
+        </div>
+      )}
+
+      {/* Buttons */}
+      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+        {!isVitrine && score < 4 && corrections < maxCorrections && onCorrect && (
+          <button onClick={onCorrect} style={{
+            padding: "3px 10px", fontSize: 10, background: "#0f3460",
+            color: "#ccd6f6", border: "1px solid #16213e",
+            borderRadius: 6, cursor: "pointer", fontWeight: 600,
+          }}>Corriger</button>
+        )}
+        {score === 4 ? (
+          <button onClick={function() { onCopy(text, copyId); }} style={{
+            padding: "3px 10px", fontSize: 10, background: copiedId === copyId ? "#4ecca3" : "#4ecca3",
+            color: "#0a0a0a", border: "1px solid #4ecca3",
+            borderRadius: 6, cursor: "pointer", fontWeight: 600,
+          }}>{copiedId === copyId ? "\u2705 Copié" : "Copier"}</button>
+        ) : (
+          <button onClick={function() { onCopy(text, copyId); }} style={{
+            padding: "3px 10px", fontSize: 10, background: copiedId === copyId ? "#4ecca3" : "#495670",
+            color: copiedId === copyId ? "#0a0a0a" : "#8892b0", border: "1px solid " + (copiedId === copyId ? "#4ecca3" : "#495670"),
+            borderRadius: 6, cursor: "pointer", fontWeight: 600,
+          }}>{copiedId === copyId ? "\u2705 Copié" : "Copier quand même"}</button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function InvestmentIndex({ bricks }) {
   var effort = computeEffort(bricks || []);
@@ -404,7 +541,7 @@ export function BricksRecap({ bricks }) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user, onGoForge }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
   var setSelectedOfferIdx = selectedOfferState[1];
@@ -422,6 +559,14 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var generatedOnceState = useState({});
   var generatedOnce = generatedOnceState[0];
   var setGeneratedOnce = generatedOnceState[1];
+
+  // Chantier 17 — correction counters per deliverable and toast
+  var corrCounterState = useState({});
+  var corrCounters = corrCounterState[0];
+  var setCorrCounters = corrCounterState[1];
+  var toastState = useState(null);
+  var toastMsg = toastState[0];
+  var setToastMsg = toastState[1];
 
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
@@ -484,6 +629,35 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var rawPlan90j = generatePlan90jN1(bricks, targetRoleId, internalSignals);
   var plan90jText = signature ? applySignatureFilter(rawPlan90j, signature) : rawPlan90j;
 
+  // Chantier 17 — Compute audits for static deliverables
+  var auditCauchemars = getActiveCauchemars();
+  var auditDm = scripts ? auditDeliverable("dm", scripts.dm, bricks, auditCauchemars, "external") : null;
+  var auditEmail = scripts ? auditDeliverable("email", scripts.email, bricks, auditCauchemars, "external") : null;
+  var auditCv = auditDeliverable("cv", cvText, bricks, auditCauchemars, "external");
+  var auditBio = bioText ? auditDeliverable("bio", bioText, bricks, auditCauchemars, "external") : null;
+  var auditPlan30j = auditDeliverable("plan30j", plan30jText, bricks, auditCauchemars, "external");
+  var auditReplacement = auditDeliverable("report", replacementText, bricks, auditCauchemars, "internal");
+  var auditRaise = auditDeliverable("argument", raiseText, bricks, auditCauchemars, "internal");
+  var auditPlan90j = auditDeliverable("plan90j", plan90jText, bricks, auditCauchemars, "internal");
+
+  // Audit for lazy deliverables (questions, interview_prep) stored in state
+  var questionsAuditState = useState(null);
+  var questionsAudit = questionsAuditState[0];
+  var setQuestionsAudit = questionsAuditState[1];
+  var interviewPrepAuditState = useState(null);
+  var interviewPrepAudit = interviewPrepAuditState[0];
+  var setInterviewPrepAudit = interviewPrepAuditState[1];
+
+  function handleCorrect(delivType, regenerateFn) {
+    var key = delivType;
+    var current = corrCounters[key] || 0;
+    if (current >= 2) return;
+    setCorrCounters(function(prev) { var next = Object.assign({}, prev); next[key] = (prev[key] || 0) + 1; return next; });
+    regenerateFn();
+    setToastMsg("Correction " + (current + 1) + "/2 appliquée.");
+    setTimeout(function() { setToastMsg(null); }, 3000);
+  }
+
   var qualityLevel = blindedCount >= 3 ? "blinde" : blindedCount >= 1 ? "partiel" : "nu";
   var qualityColor = qualityLevel === "blinde" ? "#4ecca3" : qualityLevel === "partiel" ? "#ff9800" : "#e94560";
   var qualityLabel = qualityLevel === "blinde" ? "PREUVE BLINDÉE" : qualityLevel === "partiel" ? "PARTIELLEMENT BLINDÉ" : "SANS PREUVE CHIFFRÉE";
@@ -517,6 +691,13 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
       </div>
 
       <div style={{ padding: "0 16px 16px" }}>
+
+          {/* Chantier 17 — Toast correction */}
+          {toastMsg && (
+            <div style={{ background: "#0f3460", fontSize: 11, color: "#ccd6f6", padding: "8px 16px", borderRadius: 8, marginBottom: 12, textAlign: "center" }}>
+              {toastMsg}
+            </div>
+          )}
 
           {/* Chantier 14 — Alerte à 2 pièces */}
           {!isSubscribed && pieces != null && pieces <= 2 && pieces > 0 && (
@@ -593,44 +774,44 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               {/* DM LINKEDIN */}
               {scripts && (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
-                    <button onClick={function() { handleCopy(scripts.dm, "dm"); }} style={{
-                      padding: "3px 10px", fontSize: 10, background: copiedId === "dm" ? "#4ecca3" : "#0f3460",
-                      color: copiedId === "dm" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "dm" ? "#4ecca3" : "#16213e"),
-                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                    }}>{copiedId === "dm" ? "\u2705 Copié" : "Copier"}</button>
-                  </div>
+                  <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
                   <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
+                  <AuditBlock auditResult={auditDm} text={scripts.dm} copyId="dm" copiedId={copiedId} onCopy={handleCopy} type="dm" isVitrine={isVitrine} corrections={corrCounters["dm"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                    handleCorrect("dm", function() {
+                      var hints = auditDm ? auditDm.correctionHints : [];
+                      var raw = generateContactScripts(bricks, targetRoleId, targetOffer, hints);
+                      if (raw) scripts.dm = signature ? applySignatureFilter(raw.dm, signature) : raw.dm;
+                    });
+                  }} />
                 </div>
               )}
 
               {/* EMAIL */}
               {scripts && (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\u2709\uFE0F"} EMAIL</div>
-                    <button onClick={function() { handleCopy(scripts.email, "email"); }} style={{
-                      padding: "3px 10px", fontSize: 10, background: copiedId === "email" ? "#4ecca3" : "#0f3460",
-                      color: copiedId === "email" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "email" ? "#4ecca3" : "#16213e"),
-                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                    }}>{copiedId === "email" ? "\u2705 Copié" : "Copier"}</button>
-                  </div>
+                  <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\u2709\uFE0F"} EMAIL</div>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
+                  <AuditBlock auditResult={auditEmail} text={scripts.email} copyId="email" copiedId={copiedId} onCopy={handleCopy} type="email" isVitrine={isVitrine} corrections={corrCounters["email"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                    handleCorrect("email", function() {
+                      var hints = auditEmail ? auditEmail.correctionHints : [];
+                      var raw = generateContactScripts(bricks, targetRoleId, targetOffer, hints);
+                      if (raw) scripts.email = signature ? applySignatureFilter(raw.email, signature) : raw.email;
+                    });
+                  }} />
                 </div>
               )}
 
               {/* CV */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})</div>
-                  <button onClick={function() { handleCopy(cvText, "cv"); }} style={{
-                    padding: "3px 10px", fontSize: 10, background: copiedId === "cv" ? "#4ecca3" : "#0f3460",
-                    color: copiedId === "cv" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "cv" ? "#4ecca3" : "#16213e"),
-                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                  }}>{copiedId === "cv" ? "\u2705 Copié" : "Copier"}</button>
-                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 100, overflow: "auto" }}>{cvText}</div>
+                <AuditBlock auditResult={auditCv} text={cvText} copyId="cv" copiedId={copiedId} onCopy={handleCopy} type="cv" isVitrine={isVitrine} corrections={corrCounters["cv"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                  handleCorrect("cv", function() {
+                    var hints = auditCv ? auditCv.correctionHints : [];
+                    var raw = generateCV(bricks, targetRoleId, trajectoryToggle, hints);
+                    cvText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }} />
               </div>
 
               {/* PRÉPARATION ENTRETIEN — chantier 16 */}
@@ -641,27 +822,6 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                     <div style={{ fontSize: 9, color: "#495670", marginTop: 2 }}>{validated.length} brique{validated.length > 1 ? "s" : ""} × 3 versions</div>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    {interviewPrepData && (
-                      <button onClick={function() {
-                        var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
-                        var roleName = roleData ? roleData.role : "ce poste";
-                        var copyText = "# Préparation entretien — " + roleName + "\n\n";
-                        interviewPrepData.forEach(function(item, i) {
-                          copyText += "## Brique " + (i + 1) + " : " + item.summary + "\n";
-                          copyText += "Version CV : " + item.cvLine + "\n\n";
-                          copyText += "Version RH :\n" + item.versions.rh + "\n\n";
-                          copyText += "Version N+1 :\n" + item.versions.n1 + "\n\n";
-                          copyText += "Version Direction :\n" + item.versions.direction + "\n\n";
-                        });
-                        handleCopy(copyText.trim(), "interview_prep");
-                      }} style={{
-                        padding: "3px 10px", fontSize: 10,
-                        background: copiedId === "interview_prep" ? "#4ecca3" : "#0f3460",
-                        color: copiedId === "interview_prep" ? "#0a0a0a" : "#ccd6f6",
-                        border: "1px solid " + (copiedId === "interview_prep" ? "#4ecca3" : "#16213e"),
-                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                      }}>{copiedId === "interview_prep" ? "\u2705 Copié" : "Copier tout"}</button>
-                    )}
                     {!isVitrine && (
                       <button onClick={function() {
                         handleGenerate("interview_prep", function() {
@@ -676,6 +836,11 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                             return { summary: extractBrickSummary(b.text), cvLine: cvLine, versions: versions, brickType: b.brickType };
                           });
                           setInterviewPrepData(data);
+                          // Build full text for audit
+                          var fullText = data.map(function(item) {
+                            return "Version CV : " + item.cvLine + "\nVersion RH :\n" + item.versions.rh + "\nVersion N+1 :\n" + item.versions.n1 + "\nVersion Direction :\n" + item.versions.direction;
+                          }).join("\n\n");
+                          setInterviewPrepAudit(auditDeliverable("interview_prep", fullText, bricks, cauchs, "external"));
                         });
                       }} style={{
                         padding: "3px 10px", fontSize: 10, background: "#0f3460",
@@ -717,6 +882,38 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                         </div>
                       );
                     })}
+                    <AuditBlock auditResult={interviewPrepAudit} text={(function() {
+                      var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
+                      var roleName = roleData ? roleData.role : "ce poste";
+                      var copyText = "# Préparation entretien — " + roleName + "\n\n";
+                      interviewPrepData.forEach(function(item, i) {
+                        copyText += "## Brique " + (i + 1) + " : " + item.summary + "\n";
+                        copyText += "Version CV : " + item.cvLine + "\n\n";
+                        copyText += "Version RH :\n" + item.versions.rh + "\n\n";
+                        copyText += "Version N+1 :\n" + item.versions.n1 + "\n\n";
+                        copyText += "Version Direction :\n" + item.versions.direction + "\n\n";
+                      });
+                      return copyText.trim();
+                    })()} copyId="interview_prep" copiedId={copiedId} onCopy={handleCopy} type="interview_prep" isVitrine={isVitrine} corrections={corrCounters["interview_prep"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                      handleCorrect("interview_prep", function() {
+                        var cauchs = getActiveCauchemars();
+                        var hints = interviewPrepAudit ? interviewPrepAudit.correctionHints : [];
+                        var data = validated.map(function(b) {
+                          var cvLine = generateCVLine(b, targetRoleId, hints);
+                          var versions = generateInterviewVersions(b, targetRoleId, cauchs, hints);
+                          if (signature) {
+                            cvLine = applySignatureFilter(cvLine, signature);
+                            versions = { rh: applySignatureFilter(versions.rh, signature), n1: applySignatureFilter(versions.n1, signature), direction: applySignatureFilter(versions.direction, signature) };
+                          }
+                          return { summary: extractBrickSummary(b.text), cvLine: cvLine, versions: versions, brickType: b.brickType };
+                        });
+                        setInterviewPrepData(data);
+                        var fullText = data.map(function(item) {
+                          return "Version CV : " + item.cvLine + "\nVersion RH :\n" + item.versions.rh + "\nVersion N+1 :\n" + item.versions.n1 + "\nVersion Direction :\n" + item.versions.direction;
+                        }).join("\n\n");
+                        setInterviewPrepAudit(auditDeliverable("interview_prep", fullText, bricks, cauchs, "external"));
+                      });
+                    }} />
                   </div>
                 ) : (
                   <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
@@ -728,15 +925,15 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
               {/* BIO LINKEDIN */}
               {bioText ? (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDC64"} BIO LINKEDIN</div>
-                    <button onClick={function() { handleCopy(bioText, "bio"); }} style={{
-                      padding: "3px 10px", fontSize: 10, background: copiedId === "bio" ? "#4ecca3" : "#0f3460",
-                      color: copiedId === "bio" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "bio" ? "#4ecca3" : "#16213e"),
-                      borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                    }}>{copiedId === "bio" ? "\u2705 Copié" : "Copier"}</button>
-                  </div>
+                  <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDC64"} BIO LINKEDIN</div>
                   <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
+                  <AuditBlock auditResult={auditBio} text={bioText} copyId="bio" copiedId={copiedId} onCopy={handleCopy} type="bio" isVitrine={isVitrine} corrections={corrCounters["bio"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                    handleCorrect("bio", function() {
+                      var hints = auditBio ? auditBio.correctionHints : [];
+                      var raw = generateBio(bricks, vault, trajectoryToggle, hints);
+                      bioText = signature ? applySignatureFilter(raw, signature) : raw;
+                    });
+                  }} />
                 </div>
               ) : (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
@@ -746,15 +943,15 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
               {/* PLAN 30 JOURS RH */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC5"} PLAN 30 JOURS RH</div>
-                  <button onClick={function() { handleCopy(plan30jText, "plan30j"); }} style={{
-                    padding: "3px 10px", fontSize: 10, background: copiedId === "plan30j" ? "#4ecca3" : "#0f3460",
-                    color: copiedId === "plan30j" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "plan30j" ? "#4ecca3" : "#16213e"),
-                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                  }}>{copiedId === "plan30j" ? "\u2705 Copié" : "Copier"}</button>
-                </div>
+                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC5"} PLAN 30 JOURS RH</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan30jText}</div>
+                <AuditBlock auditResult={auditPlan30j} text={plan30jText} copyId="plan30j" copiedId={copiedId} onCopy={handleCopy} type="plan30j" isVitrine={isVitrine} corrections={corrCounters["plan30j"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                  handleCorrect("plan30j", function() {
+                    var hints = auditPlan30j ? auditPlan30j.correctionHints : [];
+                    var raw = generatePlan30jRH(bricks, targetRoleId, targetOffer ? targetOffer.parsedSignals : null, hints);
+                    plan30jText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }} />
               </div>
 
               {/* POSTS LINKEDIN (PILIERS) */}
@@ -764,20 +961,15 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                   {linkedInPosts.map(function(p, idx) {
                     var postText = signature ? applySignatureFilter(p.text, signature) : p.text;
                     var postCopyId = "post_" + idx;
+                    var postAudit = auditDeliverable("posts", postText, bricks, auditCauchemars, "external");
                     return (
                       <div key={idx} style={{ background: "#0d1b2a", borderRadius: 8, padding: 12, marginBottom: idx < linkedInPosts.length - 1 ? 10 : 0 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                          <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600 }}>Pilier : {p.pillar}</div>
-                          <button onClick={function() { handleCopy(postText, postCopyId); }} style={{
-                            padding: "3px 10px", fontSize: 10, background: copiedId === postCopyId ? "#4ecca3" : "#0f3460",
-                            color: copiedId === postCopyId ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === postCopyId ? "#4ecca3" : "#16213e"),
-                            borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                          }}>{copiedId === postCopyId ? "\u2705 Copié" : "Copier"}</button>
-                        </div>
+                        <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600, marginBottom: 6 }}>Pilier : {p.pillar}</div>
                         <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto" }}>{postText}</div>
                         {p.contextLine && (
                           <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", marginTop: 8, lineHeight: 1.4 }}>{p.contextLine}</div>
                         )}
+                        <AuditBlock auditResult={postAudit} text={postText} copyId={postCopyId} copiedId={copiedId} onCopy={handleCopy} type="posts" isVitrine={isVitrine} corrections={corrCounters[postCopyId] || 0} onGoForge={onGoForge} />
                       </div>
                     );
                   })}
@@ -793,13 +985,6 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>{"\uD83C\uDFAF"} QUESTIONS ENTRETIEN</div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    {questionsText && (
-                      <button onClick={function() { handleCopy(questionsText, "questions"); }} style={{
-                        padding: "3px 10px", fontSize: 10, background: copiedId === "questions" ? "#4ecca3" : "#0f3460",
-                        color: copiedId === "questions" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "questions" ? "#4ecca3" : "#16213e"),
-                        borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                      }}>{copiedId === "questions" ? "\u2705 Copié" : "Copier"}</button>
-                    )}
                     {!isVitrine && (
                       <button onClick={function() {
                         handleGenerate("questions", function() {
@@ -812,7 +997,9 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                             signals,
                             signature
                           );
-                          setQuestionsText(signature ? applySignatureFilter(raw, signature) : raw);
+                          var text = signature ? applySignatureFilter(raw, signature) : raw;
+                          setQuestionsText(text);
+                          setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
                         });
                       }} style={{
                         padding: "3px 10px", fontSize: 10, background: "#0f3460",
@@ -823,7 +1010,20 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                   </div>
                 </div>
                 {questionsText ? (
-                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 300, overflow: "auto" }}>{questionsText}</div>
+                  <div>
+                    <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 300, overflow: "auto" }}>{questionsText}</div>
+                    <AuditBlock auditResult={questionsAudit} text={questionsText} copyId="questions" copiedId={copiedId} onCopy={handleCopy} type="questions" isVitrine={isVitrine} corrections={corrCounters["questions"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                      handleCorrect("questions", function() {
+                        var hints = questionsAudit ? questionsAudit.correctionHints : [];
+                        var targetOff = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
+                        var signals = targetOff ? targetOff.parsedSignals : null;
+                        var raw = generateInterviewQuestions(bricks.filter(function(b) { return b.status === "validated"; }), targetRoleId, getActiveCauchemars(), signals, signature, hints);
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setQuestionsText(text);
+                        setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
+                      });
+                    }} />
+                  </div>
                 ) : (
                   <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
                     {isVitrine ? "Livrable figé en mode vitrine." : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
@@ -891,41 +1091,41 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
               {/* RAPPORT DE REMPLACEMENT */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCCA"} RAPPORT DE REMPLACEMENT</div>
-                  <button onClick={function() { handleCopy(replacementText, "replacement"); }} style={{
-                    padding: "3px 10px", fontSize: 10, background: copiedId === "replacement" ? "#4ecca3" : "#0f3460",
-                    color: copiedId === "replacement" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "replacement" ? "#4ecca3" : "#16213e"),
-                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                  }}>{copiedId === "replacement" ? "\u2705 Copié" : "Copier"}</button>
-                </div>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCCA"} RAPPORT DE REMPLACEMENT</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{replacementText}</div>
+                <AuditBlock auditResult={auditReplacement} text={replacementText} copyId="replacement" copiedId={copiedId} onCopy={handleCopy} type="report" isVitrine={isVitrine} corrections={corrCounters["replacement"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                  handleCorrect("replacement", function() {
+                    var hints = auditReplacement ? auditReplacement.correctionHints : [];
+                    var raw = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals, hints);
+                    replacementText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }} />
               </div>
 
               {/* ARGUMENTAIRE D'AUGMENTATION */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCB0"} ARGUMENTAIRE D'AUGMENTATION</div>
-                  <button onClick={function() { handleCopy(raiseText, "raise"); }} style={{
-                    padding: "3px 10px", fontSize: 10, background: copiedId === "raise" ? "#4ecca3" : "#0f3460",
-                    color: copiedId === "raise" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "raise" ? "#4ecca3" : "#16213e"),
-                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                  }}>{copiedId === "raise" ? "\u2705 Copié" : "Copier"}</button>
-                </div>
+                <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCB0"} ARGUMENTAIRE D'AUGMENTATION</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{raiseText}</div>
+                <AuditBlock auditResult={auditRaise} text={raiseText} copyId="raise" copiedId={copiedId} onCopy={handleCopy} type="argument" isVitrine={isVitrine} corrections={corrCounters["raise"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                  handleCorrect("raise", function() {
+                    var hints = auditRaise ? auditRaise.correctionHints : [];
+                    var raw = generateRaiseArgument(bricks, targetRoleId, salaryNum, hints);
+                    raiseText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }} />
               </div>
 
               {/* PLAN 90 JOURS N+1 */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1 }}>{"\uD83D\uDCC5"} PLAN 90 JOURS N+1</div>
-                  <button onClick={function() { handleCopy(plan90jText, "plan90j"); }} style={{
-                    padding: "3px 10px", fontSize: 10, background: copiedId === "plan90j" ? "#4ecca3" : "#0f3460",
-                    color: copiedId === "plan90j" ? "#0a0a0a" : "#ccd6f6", border: "1px solid " + (copiedId === "plan90j" ? "#4ecca3" : "#16213e"),
-                    borderRadius: 6, cursor: "pointer", fontWeight: 600,
-                  }}>{copiedId === "plan90j" ? "\u2705 Copié" : "Copier"}</button>
-                </div>
+                <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCC5"} PLAN 90 JOURS N+1</div>
                 <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>{plan90jText}</div>
+                <AuditBlock auditResult={auditPlan90j} text={plan90jText} copyId="plan90j" copiedId={copiedId} onCopy={handleCopy} type="plan90j" isVitrine={isVitrine} corrections={corrCounters["plan90j"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                  handleCorrect("plan90j", function() {
+                    var hints = auditPlan90j ? auditPlan90j.correctionHints : [];
+                    var raw = generatePlan90jN1(bricks, targetRoleId, internalSignals, hints);
+                    plan90jText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }} />
               </div>
             </div>
           )}

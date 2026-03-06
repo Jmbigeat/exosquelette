@@ -939,7 +939,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
-          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} />
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} onGoForge={function() { setEtabliOpen(false); setActiveStep(1); }} />
         </div>
       )}
 
