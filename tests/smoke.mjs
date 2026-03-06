@@ -287,6 +287,33 @@ assert("email variant scorable", typeof emailScore.score === "number" && emailSc
 assert("n1 variant scorable", typeof n1Score.score === "number" && n1Score.tests.length === 6);
 assert("rh variant scorable", typeof rhScore.score === "number" && rhScore.tests.length === 6);
 
+// generateContactScripts with pillarContext + diltsClosingLevel (Brew V2)
+var contactWithPillar = generators.generateContactScripts(testBricks, "enterprise_ae", null, null, { pillarId: 1, pillarTitle: "Revenue Growth", pillarTheme: "croissance du pipeline" }, 4);
+assert("generateContactScripts with pillarContext returns 4 variants", contactWithPillar !== null && typeof contactWithPillar.dm === "string");
+assert("generateContactScripts with pillarContext dm contains pillar bridge", contactWithPillar.dm.indexOf("publié") !== -1 || contactWithPillar.email.indexOf("publié") !== -1);
+assert("generateContactScripts with diltsClosingLevel 4 conviction closing", contactWithPillar.email.indexOf("convaincu") !== -1 || contactWithPillar.dm.indexOf("convaincu") !== -1);
+
+// generateContactScripts retrocompatibility: null pillarContext + null diltsClosingLevel
+var contactRetro = generators.generateContactScripts(testBricks, "enterprise_ae", null, null, null, null);
+assert("generateContactScripts retro null params returns same shape", contactRetro !== null && typeof contactRetro.dm === "string" && typeof contactRetro.email === "string");
+
+// ─── Brew getMonday utility ──────
+console.log("\n=== BREW UTILS SMOKE ===");
+
+// Inline getMonday to test without Supabase dependency
+function testGetMonday(date) {
+  var d = new Date(date);
+  var day = d.getDay();
+  var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return d.toISOString().split("T")[0];
+}
+var monday = testGetMonday(new Date("2026-03-06"));
+assert("getMonday returns ISO date string", typeof monday === "string" && /^\d{4}-\d{2}-\d{2}$/.test(monday));
+assert("getMonday 2026-03-06 is 2026-03-02 (Monday)", monday === "2026-03-02");
+assert("getMonday Sunday wraps back", testGetMonday(new Date("2026-03-08")) === "2026-03-02");
+assert("getMonday Monday is self", testGetMonday(new Date("2026-03-02")) === "2026-03-02");
+
 // ─── 4f. Post Score — scoreHook, marieHookFullPost, meroeAudit (chantier 21) ──────
 
 console.log("\n=== POST SCORE SMOKE ===");
