@@ -18,6 +18,7 @@ import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/spri
 import { Duel } from "@/components/sprint/Duel";
 import { Onboarding } from "@/components/sprint/Onboarding";
 import { Toast } from "@/components/sprint/Toast";
+import { isWeekDeclared, loadBrewInstructions, markInstructionDone } from "@/lib/brew-db";
 
 export default function Sprint({ initialState, onStateChange, onScan, user }) {
   if (initialState) initialState = migrateState(initialState);
@@ -83,6 +84,9 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   var piecesToastState = useState(null);
   var piecesToast = piecesToastState[0];
   var setPiecesToast = piecesToastState[1];
+  var brewNotifState = useState({ weekMissing: false, instructions: [] });
+  var brewNotif = brewNotifState[0];
+  var setBrewNotif = brewNotifState[1];
 
   var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
 
@@ -244,6 +248,16 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   function handleRefreshPillarRecs() {
     setAiPillarRecs(null);
   }
+
+  // Brew notifications — check if week is declared + pending instructions
+  useEffect(function() {
+    if (!user || user.id === "dev") return;
+    var densityScore = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: signature, duelResults: duelResults, cvBricks: [] });
+    if (densityScore.score < 70 || !isSubscribed) return;
+    Promise.all([isWeekDeclared(user.id), loadBrewInstructions(user.id)]).then(function(results) {
+      setBrewNotif({ weekMissing: !results[0], instructions: results[1] || [] });
+    }).catch(function() {});
+  }, [user, isSubscribed]);
 
   var maturity = getMaturityLevel(bricks);
 
@@ -939,6 +953,28 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
           </div>
         </div>
       )}
+
+      {/* ===== BREW NOTIFICATIONS ===== */}
+      {brewNotif.weekMissing && (
+        <div style={{ background: "#111125", borderRadius: 8, padding: "8px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: "3px solid #4ecca3" }}>
+          <div style={{ fontSize: 11, color: "#ccd6f6" }}>Ta semaine Brew n'est pas déclarée.</div>
+          <a href="/brew" style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, textDecoration: "none" }}>Déclarer →</a>
+        </div>
+      )}
+      {brewNotif.instructions.length > 0 && brewNotif.instructions.map(function(inst) {
+        return (
+          <div key={inst.id} style={{ background: "#111125", borderRadius: 8, padding: "8px 14px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: "3px solid #ff9800" }}>
+            <div style={{ fontSize: 11, color: "#ccd6f6" }}>Le Brew recommande de régénérer ton post pilier {inst.pillar_id} au niveau {inst.target_dilts_level}.</div>
+            <button onClick={function() {
+              markInstructionDone(inst.id).then(function() {
+                setBrewNotif(function(prev) {
+                  return { weekMissing: prev.weekMissing, instructions: prev.instructions.filter(function(i) { return i.id !== inst.id; }) };
+                });
+              });
+            }} style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, background: "none", border: "1px solid #ff9800", borderRadius: 6, padding: "3px 10px", cursor: "pointer" }}>Régénérer maintenant</button>
+          </div>
+        );
+      })}
 
       {/* ===== NAV — with Établi button ===== */}
       {!sprintDone && <Nav steps={STEPS} active={activeStep} onSelect={function(i) { setEtabliOpen(false); setActiveStep(i); }} density={density} etabliOpen={etabliOpen} onEtabliToggle={function() { if (etabliEnabled) setEtabliOpen(!etabliOpen); }} etabliEnabled={etabliEnabled} />}
