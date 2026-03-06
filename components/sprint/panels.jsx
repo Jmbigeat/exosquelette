@@ -11,6 +11,7 @@ import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, propo
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
 import { auditDeliverable } from "@/lib/audit";
+import { scoreHook as scoreHookPost, analyzeBodyRetention as analyzeBodyPost, marieHookFullPost, meroeAudit, generateHookVariants } from "@/lib/postScore";
 
 var DELIVERABLE_AUDIENCE = {
   dm: "external",
@@ -576,6 +577,11 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var scriptEdits = scriptEditsState[0];
   var setScriptEdits = scriptEditsState[1];
 
+  // Chantier 21 — Posts LinkedIn édition + scoring
+  var postEditsState = useState({});
+  var postEdits = postEditsState[0];
+  var setPostEdits = postEditsState[1];
+
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
       setGeneratedOnce(function(prev) { return Object.assign({}, prev, (function() { var o = {}; o[type] = true; return o; })()); });
@@ -1098,31 +1104,184 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 }} />
               </div>
 
-              {/* POSTS LINKEDIN (PILIERS) */}
+              {/* POSTS LINKEDIN (PILIERS) — chantier 21 */}
               {linkedInPosts && linkedInPosts.length > 0 ? (
                 <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
                   <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>{"\uD83D\uDCDD"} POSTS (PILIERS)</div>
                   {linkedInPosts.map(function(p, idx) {
                     var postText = signature ? applySignatureFilter(p.text, signature) : p.text;
+                    var editedText = postEdits[idx] !== undefined ? postEdits[idx] : postText;
                     var postCopyId = "post_" + idx;
-                    var postAudit = auditDeliverable("posts", postText, bricks, auditCauchemars, "external");
+                    var postAudit = auditDeliverable("posts", editedText, bricks, auditCauchemars, "external");
+
+                    // Chantier 21 — scoring on edited (or original) text
+                    var hookLine = editedText.split("\n").filter(function(l) { return l.trim().length > 5; })[0] || "";
+                    var hookResult = scoreHookPost(hookLine, editedText);
+                    var hookColor = hookResult.score >= 8 ? "#4ecca3" : hookResult.score >= 5 ? "#ff9800" : "#e94560";
+                    var marieHook = marieHookFullPost(editedText, hookLine);
+                    var bodyResult = analyzeBodyPost(editedText);
+                    var meroe = meroeAudit(editedText, hookLine);
+                    var failedNames = hookResult.tests.filter(function(t) { return !t.passed; }).map(function(t) { return t.name; });
+                    var variants = hookResult.score < 7 ? generateHookVariants(hookLine, failedNames, p) : [];
+
                     return (
                       <div key={idx} style={{ background: "#0d1b2a", borderRadius: 8, padding: 12, marginBottom: idx < linkedInPosts.length - 1 ? 10 : 0 }}>
-                        <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600, marginBottom: 6 }}>Pilier : {p.pillar}</div>
-                        <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto" }}>{postText}</div>
-                        {p.contextLine && (
-                          <div style={{ fontSize: 10, color: "#495670", fontStyle: "italic", marginTop: 8, lineHeight: 1.4 }}>{p.contextLine}</div>
-                        )}
+                        <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>Pilier {idx + 1} — {p.pillar}</div>
                         {p.diltsLevel && (
-                          <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 600, marginTop: 6 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 8 }}>
                             Dilts : Niveau {p.diltsLevel} — {p.diltsName || getDiltsLabel(p.diltsLevel).name}
                             {p.diltsTarget && p.diltsLevel < p.diltsTarget && (
                               <span style={{ fontSize: 10, color: "#ff9800", marginLeft: 8 }}>(cible : niveau {p.diltsTarget})</span>
                             )}
                           </div>
                         )}
+
+                        {/* 1. Textarea éditable */}
+                        <textarea
+                          value={editedText}
+                          onChange={function(e) {
+                            setPostEdits(function(prev) { var next = Object.assign({}, prev); next[idx] = e.target.value; return next; });
+                          }}
+                          style={{
+                            width: "100%", minHeight: 140, maxHeight: 300, fontSize: 12, color: "#ccd6f6", lineHeight: 1.6,
+                            background: "#0a0a1a", border: "1px solid #495670", borderRadius: 8, padding: 10,
+                            fontFamily: "inherit", resize: "vertical", marginBottom: 10,
+                          }}
+                        />
+
+                        {/* 2. Accroche (4 tests) — Marie Hook */}
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>── Accroche (4 tests) ──</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: hookColor }}>Score accroche : {hookResult.score}/10</span>
+                            <span style={{ fontSize: 14 }}>{hookResult.score >= 8 ? "\uD83D\uDFE2" : hookResult.score >= 5 ? "\uD83D\uDFE0" : "\uD83D\uDD34"}</span>
+                          </div>
+                          {hookResult.tests.map(function(t) {
+                            return (
+                              <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
+                              </div>
+                            );
+                          })}
+                          {variants.length > 0 && (
+                            <div style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginTop: 6 }}>
+                              {variants.map(function(v, vi) {
+                                return (
+                                  <div key={vi} style={{ fontSize: 10, color: "#ccd6f6", lineHeight: 1.5, marginBottom: vi < variants.length - 1 ? 4 : 0 }}>
+                                    Variante {vi + 1} : "{v}"
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 3. Post entier — Marie Hook (2 auto + 2 quali) */}
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>── Post entier ──</div>
+                          {marieHook.autoTests.map(function(t) {
+                            return (
+                              <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
+                              </div>
+                            );
+                          })}
+                          {marieHook.qualitative.map(function(q) {
+                            return (
+                              <div key={q.id} style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}>
+                                <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* 4. Corps — rétention */}
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>── Corps ──</div>
+                          {bodyResult.clean ? (
+                            <div style={{ fontSize: 10, color: "#4ecca3" }}>{"\u2713"} Rétention OK</div>
+                          ) : bodyResult.issues.map(function(issue, ii) {
+                            return (
+                              <div key={ii} style={{ fontSize: 10, color: "#ff9800", marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
+                                <span style={{ flexShrink: 0 }}>{"\u26A0\uFE0F"}</span> {issue.message}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* 5. Structure et angle — Méroé Miroir */}
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>── Structure et angle ──</div>
+                          {meroe.miroir.autoTests.map(function(t) {
+                            return (
+                              <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
+                              </div>
+                            );
+                          })}
+                          {meroe.miroir.qualitative.map(function(q) {
+                            return (
+                              <div key={q.id} style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}>
+                                <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* 6. Confrontation — Méroé Luis Enrique */}
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 4 }}>── Confrontation ──</div>
+                          <div style={{ fontSize: 10, color: "#495670", marginBottom: 6, fontStyle: "italic" }}>Réponds mentalement. Si une question te fait douter, le post a un problème.</div>
+                          {meroe.luisEnrique.map(function(q) {
+                            return (
+                              <div key={q.id} style={{ fontSize: 10, color: "#e94560", marginBottom: 4, lineHeight: 1.4, paddingLeft: 4 }}>
+                                <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* 7. Premier commentaire + micro-instruction */}
+                        {p.firstComment && (
+                          <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                            <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>── Premier commentaire ──</div>
+                            <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.5, background: "#1a1a2e", borderRadius: 6, padding: 8 }}>{p.firstComment}</div>
+                            <div style={{ fontSize: 11, color: "#8892b0", background: "#0f3460", borderRadius: 6, padding: 8, marginTop: 6, lineHeight: 1.4 }}>
+                              {"\uD83D\uDCA1"} Publie entre 7h30 et 8h30 en semaine. Réponds à tous les commentaires dans les 2 premières heures.
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 8. Boutons Copier + Rescorer */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                          <CopyBtn text={editedText} label="Copier le post" />
+                          {p.firstComment && (
+                            <CopyBtn text={p.firstComment} label="Copier le commentaire" />
+                          )}
+                          {postEdits[idx] !== undefined && (
+                            <button onClick={function() {
+                              setPostEdits(function(prev) { var next = Object.assign({}, prev); next[idx] = editedText; return next; });
+                            }} style={{
+                              padding: "3px 8px", fontSize: 10, color: "#8892b0", background: "transparent",
+                              border: "none", cursor: "pointer", textDecoration: "underline",
+                            }}>Rescorer</button>
+                          )}
+                          {postEdits[idx] !== undefined && (
+                            <button onClick={function() {
+                              setPostEdits(function(prev) { var next = Object.assign({}, prev); delete next[idx]; return next; });
+                            }} style={{
+                              padding: "3px 8px", fontSize: 10, color: "#495670", background: "transparent",
+                              border: "none", cursor: "pointer",
+                            }}>Réinitialiser</button>
+                          )}
+                        </div>
+
+                        {/* 9. Obsolete + Audit ch17 */}
                         {renderObsoleteIndicator("posts")}
-                        <AuditBlock auditResult={postAudit} text={postText} copyId={postCopyId} copiedId={copiedId} onCopy={handleCopy} type="posts" isVitrine={isVitrine} corrections={corrCounters[postCopyId] || 0} onGoForge={onGoForge} />
+                        <AuditBlock auditResult={postAudit} text={editedText} copyId={postCopyId + "_audit"} copiedId={copiedId} onCopy={handleCopy} type="posts" isVitrine={isVitrine} corrections={corrCounters[postCopyId] || 0} onGoForge={onGoForge} />
                       </div>
                     );
                   })}

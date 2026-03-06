@@ -256,6 +256,73 @@ assert("email variant scorable", typeof emailScore.score === "number" && emailSc
 assert("n1 variant scorable", typeof n1Score.score === "number" && n1Score.tests.length === 6);
 assert("rh variant scorable", typeof rhScore.score === "number" && rhScore.tests.length === 6);
 
+// ─── 4f. Post Score — scoreHook, marieHookFullPost, meroeAudit (chantier 21) ──────
+
+console.log("\n=== POST SCORE SMOKE ===");
+
+var postScore = await import("../lib/postScore.js");
+assert("postScore.js imports", !!postScore);
+
+// Export presence
+assert("scoreHook exists (postScore)", typeof postScore.scoreHook === "function");
+assert("analyzeBodyRetention exists (postScore)", typeof postScore.analyzeBodyRetention === "function");
+assert("marieHookFullPost exists", typeof postScore.marieHookFullPost === "function");
+assert("meroeAudit exists", typeof postScore.meroeAudit === "function");
+assert("generateHookVariants exists", typeof postScore.generateHookVariants === "function");
+
+// scoreHook: generic hook fails So What
+var hookGeneric = postScore.scoreHook("Je suis ravi de partager cette expérience incroyable avec vous", "");
+assert("scoreHook generic fails soWhat", hookGeneric.tests.length === 4 && hookGeneric.tests[0].passed === false);
+
+// scoreHook: short non-generic hook passes So What
+var hookGood = postScore.scoreHook("Ton pipeline ne vaut rien. Le problème c'est toi.", "");
+assert("scoreHook trenchant passes soWhat", hookGood.tests[0].passed === true);
+
+// scoreHook: ennemi detection
+assert("scoreHook ennemi detected", hookGood.tests[1].passed === true);
+
+// scoreHook: consensus detection
+var hookConsensus = postScore.scoreHook("Et pourtant personne n'en parle. Sauf que le vrai sujet est ailleurs.", "");
+assert("scoreHook consensus detected", hookConsensus.tests[2].passed === true);
+
+// scoreHook: alienation detection
+var hookAlien = postScore.scoreHook("Ton CV est vide. Arrête de mentir.", "");
+assert("scoreHook alienation detected", hookAlien.tests[3].passed === true);
+
+// scoreHook: score = passedCount * 2.5
+assert("scoreHook score calculation", hookGood.score === Math.round(hookGood.tests.filter(function(t) { return t.passed; }).length * 2.5));
+
+// marieHookFullPost returns structure
+var marieResult = postScore.marieHookFullPost("Le problème c'est la méthode.\n\nJ'ai réduit le churn de 15% en 6 mois.\n\nContrairement à l'approche classique.\n\nLa preuve est dans les chiffres.", "Le problème c'est la méthode.");
+assert("marieHookFullPost returns autoTests", Array.isArray(marieResult.autoTests) && marieResult.autoTests.length === 2);
+assert("marieHookFullPost returns qualitative", Array.isArray(marieResult.qualitative) && marieResult.qualitative.length === 2);
+
+// analyzeBodyRetention: detects bullets
+var bodyBullets = postScore.analyzeBodyRetention("Premier paragraphe.\n\n- item 1\n- item 2\n\nTroisième paragraphe.");
+assert("analyzeBodyRetention detects bullets", bodyBullets.clean === false);
+
+// analyzeBodyRetention: clean text
+var bodyClean = postScore.analyzeBodyRetention("Premier paragraphe court.\n\nDeuxième paragraphe court.\n\nTroisième paragraphe court.");
+assert("analyzeBodyRetention clean text", bodyClean.clean === true);
+
+// analyzeBodyRetention: few paragraphs
+var bodyFew = postScore.analyzeBodyRetention("Un seul bloc de texte sans aération.");
+assert("analyzeBodyRetention few paragraphs", bodyFew.issues.some(function(i) { return i.type === "fewParagraphs"; }));
+
+// meroeAudit returns structure
+var meroeResult = postScore.meroeAudit("Le pipeline est le problème.\n\nJ'ai restructuré 45 comptes.\n\nLa méthode est reproductible.\n\nLe pipeline est tout.", "Le pipeline est le problème.");
+assert("meroeAudit returns miroir", meroeResult.miroir && Array.isArray(meroeResult.miroir.autoTests) && meroeResult.miroir.autoTests.length === 2);
+assert("meroeAudit returns miroir qualitative", Array.isArray(meroeResult.miroir.qualitative) && meroeResult.miroir.qualitative.length === 2);
+assert("meroeAudit returns luisEnrique", Array.isArray(meroeResult.luisEnrique) && meroeResult.luisEnrique.length === 3);
+
+// generateHookVariants: returns 2 variants when tests fail
+var variants = postScore.generateHookVariants("Mon pipeline est bon", ["ennemi", "consensus"], {});
+assert("generateHookVariants returns 2", Array.isArray(variants) && variants.length === 2);
+
+// generateHookVariants: returns empty when no failures
+var variantsNone = postScore.generateHookVariants("Mon pipeline", [], {});
+assert("generateHookVariants no failures = empty", variantsNone.length === 0);
+
 // ─── 4d. Offers — aggregateOfferSignals & detectSectoralDispersion ──────
 
 console.log("\n=== OFFERS SMOKE ===");
