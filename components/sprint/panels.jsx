@@ -5,7 +5,7 @@ import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
@@ -568,6 +568,14 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var toastMsg = toastState[0];
   var setToastMsg = toastState[1];
 
+  // Chantier 20 — Script de contact 4 variantes
+  var scriptTabState = useState("dm");
+  var activeScriptTab = scriptTabState[0];
+  var setActiveScriptTab = scriptTabState[1];
+  var scriptEditsState = useState({});
+  var scriptEdits = scriptEditsState[0];
+  var setScriptEdits = scriptEditsState[1];
+
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
       setGeneratedOnce(function(prev) { return Object.assign({}, prev, (function() { var o = {}; o[type] = true; return o; })()); });
@@ -621,7 +629,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var targetOffer = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
   var rawScripts = generateContactScripts(bricks, targetRoleId, targetOffer);
   var scripts = rawScripts && signature
-    ? { dm: applySignatureFilter(rawScripts.dm, signature), email: applySignatureFilter(rawScripts.email, signature) }
+    ? { dm: applySignatureFilter(rawScripts.dm, signature), email: applySignatureFilter(rawScripts.email, signature), n1: applySignatureFilter(rawScripts.n1, signature), rh: applySignatureFilter(rawScripts.rh, signature) }
     : rawScripts;
   var rawCV = generateCV(bricks, targetRoleId, trajectoryToggle);
   var cvText = signature ? applySignatureFilter(rawCV, signature) : rawCV;
@@ -659,8 +667,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
 
   // Chantier 17 — Compute audits for static deliverables
   var auditCauchemars = getActiveCauchemars();
-  var auditDm = scripts ? auditDeliverable("dm", scripts.dm, bricks, auditCauchemars, "external") : null;
-  var auditEmail = scripts ? auditDeliverable("email", scripts.email, bricks, auditCauchemars, "external") : null;
+  // Chantier 20 — dm/email audits now computed dynamically in 4-tab script block
   var auditCv = auditDeliverable("cv", cvText, bricks, auditCauchemars, "external");
   var auditBio = bioText ? auditDeliverable("bio", bioText, bricks, auditCauchemars, "external") : null;
   var auditPlan30j = auditDeliverable("plan30j", plan30jText, bricks, auditCauchemars, "external");
@@ -696,7 +703,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
     setTimeout(function() { setCopiedId(null); }, 2000);
   }
 
-  var externeCount = (scripts ? 2 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1 + (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) + 1; // +1 plan 30j, +1 posts piliers, +1 questions entretien
+  var externeCount = (scripts ? 1 : 0) + (cvText && validated.length > 0 ? 1 : 0) + (bioText ? 1 : 0) + 1 + (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) + 1; // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
   var interneCount = 3; // replacement, raise, plan 90j
 
   return (
@@ -799,57 +806,140 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 </div>
               )}
 
-              {/* DM LINKEDIN */}
-              {scripts && (
-                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\uD83D\uDCE8"} DM LINKEDIN</div>
-                  <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{scripts.dm}</div>
-                  {rawScripts && rawScripts.diltsProgression && rawScripts.diltsProgression.dm && (function() {
-                    var dp = rawScripts.diltsProgression.dm;
-                    var deltaColor = dp.delta >= 2 ? "#4ecca3" : dp.delta === 1 ? "#ff9800" : "#e94560";
-                    return (
-                      <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 6 }}>
-                        Dilts : Niveau {dp.opening} → Niveau {dp.closing} (progression {dp.delta >= 0 ? "+" : ""}{dp.delta})
-                        {dp.delta <= 0 && <span style={{ fontWeight: 400, fontSize: 10, marginLeft: 6 }}>Ton script ne monte pas. Monte la fermeture d{"'"}un cran.</span>}
-                      </div>
-                    );
-                  })()}
-                  {renderObsoleteIndicator("dm")}
-                  <AuditBlock auditResult={auditDm} text={scripts.dm} copyId="dm" copiedId={copiedId} onCopy={handleCopy} type="dm" isVitrine={isVitrine} corrections={corrCounters["dm"] || 0} onGoForge={onGoForge} onCorrect={function() {
-                    handleCorrect("dm", function() {
-                      var hints = auditDm ? auditDm.correctionHints : [];
-                      var raw = generateContactScripts(bricks, targetRoleId, targetOffer, hints);
-                      if (raw) scripts.dm = signature ? applySignatureFilter(raw.dm, signature) : raw.dm;
-                    });
-                  }} />
-                </div>
-              )}
+              {/* SCRIPT DE CONTACT — 4 variantes (chantier 20) */}
+              {scripts && (function() {
+                var SCRIPT_TABS = [
+                  { id: "dm", label: "DM LinkedIn", icon: "\uD83D\uDCE8", micro: "300 caractères max. Ouvre sur la douleur du recruteur." },
+                  { id: "email", label: "Email", icon: "\u2709\uFE0F", micro: "Ouvre sur le coût chiffré. Pas de question directe (réservée au DM)." },
+                  { id: "n1", label: "N+1", icon: "\uD83C\uDFAF", micro: "Parle terrain. Le N+1 veut un opérationnel, pas un CV." },
+                  { id: "rh", label: "RH", icon: "\uD83D\uDC64", micro: "Parcours + culture fit. Le RH valide la cohérence, pas la technique." },
+                ];
+                var currentTab = SCRIPT_TABS.find(function(t) { return t.id === activeScriptTab; }) || SCRIPT_TABS[0];
+                var currentText = scriptEdits[activeScriptTab] || scripts[activeScriptTab] || "";
+                var isEdited = !!scriptEdits[activeScriptTab];
+                var auditCauchs = getActiveCauchemars();
+                var contactScore = scoreContactScript(currentText, bricks, auditCauchs);
+                var auditResult = auditDeliverable(activeScriptTab === "n1" ? "dm" : activeScriptTab === "rh" ? "email" : activeScriptTab, currentText, bricks, auditCauchs, "external");
 
-              {/* EMAIL */}
-              {scripts && (
-                <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>{"\u2709\uFE0F"} EMAIL</div>
-                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 120, overflow: "auto" }}>{scripts.email}</div>
-                  {rawScripts && rawScripts.diltsProgression && rawScripts.diltsProgression.email && (function() {
-                    var dp = rawScripts.diltsProgression.email;
-                    var deltaColor = dp.delta >= 2 ? "#4ecca3" : dp.delta === 1 ? "#ff9800" : "#e94560";
-                    return (
-                      <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 6 }}>
-                        Dilts : Niveau {dp.opening} → Niveau {dp.closing} (progression {dp.delta >= 0 ? "+" : ""}{dp.delta})
-                        {dp.delta <= 0 && <span style={{ fontWeight: 400, fontSize: 10, marginLeft: 6 }}>Ton script ne monte pas. Monte la fermeture d{"'"}un cran.</span>}
-                      </div>
-                    );
-                  })()}
-                  {renderObsoleteIndicator("email")}
-                  <AuditBlock auditResult={auditEmail} text={scripts.email} copyId="email" copiedId={copiedId} onCopy={handleCopy} type="email" isVitrine={isVitrine} corrections={corrCounters["email"] || 0} onGoForge={onGoForge} onCorrect={function() {
-                    handleCorrect("email", function() {
-                      var hints = auditEmail ? auditEmail.correctionHints : [];
-                      var raw = generateContactScripts(bricks, targetRoleId, targetOffer, hints);
-                      if (raw) scripts.email = signature ? applySignatureFilter(raw.email, signature) : raw.email;
-                    });
-                  }} />
-                </div>
-              )}
+                return (
+                  <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: qualityColor, fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>{"\uD83D\uDCDD"} SCRIPT DE CONTACT — 4 variantes</div>
+
+                    {/* Tab bar */}
+                    <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
+                      {SCRIPT_TABS.map(function(tab) {
+                        var isActive = tab.id === activeScriptTab;
+                        var tabText = scriptEdits[tab.id] || scripts[tab.id] || "";
+                        var tabScore = scoreContactScript(tabText, bricks, auditCauchs);
+                        var scoreColor = tabScore.passedCount >= 5 ? "#4ecca3" : tabScore.passedCount >= 3 ? "#ff9800" : "#e94560";
+                        return (
+                          <button key={tab.id} onClick={function() { setActiveScriptTab(tab.id); }} style={{
+                            padding: "5px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                            background: isActive ? "#0f3460" : "transparent", border: "1px solid " + (isActive ? qualityColor : "#495670"),
+                            color: isActive ? "#e6e6e6" : "#8892b0", display: "flex", alignItems: "center", gap: 4,
+                          }}>
+                            {tab.icon} {tab.label}
+                            <span style={{ fontSize: 9, color: scoreColor, fontWeight: 700, marginLeft: 2 }}>{tabScore.passedCount}/6</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Micro-instruction */}
+                    <div style={{ fontSize: 10, color: "#495670", marginBottom: 8, fontStyle: "italic" }}>{currentTab.micro}</div>
+
+                    {/* Editable textarea */}
+                    <textarea
+                      value={currentText}
+                      onChange={function(e) {
+                        setScriptEdits(function(prev) {
+                          var next = Object.assign({}, prev);
+                          next[activeScriptTab] = e.target.value;
+                          return next;
+                        });
+                      }}
+                      style={{
+                        width: "100%", minHeight: 120, maxHeight: 250, fontSize: 12, color: "#ccd6f6", lineHeight: 1.6,
+                        background: "#0a0a1a", border: "1px solid #495670", borderRadius: 8, padding: 10,
+                        fontFamily: "inherit", resize: "vertical",
+                      }}
+                    />
+
+                    {/* Score grid */}
+                    <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+                      {contactScore.tests.map(function(test) {
+                        return (
+                          <div key={test.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10 }}>
+                            <span style={{ color: test.passed ? "#4ecca3" : "#e94560", fontWeight: 700 }}>{test.passed ? "\u2713" : "\u2717"}</span>
+                            <span style={{ color: test.passed ? "#4ecca3" : "#8892b0" }}>{test.label}</span>
+                            {!test.passed && <span style={{ color: "#495670", fontSize: 9, marginLeft: 2 }}>{test.fix}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Score + actions */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: contactScore.passedCount >= 5 ? "#4ecca3" : contactScore.passedCount >= 3 ? "#ff9800" : "#e94560" }}>
+                        {contactScore.passedCount}/6 tests
+                      </span>
+                      {isEdited && (
+                        <button onClick={function() {
+                          setScriptEdits(function(prev) {
+                            var next = Object.assign({}, prev);
+                            next[activeScriptTab] = currentText;
+                            return next;
+                          });
+                        }} style={{
+                          padding: "3px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                          background: "#0f3460", color: "#4ecca3", border: "1px solid #4ecca3",
+                        }}>Rescorer</button>
+                      )}
+                      {isEdited && (
+                        <button onClick={function() {
+                          setScriptEdits(function(prev) {
+                            var next = Object.assign({}, prev);
+                            delete next[activeScriptTab];
+                            return next;
+                          });
+                        }} style={{
+                          padding: "3px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                          background: "transparent", color: "#8892b0", border: "1px solid #495670",
+                        }}>Réinitialiser</button>
+                      )}
+                      <CopyBtn text={currentText} copiedId={copiedId} copyId={"script-" + activeScriptTab} onCopy={handleCopy} />
+                    </div>
+
+                    {/* Dilts progression (dm and email only) */}
+                    {rawScripts && rawScripts.diltsProgression && rawScripts.diltsProgression[activeScriptTab] && (function() {
+                      var dp = rawScripts.diltsProgression[activeScriptTab];
+                      var deltaColor = dp.delta >= 2 ? "#4ecca3" : dp.delta === 1 ? "#ff9800" : "#e94560";
+                      return (
+                        <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 6 }}>
+                          Dilts : Niveau {dp.opening} → Niveau {dp.closing} (progression {dp.delta >= 0 ? "+" : ""}{dp.delta})
+                          {dp.delta <= 0 && <span style={{ fontWeight: 400, fontSize: 10, marginLeft: 6 }}>Ton script ne monte pas. Monte la fermeture d{"'"}un cran.</span>}
+                        </div>
+                      );
+                    })()}
+
+                    {renderObsoleteIndicator("dm")}
+                    <AuditBlock auditResult={auditResult} text={currentText} copyId={"script-audit-" + activeScriptTab} copiedId={copiedId} onCopy={handleCopy} type={activeScriptTab === "n1" ? "dm" : activeScriptTab === "rh" ? "email" : activeScriptTab} isVitrine={isVitrine} corrections={corrCounters[activeScriptTab] || 0} onGoForge={onGoForge} onCorrect={function() {
+                      handleCorrect(activeScriptTab, function() {
+                        var hints = auditResult ? auditResult.correctionHints : [];
+                        var raw = generateContactScripts(bricks, targetRoleId, targetOffer, hints);
+                        if (raw && raw[activeScriptTab]) {
+                          var corrected = signature ? applySignatureFilter(raw[activeScriptTab], signature) : raw[activeScriptTab];
+                          setScriptEdits(function(prev) {
+                            var next = Object.assign({}, prev);
+                            next[activeScriptTab] = corrected;
+                            return next;
+                          });
+                        }
+                      });
+                    }} />
+                  </div>
+                );
+              })()}
 
               {/* CV */}
               <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
