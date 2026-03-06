@@ -5,7 +5,7 @@ import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint/signature";
-import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript, generateFollowUp } from "@/lib/sprint/generators";
+import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript, generateFollowUp, generateEmailSignature } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
@@ -22,6 +22,7 @@ var DELIVERABLE_AUDIENCE = {
   posts: "external",
   questions: "external",
   followup: "external",
+  email_signature: "external",
   interview_prep: "external",
   report: "internal",
   argument: "internal",
@@ -593,6 +594,12 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
   var followUpAuditState = useState(null);
   var followUpAudit = followUpAuditState[0];
   var setFollowUpAudit = followUpAuditState[1];
+  var emailSigTextState = useState(null);
+  var emailSigText = emailSigTextState[0];
+  var setEmailSigText = emailSigTextState[1];
+  var emailSigAuditState = useState(null);
+  var emailSigAudit = emailSigAuditState[0];
+  var setEmailSigAudit = emailSigAuditState[1];
 
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
@@ -1361,6 +1368,62 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                 ) : (
                   <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
                     {isVitrine ? "Livrable figé en mode vitrine." : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
+                  </div>
+                )}
+              </div>
+
+              {/* SIGNATURE EMAIL */}
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1 }}>{"\u2709\uFE0F"} SIGNATURE EMAIL</div>
+                </div>
+
+                {emailSigText ? (
+                  <div>
+                    <div style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, lineHeight: 1.6, padding: "8px 10px", background: "#0d0d1a", borderRadius: 8 }}>{emailSigText}</div>
+                    <div style={{ fontSize: 10, color: "#495670", marginTop: 6, lineHeight: 1.4 }}>{"\uD83D\uDCA1"} Colle cette ligne sous ton nom dans ta signature Gmail/Outlook. Chaque email envoyé devient une preuve.</div>
+                    <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
+                      <CopyBtn text={emailSigText} id="email_signature" copiedId={copiedId} onCopy={handleCopy} />
+                      {!isVitrine && (
+                        <button onClick={function() {
+                          handleGenerate("email_signature", function() {
+                            var raw = generateEmailSignature(bricks, targetRoleId);
+                            setEmailSigText(raw);
+                            setEmailSigAudit(auditDeliverable("email_signature", raw, bricks, auditCauchemars, "external"));
+                          });
+                        }} style={{
+                          padding: "3px 10px", fontSize: 10, background: "transparent",
+                          color: "#8892b0", border: "1px solid #495670",
+                          borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                        }}>Régénérer</button>
+                      )}
+                    </div>
+                    {renderObsoleteIndicator("email_signature")}
+                    <AuditBlock auditResult={emailSigAudit} text={emailSigText} copyId="email_signature_audit" copiedId={copiedId} onCopy={handleCopy} type="email_signature" isVitrine={isVitrine} corrections={corrCounters["email_signature"] || 0} onGoForge={onGoForge} onCorrect={function() {
+                      handleCorrect("email_signature", function() {
+                        var raw = generateEmailSignature(bricks, targetRoleId);
+                        setEmailSigText(raw);
+                        setEmailSigAudit(auditDeliverable("email_signature", raw, bricks, auditCauchemars, "external"));
+                      });
+                    }} />
+                  </div>
+                ) : (
+                  <div>
+                    {!isVitrine && (
+                      <button onClick={function() {
+                        handleGenerate("email_signature", function() {
+                          var raw = generateEmailSignature(bricks, targetRoleId);
+                          setEmailSigText(raw);
+                          setEmailSigAudit(auditDeliverable("email_signature", raw, bricks, auditCauchemars, "external"));
+                        });
+                      }} style={{
+                        padding: "6px 16px", fontSize: 11, fontWeight: 700, borderRadius: 8, cursor: "pointer", border: "none",
+                        background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+                      }}>Générer ma signature</button>
+                    )}
+                    <div style={{ fontSize: 11, color: "#495670", marginTop: 6, lineHeight: 1.4 }}>
+                      {isVitrine ? "Livrable figé en mode vitrine." : "Génère une ligne de signature ≤ 80 car. à partir de ta meilleure brique blindée."}
+                    </div>
                   </div>
                 )}
               </div>
