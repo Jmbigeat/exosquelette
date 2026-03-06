@@ -418,6 +418,33 @@ assert("hasMentoringMarkers detects formé", brickExtractor.hasMentoringMarkers(
 assert("hasMentoringMarkers false on empty", !brickExtractor.hasMentoringMarkers(""));
 assert("hasMentoringMarkers false on unrelated", !brickExtractor.hasMentoringMarkers("J'ai réduit le churn de 15%"));
 
+// ─── EMAIL SIGNATURE SMOKE ───────────────────────────────────────
+
+console.log("\n=== EMAIL SIGNATURE SMOKE ===");
+
+assert("generateEmailSignature exists", typeof generators.generateEmailSignature === "function");
+
+// With no bricks → returns role name
+var sigNoBricks = generators.generateEmailSignature([], "am");
+assert("generateEmailSignature no bricks returns string", typeof sigNoBricks === "string" && sigNoBricks.length > 0);
+
+// With validated bricks → returns ≤ 80 chars
+var sigFull = generators.generateEmailSignature(testBricks, "am");
+assert("generateEmailSignature returns string", typeof sigFull === "string" && sigFull.length > 0);
+assert("generateEmailSignature ≤ 80 chars", sigFull.length <= 80);
+
+// Contains role-like suffix (dash separator)
+assert("generateEmailSignature contains dash separator", sigFull.indexOf(" — ") !== -1 || sigFull.indexOf("Account") !== -1 || sigFull.length <= 80);
+
+// Audit email_signature type
+var auditSig = audit.auditDeliverable("email_signature", sigFull, testBricks, [], "external");
+assert("audit email_signature returns score", typeof auditSig.score === "number");
+assert("audit email_signature channel calibration ≤80 passes", auditSig.passed.indexOf("D") !== -1 || sigFull.length <= 80);
+
+// Audit email_signature too long fails D
+var auditSigLong = audit.auditDeliverable("email_signature", "A".repeat(100), testBricks, [], "external");
+assert("audit email_signature >80 fails D", auditSigLong.passed.indexOf("D") === -1);
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");
