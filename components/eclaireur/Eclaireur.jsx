@@ -219,7 +219,7 @@ export function Eclaireur() {
                 {eLabel && <span style={{ fontSize: 9, color: eColor, background: eColor + "22", padding: "1px 6px", borderRadius: 6, marginLeft: 6 }}>{eLabel}</span>}
               </div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>{kpi.why}</div>
-              {kpi.elasticity === "élastique" && (
+              {kpi.elasticity === "élastique" && ["enterprise_ae", "strategic_csm"].indexOf(result.detectedRoleId) !== -1 && (
                 <div style={{ fontSize: 11, color: "#4ecca3", fontStyle: "italic", marginTop: 6 }}>62,8% des tâches commerciales sont automatisables (Anthropic, 2026). Pas celle-ci.</div>
               )}
             </div>
