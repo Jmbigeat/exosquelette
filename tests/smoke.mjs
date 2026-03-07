@@ -445,6 +445,54 @@ assert("hasMentoringMarkers detects formé", brickExtractor.hasMentoringMarkers(
 assert("hasMentoringMarkers false on empty", !brickExtractor.hasMentoringMarkers(""));
 assert("hasMentoringMarkers false on unrelated", !brickExtractor.hasMentoringMarkers("J'ai réduit le churn de 15%"));
 
+// ─── ÉCLAIREUR AUDIT CV SMOKE ─────────────────────────────────────
+
+console.log("\n=== ÉCLAIREUR AUDIT CV SMOKE ===");
+
+var auditCv = await import("../lib/eclaireur/audit-cv.js");
+assert("audit-cv.js imports", !!auditCv);
+assert("auditExternalCV exists", typeof auditCv.auditExternalCV === "function");
+
+// auditExternalCV with empty CV returns score 0
+var acvEmpty = auditCv.auditExternalCV("", {}, []);
+assert("auditExternalCV empty CV score 0", acvEmpty.score === 0 && acvEmpty.tests.length === 0);
+
+// auditExternalCV with rich CV returns 5 tests
+var richCV = "J'ai décidé de restructurer le pipeline commercial de 400K€ à 1.2M€ en 4 mois malgré un contexte de sous-effectif. J'ai piloté la refonte du processus de churn et réduit le taux de 15% à 8%. Alignement multi-décideurs sur 3 comptes stratégiques. Account Executive avec expérience enterprise SaaS.";
+var fakeAnalysis = {
+  detectedRoleId: "enterprise_ae",
+  detectedRoleLabel: "Account Executive Enterprise",
+  mainNightmare: { label: "Pipeline stagnant", kpis: ["Pipeline velocity"], kw: ["pipeline", "churn"], nightmareShort: "Le pipeline stagne" },
+  revealedKpi: { name: "Alignement multi-décideurs", elasticity: "élastique", why: "test" },
+  allCauchemars: [
+    { label: "Pipeline stagnant", kpis: ["Pipeline velocity"], kw: ["pipeline", "churn"], matchedKw: ["pipeline"] },
+    { label: "Churn élevé", kpis: ["Churn rate"], kw: ["churn", "rétention"], matchedKw: ["churn"] },
+  ],
+};
+var acvRich = auditCv.auditExternalCV(richCV, fakeAnalysis, fakeAnalysis.allCauchemars);
+assert("auditExternalCV returns 5 tests", acvRich.tests.length === 5);
+assert("auditExternalCV score is number", typeof acvRich.score === "number" && acvRich.score >= 0 && acvRich.score <= 5);
+
+// Test 1: cauchemars coverage — rich CV covers pipeline + churn
+assert("auditExternalCV cauchemars test exists", acvRich.tests[0].name === "cauchemars");
+assert("auditExternalCV cauchemars covered", acvRich.tests[0].passed === true);
+
+// Test 3: elasticity — rich CV has decision verbs
+assert("auditExternalCV elasticity test exists", acvRich.tests[2].name === "elasticity");
+assert("auditExternalCV decision verbs found", acvRich.tests[2].passed === true);
+
+// Test 4: vocabulary — rich CV has no toxic words
+assert("auditExternalCV vocabulary test exists", acvRich.tests[3].name === "vocabulary");
+assert("auditExternalCV no toxic words", acvRich.tests[3].passed === true);
+
+// Test 4: toxic CV fails vocabulary
+var toxicCV = "Professionnel passionné et dynamique, doté d'une riche expérience, proactif et orienté résultats. J'ai participé à plusieurs projets et contribué à améliorer les processus. Fort de 10 ans d'expérience.";
+var acvToxic = auditCv.auditExternalCV(toxicCV, fakeAnalysis, fakeAnalysis.allCauchemars);
+assert("auditExternalCV toxic CV fails vocabulary", acvToxic.tests[3].passed === false);
+
+// Test 5: ATMT structure
+assert("auditExternalCV atmt test exists", acvRich.tests[4].name === "atmt");
+
 // ─── EMAIL SIGNATURE SMOKE ───────────────────────────────────────
 
 console.log("\n=== EMAIL SIGNATURE SMOKE ===");

@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { analyzeOffer } from "@/lib/eclaireur/analyze";
+import { auditExternalCV } from "@/lib/eclaireur/audit-cv";
 import { formatCost } from "@/lib/sprint/scoring";
+import { CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/lib/sprint/references";
 
 var SCAN_MESSAGES = [
   "Lecture de l'offre...",
@@ -11,6 +13,12 @@ var SCAN_MESSAGES = [
   "Croisement marché terminé.",
 ];
 
+var SCAN_MESSAGES_CV = [
+  "Lecture de ton profil...",
+  "Croisement profil × cauchemars...",
+  "Diagnostic terminé.",
+];
+
 export function Eclaireur() {
   var phaseSt = useState("input");
   var phase = phaseSt[0];
@@ -18,6 +26,9 @@ export function Eclaireur() {
   var textSt = useState("");
   var text = textSt[0];
   var setText = textSt[1];
+  var cvTextSt = useState("");
+  var cvText = cvTextSt[0];
+  var setCvText = cvTextSt[1];
   var progressSt = useState(0);
   var progress = progressSt[0];
   var setProgress = progressSt[1];
@@ -27,26 +38,50 @@ export function Eclaireur() {
   var resultSt = useState(null);
   var result = resultSt[0];
   var setResult = resultSt[1];
+  var cvAuditSt = useState(null);
+  var cvAudit = cvAuditSt[0];
+  var setCvAudit = cvAuditSt[1];
 
   var canScan = text.trim().length >= 50;
+  var hasCv = cvText.trim().length >= 100;
 
   function handleScan() {
     setPhase("scan");
     setProgress(0);
     setMessages([]);
 
-    SCAN_MESSAGES.forEach(function(msg, i) {
+    var allMessages = hasCv ? SCAN_MESSAGES.concat(SCAN_MESSAGES_CV) : SCAN_MESSAGES;
+    var total = allMessages.length;
+
+    allMessages.forEach(function(msg, i) {
       setTimeout(function() {
         setMessages(function(prev) { return prev.concat([msg]); });
-        setProgress(((i + 1) / SCAN_MESSAGES.length) * 100);
+        setProgress(((i + 1) / total) * 100);
       }, (i + 1) * 700);
     });
 
     setTimeout(function() {
       var analysis = analyzeOffer(text);
       setResult(analysis);
+
+      if (hasCv && analysis) {
+        var cauchemars = [];
+        if (analysis.allCauchemars && analysis.allCauchemars.length > 0) {
+          cauchemars = analysis.allCauchemars;
+        } else {
+          var templates = CAUCHEMAR_TEMPLATES_BY_ROLE[analysis.detectedRoleId] || [];
+          cauchemars = templates.map(function(t) {
+            return { label: t.label, kpis: t.kpis, kw: t.kw, nightmareShort: t.nightmare, costRange: t.cost };
+          });
+        }
+        var audit = auditExternalCV(cvText, analysis, cauchemars);
+        setCvAudit(audit);
+      } else {
+        setCvAudit(null);
+      }
+
       setPhase("result");
-    }, SCAN_MESSAGES.length * 700 + 500);
+    }, total * 700 + 500);
   }
 
   // ===== INPUT =====
@@ -59,7 +94,7 @@ export function Eclaireur() {
           <div style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>Gratuit. Pas de compte. 30 secondes.</div>
         </div>
 
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 16 }}>
           <textarea
             value={text}
             onChange={function(e) { setText(e.target.value); }}
@@ -76,6 +111,24 @@ export function Eclaireur() {
           </div>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>Ton profil</div>
+          <textarea
+            value={cvText}
+            onChange={function(e) { setCvText(e.target.value); }}
+            placeholder="Colle ton CV, ta bio LinkedIn, ou décris ton parcours... (optionnel)"
+            style={{
+              width: "100%", minHeight: 100, padding: 14, background: "#1a1a2e",
+              border: "2px solid #16213e", borderRadius: 10, color: "#ccd6f6",
+              fontSize: 13, lineHeight: 1.6, resize: "vertical", outline: "none",
+              fontFamily: "inherit", boxSizing: "border-box",
+            }}
+          />
+          <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>
+            Optionnel. Sans ton CV, l'outil analyse l'offre. Avec ton CV, il mesure l'écart.
+          </div>
+        </div>
+
         <button onClick={handleScan} disabled={!canScan} style={{
           width: "100%", padding: 16,
           background: canScan ? "linear-gradient(135deg, #e94560, #c81d4e)" : "#1a1a2e",
@@ -84,10 +137,10 @@ export function Eclaireur() {
           borderRadius: 12, cursor: canScan ? "pointer" : "not-allowed",
           fontWeight: 700, fontSize: 15,
           boxShadow: canScan ? "0 4px 20px rgba(233,69,96,0.3)" : "none",
-        }}>Scanner l'offre</button>
+        }}>{hasCv ? "Scanner l'offre × ton profil" : "Scanner l'offre"}</button>
 
         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 10 }}>
-          {"\uD83D\uDD12"} L'offre n'est ni stockée ni partagée.
+          🔒 L'offre et le CV ne sont ni stockés ni partagés.
         </div>
       </div>
     );
@@ -98,8 +151,8 @@ export function Eclaireur() {
     return (
       <div style={{ padding: "40px 20px" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>{"\uD83D\uDD0D"}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6" }}>Analyse de l'offre en cours</div>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6" }}>{hasCv ? "Analyse de l'offre × ton profil" : "Analyse de l'offre en cours"}</div>
         </div>
         <div style={{ width: "100%", background: "#1a1a2e", borderRadius: 8, height: 6, overflow: "hidden", marginBottom: 24 }}>
           <div style={{
@@ -112,7 +165,7 @@ export function Eclaireur() {
           {messages.map(function(msg, i) {
             return (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, opacity: i === messages.length - 1 ? 1 : 0.5, transition: "opacity 0.3s" }}>
-                <span style={{ color: "#e94560", fontSize: 14 }}>{i < messages.length - 1 ? "\u2714" : "\u25B8"}</span>
+                <span style={{ color: "#e94560", fontSize: 14 }}>{i < messages.length - 1 ? "✔" : "▸"}</span>
                 <span style={{ fontSize: 13, color: "#ccd6f6" }}>{msg}</span>
               </div>
             );
@@ -130,6 +183,19 @@ export function Eclaireur() {
     var eLabel = kpi && kpi.elasticity === "élastique" ? "élastique" : kpi && kpi.elasticity === "stable" ? "stable" : kpi && kpi.elasticity === "sous_pression" ? "sous pression" : "";
     var costStr = nm.costRange ? formatCost(nm.costRange[0]) + " - " + formatCost(nm.costRange[1]) + " / an" : "";
 
+    var cvScore = cvAudit ? cvAudit.score : 0;
+    var scoreColor = cvScore >= 4 ? "#4ecca3" : cvScore >= 3 ? "#ff9800" : "#e94560";
+
+    // CTA text
+    var ctaText = "Tu as vu le problème. La Forge te donne la solution.";
+    if (cvAudit) {
+      if (cvScore >= 3) {
+        ctaText = "Ton CV couvre une partie du problème. La Forge le calibre sur les cauchemars manquants.";
+      } else {
+        ctaText = "Ton CV ne répond pas à ce que le recruteur cherche. La Forge extrait tes vraies preuves et les formate.";
+      }
+    }
+
     return (
       <div style={{ padding: "8px 0" }}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -137,7 +203,7 @@ export function Eclaireur() {
           <div style={{ fontSize: 10, color: "#495670", marginBottom: 4 }}>Rôle détecté : {result.detectedRoleLabel}</div>
         </div>
 
-        {/* BLOC RÉVÉLÉ */}
+        {/* BLOC RÉVÉLÉ — KPI CACHÉ (V1 inchangé) */}
         <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 12 }}>KPI CACHÉ DU RECRUTEUR</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>{nm.label}</div>
@@ -167,6 +233,31 @@ export function Eclaireur() {
             </div>
           )}
         </div>
+
+        {/* BLOC DIAGNOSTIC CV (conditionnel) */}
+        {cvAudit && cvAudit.tests.length > 0 && (
+          <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>TON CV FACE À CETTE OFFRE</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: scoreColor }}>{cvScore}/5</div>
+            </div>
+
+            {cvAudit.tests.map(function(t, idx) {
+              return (
+                <div key={idx} style={{ marginBottom: idx < cvAudit.tests.length - 1 ? 10 : 0 }}>
+                  <div style={{ fontSize: 12, color: t.passed ? "#4ecca3" : "#e94560", lineHeight: 1.5 }}>
+                    {t.passed ? "✓" : "✗"} {t.label}
+                  </div>
+                  {!t.passed && t.message && (
+                    <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5, paddingLeft: 16, marginTop: 2 }}>
+                      → {t.message}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* BLOC FLOUTÉ */}
         <div style={{ position: "relative", marginBottom: 20 }}>
@@ -221,28 +312,25 @@ export function Eclaireur() {
         {/* CTA */}
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6", marginBottom: 8, lineHeight: 1.5 }}>
-            Tu as vu le problème. La Forge te donne la solution.
+            {ctaText}
           </div>
         </div>
 
-        <button onClick={function() { window.location.href = "/paywall"; }} style={{
+        <button onClick={function() { window.location.href = "/onboarding"; }} style={{
           width: "100%", padding: 18,
           background: "linear-gradient(135deg, #e94560, #c81d4e)",
           color: "#fff", border: "none", borderRadius: 12, cursor: "pointer",
           fontWeight: 700, fontSize: 16,
           boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-        }}>Lancer ma Forge — 49{"€"}</button>
+        }}>Lancer ma Forge — Gratuit</button>
 
         <div style={{ fontSize: 12, color: "#8892b0", textAlign: "center", marginTop: 10, lineHeight: 1.6 }}>
           CV réécrit. Bio calibrée. Script de contact. Préparation entretien. Score de densité.
         </div>
-        <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 6 }}>
-          Paiement sécurisé Stripe. Satisfait ou remboursé 48h.
-        </div>
 
         {/* Recommencer */}
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button onClick={function() { setPhase("input"); setResult(null); setText(""); }} style={{
+          <button onClick={function() { setPhase("input"); setResult(null); setCvAudit(null); setText(""); setCvText(""); }} style={{
             background: "none", border: "none", color: "#495670", fontSize: 12, cursor: "pointer",
           }}>Scanner une autre offre</button>
         </div>
