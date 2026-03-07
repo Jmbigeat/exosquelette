@@ -1064,6 +1064,23 @@ var STRESS_ANGLES = [
   },
 ];
 
+var SOLO_MARKERS = ["seul", "solo", "fondateur", "freelance", "indépendant", "sans équipe", "zéro équipe", "de a à z", "j'ai construit", "j'ai créé", "j'ai lancé", "side project", "bootstrap"];
+
+function isSoloBrick(brickText) {
+  var lower = (brickText || "").toLowerCase();
+  return SOLO_MARKERS.some(function(m) { return lower.indexOf(m) !== -1; });
+}
+
+var ANGLE4_SOLO = {
+  key: "angle4",
+  armorCase: "influence",
+  attack: "Qui as-tu convaincu d'utiliser ce que tu as construit ?",
+  fields: [
+    { key: "who", label: "Qui a utilisé / testé / acheté ?", placeholder: "Ex : 3 early adopters qui ont testé le prototype en beta" },
+    { key: "how", label: "Comment tu les as convaincus ?", placeholder: "Ex : démonstration live du gain de temps sur leur workflow" },
+  ],
+};
+
 var ARMOR_COLORS = { armored: "#4ecca3", credible: "#3498db", vulnerable: "#e94560" };
 var ARMOR_LABELS = { armored: "Blindée", credible: "Crédible", vulnerable: "Vulnérable" };
 var VERDICT_COLORS = { complete: "#4ecca3", partial: "#ff9800", empty: "#495670" };
@@ -1100,8 +1117,8 @@ function analyzeStressResponse(angleKey, responseFields) {
   }
 
   if (angleKey === "angle4") {
-    var hasWho = ["directeur", "manager", "équipe", "equipe", "collègue", "collegue", "cto", "ceo", "vp", "board", "comité", "comite", "stakeholder", "sponsor", "direction"].some(function(m) { return fullText.indexOf(m) !== -1; });
-    var hasHow = ["convaincu", "présenté", "presente", "démontré", "demontre", "aligné", "aligne", "embarqué", "embarque", "mobilisé", "mobilise", "fédéré", "federe", "pitch", "montré", "montre"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasWho = ["directeur", "manager", "équipe", "equipe", "collègue", "collegue", "cto", "ceo", "vp", "board", "comité", "comite", "stakeholder", "sponsor", "direction", "client", "utilisateur", "testeur", "early adopter", "beta testeur", "prospect", "acheteur"].some(function(m) { return fullText.indexOf(m) !== -1; });
+    var hasHow = ["convaincu", "présenté", "presente", "démontré", "demontre", "aligné", "aligne", "embarqué", "embarque", "mobilisé", "mobilise", "fédéré", "federe", "pitch", "montré", "montre", "adopté", "adopte", "recommandé", "recommande", "converti", "testé", "teste"].some(function(m) { return fullText.indexOf(m) !== -1; });
     if (hasWho && hasHow) return "complete";
     if (hasWho || hasHow) return "partial";
     return "empty";
@@ -1320,11 +1337,13 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
                     {STRESS_ANGLES.map(function(angle) {
                       // Angle 5 only shows if offer/benchmark data exists
                       if (angle.key === "angle5" && !hasOfferData()) return null;
+                      // Angle 4 solo variant for solo bricks
+                      var displayAngle = angle.key === "angle4" && isSoloBrick(brick.text) ? ANGLE4_SOLO : angle;
                       var alreadyAttempted = brick.stressTest && brick.stressTest[angle.key] && brick.stressTest[angle.key].attempted;
                       var isRec = angle.key === recommended;
                       return (
                         <button key={angle.key} disabled={alreadyAttempted}
-                          onClick={function() { if (!alreadyAttempted) { setActiveAngle(angle); setResponseFields({}); } }}
+                          onClick={function() { if (!alreadyAttempted) { setActiveAngle(displayAngle); setResponseFields({}); } }}
                           style={{
                             padding: "10px 14px", textAlign: "left", cursor: alreadyAttempted ? "default" : "pointer",
                             background: alreadyAttempted ? "#0a0a1a" : isRec ? "#e94560" + "22" : "#0f3460",
@@ -1333,7 +1352,7 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
                             textDecoration: alreadyAttempted ? "line-through" : "none",
                           }}>
                           <div style={{ fontSize: 12, color: alreadyAttempted ? "#495670" : isRec ? "#e94560" : "#8892b0", fontWeight: isRec ? 700 : 600 }}>
-                            {isRec && !alreadyAttempted ? "\u2192 " : ""}{angle.attack.split(".")[0]}
+                            {isRec && !alreadyAttempted ? "\u2192 " : ""}{displayAngle.attack.split(".")[0]}
                           </div>
                           {isRec && !alreadyAttempted && (
                             <div style={{ fontSize: 10, color: "#e94560", marginTop: 2 }}>Recommandé — remplit la case « {angle.armorCase} »</div>
