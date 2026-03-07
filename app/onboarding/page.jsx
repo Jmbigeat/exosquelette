@@ -13,39 +13,34 @@ export default function OnboardingPage() {
   useEffect(function() {
     supabase.auth.getUser().then(function(res) {
       if (!res.data || !res.data.user) {
-        window.location.href = "/paywall";
+        // TODO: Réactiver quand le paywall abonnement est en place
+        // La Forge est gratuite (modèle B2C2B mars 2026)
+        // window.location.href = "/paywall";
+        window.location.href = "/auth";
         return;
       }
       var u = res.data.user;
       setUser(u);
 
+      // TODO: Réactiver quand le paywall abonnement est en place
+      // La Forge est gratuite (modèle B2C2B mars 2026)
       // Vérifier le paiement
-      var params = new URLSearchParams(window.location.search);
-      var sessionId = params.get("session_id");
-
-      if (sessionId) {
-        // Vérification via Stripe session
-        fetch("/api/checkout/verify?session_id=" + sessionId)
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            if (data.paid) {
-              setLoading(false);
-            } else {
-              window.location.href = "/paywall";
-            }
-          })
-          .catch(function() { window.location.href = "/paywall"; });
-      } else {
-        // Pas de session_id : vérifier dans profiles
-        supabase.from("profiles").select("paid").eq("id", u.id).single()
-          .then(function(r) {
-            if (r.data && r.data.paid) {
-              setLoading(false);
-            } else {
-              window.location.href = "/paywall";
-            }
-          });
-      }
+      // var params = new URLSearchParams(window.location.search);
+      // var sessionId = params.get("session_id");
+      // if (sessionId) {
+      //   fetch("/api/checkout/verify?session_id=" + sessionId)
+      //     .then(function(r) { return r.json(); })
+      //     .then(function(data) {
+      //       if (data.paid) { setLoading(false); } else { window.location.href = "/paywall"; }
+      //     })
+      //     .catch(function() { window.location.href = "/paywall"; });
+      // } else {
+      //   supabase.from("profiles").select("paid").eq("id", u.id).single()
+      //     .then(function(r) {
+      //       if (r.data && r.data.paid) { setLoading(false); } else { window.location.href = "/paywall"; }
+      //     });
+      // }
+      setLoading(false);
     });
   }, []);
 

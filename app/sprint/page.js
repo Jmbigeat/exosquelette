@@ -117,7 +117,8 @@ export default function SprintPage() {
 
   // Consommer les données d'onboarding depuis sessionStorage
   useEffect(function() {
-    if (loading || !paid || onboardingConsumedRef.current) return;
+    // TODO: Réactiver !paid quand le paywall abonnement est en place
+    if (loading || onboardingConsumedRef.current) return;
 
     // Si un state existant est déjà chargé (sprint en cours), ne pas écraser
     if (savedState && savedState.screen === "sprint" && savedState.targetRoleId) return;
@@ -204,15 +205,16 @@ export default function SprintPage() {
     );
   }
 
-  // GATE : pas payé → redirect éclaireur
-  if (!paid) {
-    window.location.href = "/eclaireur";
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontSize: 14, color: "#8892b0" }}>Redirection...</div>
-      </div>
-    );
-  }
+  // TODO: Réactiver quand le paywall abonnement est en place
+  // La Forge est gratuite (modèle B2C2B mars 2026)
+  // if (!paid) {
+  //   window.location.href = "/eclaireur";
+  //   return (
+  //     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+  //       <div style={{ fontSize: 14, color: "#8892b0" }}>Redirection...</div>
+  //     </div>
+  //   );
+  // }
 
   // GATE : pas de données onboarding ni de sprint existant → redirect onboarding
   if (!savedState || (!savedState.targetRoleId && savedState.screen !== "onboarding")) {
