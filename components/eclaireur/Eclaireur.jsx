@@ -189,7 +189,9 @@ export function Eclaireur() {
     // CTA text
     var ctaText = "Tu as vu le problème. La Forge te donne la solution.";
     if (cvAudit) {
-      if (cvScore >= 3) {
+      if (cvScore === 5) {
+        ctaText = "Ton CV couvre les cauchemars du recruteur. La Forge stress-teste tes preuves et calibre tes livrables.";
+      } else if (cvScore >= 3) {
         ctaText = "Ton CV couvre une partie du problème. La Forge le calibre sur les cauchemars manquants.";
       } else {
         ctaText = "Ton CV ne répond pas à ce que le recruteur cherche. La Forge extrait tes vraies preuves et les formate.";
