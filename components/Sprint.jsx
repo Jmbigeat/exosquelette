@@ -1015,28 +1015,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       {!sprintDone && !etabliOpen && <InvestmentIndex bricks={bricks} />}
       {!sprintDone && !etabliOpen && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} />}
 
-      {/* Mise en Veille */}
-      {!sprintDone && !etabliOpen && (
-        <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #16213e" }}>
-          <button onClick={function() {
-            var v = bricks.filter(function(b) { return b.status === "validated"; });
-            var bl = v.filter(function(b) { return b.blinded; });
-            var cov = computeCauchemarCoverage(bricks).filter(function(c) { return c.covered; });
-            var mis = bricks.filter(function(b) { return b.type === "mission"; });
-            var summary = v.length + " brique" + (v.length > 1 ? "s" : "") + " forgée" + (v.length > 1 ? "s" : "") + ". "
-              + bl.length + " blindée" + (bl.length > 1 ? "s" : "") + ". "
-              + cov.length + " cauchemar" + (cov.length > 1 ? "s" : "") + " couvert" + (cov.length > 1 ? "s" : "") + "."
-              + (mis.length > 0 ? " " + mis.length + " mission" + (mis.length > 1 ? "s" : "") + " en attente." : "")
-              + "\n\nTon Score est sauvegardé. Tu reviens quand tu veux.";
-            if (confirm(summary)) { setSprintDone(true); }
-          }} style={{
-            width: "100%", padding: "10px 16px", background: "none",
-            border: "1px solid #495670", borderRadius: 10, cursor: "pointer",
-            fontSize: 12, color: "#495670", fontWeight: 600,
-          }}>Mise en Veille</button>
-          <div style={{ fontSize: 10, color: "#495670", textAlign: "center", marginTop: 4 }}>Pause la Forge. Tes briques restent.</div>
-        </div>
-      )}
+      {/* Mise en Veille — supprimé (les données persistent dans Supabase, pas besoin de bouton pause) */}
 
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
