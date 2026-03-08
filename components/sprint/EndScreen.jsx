@@ -1241,7 +1241,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     }
 
                     // Footer
-                    html += "<div class='footer'><span>Abneg@tion - L'IA extrait. Tu décides.</span><span>abnegation-fawn.vercel.app</span></div>";
+                    html += "<div class='footer'><span>Abneg@tion - L'IA extrait. Tu décides.</span><span>abnegation.eu</span></div>";
 
                     html += "</body></html>";
 
