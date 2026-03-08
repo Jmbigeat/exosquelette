@@ -36,6 +36,7 @@ export function OnboardingFlow({ onComplete }) {
       if (raw) {
         var parsed = JSON.parse(raw);
         if (parsed.detectedRoleId) setTargetRole(parsed.detectedRoleId);
+        if (parsed.cvText) setProfileText(parsed.cvText);
       }
     } catch (e) {}
   }, []);
