@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 
 // ── Local constants (originally in Sprint.jsx, not yet extracted to a shared module) ──
 
@@ -119,7 +121,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
       <div>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>{"\u2694\uFE0F"}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>Simulateur de Duel</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>Simulateur de Duel<Tooltip term="Duel" text={VOCABULARY.duel} /></div>
           <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6 }}>
             Les questions qui te feront tomber si tu n'es pas préparé. Avec des surprises.
           </div>

@@ -8,6 +8,8 @@ import { hasReachedSignatureThreshold, applySignatureFilter } from "@/lib/sprint
 import { generateCV, generateBio, generateContactScripts, generateTransitionScript, extractBestNum, generatePlan30jRH, generateReplacementReport, generateRaiseArgument, generatePlan90jN1, generateInterviewQuestions, generateCVLine, generateInterviewVersions, scoreContactScript, generateFollowUp, generateEmailSignature } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts, generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 import { getDiltsThermometerState, getDiltsLabel, computeDiltsTarget, detectDiltsStagnation, DILTS_EDITORIAL_MAPPING } from "@/lib/sprint/dilts";
 import { CopyBtn } from "./ui";
 import { auditDeliverable } from "@/lib/audit";
@@ -203,9 +205,9 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
   var coverage = nightmareCosts ? computeCauchemarCoverageDetailed(bricks || [], nightmareCosts) : computeCauchemarCoverage(bricks || []);
   var coveredCount = coverage.filter(function(c) { return c.covered; }).length;
   var items = [
-    { l: "Briques de Preuve", val: v.bricks, mx: 9, e: "\uD83E\uDDF1" },
+    { l: "Briques de Preuve", val: v.bricks, mx: 9, e: "\uD83E\uDDF1", tip: "brique" },
     { l: "Missions en cours", val: v.missions, mx: 5, e: "\uD83D\uDCCB" },
-    { l: "Piliers Singularité", val: v.pillars, mx: 4, e: "\uD83C\uDFDB\uFE0F" },
+    { l: "Piliers Singularité", val: v.pillars, mx: 4, e: "\uD83C\uDFDB\uFE0F", tip: "pilier" },
   ];
   var matLabels = { executant: "Exécutant", optimiseur: "Accélérateur", architecte: "Architecte" };
   var matColors = { executant: "#495670", optimiseur: "#e94560", architecte: "#4ecca3" };
@@ -226,7 +228,7 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
         {items.map(function(it) {
           return (
             <div key={it.l} style={{ background: "#1a1a2e", borderRadius: 8, padding: "10px 12px" }}>
-              <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 4 }}>{it.e} {it.l}</div>
+              <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 4 }}>{it.e} {it.l}{it.tip && <Tooltip term={it.l} text={VOCABULARY[it.tip]} />}</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#ccd6f6" }}>
                 {it.val}{it.u || ""} <span style={{ fontSize: 12, color: "#495670", fontWeight: 400 }}>/ {it.mx}{it.u || ""}</span>
               </div>
@@ -237,7 +239,7 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
       {/* CAUCHEMAR COVERAGE — with costs and vulnerability */}
       {bricks && bricks.length > 0 && (
         <div style={{ marginTop: 12, background: "#1a1a2e", borderRadius: 8, padding: "10px 12px" }}>
-          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>{"\uD83D\uDCA2"} Cauchemars couverts</div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>{"\uD83D\uDCA2"} Cauchemars couverts<Tooltip term="Cauchemar" text={VOCABULARY.cauchemar} /></div>
           <div style={{ fontSize: 18, fontWeight: 700, color: coveredCount === coverage.length ? "#4ecca3" : "#e94560", marginBottom: 8 }}>
             {coveredCount} <span style={{ fontSize: 12, color: "#495670", fontWeight: 400 }}>/ {coverage.length}</span>
           </div>
