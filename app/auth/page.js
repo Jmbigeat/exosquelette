@@ -19,6 +19,9 @@ export default function AuthPage() {
   var loadSt = useState(false);
   var loading = loadSt[0];
   var setLoading = loadSt[1];
+  var resetSentSt = useState(false);
+  var resetSent = resetSentSt[0];
+  var setResetSent = resetSentSt[1];
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -37,6 +40,18 @@ export default function AuthPage() {
     }
 
     window.location.href = "/sprint";
+  }
+
+  async function handleResetPassword() {
+    if (!email.trim()) { setError("Entre ton email pour réinitialiser."); return; }
+    setError(null);
+    setLoading(true);
+    var res = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://abnegation.eu/auth",
+    });
+    setLoading(false);
+    if (res.error) { setError(res.error.message); return; }
+    setResetSent(true);
   }
 
   var wrap = {
@@ -84,10 +99,22 @@ export default function AuthPage() {
         </form>
 
         <div style={{ textAlign: "center" }}>
-          <button onClick={function() { setMode(mode === "login" ? "signup" : "login"); setError(null); }} style={{
+          <button onClick={function() { setMode(mode === "login" ? "signup" : "login"); setError(null); setResetSent(false); }} style={{
             background: "none", border: "none", color: "#8892b0", fontSize: 13, cursor: "pointer",
           }}>{mode === "login" ? "Pas de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}</button>
         </div>
+
+        {mode === "login" && (
+          <div style={{ textAlign: "center", marginTop: 8 }}>
+            {resetSent ? (
+              <div style={{ fontSize: 12, color: "#4ecca3" }}>Un email de réinitialisation a été envoyé.</div>
+            ) : (
+              <button onClick={handleResetPassword} disabled={loading} style={{
+                background: "none", border: "none", color: "#495670", fontSize: 12, cursor: "pointer",
+              }}>Mot de passe oublié ?</button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
