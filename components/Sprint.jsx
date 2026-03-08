@@ -19,6 +19,8 @@ import { Duel } from "@/components/sprint/Duel";
 import { Onboarding } from "@/components/sprint/Onboarding";
 import { Toast } from "@/components/sprint/Toast";
 import { isWeekDeclared, loadBrewInstructions, markInstructionDone } from "@/lib/brew-db";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 
 export default function Sprint({ initialState, onStateChange, onScan, user }) {
   if (initialState) initialState = migrateState(initialState);
@@ -605,7 +607,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       return (
         <div style={overlayStyle}>
           <div style={cardStyle}>
-            <div style={subtitleStyle}>TA SIGNATURE</div>
+            <div style={subtitleStyle}>TA SIGNATURE<Tooltip term="Signature" text={VOCABULARY.signature} /></div>
             <div style={titleStyle}>La question</div>
             <div style={labelStyle}>
               Pour quoi tes anciens collègues ou ton manager te sollicitent quand personne d{"'"}autre ne résout le problème ?
@@ -887,7 +889,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
       }}>
         <div>
           <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 2 }}>ABNEG@TION</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#ccd6f6" }}>La Forge</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#ccd6f6" }}>La Forge<Tooltip term="Forge" text={VOCABULARY.forge} /></div>
           {targetRoleId && KPI_REFERENCE[targetRoleId] && (
             <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>{KPI_REFERENCE[targetRoleId].role}</div>
           )}
@@ -910,7 +912,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
             opacity: activeStep >= 1 ? 1 : 0.4, transition: "all 0.3s",
           }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: densityColor, whiteSpace: "nowrap" }}>
-              {hasValidatedBricks ? "Densité : " + density.score + "%" : "Densité : —"}
+              {hasValidatedBricks ? "Densité : " + density.score + "%" : "Densité : —"}<Tooltip term="Densité" text={VOCABULARY.densite} />
             </div>
           </button>
           {(isSubscribed || pieces > 0) && (
@@ -1040,7 +1042,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
             <div style={{ padding: "16px 16px 8px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #16213e" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 16 }}>{"\uD83E\uDDED"}</span>
-                <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 14 }}>ARSENAL</span>
+                <span style={{ color: "#ccd6f6", fontWeight: 700, fontSize: 14 }}>ARSENAL<Tooltip term="Arsenal" text={VOCABULARY.arsenal} /></span>
               </div>
               <button onClick={function() { setArsenalOpen(false); }} style={{
                 background: "none", border: "none", color: "#8892b0", cursor: "pointer", fontSize: 20, padding: "4px 8px",

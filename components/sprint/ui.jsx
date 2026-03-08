@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { detectSectoralDispersion } from "@/lib/sprint/offers";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 
 export function Bar({ pct }) {
   return (
@@ -27,7 +29,7 @@ export function Nav({ steps, active, onSelect, density, etabliOpen, onEtabliTogg
           }}>
             <div style={{ fontSize: 18, marginBottom: 2 }}>{isDone ? "\u2705" : isLocked ? "\uD83D\uDD12" : s.icon}</div>
             <div style={{ fontSize: 9, color: isLocked ? "#e94560" : "#8892b0", fontWeight: 600 }}>{s.gate}</div>
-            <div style={{ fontSize: 12, color: isAct ? "#fff" : "#ccd6f6", fontWeight: 700 }}>{s.title}</div>
+            <div style={{ fontSize: 12, color: isAct ? "#fff" : "#ccd6f6", fontWeight: 700 }}>{s.title}<Tooltip term={s.title} text={s.title === "Extraction" ? VOCABULARY.extraction : s.title === "Assemblage" ? VOCABULARY.assemblage : VOCABULARY.calibration} /></div>
           </button>
         );
       })}
@@ -40,7 +42,7 @@ export function Nav({ steps, active, onSelect, density, etabliOpen, onEtabliTogg
       }}>
         <div style={{ fontSize: 18, marginBottom: 2 }}>{"\u26A1"}</div>
         <div style={{ fontSize: 9, color: etabliEnabled ? "#e94560" : "#495670", fontWeight: 600 }}>GARDE: 1+</div>
-        <div style={{ fontSize: 12, color: etabliOpen ? "#e94560" : "#ccd6f6", fontWeight: 700 }}>{"\u00C9tabli"}</div>
+        <div style={{ fontSize: 12, color: etabliOpen ? "#e94560" : "#ccd6f6", fontWeight: 700 }}>{"\u00C9tabli"}<Tooltip term="Établi" text={VOCABULARY.etabli} /></div>
       </button>
     </div>
   );

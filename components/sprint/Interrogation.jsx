@@ -4,6 +4,8 @@ import { CATEGORY_LABELS, ELASTICITY_LABELS } from "@/lib/sprint/references";
 import { analyzeVerbs, auditAnonymization, hasBlame, hasDecisionMarkers, hasExternalization, hasInfluenceMarkers, hasNumbers } from "@/lib/sprint/analysis";
 import { formatCost, getActiveCauchemars, assessBrickArmor } from "@/lib/sprint/scoring";
 import { analyzeTakeDepth, auditBrickVulnerability, getBrickFields, matchKpiToReference, takeToiPillar } from "@/lib/sprint/bricks";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 import { generateAdvocacyText, generateInternalAdvocacy } from "@/lib/sprint/generators";
 import { BricksRecap } from "@/components/sprint/panels";
 
@@ -1249,7 +1251,7 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
 
   return (
     <div style={{ marginBottom: 20 }}>
-      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>STRESS TEST — BLINDAGE DES BRIQUES</div>
+      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, letterSpacing: 1, marginBottom: 8 }}>STRESS TEST<Tooltip term="Stress test" text={VOCABULARY.stressTest} /> — BLINDAGE<Tooltip term="Blindage" text={VOCABULARY.blindage} /> DES BRIQUES</div>
       <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 16, lineHeight: 1.5 }}>
         Chaque brique est testée sur 4 axes. L'angle recommandé remplit la case manquante dans ton blindage.
       </div>

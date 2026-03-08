@@ -7,6 +7,8 @@ import { detectDiltsLevel, detectDiltsStagnation, computeDiltsTarget, DILTS_EDIT
 import { generateLinkedInPosts } from "@/lib/sprint/linkedin";
 import { generateContactScripts } from "@/lib/sprint/generators";
 import { CopyBtn } from "@/components/sprint/ui";
+import Tooltip from "@/components/ui/Tooltip";
+import VOCABULARY from "@/lib/vocabulary";
 
 /* ── Helpers ──────────────────────────────────────────────── */
 
@@ -382,7 +384,7 @@ export default function Brew(props) {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
-          <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2 }}>ABNEG@TION — BREW</div>
+          <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2 }}>ABNEG@TION — BREW<Tooltip term="Brew" text={VOCABULARY.brew} /></div>
           <div style={{ fontSize: 10, color: "#495670", marginTop: 2 }}>Cockpit stratégique de preuves LinkedIn</div>
         </div>
         <a href="/sprint" style={{ fontSize: 11, color: "#8892b0", textDecoration: "none" }}>← La Forge</a>
