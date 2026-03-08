@@ -944,18 +944,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
               {hasValidatedBricks ? "Densité : " + density.score + "%" : "Densité : —"}<Tooltip term="Densité" text={VOCABULARY.densite} />
             </div>
           </button>
-          {(isSubscribed || pieces > 0) && (
-            <div key={pieces} style={{
-              fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
-              color: isSubscribed ? "#ccd6f6" : pieces >= 3 ? "#ccd6f6" : "#ff6b6b",
-              animation: "piecesPulse 0.3s ease-out",
-            }}>
-              {isSubscribed ? "∞ pièces" : "🪙 " + pieces + " pièce" + (pieces > 1 ? "s" : "")}
-            </div>
-          )}
-          {!isSubscribed && pieces === 0 && (
-            <div style={{ fontSize: 10, color: "#e94560", fontWeight: 600 }}>Mode Vitrine</div>
-          )}
+          {/* TODO: remplacer par badge abonnement */}
         </div>
       </div>
 
