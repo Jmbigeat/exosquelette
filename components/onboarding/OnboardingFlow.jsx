@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { KPI_REFERENCE, ROLE_CLUSTERS, SCAN_STEPS_ACTIF } from "@/lib/sprint/references";
 import { parseOfferSignals, buildActiveCauchemars } from "@/lib/sprint/offers";
 import { setActiveCauchemarsGlobal, getActiveCauchemars, formatCost } from "@/lib/sprint/scoring";
@@ -29,14 +29,18 @@ export function OnboardingFlow({ onComplete }) {
   var seedsSt = useState([]);
   var seeds = seedsSt[0]; var setSeeds = seedsSt[1];
 
-  // Pre-fill role from Eclaireur data if available
+  // Pre-fill from Eclaireur data if available
+  var eclaireurHasCvRef = useRef(false);
   useEffect(function() {
     try {
       var raw = sessionStorage.getItem("eclaireur_data");
       if (raw) {
         var parsed = JSON.parse(raw);
         if (parsed.detectedRoleId) setTargetRole(parsed.detectedRoleId);
-        if (parsed.cvText) setProfileText(parsed.cvText);
+        if (parsed.cvText && parsed.cvText.trim().length >= 20) {
+          setProfileText(parsed.cvText);
+          eclaireurHasCvRef.current = true;
+        }
       }
     } catch (e) {}
   }, []);
@@ -134,7 +138,11 @@ export function OnboardingFlow({ onComplete }) {
           </div>
         )}
 
-        <button onClick={function() { if (canNext) setPhase("profile"); }} disabled={!canNext} style={btnPrimary(canNext)}>Suivant</button>
+        <button onClick={function() {
+          if (!canNext) return;
+          if (eclaireurHasCvRef.current) { eclaireurHasCvRef.current = false; setPhase("offers"); }
+          else { setPhase("profile"); }
+        }} disabled={!canNext} style={btnPrimary(canNext)}>Suivant</button>
       </div>
     );
   }
