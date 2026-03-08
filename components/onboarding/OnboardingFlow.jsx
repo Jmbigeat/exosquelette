@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KPI_REFERENCE, ROLE_CLUSTERS, SCAN_STEPS_ACTIF } from "@/lib/sprint/references";
 import { parseOfferSignals, buildActiveCauchemars } from "@/lib/sprint/offers";
 import { setActiveCauchemarsGlobal, getActiveCauchemars, formatCost } from "@/lib/sprint/scoring";
@@ -28,6 +28,17 @@ export function OnboardingFlow({ onComplete }) {
   var offerSignals = signalsSt[0]; var setOfferSignals = signalsSt[1];
   var seedsSt = useState([]);
   var seeds = seedsSt[0]; var setSeeds = seedsSt[1];
+
+  // Pre-fill role from Eclaireur data if available
+  useEffect(function() {
+    try {
+      var raw = sessionStorage.getItem("eclaireur_data");
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed.detectedRoleId) setTargetRole(parsed.detectedRoleId);
+      }
+    } catch (e) {}
+  }, []);
 
   var textareaStyle = {
     width: "100%", minHeight: 120, padding: 14, background: "#1a1a2e",

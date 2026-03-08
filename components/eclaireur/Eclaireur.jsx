@@ -316,7 +316,17 @@ export function Eclaireur() {
           </div>
         </div>
 
-        <button onClick={function() { window.location.href = "/onboarding"; }} style={{
+        <button onClick={function() {
+          try {
+            sessionStorage.setItem("eclaireur_data", JSON.stringify({
+              offerText: text,
+              cvText: cvText || null,
+              detectedRoleId: result.detectedRoleId || null,
+              detectedRoleLabel: result.detectedRoleLabel || null,
+            }));
+          } catch (e) {}
+          window.location.href = "/onboarding";
+        }} style={{
           width: "100%", padding: 18,
           background: "linear-gradient(135deg, #e94560, #c81d4e)",
           color: "#fff", border: "none", borderRadius: 12, cursor: "pointer",
