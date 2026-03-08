@@ -199,6 +199,35 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
     markDeliverablesObsolete();
   }
 
+  // Inject Eclaireur data (offer + CV) if available — one-time consumption
+  var eclaireurConsumedRef = useRef(false);
+  useEffect(function() {
+    if (eclaireurConsumedRef.current) return;
+    try {
+      var raw = sessionStorage.getItem("eclaireur_data");
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      eclaireurConsumedRef.current = true;
+      sessionStorage.removeItem("eclaireur_data");
+
+      if (parsed.offerText && parsed.offerText.length > 20 && offersArray.length === 0) {
+        var signals = parseOfferSignals(parsed.offerText, targetRoleId);
+        var newOffer = {
+          id: offerNextId,
+          text: parsed.offerText,
+          parsedSignals: signals,
+          type: "external",
+          addedAt: new Date().toISOString(),
+          source: "eclaireur",
+        };
+        var updated = [newOffer];
+        setOffersArray(updated);
+        setOfferNextId(offerNextId + 1);
+        recalcOffersSignals(updated);
+      }
+    } catch (e) {}
+  }, [targetRoleId]);
+
   // Set global active cauchemars whenever role changes
   useEffect(function() {
     if (targetRoleId) {
