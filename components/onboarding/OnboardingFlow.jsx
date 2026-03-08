@@ -30,16 +30,17 @@ export function OnboardingFlow({ onComplete }) {
   var seeds = seedsSt[0]; var setSeeds = seedsSt[1];
 
   // Pre-fill from Eclaireur data if available
-  var eclaireurHasCvRef = useRef(false);
+  var eclaireurSkipRef = useRef({ cv: false, offer: false });
   useEffect(function() {
     try {
       var raw = sessionStorage.getItem("eclaireur_data");
       if (raw) {
         var parsed = JSON.parse(raw);
         if (parsed.detectedRoleId) setTargetRole(parsed.detectedRoleId);
+        eclaireurSkipRef.current.cv = true;
+        eclaireurSkipRef.current.offer = true;
         if (parsed.cvText && parsed.cvText.trim().length >= 20) {
           setProfileText(parsed.cvText);
-          eclaireurHasCvRef.current = true;
         }
       }
     } catch (e) {}
@@ -140,7 +141,12 @@ export function OnboardingFlow({ onComplete }) {
 
         <button onClick={function() {
           if (!canNext) return;
-          if (eclaireurHasCvRef.current) { eclaireurHasCvRef.current = false; setPhase("offers"); }
+          var skipCv = eclaireurSkipRef.current.cv;
+          var skipOffer = eclaireurSkipRef.current.offer;
+          eclaireurSkipRef.current.cv = false;
+          eclaireurSkipRef.current.offer = false;
+          if (skipCv && skipOffer) { setPhase("scan"); startScan(); }
+          else if (skipCv) { setPhase("offers"); }
           else { setPhase("profile"); }
         }} disabled={!canNext} style={btnPrimary(canNext)}>Suivant</button>
       </div>
