@@ -264,7 +264,7 @@ export default function Home() {
             {[
               {
                 q: "Pourquoi c'est gratuit ?",
-                a: "La Forge te montre ce que tu vaux. C'est un diagnostic. L'abonnement te donne les armes pour agir : CV calibré, scripts de contact, simulation d'entretien, cockpit LinkedIn. Le diagnostic est gratuit. L'exécution est payante.",
+                a: "La Forge te montre ce que tu vaux. C'est un diagnostic. L'abonnement te donne les armes pour agir : CV calibré, scripts de contact, posts LinkedIn, cockpit hebdomadaire, négociation salariale. Le diagnostic est gratuit. L'exécution est payante.",
               },
               {
                 q: "ChatGPT peut faire la même chose ?",
