@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
-import { CATEGORY_LABELS, ELASTICITY_LABELS } from "@/lib/sprint/references";
+import { CATEGORY_LABELS, ELASTICITY_LABELS, ROLE_CLUSTERS } from "@/lib/sprint/references";
 import { analyzeVerbs, auditAnonymization, hasBlame, hasDecisionMarkers, hasExternalization, hasInfluenceMarkers, hasNumbers } from "@/lib/sprint/analysis";
 import { formatCost, getActiveCauchemars, assessBrickArmor } from "@/lib/sprint/scoring";
 import { analyzeTakeDepth, auditBrickVulnerability, getBrickFields, matchKpiToReference, takeToiPillar } from "@/lib/sprint/bricks";
@@ -1174,7 +1174,7 @@ function getVerdictMessage(angleKey, verdict) {
  * Armored bricks (4/4) hide the buttons.
  * @param {{ bricks: Array, onBrickUpdate: Function, nightmareCosts: object, offersArray: Array }} props
  */
-export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersArray, navigateToBrick, onNavigateDone }) {
+export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersArray, navigateToBrick, onNavigateDone, targetRoleId }) {
   var expandedState = useState(null);
   var expandedId = expandedState[0];
   var setExpandedId = expandedState[1];
@@ -1184,6 +1184,9 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
   var responseState = useState({});
   var responseFields = responseState[0];
   var setResponseFields = responseState[1];
+  var transferDraftsState = useState({});
+  var transferDrafts = transferDraftsState[0];
+  var setTransferDrafts = transferDraftsState[1];
 
   // Chantier 10B — external navigation from Arsenal "Aller à la brique"
   var navRef = useRef(null);
@@ -1329,6 +1332,72 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
                           </div>
                         );
                       })}
+                    </div>
+                  );
+                })()}
+
+                {/* TRANSFER STATEMENT — visible for armored bricks */}
+                {isArmored && (function() {
+                  var draftKey = brick.id;
+                  var currentDraft = transferDrafts[draftKey] != null ? transferDrafts[draftKey] : (brick.transferStatement || "");
+                  // Pre-fill from angle3 if empty and angle3 completed
+                  if (!currentDraft && brick.stressTest && brick.stressTest.angle3 && brick.stressTest.angle3.response && brick.stressTest.angle3.response.transferable) {
+                    currentDraft = brick.stressTest.angle3.response.transferable;
+                  }
+                  var draftLen = (currentDraft || "").trim().length;
+                  var tooShort = draftLen > 0 && draftLen < 20;
+                  // Audit specificity
+                  var isGeneric = false;
+                  if (draftLen >= 20) {
+                    var draftLower = currentDraft.toLowerCase();
+                    var hasRoleKw = false;
+                    var hasNightmareKw = false;
+                    var targetCluster = ROLE_CLUSTERS.find(function(rc) { return rc.id === targetRoleId; });
+                    if (targetCluster) {
+                      var roleWords = targetCluster.label.toLowerCase().split(/[\s\/]+/).filter(function(w) { return w.length > 3; });
+                      roleWords.forEach(function(w) { if (draftLower.indexOf(w) !== -1) hasRoleKw = true; });
+                    }
+                    var activeCauchs = getActiveCauchemars();
+                    if (activeCauchs) {
+                      activeCauchs.forEach(function(c) {
+                        if (hasNightmareKw) return;
+                        var words = (c.label || "").toLowerCase().split(/[\s\/]+/).filter(function(w) { return w.length > 3; });
+                        words.forEach(function(w) { if (draftLower.indexOf(w) !== -1) hasNightmareKw = true; });
+                        if (c.kpis) c.kpis.forEach(function(k) { if (draftLower.indexOf(k.toLowerCase()) !== -1) hasNightmareKw = true; });
+                      });
+                    }
+                    isGeneric = !hasRoleKw && !hasNightmareKw;
+                  }
+                  var saved = brick.transferStatement === (currentDraft || "").trim();
+                  return (
+                    <div style={{ marginBottom: 14, padding: 12, background: "#111125", borderRadius: 8, borderLeft: "3px solid #4ecca3" }}>
+                      <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 6 }}>Ce que cette brique prouve pour le poste visé</div>
+                      <textarea
+                        value={currentDraft}
+                        onChange={function(e) {
+                          var upd = Object.assign({}, transferDrafts);
+                          upd[draftKey] = e.target.value;
+                          setTransferDrafts(upd);
+                        }}
+                        placeholder="Ex : Ce projet prouve que je sais tuer une feature sans consensus pour protéger le time-to-market."
+                        rows={3}
+                        style={{ width: "100%", padding: 10, background: "#1a1a2e", border: "1px solid #495670", borderRadius: 8, color: "#ccd6f6", fontSize: 12, lineHeight: 1.5, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+                      />
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                        <div style={{ fontSize: 10, color: tooShort ? "#e94560" : isGeneric ? "#ff9800" : "#495670" }}>
+                          {tooShort ? "Minimum 20 caractères" : isGeneric ? "Ton transfert est générique. Mentionne le rôle ou un cauchemar précis." : draftLen + " caractères"}
+                        </div>
+                        {!saved && draftLen >= 20 && (
+                          <button onClick={function() {
+                            var updated = Object.assign({}, brick);
+                            updated.transferStatement = currentDraft.trim();
+                            onBrickUpdate(updated);
+                          }} style={{ background: "none", border: "1px solid #495670", borderRadius: 6, padding: "4px 12px", color: "#8892b0", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>Enregistrer</button>
+                        )}
+                        {saved && draftLen >= 20 && (
+                          <span style={{ fontSize: 10, color: "#4ecca3" }}>Enregistré</span>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}

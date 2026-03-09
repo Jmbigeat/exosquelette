@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE } from "@/lib/sprint/references";
+import { KPI_REFERENCE, CATEGORY_LABELS, CAUCHEMAR_TEMPLATES_BY_ROLE, ROLE_CLUSTERS } from "@/lib/sprint/references";
 import { computeCrossRoleMatching } from "@/lib/sprint/bricks";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { computeEffort, getActiveCauchemars, computeCauchemarCoverage, computeCauchemarCoverageDetailed, computeDensityScore, assessBrickArmor, formatCost } from "@/lib/sprint/scoring";
@@ -2067,7 +2067,7 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
    Zéro donnée nouvelle : affichage des calculs existants
    ============================== */
 
-export function Arsenal({ density, bricks, nightmares, signatureThreshold, signature, vault, duelResults, pieces, onGoToBrick, onClose }) {
+export function Arsenal({ density, bricks, nightmares, signatureThreshold, signature, vault, duelResults, pieces, onGoToBrick, onClose, previousRole, targetRoleId }) {
   if (!density || !density.axes || density.axes.length === 0) {
     return (
       <div style={{ padding: 20, textAlign: "center" }}>
@@ -2142,8 +2142,73 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
   var recommendedAngle = recommendation && recommendation.axesImproved.length > 0
     ? recommendation.axesImproved[0] : null;
 
+  // Trajectory computation
+  var armoredBricks = validated.filter(function(b) { return assessBrickArmor(b).status === "armored"; });
+  var armoredCoveringCount = 0;
+  var coveredCauchCount = 0;
+  armoredBricks.forEach(function(b) {
+    var covers = coverage.some(function(c) {
+      return c.covered && c.kpi && b.kpi && (b.kpi.toLowerCase().indexOf(c.kpi.toLowerCase().slice(0, 6)) !== -1 || c.kpi.toLowerCase().indexOf(b.kpi.toLowerCase().slice(0, 6)) !== -1);
+    });
+    if (covers) armoredCoveringCount++;
+  });
+  coverage.forEach(function(c) { if (c.covered) coveredCauchCount++; });
+
+  var trajectory = null;
+  var targetCluster = ROLE_CLUSTERS.find(function(rc) { return rc.id === targetRoleId; });
+  var targetLabel = targetCluster ? targetCluster.label.split(" / ")[0] : "ce poste";
+  if (previousRole) {
+    var prevLower = previousRole.toLowerCase();
+    var prevCluster = null;
+    ROLE_CLUSTERS.forEach(function(rc) {
+      if (prevCluster) return;
+      var words = rc.label.toLowerCase().split(/[\s\/]+/).filter(function(w) { return w.length > 3; });
+      for (var wi = 0; wi < words.length; wi++) {
+        if (prevLower.indexOf(words[wi]) !== -1) { prevCluster = rc; break; }
+      }
+    });
+    if (!prevCluster) {
+      trajectory = { type: "atypique", color: "#e94560", label: "trajectoire atypique" };
+    } else if (!targetCluster) {
+      trajectory = { type: "atypique", color: "#e94560", label: "trajectoire atypique" };
+    } else if (prevCluster.bloc === targetCluster.bloc) {
+      trajectory = { type: "lineaire", color: "#4ecca3", label: "trajectoire linéaire" };
+    } else {
+      trajectory = { type: "transverse", color: "#ff9800", label: "trajectoire transverse" };
+    }
+  }
+
   return (
     <div>
+
+      {/* BLOC 0 — TRAJECTOIRE */}
+      {previousRole && trajectory && armoredCoveringCount > 0 ? (
+        <div style={{ marginBottom: 16, padding: 14, background: "#111125", borderRadius: 10, borderLeft: "3px solid " + trajectory.color }}>
+          <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" }}>TA TRAJECTOIRE</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#f0f0ff", marginBottom: 10 }}>
+            {previousRole} {"\u2192"} {targetLabel}
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: trajectory.color, background: trajectory.color + "22", padding: "2px 8px", borderRadius: 6 }}>
+              {"Distance : " + trajectory.label}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 8 }}>
+            {armoredCoveringCount + " brique" + (armoredCoveringCount > 1 ? "s" : "") + " blindée" + (armoredCoveringCount > 1 ? "s" : "") + " couvr" + (armoredCoveringCount > 1 ? "ent" : "e") + " " + coveredCauchCount + " cauchemar" + (coveredCauchCount > 1 ? "s" : "") + " du rôle cible."}
+          </div>
+          <div style={{ fontSize: 12, color: "#8892b0", fontStyle: "italic", lineHeight: 1.6 }}>
+            {trajectory.type === "lineaire"
+              ? "Tu approfondis. " + coveredCauchCount + " cauchemars couverts prouvent ta maîtrise du domaine."
+              : trajectory.type === "transverse"
+              ? "Tu élargis. Tes compétences de " + previousRole + " enrichissent le rôle " + targetLabel + "."
+              : "Tu réinventes. Le chemin de " + previousRole + " à " + targetLabel + " est ta preuve d'apprentissage."}
+          </div>
+        </div>
+      ) : previousRole ? (
+        <div style={{ marginBottom: 16, padding: 12, background: "#1a1a2e", borderRadius: 8 }}>
+          <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>Blinde tes briques pour débloquer ta trajectoire.</div>
+        </div>
+      ) : null}
 
       {/* Chantier 14 — Bandeau Mode Vitrine */}
       {displayMode === "vitrine" && (
