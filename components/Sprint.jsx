@@ -53,6 +53,8 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   var roleState = useState(initialState && initialState.targetRoleId ? initialState.targetRoleId : null);
   var targetRoleId = roleState[0];
   var setTargetRoleId = roleState[1];
+  var previousRoleState = useState(initialState && initialState.previousRole ? initialState.previousRole : "");
+  var previousRole = previousRoleState[0];
   var costState = useState(initialState && initialState.nightmareCosts ? initialState.nightmareCosts : {});
   var nightmareCosts = costState[0];
   var setNightmareCosts = costState[1];
@@ -242,7 +244,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
     var stateObj = {
       screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
       sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
-      targetRoleId: targetRoleId, nightmareCosts: nightmareCosts,
+      targetRoleId: targetRoleId, previousRole: previousRole, nightmareCosts: nightmareCosts,
       takes: takes, parsedOffers: parsedOffers,
       offersArray: offersArray, offerNextId: offerNextId, aiPillarRecs: aiPillarRecs, currentSalary: currentSalary, signature: signature, pieces: pieces, _version: CURRENT_VERSION, _savedAt: Date.now(),
     };
@@ -856,7 +858,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
     }
     if (activeStep === 1) return (
       <div>
-        <BrickStressTest bricks={bricks} onBrickUpdate={handleBrickUpdate} nightmareCosts={nightmareCosts} offersArray={offersArray} navigateToBrick={navigateToBrick} onNavigateDone={function() { setNavigateToBrick(null); }} />
+        <BrickStressTest bricks={bricks} onBrickUpdate={handleBrickUpdate} nightmareCosts={nightmareCosts} offersArray={offersArray} navigateToBrick={navigateToBrick} onNavigateDone={function() { setNavigateToBrick(null); }} targetRoleId={targetRoleId} />
         <Pillars pillars={getAdaptivePillars(targetRoleId)} takes={takes} onVal={handleValPillars} recommendations={aiPillarRecs} onRefresh={handleRefreshPillarRecs} />
       </div>
     );
@@ -1058,6 +1060,8 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
                 displayMode={displayMode}
                 onGoToBrick={handleGoToBrick}
                 onClose={function() { setArsenalOpen(false); }}
+                previousRole={previousRole}
+                targetRoleId={targetRoleId}
               />
             </div>
           </div>

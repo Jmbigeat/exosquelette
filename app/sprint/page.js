@@ -142,6 +142,7 @@ export default function SprintPage() {
       setSavedState({
         screen: "sprint",
         targetRoleId: data.targetRoleId,
+        previousRole: data.previousRole || "",
         pieces: 7,
         activeStep: 0,
         bricks: [],

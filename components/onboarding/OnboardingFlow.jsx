@@ -20,6 +20,8 @@ export function OnboardingFlow({ onComplete }) {
   var profileText = profileSt[0]; var setProfileText = profileSt[1];
   var offersSt = useState("");
   var offersText = offersSt[0]; var setOffersText = offersSt[1];
+  var previousRoleSt = useState("");
+  var previousRole = previousRoleSt[0]; var setPreviousRole = previousRoleSt[1];
   var progressSt = useState(0);
   var scanProgress = progressSt[0]; var setScanProgress = progressSt[1];
   var messagesSt = useState([]);
@@ -179,7 +181,32 @@ export function OnboardingFlow({ onComplete }) {
           </div>
         </div>
 
-        <button onClick={function() { if (canNext) setPhase("offers"); }} disabled={!canNext} style={btnPrimary(canNext)}>Suivant</button>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>Ton rôle actuel ou dernier rôle en poste <span style={{ fontSize: 10, color: "#495670" }}>(optionnel)</span></div>
+          <input
+            value={previousRole}
+            onChange={function(e) { setPreviousRole(e.target.value); }}
+            placeholder="Ex : Account Executive, Chef de projet, Maître d'hôtel..."
+            style={{ width: "100%", padding: 10, background: "#1a1a2e", border: "2px solid #16213e", borderRadius: 8, color: "#ccd6f6", fontSize: 13, outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+          />
+        </div>
+
+        <button onClick={function() {
+          if (!canNext) return;
+          // Auto-detect previousRole from profileText if not filled
+          if (!previousRole.trim()) {
+            var lower = profileText.toLowerCase();
+            for (var i = 0; i < ROLE_CLUSTERS.length; i++) {
+              var words = ROLE_CLUSTERS[i].label.toLowerCase().split(/[\s\/]+/).filter(function(w) { return w.length > 3; });
+              var found = false;
+              for (var j = 0; j < words.length; j++) {
+                if (lower.indexOf(words[j]) !== -1) { found = true; break; }
+              }
+              if (found) { setPreviousRole(ROLE_CLUSTERS[i].label.split(" / ")[0]); break; }
+            }
+          }
+          setPhase("offers");
+        }} disabled={!canNext} style={btnPrimary(canNext)}>Suivant</button>
         <div style={{ marginTop: 12 }}>
           <button onClick={function() { setPhase("role"); }} style={btnBack}>{"\u2190"} Retour</button>
         </div>
@@ -301,6 +328,7 @@ export function OnboardingFlow({ onComplete }) {
         targetRoleId: targetRole,
         profileText: profileText,
         offersText: offersText,
+        previousRole: previousRole,
         generatedBricks: seeds,
         offerSignals: offerSignals,
       });
