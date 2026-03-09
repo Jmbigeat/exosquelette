@@ -4,7 +4,7 @@ import Link from "next/link";
 
 /* ==============================
    LANDING PAGE — ABNEG@TION
-   Structure ATMT : Accroche, Tension, Méthode, Transfert
+   Wireframe : Hero → Vidéo → Preuve sociale → Bénéfices → 3 étapes → Avant/Après → Comparaison → Avis → Pricing → FAQ → CTA → Footer
    ============================== */
 
 function FadeIn({ children, delay }) {
@@ -22,27 +22,6 @@ function FadeIn({ children, delay }) {
   );
 }
 
-function Counter({ end, suffix, duration }) {
-  var countState = useState(0);
-  var count = countState[0]; var setCount = countState[1];
-  useEffect(function() {
-    var dur = duration || 2000;
-    var steps = 30;
-    var step = 0;
-    var interval = setInterval(function() {
-      step++;
-      var progress = step / steps;
-      var eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(end * eased));
-      if (step >= steps) clearInterval(interval);
-    }, dur / steps);
-    return function() { clearInterval(interval); };
-  }, [end, duration]);
-  return (
-    <span>{count}{suffix || ""}</span>
-  );
-}
-
 export default function Home() {
   var sectionStyle = { maxWidth: 900, margin: "0 auto", padding: "60px 20px" };
   var h2Style = { fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 3, marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" };
@@ -51,51 +30,106 @@ export default function Home() {
   return (
     <div style={{ background: "#06060f", minHeight: "100vh", color: "#ccd6f6", fontFamily: "'Inter', -apple-system, sans-serif" }}>
 
-      {/* ══════ HEADER ══════ */}
+      {/* ══════ 1. HERO ══════ */}
       <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 900, margin: "0 auto" }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: "#e94560", letterSpacing: 2, fontFamily: "'JetBrains Mono', monospace" }}>ABNEG@TION</div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <Link href="/eclaireur" style={{ fontSize: 12, color: "#8892b0", textDecoration: "none" }}>Éclaireur</Link>
-          <Link href="/auth" style={{ fontSize: 12, color: "#8892b0", textDecoration: "none" }}>Connexion</Link>
+          <Link href="/eclaireur" style={{ fontSize: 12, color: "#8892b0", textDecoration: "none" }}>Essai gratuit</Link>
+          <a href="#comment" style={{ fontSize: 12, color: "#8892b0", textDecoration: "none" }}>Comment ça marche</a>
+          <a href="#prix" style={{ fontSize: 12, color: "#8892b0", textDecoration: "none" }}>Prix</a>
         </div>
       </div>
 
-      {/* ══════ ACCROCHE ══════ */}
       <div style={{ ...sectionStyle, textAlign: "center", paddingTop: 80, paddingBottom: 40 }}>
         <FadeIn>
-          <div style={h2Style}>LA FORGE</div>
           <h1 style={{ fontSize: 32, fontWeight: 800, color: "#f0f0ff", lineHeight: 1.3, marginBottom: 20, maxWidth: 700, margin: "0 auto 20px" }}>
-            Ton CV dit ce que tu as fait.<br />Le recruteur veut savoir ce que tu résous.
+            Ta signature professionnelle existe déjà.<br />Tu ne sais pas la formuler.
           </h1>
-          <p style={{ fontSize: 16, color: "#8892b0", lineHeight: 1.7, maxWidth: 540, margin: "0 auto 32px" }}>
-            Abneg@tion extrait tes preuves de valeur, les blinde sur 4 axes, et calibre ton discours sur les cauchemars du recruteur. Gratuit.
+          <p style={{ fontSize: 16, color: "#8892b0", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 32px" }}>
+            L'outil extrait tes preuves, nomme tes différences, et produit les livrables qui te positionnent. Gratuit.
           </p>
-          <Link href="/eclaireur" style={{
-            display: "inline-block", padding: "14px 32px",
-            background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
-            borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none",
-            boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-          }}>Tester gratuitement</Link>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
+            <Link href="/eclaireur" style={{
+              display: "inline-block", padding: "14px 32px",
+              background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
+              borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none",
+              boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
+            }}>Tester gratuitement</Link>
+            <a href="#comment" style={{
+              display: "inline-block", padding: "14px 32px",
+              background: "transparent", color: "#8892b0",
+              borderRadius: 10, fontWeight: 600, fontSize: 14, textDecoration: "none",
+              border: "1px solid #1a1a3e",
+            }}>Voir comment ça marche</a>
+          </div>
+          <p style={{ fontSize: 11, color: "#495670" }}>Pas de compte pour l'essai. 30 secondes. Tu gardes tout.</p>
         </FadeIn>
       </div>
 
-      {/* ══════ CHIFFRES ══════ */}
-      <div style={{ ...sectionStyle, paddingTop: 20, paddingBottom: 40 }}>
+      {/* ══════ 2. VIDÉO (placeholder) ══════ */}
+      <div style={sectionStyle}>
+        <FadeIn delay={0.1}>
+          <div style={{
+            background: "#0d0d1a", border: "1px solid #1a1a3e", borderRadius: 12,
+            height: 360, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          }}>
+            <div style={{ fontSize: 48, color: "#e94560", marginBottom: 12 }}>{"\u25B6"}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#ccd6f6", marginBottom: 4 }}>Voir l'outil en action</div>
+            <div style={{ fontSize: 13, color: "#8892b0" }}>90 secondes. Pas de blabla.</div>
+          </div>
+        </FadeIn>
+      </div>
+
+      {/* ══════ 3. PREUVE SOCIALE (placeholder) ══════ */}
+      <div style={sectionStyle}>
         <FadeIn delay={0.2}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+          <div style={{ background: "#111125", borderRadius: 12, padding: "28px 24px", textAlign: "center", border: "1px solid #1a1a3e" }}>
+            <p style={{ fontSize: 13, color: "#495670", fontStyle: "italic", marginBottom: 20 }}>Les premiers témoignages arrivent.</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+              {[
+                { value: "10", label: "rôles couverts" },
+                { value: "4", label: "secteurs" },
+                { value: "170", label: "tests automatisés" },
+              ].map(function(item, i) {
+                return (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: "#e94560", fontFamily: "'JetBrains Mono', monospace" }}>{item.value}</span>
+                    <span style={{ fontSize: 11, color: "#8892b0" }}>{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+
+      {/* ══════ 4. BÉNÉFICES ══════ */}
+      <div style={sectionStyle}>
+        <FadeIn delay={0.3}>
+          <div style={h2Style}>CE QUE ÇA CHANGE POUR TOI</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
             {[
-              { end: 5, suffix: "", label: "cauchemars détectés", desc: "par poste. Ce que le recruteur n'écrit pas dans l'offre." },
-              { end: 0, suffix: " preuves", label: "dans ton CV actuel", desc: "Les recruteurs cherchent des résultats. Ton CV liste des responsabilités." },
-              { end: 3, suffix: "s", label: "détection IA", desc: "L'outil identifie ton rôle, tes KPIs cachés et ton élasticité en 3 secondes." },
-              { end: 10, suffix: " rôles", label: "couverts", desc: "Vente, Produit, Tech, Stratégie. L'outil calibre tes preuves sur les KPIs de ton poste cible." },
+              {
+                icon: "\uD83C\uDFAF", accent: "#e94560",
+                title: "Tu sais ce que le recruteur cache",
+                desc: "Colle une offre. L'outil révèle le KPI caché, les 5 cauchemars du poste, et le coût du silence. En 30 secondes.",
+              },
+              {
+                icon: "\uD83E\uDDF1", accent: "#4ecca3",
+                title: "Tu prouves ta rareté",
+                desc: "L'outil extrait tes chiffres, tes décisions sous pression, tes échecs analysés. Chaque fait est stress-testé sur 4 axes. Ton CV dit ce qui disparaît sans toi.",
+              },
+              {
+                icon: "\u26A1", accent: "#ff9800",
+                title: "Tu agis par interlocuteur",
+                desc: "CV calibré en 6 secondes. 4 scripts de contact (email, DM, N+1, RH). Questions d'entretien à 4 niveaux. Message post-entretien. Bio LinkedIn. Tout calibré sur les cauchemars de ton recruteur.",
+              },
             ].map(function(item, i) {
               return (
-                <div key={i} style={cardStyle}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: "#e94560", marginBottom: 4 }}>
-                    <Counter end={item.end} suffix={item.suffix} />
-                  </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>{item.label}</div>
-                  <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>{item.desc}</div>
+                <div key={i} style={{ ...cardStyle, borderTop: "3px solid " + item.accent }}>
+                  <div style={{ fontSize: 28, marginBottom: 10 }}>{item.icon}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 8 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.7 }}>{item.desc}</div>
                 </div>
               );
             })}
@@ -103,32 +137,59 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ ÉCLAIREUR ══════ */}
-      <div style={{ ...sectionStyle, textAlign: "center" }}>
-        <FadeIn delay={0.3}>
-          <div style={h2Style}>ÉCLAIREUR V2</div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f0f0ff", marginBottom: 12 }}>
-            Colle une offre. Vois ce que le recruteur cache.
-          </h2>
-          <p style={{ fontSize: 14, color: "#8892b0", lineHeight: 1.7, marginBottom: 8 }}>
-            Pas de compte. Pas de carte. 30 secondes.
-          </p>
-          <p style={{ fontSize: 13, color: "#4ecca3", lineHeight: 1.7, marginBottom: 28 }}>
-            Nouveau : colle aussi ton CV. L'outil mesure l'écart entre ce que le recruteur cherche et ce que ton CV dit. Score /5 en 30 secondes.
-          </p>
-          <Link href="/eclaireur" style={{
-            display: "inline-block", padding: "14px 32px",
-            background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
-            borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none",
-            boxShadow: "0 4px 20px rgba(233,69,96,0.3)",
-          }}>Tester gratuitement</Link>
+      {/* ══════ 5. COMMENT ÇA MARCHE — 3 étapes ══════ */}
+      <div id="comment" style={sectionStyle}>
+        <FadeIn delay={0.4}>
+          <div style={h2Style}>COMMENT ÇA MARCHE</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {[
+              {
+                step: "1", badge: "30 sec",
+                title: "Colle une offre",
+                desc: "L'Éclaireur analyse l'offre et révèle ce que le recruteur cherche. Ton CV est scoré face à l'offre. Tu vois l'écart en 30 secondes. Gratuit. Pas de compte.",
+              },
+              {
+                step: "2", badge: "20 min",
+                title: "Réponds aux questions",
+                desc: "La Forge te pose des questions tirées de ton vécu. Tes réponses deviennent des briques de preuve. Chaque brique est stress-testée. Le Duel simule un entretien hostile. Coupure à 90 secondes.",
+              },
+              {
+                step: "3", badge: "12+ livrables",
+                title: "Récupère tes armes",
+                desc: "L'Établi produit tes livrables calibrés par interlocuteur. CV, emails, scripts, posts LinkedIn, questions d'entretien, message post-entretien. Chaque livrable est audité automatiquement.",
+              },
+            ].map(function(item, i) {
+              var isLast = i === 2;
+              return (
+                <div key={i} style={{ display: "flex", gap: 20 }}>
+                  {/* Timeline */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 32 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: "50%", background: "#4ecca3" + "22", border: "2px solid #4ecca3",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 14, fontWeight: 800, color: "#4ecca3", fontFamily: "'JetBrains Mono', monospace",
+                    }}>{item.step}</div>
+                    {!isLast && <div style={{ width: 2, flex: 1, background: "#1a1a3e", minHeight: 40 }} />}
+                  </div>
+                  {/* Content */}
+                  <div style={{ paddingBottom: isLast ? 0 : 28 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#ccd6f6" }}>{item.title}</div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#4ecca3", background: "#4ecca3" + "22", padding: "2px 8px", borderRadius: 6 }}>{item.badge}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.7 }}>{item.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </FadeIn>
       </div>
 
-      {/* ══════ TENSION — Avant / Après ══════ */}
+      {/* ══════ 6. AVANT / APRÈS ══════ */}
       <div style={sectionStyle}>
-        <FadeIn delay={0.4}>
-          <div style={h2Style}>AVANT / APRÈS</div>
+        <FadeIn delay={0.5}>
+          <div style={h2Style}>CE QUI CHANGE VRAIMENT</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div style={{ ...cardStyle, borderLeft: "3px solid #e94560" }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#e94560", marginBottom: 10 }}>AVANT — LE CANDIDAT CLASSIQUE</div>
@@ -154,30 +215,7 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ MÉTHODE — Comment ça marche ══════ */}
-      <div style={sectionStyle}>
-        <FadeIn delay={0.5}>
-          <div style={h2Style}>COMMENT ÇA MARCHE</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-            {[
-              { step: "01", title: "Extraction", desc: "Tu racontes tes faits. L'outil extrait les briques de valeur : chiffres, décisions, influence, cicatrices." },
-              { step: "02", title: "Blindage", desc: "Chaque brique est stress-testée sur 4 axes. Les failles sont identifiées. Tu renforces ta défense." },
-              { step: "03", title: "Calibration", desc: "L'Arsenal détecte tes cauchemars couverts, ton axe faible, et projette l'impact de chaque brique blindée." },
-              { step: "04", title: "Transfert", desc: "Ta trajectoire est visible. Tes preuves sont reliées au poste visé. Ton discours est prêt." },
-            ].map(function(item, i) {
-              return (
-                <div key={i} style={cardStyle}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#e94560", marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" }}>{item.step}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6 }}>{item.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </FadeIn>
-      </div>
-
-      {/* ══════ COMPARAISON ══════ */}
+      {/* ══════ 7. COMPARAISON ══════ */}
       <div style={sectionStyle}>
         <FadeIn delay={0.6}>
           <div style={h2Style}>COMPARAISON</div>
@@ -216,8 +254,25 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ PRICING ══════ */}
-      <div style={sectionStyle}>
+      {/* ══════ 8. AVIS CLIENTS (placeholder) ══════ */}
+      <div id="avis" style={sectionStyle}>
+        <FadeIn delay={0.65}>
+          <div style={h2Style}>AVIS CANDIDATS</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>
+            {[0, 1, 2].map(function(i) {
+              return (
+                <div key={i} style={{ ...cardStyle, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 120 }}>
+                  <span style={{ fontSize: 13, color: "#495670" }}>Bientôt</span>
+                </div>
+              );
+            })}
+          </div>
+          <p style={{ fontSize: 12, color: "#495670", fontStyle: "italic", textAlign: "center" }}>Les 10 premiers candidats testent l'outil. Leurs retours apparaîtront ici.</p>
+        </FadeIn>
+      </div>
+
+      {/* ══════ 9. PRICING ══════ */}
+      <div id="prix" style={sectionStyle}>
         <FadeIn delay={0.7}>
           <div style={h2Style}>PRICING</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
@@ -256,10 +311,10 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ OBJECTIONS ══════ */}
+      {/* ══════ 10. FAQ ══════ */}
       <div style={sectionStyle}>
         <FadeIn delay={0.8}>
-          <div style={h2Style}>OBJECTIONS</div>
+          <div style={h2Style}>FAQ</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {[
               {
@@ -290,11 +345,11 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ CTA FINAL ══════ */}
+      {/* ══════ 11. CTA FINAL ══════ */}
       <div style={{ ...sectionStyle, textAlign: "center", paddingBottom: 40 }}>
         <FadeIn delay={0.9}>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "#f0f0ff", marginBottom: 12 }}>
-            Ton CV ne te défend pas. Tes preuves, oui.
+            Ta signature existe déjà. L'outil la fait émerger.
           </h2>
           <p style={{ fontSize: 14, color: "#8892b0", marginBottom: 28 }}>
             Commence par l'Éclaireur. 30 secondes. Zéro engagement.
@@ -308,7 +363,7 @@ export default function Home() {
         </FadeIn>
       </div>
 
-      {/* ══════ FOOTER ══════ */}
+      {/* ══════ 12. FOOTER ══════ */}
       <div style={{ borderTop: "1px solid #1a1a3e", padding: "20px 0", textAlign: "center", fontSize: 10, color: "#495670" }}>
         ABNEG@TION par Exosquelette · <Link href="/mentions-legales" style={{ color: "#495670", textDecoration: "none" }}>Mentions légales</Link> · <Link href="/confidentialite" style={{ color: "#495670", textDecoration: "none" }}>Confidentialité</Link> · © 2026
       </div>
