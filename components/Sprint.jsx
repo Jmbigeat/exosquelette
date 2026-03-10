@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 
 // Lib modules
+import { createBrowserClient } from "@/lib/supabase";
 import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
 import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
 import { parseOfferSignals, parseInternalSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence, aggregateOfferSignals, detectSectoralDispersion } from "@/lib/sprint/offers";
@@ -151,6 +152,40 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
   var sigValidationError = sigValidationErrorState[0];
   var setSigValidationError = sigValidationErrorState[1];
   var sigThresholdTriggeredRef = useRef(false);
+
+  // Email confirmation banner
+  var emailBannerState = useState("hidden"); // hidden | show | sent
+  var emailBanner = emailBannerState[0];
+  var setEmailBanner = emailBannerState[1];
+
+  useEffect(function() {
+    if (!user || !user.email) return;
+    // Already confirmed
+    if (user.email_confirmed_at) return;
+    // Dismissed recently?
+    try {
+      var dismissed = localStorage.getItem("email_confirm_dismissed");
+      if (dismissed && Date.now() - parseInt(dismissed, 10) < 48 * 60 * 60 * 1000) return;
+    } catch (e) {}
+    // Check triggers: >= 3 bricks OR > 24h since account creation
+    var accountAge = user.created_at ? Date.now() - new Date(user.created_at).getTime() : 0;
+    if (bricks.length >= 3 || accountAge > 24 * 60 * 60 * 1000) {
+      setEmailBanner("show");
+    }
+  }, [user, bricks.length]);
+
+  function handleResendConfirmation() {
+    var sb = createBrowserClient();
+    sb.auth.resend({ type: "signup", email: user.email }).then(function() {
+      setEmailBanner("sent");
+      setTimeout(function() { setEmailBanner("hidden"); }, 5000);
+    });
+  }
+
+  function handleDismissEmailBanner() {
+    try { localStorage.setItem("email_confirm_dismissed", String(Date.now())); } catch (e) {}
+    setEmailBanner("hidden");
+  }
 
   function markDeliverablesObsolete() {
     var types = ['cv','bio','dm','email','plan30j','posts','questions','interview_prep','report','argument','plan90j'];
@@ -912,6 +947,20 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
         @keyframes piecesPulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }\
       "}</style>
       {renderSignatureOverlay()}
+
+      {/* ===== EMAIL CONFIRMATION BANNER ===== */}
+      {emailBanner === "show" && (
+        <div style={{ position: "relative", background: "#1a1a3e", borderBottom: "1px solid #e94560", padding: "10px 40px 10px 16px", marginBottom: 8, borderRadius: 8, fontSize: 13, color: "#ccd6f6", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span>Confirme ton email pour ne pas perdre ton travail.</span>
+          <button onClick={handleResendConfirmation} style={{ background: "transparent", border: "1px solid #e94560", color: "#e94560", borderRadius: 6, padding: "6px 16px", fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" }}>Envoyer le lien de confirmation</button>
+          <button onClick={handleDismissEmailBanner} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#495670", fontSize: 16, cursor: "pointer", padding: 0 }}>&times;</button>
+        </div>
+      )}
+      {emailBanner === "sent" && (
+        <div style={{ background: "#1a1a3e", borderBottom: "1px solid #4ecca3", padding: "10px 16px", marginBottom: 8, borderRadius: 8, fontSize: 13, color: "#4ecca3" }}>
+          Lien envoyé ✓
+        </div>
+      )}
 
       {/* ===== HEADER — Région 2 (MESURER) : score cliquable + compteur pièces ===== */}
       <div style={{
