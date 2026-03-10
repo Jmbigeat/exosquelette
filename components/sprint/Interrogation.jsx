@@ -192,6 +192,17 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
   var almostText = almostTextState[0];
   var setAlmostText = almostTextState[1];
 
+  // Build semantic fields map from structured input (situation, action, result, constraint, etc.)
+  function buildStructuredFields(currentSeed) {
+    var defs = getBrickFields(currentSeed);
+    var result = {};
+    defs.forEach(function(f, i) {
+      var val = fields["f" + (i + 1)] || "";
+      if (val.trim()) result[f.key] = val.trim();
+    });
+    return Object.keys(result).length > 0 ? result : null;
+  }
+
   var validated = bricks.filter(function(b) { return b.status === "validated"; });
   var missionItems = bricks.filter(function(b) { return b.type === "mission"; });
   var processed = seeds.filter(function(s) { return bricks.some(function(b) { return b.id === s.id; }); });
@@ -404,7 +415,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         confirmedAt: Date.now(),
         findingsAtConfirm: finalAudit.totalFindings,
       };
-      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, sideProject: detectSideProject(effectiveText), anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
+      var reviewedSeed = Object.assign({}, seed, { generatedText: effectiveText, structuredFields: seed.structuredFields || buildStructuredFields(seed), sideProject: detectSideProject(effectiveText), anonymizedText: anonEdit.trim(), anonAuditTrail: auditTrail, advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
       if (isCorrection) {
         onCorrect(reviewedSeed, editText.trim());
         setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setEditText(""); setAnonEdit(""); setAnonAudit(null); setVerbData(null); setVerbDismissed(false); setCicOverride(null);
@@ -815,7 +826,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={function() {
                 if (almostText.trim().length < 10) return;
-                var correctedSeed = Object.assign({}, seed, { generatedText: effectiveText, originalText: effectiveText, sideProject: detectSideProject(almostText.trim()), advocacyText: generateAdvocacyText(almostText.trim(), seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(almostText.trim(), seed.brickCategory, seed.type, seed.elasticity) });
+                var correctedSeed = Object.assign({}, seed, { generatedText: effectiveText, originalText: effectiveText, structuredFields: buildStructuredFields(seed), sideProject: detectSideProject(almostText.trim()), advocacyText: generateAdvocacyText(almostText.trim(), seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(almostText.trim(), seed.brickCategory, seed.type, seed.elasticity) });
                 if (seed.anonymizedText) {
                   correctedSeed._correctedText = almostText.trim();
                   setAnonEdit(seed.anonymizedText);
@@ -843,7 +854,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
         {!almostEditing && (
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={function() {
-            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, sideProject: detectSideProject(effectiveText), advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
+            var forgedSeed = Object.assign({}, seed, { generatedText: effectiveText, structuredFields: buildStructuredFields(seed), sideProject: detectSideProject(effectiveText), advocacyText: generateAdvocacyText(effectiveText, seed.brickCategory, seed.type, seed.nightmareText), internalAdvocacy: generateInternalAdvocacy(effectiveText, seed.brickCategory, seed.type, seed.elasticity) });
             if (seed.anonymizedText) { setAnonEdit(seed.anonymizedText); setPhase("anon_review"); }
             else { onForge(forgedSeed); setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setVerbData(null); setVerbDismissed(false); setCicOverride(null); }
           }} style={{

@@ -364,6 +364,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(seed.generatedText, seed.brickCategory, seed.type, seed.elasticity),
       controlRisk: seed.controlRisk || null,
       advocacyText: seed.advocacyText || generateAdvocacyText(seed.generatedText, seed.brickCategory, seed.type, seed.nightmareText),
+      fields: seed.structuredFields || null,
       type: "brick", corrected: false, sideProject: seed.sideProject || false,
     };
     var versions = generateBrickVersions(brick, targetRoleId);
@@ -391,6 +392,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(correctedText, seed.brickCategory, seed.type, seed.elasticity),
       controlRisk: seed.controlRisk || null,
       advocacyText: seed.advocacyText || generateAdvocacyText(correctedText, seed.brickCategory, seed.type, seed.nightmareText),
+      fields: seed.structuredFields || null,
       type: "brick", corrected: true, sideProject: seed.sideProject || false,
       originalText: seed.originalText || null,
     };
