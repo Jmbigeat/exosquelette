@@ -368,6 +368,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                 seed._correctedText = editText.trim();
                 setPhase("anon_review_correct");
               } else {
+                // No structuredFields on correction path — editText may differ from original f1..f4
                 onCorrect(seed, editText.trim());
                 setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); setEditText(""); setVerbData(null); setVerbDismissed(false); setCicOverride(null);
               }
