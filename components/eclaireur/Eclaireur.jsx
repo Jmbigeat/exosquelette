@@ -236,6 +236,21 @@ export function Eclaireur() {
           )}
         </div>
 
+        {/* MESSAGE CV ANGLAIS */}
+        {cvAudit && cvAudit.isEnglish && (
+          <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>LANGUE DÉTECTÉE : ANGLAIS</div>
+            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6 }}>{cvAudit.message}</div>
+          </div>
+        )}
+
+        {/* MESSAGE CV TROP COURT */}
+        {!cvAudit && cvText.trim().length > 0 && cvText.trim().length < 100 && (
+          <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.6 }}>Ton texte est trop court pour un diagnostic fiable. Colle au moins 3 lignes de ton CV ou de ta bio LinkedIn.</div>
+          </div>
+        )}
+
         {/* BLOC DIAGNOSTIC CV (conditionnel) */}
         {cvAudit && cvAudit.tests.length > 0 && (
           <div style={{ background: "#0f3460", borderRadius: 12, padding: 16, marginBottom: 16 }}>
