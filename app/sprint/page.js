@@ -20,7 +20,13 @@ export default function SprintPage() {
   var sprintId = sprintIdSt[0];
   var setSprintId = sprintIdSt[1];
 
-  var savedStateSt = useState(null);
+  var savedStateSt = useState(function() {
+    if (typeof window === "undefined") return null;
+    try {
+      var cached = localStorage.getItem("sprint_state");
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) { return null; }
+  });
   var savedState = savedStateSt[0];
   var setSavedState = savedStateSt[1];
 
@@ -42,11 +48,8 @@ export default function SprintPage() {
     if (process.env.NODE_ENV === "development") {
       setUser({ id: "dev", email: "dev@localhost" });
       setPaid(true);
-      // Tenter de charger un state existant, sinon mock
-      try {
-        var cached = localStorage.getItem("sprint_state");
-        if (cached) setSavedState(JSON.parse(cached));
-      } catch (e) {}
+      // savedState is already initialized synchronously from localStorage.
+      // Only set mock if no cached state exists.
       if (!savedState) {
         setSavedState({
           screen: "sprint",
