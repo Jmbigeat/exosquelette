@@ -23,7 +23,7 @@ import { isWeekDeclared, loadBrewInstructions, markInstructionDone } from "@/lib
 import Tooltip from "@/components/ui/Tooltip";
 import VOCABULARY from "@/lib/vocabulary";
 
-export default function Sprint({ initialState, onStateChange, onScan, user }) {
+export default function Sprint({ initialState, onStateChange, onScan, user, saveStatus }) {
   if (initialState) initialState = migrateState(initialState);
   var scrState = useState(initialState && initialState.screen ? initialState.screen : "onboarding");
   var screen = scrState[0];
@@ -1149,6 +1149,28 @@ export default function Sprint({ initialState, onStateChange, onScan, user }) {
 
       {toastBrick && <FeedbackToast brick={toastBrick} onDone={function() { setToastBrick(null); }} />}
       <Toast toast={piecesToast} />
+
+      {/* ===== SAVE STATUS INDICATORS ===== */}
+      {saveStatus === "retrying" && (
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#1a1a3e", padding: "8px 16px", fontSize: 11, color: "#e94560", textAlign: "center", zIndex: 1000 }}>
+          Sauvegarde échouée. Nouvelle tentative...
+        </div>
+      )}
+      {saveStatus === "offline" && (
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#1a1a3e", padding: "8px 16px", fontSize: 11, color: "#e94560", textAlign: "center", zIndex: 1000 }}>
+          Connexion perdue. Tes briques sont sauvegardées localement.
+        </div>
+      )}
+      {saveStatus === "saved" && (
+        <div style={{ position: "fixed", bottom: 12, right: 12, fontSize: 10, color: "#4ecca3", zIndex: 1000 }}>
+          ✓ Sauvegardé
+        </div>
+      )}
+      {saveStatus === "synced" && (
+        <div style={{ position: "fixed", bottom: 12, right: 12, fontSize: 10, color: "#4ecca3", zIndex: 1000 }}>
+          Briques synchronisées ✓
+        </div>
+      )}
     </div>
   );
 }

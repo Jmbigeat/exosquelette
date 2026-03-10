@@ -31,6 +31,11 @@ export default function SprintPage() {
   var saveTimerRef = useRef(null);
   var onboardingConsumedRef = useRef(false);
 
+  var saveStatusSt = useState(null); // null | "saving" | "saved" | "retrying" | "offline"
+  var saveStatus = saveStatusSt[0];
+  var setSaveStatus = saveStatusSt[1];
+  var saveStatusTimerRef = useRef(null);
+
   // Check auth on mount
   useEffect(function() {
     // Dev bypass : skip toutes les gates
@@ -161,18 +166,54 @@ export default function SprintPage() {
     } catch (e) {}
   }, [loading, paid, savedState]);
 
-  // Auto-save with debounce (2 seconds after last change)
+  // Auto-save with debounce (2 seconds after last change) + retry on failure
   var handleStateChange = useCallback(function(state) {
     if (!user || user.id === "dev") return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
     saveTimerRef.current = setTimeout(function() {
-      saveSprint(user.id, sprintId, state).then(function(res) {
-        if (res && res.data && !sprintId) {
-          setSprintId(res.data.id);
-        }
-      });
+      var delays = [2000, 5000, 10000];
+      var attempt = 0;
+
+      function trySave() {
+        saveSprint(user.id, sprintId, state).then(function(res) {
+          if (res && res.error) throw new Error(res.error.message || "save error");
+          if (res && res.data && !sprintId) {
+            setSprintId(res.data.id);
+          }
+          setSaveStatus("saved");
+          if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+          saveStatusTimerRef.current = setTimeout(function() { setSaveStatus(null); }, 2000);
+        }).catch(function() {
+          attempt++;
+          if (attempt <= 3) {
+            setSaveStatus("retrying");
+            setTimeout(trySave, delays[attempt - 1]);
+          } else {
+            setSaveStatus("offline");
+            try { localStorage.setItem("offline_bricks_backup", JSON.stringify(state)); } catch (e) {}
+          }
+        });
+      }
+
+      trySave();
     }, 2000);
+  }, [user, sprintId]);
+
+  // On mount: sync offline backup if present
+  useEffect(function() {
+    if (!user || user.id === "dev" || !sprintId) return;
+    try {
+      var backup = localStorage.getItem("offline_bricks_backup");
+      if (!backup) return;
+      var state = JSON.parse(backup);
+      saveSprint(user.id, sprintId, state).then(function(res) {
+        if (res && res.error) return;
+        localStorage.removeItem("offline_bricks_backup");
+        setSaveStatus("synced");
+        setTimeout(function() { setSaveStatus(null); }, 3000);
+      });
+    } catch (e) {}
   }, [user, sprintId]);
 
   // Logout
@@ -248,6 +289,7 @@ export default function SprintPage() {
         onStateChange={handleStateChange}
         onScan={handleScan}
         user={user}
+        saveStatus={saveStatus}
       />
     </div>
   );
