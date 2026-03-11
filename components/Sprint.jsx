@@ -6,10 +6,10 @@ import { createBrowserClient } from "@/lib/supabase";
 import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
 import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
 import { parseOfferSignals, parseInternalSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence, aggregateOfferSignals, detectSectoralDispersion } from "@/lib/sprint/offers";
-import { generateAdaptiveSeeds, matchKpiToReference, getAdaptivePillars, generateBrickVersions } from "@/lib/sprint/bricks";
-import { generateAdvocacyText, generateInternalAdvocacy, generateStressTest, generateInterviewQuestions } from "@/lib/sprint/generators";
+import { generateAdaptiveSeeds, getAdaptivePillars } from "@/lib/sprint/bricks";
+import { generateInterviewQuestions } from "@/lib/sprint/generators";
 import { getMaturityLevel } from "@/lib/sprint/analysis";
-import { migrateState, CURRENT_VERSION } from "@/lib/sprint/migrations";
+import { migrateState } from "@/lib/sprint/migrations";
 import { hasReachedSignatureThreshold, generateMaskedHypotheses, computeMetaPatterns, crossReferenceSignature, validateSignatureFormulation, isSignatureArmored } from "@/lib/sprint/signature";
 
 // Component modules
@@ -19,33 +19,27 @@ import { FeedbackToast, Interrogation, BrickStressTest } from "@/components/spri
 import { Duel } from "@/components/sprint/Duel";
 import { Onboarding } from "@/components/sprint/Onboarding";
 import { Toast } from "@/components/sprint/Toast";
-import { isWeekDeclared, loadBrewInstructions, markInstructionDone } from "@/lib/brew-db";
+import { markInstructionDone } from "@/lib/brew-db";
 import Tooltip from "@/components/ui/Tooltip";
 import VOCABULARY from "@/lib/vocabulary";
 
+// Custom hooks
+import { usePersistence } from "@/components/sprint/hooks/usePersistence";
+import { useBrewNotif } from "@/components/sprint/hooks/useBrewNotif";
+import { useBricks } from "@/components/sprint/hooks/useBricks";
+
 export default function Sprint({ initialState, onStateChange, onScan, user, saveStatus }) {
   if (initialState) initialState = migrateState(initialState);
+  // ── UI state ──
   var scrState = useState(initialState && initialState.screen ? initialState.screen : "onboarding");
   var screen = scrState[0];
   var setScreen = scrState[1];
   var stepState = useState(initialState && initialState.activeStep != null ? initialState.activeStep : 0);
   var activeStep = stepState[0];
   var setActiveStep = stepState[1];
-  var brState = useState(initialState && initialState.bricks ? initialState.bricks : []);
-  var bricks = brState[0];
-  var setBricks = brState[1];
-  var vState = useState(initialState && initialState.vault ? initialState.vault : { bricks: 0, missions: 0, pillars: 0, corrections: 0, diltsHistory: [] });
-  var vault = vState[0];
-  var setVault = vState[1];
   var doneState = useState(initialState && initialState.sprintDone ? initialState.sprintDone : false);
   var sprintDone = doneState[0];
   var setSprintDone = doneState[1];
-  var toastState = useState(null);
-  var toastBrick = toastState[0];
-  var setToastBrick = toastState[1];
-  var nextIdState = useState(initialState && initialState.nextId ? initialState.nextId : 100);
-  var nextId = nextIdState[0];
-  var setNextId = nextIdState[1];
   var duelState = useState(initialState && initialState.duelResults ? initialState.duelResults : []);
   var duelResults = duelState[0];
   var setDuelResults = duelState[1];
@@ -59,9 +53,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var costState = useState(initialState && initialState.nightmareCosts ? initialState.nightmareCosts : {});
   var nightmareCosts = costState[0];
   var setNightmareCosts = costState[1];
-  var takesState = useState(initialState && initialState.takes ? initialState.takes : []);
-  var takes = takesState[0];
-  var setTakes = takesState[1];
   var seedsState = useState(function() {
     return initialState && initialState.targetRoleId ? generateAdaptiveSeeds(initialState.targetRoleId) : generateAdaptiveSeeds(null);
   });
@@ -89,9 +80,21 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var piecesToastState = useState(null);
   var piecesToast = piecesToastState[0];
   var setPiecesToast = piecesToastState[1];
-  var brewNotifState = useState({ weekMissing: false, instructions: [] });
-  var brewNotif = brewNotifState[0];
-  var setBrewNotif = brewNotifState[1];
+
+  // ── useBricks hook — brick lifecycle ──
+  var brickHook = useBricks(initialState, targetRoleId, offersArray);
+  var bricks = brickHook.bricks;
+  var setBricks = brickHook.setBricks;
+  var vault = brickHook.vault;
+  var setVault = brickHook.setVault;
+  var takes = brickHook.takes;
+  var setTakes = brickHook.setTakes;
+  var nextId = brickHook.nextId;
+  var setNextId = brickHook.setNextId;
+  var toastBrick = brickHook.toastBrick;
+  var setToastBrick = brickHook.setToastBrick;
+  var navigateToBrick = brickHook.navigateToBrick;
+  var setNavigateToBrick = brickHook.setNavigateToBrick;
 
   var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
 
@@ -122,9 +125,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var obsoleteState = useState({});
   var obsoleteDeliverables = obsoleteState[0];
   var setObsoleteDeliverables = obsoleteState[1];
-  var navigateToBrickState = useState(null);
-  var navigateToBrick = navigateToBrickState[0];
-  var setNavigateToBrick = navigateToBrickState[1];
   var aiPillarRecsState = useState(initialState && initialState.aiPillarRecs != null ? initialState.aiPillarRecs : null);
   var aiPillarRecs = aiPillarRecsState[0];
   var setAiPillarRecs = aiPillarRecsState[1];
@@ -152,6 +152,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var sigValidationError = sigValidationErrorState[0];
   var setSigValidationError = sigValidationErrorState[1];
   var sigThresholdTriggeredRef = useRef(false);
+
+  // ── useBrewNotif hook — Brew notification state ──
+  var brewHook = useBrewNotif(user, { bricks: bricks, vault: vault, signature: signature, duelResults: duelResults, isSubscribed: isSubscribed });
+  var brewNotif = brewHook.brewNotif;
+  var setBrewNotif = brewHook.setBrewNotif;
 
   // Email confirmation banner
   var emailBannerState = useState("hidden"); // hidden | show | sent
@@ -273,24 +278,15 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
     }
   }, [targetRoleId]);
 
-  // Persistence : notify parent on every meaningful state change
-  var persistRef = useRef(null);
-  useEffect(function() {
-    var stateObj = {
-      screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
-      sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
-      targetRoleId: targetRoleId, previousRole: previousRole, nightmareCosts: nightmareCosts,
-      takes: takes, parsedOffers: parsedOffers,
-      offersArray: offersArray, offerNextId: offerNextId, aiPillarRecs: aiPillarRecs, currentSalary: currentSalary, signature: signature, pieces: pieces, _version: CURRENT_VERSION, _savedAt: Date.now(),
-    };
-    // Immediate localStorage save (no debounce)
-    try { localStorage.setItem("sprint_state", JSON.stringify(stateObj)); } catch (e) {}
-    if (!onStateChange) return;
-    if (persistRef.current) clearTimeout(persistRef.current);
-    persistRef.current = setTimeout(function() {
-      onStateChange(stateObj);
-    }, 500);
-  }, [screen, activeStep, bricks, vault, sprintDone, nextId, duelResults, targetRoleId, nightmareCosts, takes, parsedOffers, offersArray, offerNextId, aiPillarRecs, signature, pieces]);
+  // ── usePersistence hook — localStorage + Supabase save ──
+  usePersistence({
+    screen: screen, activeStep: activeStep, bricks: bricks, vault: vault,
+    sprintDone: sprintDone, nextId: nextId, duelResults: duelResults,
+    targetRoleId: targetRoleId, previousRole: previousRole, nightmareCosts: nightmareCosts,
+    takes: takes, parsedOffers: parsedOffers,
+    offersArray: offersArray, offerNextId: offerNextId, aiPillarRecs: aiPillarRecs,
+    currentSalary: currentSalary, signature: signature, pieces: pieces,
+  }, onStateChange);
 
   // Fetch AI pillar recommendations ONCE, persist result
   useEffect(function() {
@@ -317,119 +313,15 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
     setAiPillarRecs(null);
   }
 
-  // Brew notifications — check if week is declared + pending instructions
-  useEffect(function() {
-    if (!user || user.id === "dev") return;
-    var densityScore = computeDensityScore({ bricks: bricks, nightmares: getActiveCauchemars(), pillars: vault, signature: signature, duelResults: duelResults, cvBricks: [] });
-    if (densityScore.score < 70 || !isSubscribed) return;
-    Promise.all([isWeekDeclared(user.id), loadBrewInstructions(user.id)]).then(function(results) {
-      setBrewNotif({ weekMissing: !results[0], instructions: results[1] || [] });
-    }).catch(function() {});
-  }, [user, isSubscribed]);
-
   var maturity = getMaturityLevel(bricks);
 
-  function handleForge(seed) {
-    // TAKE TYPE — store as take, not brick
-    if (seed.type === "take") {
-      var take = {
-        id: seed.id,
-        text: seed.takeText,
-        analysis: seed.takeAnalysis,
-        pillar: seed.pillarPreview,
-        status: "validated",
-      };
-      setTakes(function(prev) { return prev.concat([take]); });
-      // Also store in bricks array for seed tracking (so allSeedsDone works)
-      setBricks(function(prev) { return prev.concat([{ id: seed.id, text: seed.takeText, kpi: null, skills: [], usedIn: seed.usedIn, status: "validated", type: "take", brickType: "take", sideProject: seed.sideProject || false }]); });
-      setVault(function(prev) {
-        var sp = prev.selectedPillars || [];
-        sp = sp.concat([{ id: seed.id, title: seed.pillarPreview ? seed.pillarPreview.title : "", desc: seed.pillarPreview ? seed.pillarPreview.desc : "", source: "take" }]);
-        return Object.assign({}, prev, { pillars: sp.length, selectedPillars: sp });
-      });
-      return;
-    }
-
-    var kpiMatch = targetRoleId ? matchKpiToReference(seed.kpi || "", targetRoleId) : null;
-    var brick = {
-      id: seed.id, text: seed.generatedText, kpi: seed.kpi,
-      skills: seed.skills, usedIn: seed.usedIn,
-      status: "validated", owned: true, brickType: seed.type,
-      brickCategory: seed.brickCategory, elasticity: seed.elasticity,
-      nightmareText: seed.nightmareText || null,
-      anonymizedText: seed.anonymizedText || null,
-      anonAuditTrail: seed.anonAuditTrail || null,
-      anonStatus: seed.anonAuditTrail ? (seed.anonAuditTrail.findingsAtConfirm === 0 ? "OK" : "partiel") : (seed.anonymizedText ? "non_audite" : null),
-      kpiRefMatch: kpiMatch,
-      internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(seed.generatedText, seed.brickCategory, seed.type, seed.elasticity),
-      controlRisk: seed.controlRisk || null,
-      advocacyText: seed.advocacyText || generateAdvocacyText(seed.generatedText, seed.brickCategory, seed.type, seed.nightmareText),
-      fields: seed.structuredFields || null,
-      type: "brick", corrected: false, sideProject: seed.sideProject || false,
-    };
-    var versions = generateBrickVersions(brick, targetRoleId);
-    brick.cvVersion = versions.cvVersion;
-    brick.interviewVersions = versions.interviewVersions;
-    brick.discoveryQuestions = versions.discoveryQuestions;
-    brick.stressTest = generateStressTest(brick, targetRoleId, offersArray);
-    setBricks(function(prev) { return prev.concat([brick]); });
-    setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1 }); });
-    setToastBrick(brick);
-  }
-
-  function handleCorrect(seed, correctedText) {
-    var kpiMatch = targetRoleId ? matchKpiToReference(seed.kpi || "", targetRoleId) : null;
-    var brick = {
-      id: seed.id, text: correctedText, kpi: seed.kpi,
-      skills: seed.skills, usedIn: seed.usedIn,
-      status: "validated", owned: true, brickType: seed.type,
-      brickCategory: seed.brickCategory, elasticity: seed.elasticity,
-      nightmareText: seed.nightmareText || null,
-      anonymizedText: seed.anonymizedText || null,
-      anonAuditTrail: seed.anonAuditTrail || null,
-      anonStatus: seed.anonAuditTrail ? (seed.anonAuditTrail.findingsAtConfirm === 0 ? "OK" : "partiel") : (seed.anonymizedText ? "non_audite" : null),
-      kpiRefMatch: kpiMatch,
-      internalAdvocacy: seed.internalAdvocacy || generateInternalAdvocacy(correctedText, seed.brickCategory, seed.type, seed.elasticity),
-      controlRisk: seed.controlRisk || null,
-      advocacyText: seed.advocacyText || generateAdvocacyText(correctedText, seed.brickCategory, seed.type, seed.nightmareText),
-      fields: seed.structuredFields || null,
-      type: "brick", corrected: true, sideProject: seed.sideProject || false,
-      originalText: seed.originalText || null,
-    };
-    var versions = generateBrickVersions(brick, targetRoleId);
-    brick.cvVersion = versions.cvVersion;
-    brick.interviewVersions = versions.interviewVersions;
-    brick.discoveryQuestions = versions.discoveryQuestions;
-    brick.stressTest = generateStressTest(brick, targetRoleId, offersArray);
-    setBricks(function(prev) { return prev.concat([brick]); });
-    setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1, corrections: prev.corrections + 1 }); });
-    setToastBrick(brick);
-  }
-
-  function handleMission(seed) {
-    var mission = {
-      id: seed.id, text: seed.missionText, kpi: seed.kpi,
-      skills: [], usedIn: [], status: "pending", owned: false, type: "mission", sideProject: false,
-    };
-    setBricks(function(prev) { return prev.concat([mission]); });
-    setVault(function(prev) { return Object.assign({}, prev, { missions: prev.missions + 1 }); });
-    setToastBrick(mission);
-  }
-
-  function handleSkip(id) {
-    setBricks(function(prev) { return prev.concat([{ id: id, text: "", kpi: "", skills: [], usedIn: [], status: "skipped", type: "brick", sideProject: false }]); });
-  }
-
-  function handleAddBrick(text, kpi, category, brickSourceType) {
-    var newBrick = { id: nextId, text: text, kpi: kpi, skills: [], usedIn: ["CV", "Simulateur", "Posts"], status: "validated", owned: true, brickType: "preuve", brickCategory: category || "chiffre", type: brickSourceType || "brick", corrected: false, sideProject: false };
-    var versions = generateBrickVersions(newBrick, targetRoleId);
-    newBrick.cvVersion = versions.cvVersion;
-    newBrick.interviewVersions = versions.interviewVersions;
-    newBrick.discoveryQuestions = versions.discoveryQuestions;
-    setNextId(nextId + 1);
-    setBricks(function(prev) { return prev.concat([newBrick]); });
-    setVault(function(prev) { return Object.assign({}, prev, { bricks: prev.bricks + 1 }); });
-  }
+  // handleForge, handleCorrect, handleMission, handleSkip, handleAddBrick, handleBrickUpdate → useBricks hook
+  var handleForge = brickHook.handleForge;
+  var handleCorrect = brickHook.handleCorrect;
+  var handleMission = brickHook.handleMission;
+  var handleSkip = brickHook.handleSkip;
+  var handleAddBrick = brickHook.handleAddBrick;
+  var handleBrickUpdate = brickHook.handleBrickUpdate;
 
   function handleValPillars(count, selectedIds, takePillars, aiPillars) {
     // Store which pillars were selected with their source info
@@ -530,12 +422,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   function handleDuelRedo() {
     setDuelResults([]);
     duelQRef.current = null;
-  }
-
-  function handleBrickUpdate(updatedBrick) {
-    setBricks(function(prev) {
-      return prev.map(function(b) { return b.id === updatedBrick.id ? updatedBrick : b; });
-    });
   }
 
   // Chantier 10B — "Aller à la brique" callback from Arsenal
