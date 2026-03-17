@@ -892,8 +892,8 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
             }}
             pieces={pieces}
             displayMode={displayMode}
-            consumePiece={consumePiece}
-            /* DEAD */ isSubscribed={isSubscribed}
+            consumePiece={consumePiece} /* DEAD */
+            isSubscribed={isSubscribed}
             user={user}
             onGoForge={function () {
               setEtabliOpen(false);
