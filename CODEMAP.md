@@ -103,6 +103,10 @@
 **Rôle :** Étape interrogation — forge des briques (preuve/cicatrice/élastique), stress test 4 angles, champ transferStatement.
 **Exports :** `FeedbackToast`, `AddBrick`, `Interrogation`, `BrickStressTest`
 
+### `components/sprint/Arsenal.jsx` (311 lignes)
+**Rôle :** Density radar, next action, simulation.
+**Exports :** `Arsenal`
+
 ### `components/sprint/Duel.jsx` (685 lignes)
 **Rôle :** Étape duel — simulation d'entretien avec crises, contradictions, questions difficiles.
 **Exports :** `Duel`
@@ -118,6 +122,26 @@
 ### `components/sprint/Toast.jsx` (29 lignes)
 **Rôle :** Composant toast notification.
 **Exports :** `Toast`
+
+### `components/sprint/WorkBench.jsx` (1287 lignes)
+**Rôle :** Établi: External/Internal tabs, deliverable generation, audit, copy.
+**Exports :** `WorkBench`
+
+---
+
+### components/sprint/hooks/
+
+### `components/sprint/hooks/useDuel.js` (118 lignes)
+**Rôle :** Duel lifecycle: question building, completion, redo.
+**Exports :** `useDuel`
+
+### `components/sprint/hooks/useOffers.js` (131 lignes)
+**Rôle :** Dynamic offers lifecycle: parsing, adding, removing, obsolete tracking.
+**Exports :** `useOffers`
+
+### `components/sprint/hooks/useSignature.js` (297 lignes)
+**Rôle :** Signature detection + 3-screen overlay + validation.
+**Exports :** `useSignature`
 
 ---
 
@@ -205,6 +229,14 @@
 
 ---
 
+### lib/generators/
+
+### `lib/generators/selectors.js`
+**Rôle :** Brick selection logic: scoreBricksByCauchemar, selectGreedyCoverage, selectBestBrick.
+**Exports :** `scoreBricksByCauchemar`, `selectGreedyCoverage`, `selectBestBrick`
+
+---
+
 ### lib/sprint/
 
 ### `lib/sprint/generators.js` (2381 lignes)
@@ -257,7 +289,43 @@
 
 ---
 
+## scripts/
+
+### `scripts/hooks/post-merge`
+**Rôle :** Runs QA agent automatically after merge to main.
+**Exports :** aucun (git hook)
+
+### `scripts/hooks/pre-commit`
+**Rôle :** Blocks unicode escapes, console.log, dangerouslySetInnerHTML, dead features.
+**Exports :** aucun (git hook)
+
+### `scripts/install-hooks.sh`
+**Rôle :** One-time hook installation (copies to .git/hooks/).
+**Exports :** aucun (script shell)
+
+### `scripts/qa-agent.js`
+**Rôle :** 15 automated post-merge checks (npm run qa).
+**Exports :** aucun (script exécutable)
+
+---
+
 ## tests/
+
+### `tests/analysis.test.js`
+**Rôle :** hasDecisionMarkers: decision vs execution verbs.
+**Exports :** aucun (test unitaire)
+
+### `tests/audit-cv.test.js`
+**Rôle :** detectEnglish via auditExternalCV: French, English, mixed text.
+**Exports :** aucun (test unitaire)
+
+### `tests/helpers.test.js`
+**Rôle :** extractBrickCore: fast path, fallback, no-number edge case.
+**Exports :** aucun (test unitaire)
+
+### `tests/selectors.test.js`
+**Rôle :** scoreBricksByCauchemar, selectGreedyCoverage, selectBestBrick.
+**Exports :** aucun (test unitaire)
 
 ### `tests/smoke.mjs` (548 lignes)
 **Rôle :** Suite de 170 smoke tests — couvre scoring, generators, analysis, offers, brickExtractor, éclaireur, email signature, dilts, contact score, brew utils, post score, dev server.
