@@ -1,6 +1,13 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { parseOfferSignals, parseInternalSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence, aggregateOfferSignals } from "@/lib/sprint/offers";
+import {
+  parseOfferSignals,
+  parseInternalSignals,
+  buildActiveCauchemars,
+  mergeOfferSignals,
+  checkOfferCoherence,
+  aggregateOfferSignals,
+} from "@/lib/sprint/offers";
 import { setActiveCauchemarsGlobal } from "@/lib/sprint/scoring";
 
 /**
@@ -49,24 +56,36 @@ export function useOffers(initialState, targetRoleId) {
   }
 
   function markDeliverablesObsolete() {
-    var types = ['cv','bio','dm','email','plan30j','posts','questions','interview_prep','report','argument','plan90j'];
+    var types = [
+      "cv",
+      "bio",
+      "dm",
+      "email",
+      "plan30j",
+      "posts",
+      "questions",
+      "interview_prep",
+      "report",
+      "argument",
+      "plan90j",
+    ];
     var obs = {};
-    types.forEach(function(t) { obs[t] = true; });
+    types.forEach(function (t) {
+      obs[t] = true;
+    });
     setObsoleteDeliverables(obs);
   }
 
   function handleAddOffer(text, type) {
     var rid = roleRef.current;
     var offerType = type || "external";
-    var signals = offerType === "internal"
-      ? parseInternalSignals(text, rid)
-      : parseOfferSignals(text, rid);
+    var signals = offerType === "internal" ? parseInternalSignals(text, rid) : parseOfferSignals(text, rid);
     var newOffer = {
       id: offerNextId,
       text: text,
       parsedSignals: signals,
       type: offerType,
-      addedAt: new Date().toISOString()
+      addedAt: new Date().toISOString(),
     };
     var updated = offersArray.concat([newOffer]);
     setOffersArray(updated);
@@ -76,7 +95,9 @@ export function useOffers(initialState, targetRoleId) {
   }
 
   function handleRemoveOffer(offerId) {
-    var updated = offersArray.filter(function(o) { return o.id !== offerId; });
+    var updated = offersArray.filter(function (o) {
+      return o.id !== offerId;
+    });
     setOffersArray(updated);
     recalcOffersSignals(updated);
     markDeliverablesObsolete();
@@ -84,48 +105,60 @@ export function useOffers(initialState, targetRoleId) {
 
   // Inject Éclaireur data (offer + CV) if available — one-time consumption
   var eclaireurConsumedRef = useRef(false);
-  useEffect(function() {
-    if (eclaireurConsumedRef.current) return;
-    try {
-      var raw = sessionStorage.getItem("eclaireur_data");
-      if (!raw) return;
-      var parsed = JSON.parse(raw);
-      eclaireurConsumedRef.current = true;
-      sessionStorage.removeItem("eclaireur_data");
+  useEffect(
+    function () {
+      if (eclaireurConsumedRef.current) return;
+      try {
+        var raw = sessionStorage.getItem("eclaireur_data");
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        eclaireurConsumedRef.current = true;
+        sessionStorage.removeItem("eclaireur_data");
 
-      if (parsed.offerText && parsed.offerText.length > 20 && offersArray.length === 0) {
-        var signals = parseOfferSignals(parsed.offerText, roleRef.current);
-        var newOffer = {
-          id: offerNextId,
-          text: parsed.offerText,
-          parsedSignals: signals,
-          type: "external",
-          addedAt: new Date().toISOString(),
-          source: "eclaireur",
-        };
-        var updated = [newOffer];
-        setOffersArray(updated);
-        setOfferNextId(offerNextId + 1);
-        recalcOffersSignals(updated);
-      }
-    } catch (e) {}
-  }, [targetRoleId]);
+        if (parsed.offerText && parsed.offerText.length > 20 && offersArray.length === 0) {
+          var signals = parseOfferSignals(parsed.offerText, roleRef.current);
+          var newOffer = {
+            id: offerNextId,
+            text: parsed.offerText,
+            parsedSignals: signals,
+            type: "external",
+            addedAt: new Date().toISOString(),
+            source: "eclaireur",
+          };
+          var updated = [newOffer];
+          setOffersArray(updated);
+          setOfferNextId(offerNextId + 1);
+          recalcOffersSignals(updated);
+        }
+      } catch (e) {}
+    },
+    [targetRoleId]
+  );
 
   // Set global active cauchemars whenever role changes
-  useEffect(function() {
-    if (targetRoleId) {
-      var merged = aggregateOfferSignals(offersArray, targetRoleId);
-      setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
-    }
-  }, [targetRoleId]);
+  useEffect(
+    function () {
+      if (targetRoleId) {
+        var merged = aggregateOfferSignals(offersArray, targetRoleId);
+        setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
+      }
+    },
+    [targetRoleId]
+  );
 
   return {
-    parsedOffers: parsedOffers, setParsedOffers: setParsedOffers,
-    offersArray: offersArray, setOffersArray: setOffersArray,
-    offerNextId: offerNextId, setOfferNextId: setOfferNextId,
-    obsoleteDeliverables: obsoleteDeliverables, setObsoleteDeliverables: setObsoleteDeliverables,
+    parsedOffers: parsedOffers,
+    setParsedOffers: setParsedOffers,
+    offersArray: offersArray,
+    setOffersArray: setOffersArray,
+    offerNextId: offerNextId,
+    setOfferNextId: setOfferNextId,
+    obsoleteDeliverables: obsoleteDeliverables,
+    setObsoleteDeliverables: setObsoleteDeliverables,
     offerCoherence: offerCoherence,
-    handleAddOffer: handleAddOffer, handleRemoveOffer: handleRemoveOffer,
-    recalcOffersSignals: recalcOffersSignals, markDeliverablesObsolete: markDeliverablesObsolete,
+    handleAddOffer: handleAddOffer,
+    handleRemoveOffer: handleRemoveOffer,
+    recalcOffersSignals: recalcOffersSignals,
+    markDeliverablesObsolete: markDeliverablesObsolete,
   };
 }

@@ -26,7 +26,7 @@ export default function BrewPage() {
   var setLoading = loadingSt[1];
 
   // Check auth on mount
-  useEffect(function() {
+  useEffect(function () {
     if (process.env.NODE_ENV === "development") {
       setUser({ id: "dev", email: "dev@localhost" });
       setPaid(true);
@@ -42,7 +42,7 @@ export default function BrewPage() {
       return;
     }
 
-    supabase.auth.getUser().then(function(res) {
+    supabase.auth.getUser().then(function (res) {
       if (res.data && res.data.user) {
         setUser(res.data.user);
       } else {
@@ -52,32 +52,48 @@ export default function BrewPage() {
   }, []);
 
   // Load Forge data + payment
-  useEffect(function() {
-    if (!user || user.id === "dev") return;
+  useEffect(
+    function () {
+      if (!user || user.id === "dev") return;
 
-    Promise.all([loadSprint(user.id), checkPaid(user.id)]).then(function(results) {
-      var sprint = results[0];
-      var isPaid = results[1];
+      Promise.all([loadSprint(user.id), checkPaid(user.id)]).then(function (results) {
+        var sprint = results[0];
+        var isPaid = results[1];
 
-      if (sprint && sprint.state) {
-        setForgeData(sprint.state);
-      }
-      setPaid(isPaid);
-      setLoading(false);
-    });
-  }, [user]);
+        if (sprint && sprint.state) {
+          setForgeData(sprint.state);
+        }
+        setPaid(isPaid);
+        setLoading(false);
+      });
+    },
+    [user]
+  );
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#06060f" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#06060f",
+        }}
+      >
         <div style={{ fontSize: 14, color: "#8892b0" }}>Chargement...</div>
       </div>
     );
   }
 
   var wrapBrew = {
-    minHeight: "100vh", padding: "24px 16px", maxWidth: 900, margin: "0 auto",
-    fontFamily: "'Inter', -apple-system, sans-serif", background: "#06060f", color: "#ccd6f6",
+    minHeight: "100vh",
+    padding: "24px 16px",
+    maxWidth: 900,
+    margin: "0 auto",
+    fontFamily: "'Inter', -apple-system, sans-serif",
+    background: "#06060f",
+    color: "#ccd6f6",
   };
 
   return (

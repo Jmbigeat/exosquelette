@@ -6,12 +6,14 @@ import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 export default function OnboardingPage() {
   var supabase = createBrowserClient();
   var userSt = useState(null);
-  var user = userSt[0]; var setUser = userSt[1];
+  var user = userSt[0];
+  var setUser = userSt[1];
   var loadingSt = useState(true);
-  var loading = loadingSt[0]; var setLoading = loadingSt[1];
+  var loading = loadingSt[0];
+  var setLoading = loadingSt[1];
 
-  useEffect(function() {
-    supabase.auth.getUser().then(function(res) {
+  useEffect(function () {
+    supabase.auth.getUser().then(function (res) {
       if (!res.data || !res.data.user) {
         // TODO: Réactiver quand le paywall abonnement est en place
         // La Forge est gratuite (modèle B2C2B mars 2026)
@@ -60,7 +62,10 @@ export default function OnboardingPage() {
   }
 
   var wrap = {
-    minHeight: "100vh", padding: "24px 16px", maxWidth: 520, margin: "0 auto",
+    minHeight: "100vh",
+    padding: "24px 16px",
+    maxWidth: 520,
+    margin: "0 auto",
     fontFamily: "'Inter', -apple-system, sans-serif",
   };
 

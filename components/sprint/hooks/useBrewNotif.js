@@ -16,21 +16,26 @@ export function useBrewNotif(user, params) {
   var brewNotif = brewNotifState[0];
   var setBrewNotif = brewNotifState[1];
 
-  useEffect(function() {
-    if (!user || user.id === "dev") return;
-    var densityScore = computeDensityScore({
-      bricks: params.bricks,
-      nightmares: getActiveCauchemars(),
-      pillars: params.vault,
-      signature: params.signature,
-      duelResults: params.duelResults,
-      cvBricks: [],
-    });
-    if (densityScore.score < 70 || !params.isSubscribed) return;
-    Promise.all([isWeekDeclared(user.id), loadBrewInstructions(user.id)]).then(function(results) {
-      setBrewNotif({ weekMissing: !results[0], instructions: results[1] || [] });
-    }).catch(function() {});
-  }, [user, params.isSubscribed]);
+  useEffect(
+    function () {
+      if (!user || user.id === "dev") return;
+      var densityScore = computeDensityScore({
+        bricks: params.bricks,
+        nightmares: getActiveCauchemars(),
+        pillars: params.vault,
+        signature: params.signature,
+        duelResults: params.duelResults,
+        cvBricks: [],
+      });
+      if (densityScore.score < 70 || !params.isSubscribed) return;
+      Promise.all([isWeekDeclared(user.id), loadBrewInstructions(user.id)])
+        .then(function (results) {
+          setBrewNotif({ weekMissing: !results[0], instructions: results[1] || [] });
+        })
+        .catch(function () {});
+    },
+    [user, params.isSubscribed]
+  );
 
   return { brewNotif: brewNotif, setBrewNotif: setBrewNotif };
 }
