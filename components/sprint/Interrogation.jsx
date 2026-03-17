@@ -49,7 +49,7 @@ export function FeedbackToast({ brick, onDone }) {
         <div>
           <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 4 }}>ALIMENTE MAINTENANT :</div>
           {brick.usedIn.map(function(u, i) {
-            return <div key={i} style={{ fontSize: 12, color: "#8892b0", paddingLeft: 8, marginBottom: 2 }}>{"\u2192"} {u}</div>;
+            return <div key={i} style={{ fontSize: 12, color: "#8892b0", paddingLeft: 8, marginBottom: 2 }}>{"→"} {u}</div>;
           })}
         </div>
       )}
@@ -101,8 +101,8 @@ export function AddBrick({ onAdd }) {
         border: "2px dashed #495670", borderRadius: 10, cursor: "pointer",
         color: "#8892b0", fontSize: 13, fontWeight: 600, textAlign: "center",
       }}>
-        <div>{"\u2795"} L'IA a rat{"\u00E9"} quelque chose ?</div>
-        <div style={{ fontSize: 11, fontWeight: 400, color: "#495670", marginTop: 4 }}>D{"\u00E9"}cris-le en 1 phrase, je le structure pour toi.</div>
+        <div>{"\u2795"} L'IA a rat{"é"} quelque chose ?</div>
+        <div style={{ fontSize: 11, fontWeight: 400, color: "#495670", marginTop: 4 }}>D{"é"}cris-le en 1 phrase, je le structure pour toi.</div>
       </button>
     );
   }
@@ -258,11 +258,11 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 4 }}>CE QUE L'IA A DÉTECTÉ DANS TA RÉPONSE</div>
             <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>
               Chiffres : <span style={{ color: "#e94560" }}>aucun</span>
-              {hasDecision && <span> {"\u00B7"} Marqueurs de décision : <span style={{ color: "#9b59b6" }}>oui</span></span>}
-              {hasInfluence && <span> {"\u00B7"} Marqueurs d'influence : <span style={{ color: "#3498db" }}>oui</span></span>}
-              {!hasDecision && <span> {"\u00B7"} Marqueurs de décision : <span style={{ color: "#495670" }}>non</span></span>}
-              {!hasInfluence && <span> {"\u00B7"} Marqueurs d'influence : <span style={{ color: "#495670" }}>non</span></span>}
-              {" "}{"\u00B7"} Longueur : {answer.trim().split(" ").length} mots
+              {hasDecision && <span> {"·"} Marqueurs de décision : <span style={{ color: "#9b59b6" }}>oui</span></span>}
+              {hasInfluence && <span> {"·"} Marqueurs d'influence : <span style={{ color: "#3498db" }}>oui</span></span>}
+              {!hasDecision && <span> {"·"} Marqueurs de décision : <span style={{ color: "#495670" }}>non</span></span>}
+              {!hasInfluence && <span> {"·"} Marqueurs d'influence : <span style={{ color: "#495670" }}>non</span></span>}
+              {" "}{"·"} Longueur : {answer.trim().split(" ").length} mots
             </div>
           </div>
           <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginBottom: 10 }}>Que veux-tu faire ?</div>
@@ -271,19 +271,19 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           <button onClick={function() { setPhase("forging"); setTimeout(function() { setPhase("review"); }, 1200); }} style={{
             padding: 14, background: "#0f3460", color: "#ccd6f6", border: "2px solid #4ecca3", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
-            <span style={{ color: "#4ecca3" }}>{"\u2192"}</span> Forge une brique avec ce que j'ai donné
+            <span style={{ color: "#4ecca3" }}>{"→"}</span> Forge une brique avec ce que j'ai donné
             <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA structure ta réponse sans chiffre. La brique sera moins précise mais existera.</div>
           </button>
           <button onClick={function() { setPhase("mission"); setIsMission(true); }} style={{
             padding: 14, background: "#0f3460", color: "#ccd6f6", border: "2px solid #ff9800", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
-            <span style={{ color: "#ff9800" }}>{"\u2192"}</span> Assigne la mission, je reviendrai avec le chiffre
+            <span style={{ color: "#ff9800" }}>{"→"}</span> Assigne la mission, je reviendrai avec le chiffre
             <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 400, marginTop: 2 }}>L'IA te donne les étapes pour récupérer la preuve. La brique sera forgée quand tu reviendras.</div>
           </button>
           <button onClick={function() { setPhase("question"); setAnswer(""); setFields({ f1: "", f2: "", f3: "", f4: "" }); }} style={{
             padding: 14, background: "#1a1a2e", color: "#8892b0", border: "2px solid #495670", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13, textAlign: "left",
           }}>
-            <span style={{ color: "#495670" }}>{"\u2192"}</span> Je reformule ma réponse
+            <span style={{ color: "#495670" }}>{"→"}</span> Je reformule ma réponse
             <div style={{ fontSize: 11, color: "#495670", fontWeight: 400, marginTop: 2 }}>Tu repars de zéro sur cette question.</div>
           </button>
         </div>
@@ -605,7 +605,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
             <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid " + (isSousPression ? "#e94560" : kpiMatch.elasticity === "élastique" ? "#4ecca3" : "#8892b0") }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                 <span style={{ fontSize: 11, color: isSousPression ? "#e94560" : kpiMatch.elasticity === "élastique" ? "#4ecca3" : "#8892b0", fontWeight: 600 }}>
-                  {isSousPression ? "\uD83D\uDEA8 KPI SOUS PRESSION" : kpiMatch.elasticity === "élastique" ? "\u2197\uFE0F KPI ÉLASTIQUE" : "\u2194\uFE0F KPI STABLE"}
+                  {isSousPression ? "\uD83D\uDEA8 KPI SOUS PRESSION" : kpiMatch.elasticity === "élastique" ? "↗\uFE0F KPI ÉLASTIQUE" : "↔\uFE0F KPI STABLE"}
                 </span>
                 <span style={{ fontSize: 10, color: "#495670", background: "#0f3460", padding: "2px 8px", borderRadius: 8 }}>
                   {kpiMatch.name}
@@ -638,7 +638,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
                   {isSousPression ? "\uD83D\uDEA8 BLUFF CRITIQUE" : "\u26A0\uFE0F LEVIER DE NÉGOCIATION"} — {matchedCauchemar.label.toUpperCase()}
                 </div>
                 <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 6 }}>
-                  Ce cauchemar coûte {costStr}{"\u20AC"}/{matchedCauchemar.costUnit} dans le secteur. {matchedCauchemar.costContext}
+                  Ce cauchemar coûte {costStr}{"€"}/{matchedCauchemar.costUnit} dans le secteur. {matchedCauchemar.costContext}
                 </div>
                 {isSousPression ? (
                   <div style={{ fontSize: 12, color: seed.generatedText && hasDecisionMarkers(seed.generatedText) ? "#ff9800" : "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
@@ -813,7 +813,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           </div>
           <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 10, borderLeft: "3px solid #e94560" }}>
             <div style={{ fontSize: 11, color: "#495670", fontWeight: 600, marginBottom: 6 }}>SI VALIDÉE, CETTE BRIQUE ALIMENTERA :</div>
-            {seed.usedIn.map(function(u, i) { return <div key={i} style={{ fontSize: 12, color: "#8892b0", marginBottom: 2 }}>{"\u2192"} {u}</div>; })}
+            {seed.usedIn.map(function(u, i) { return <div key={i} style={{ fontSize: 12, color: "#8892b0", marginBottom: 2 }}>{"→"} {u}</div>; })}
           </div>
         </div>
 
@@ -863,7 +863,7 @@ export function Interrogation({ seeds, bricks, onForge, onCorrect, onMission, on
           }}>Archiver</button>
           <button onClick={function() { setAlmostText(effectiveText); setAlmostEditing(true); }} style={{
             flex: 1, padding: 14, background: "#0f3460", color: "#ff9800", border: "2px solid #ff9800", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 11,
-          }}>Presque {"\u2014"} voici ma version</button>
+          }}>Presque {"—"} voici ma version</button>
           <button onClick={function() { setEditText(effectiveText); setPhase("correcting"); }} style={{
             padding: "14px 12px", background: "#0f3460", color: "#9b59b6", border: "2px solid #9b59b6", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 12,
           }}>Retoucher</button>
@@ -1435,7 +1435,7 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
                             textDecoration: alreadyAttempted ? "line-through" : "none",
                           }}>
                           <div style={{ fontSize: 12, color: alreadyAttempted ? "#495670" : isRec ? "#e94560" : "#8892b0", fontWeight: isRec ? 700 : 600 }}>
-                            {isRec && !alreadyAttempted ? "\u2192 " : ""}{displayAngle.attack.split(".")[0]}
+                            {isRec && !alreadyAttempted ? "→ " : ""}{displayAngle.attack.split(".")[0]}
                           </div>
                           {isRec && !alreadyAttempted && (
                             <div style={{ fontSize: 10, color: "#e94560", marginTop: 2 }}>Recommandé — remplit la case « {angle.armorCase} »</div>
@@ -1459,7 +1459,7 @@ export function BrickStressTest({ bricks, onBrickUpdate, nightmareCosts, offersA
                       <div style={{ background: "#0f3460", borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: "3px solid #ff9800" }}>
                         <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 600, marginBottom: 4 }}>COÛT DU CAUCHEMAR — {nightmare.label.toUpperCase()}</div>
                         <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5 }}>
-                          {formatCost(nightmare.costRange[0])}-{formatCost(nightmare.costRange[1])}{"\u20AC"}/{nightmare.costUnit}. {nightmare.costContext}
+                          {formatCost(nightmare.costRange[0])}-{formatCost(nightmare.costRange[1])}{"€"}/{nightmare.costUnit}. {nightmare.costContext}
                         </div>
                       </div>
                     )}

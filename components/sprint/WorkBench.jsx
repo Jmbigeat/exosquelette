@@ -101,7 +101,7 @@ function AuditBlock(props) {
             if (f.principle === "D") label = "Dépasse le format " + type;
             return (
               <div key={f.principle} style={{ fontSize: 10, color: "#e94560", lineHeight: 1.4 }}>
-                {"\u2717"} {label}
+                {"✗"} {label}
               </div>
             );
           })}
@@ -150,7 +150,7 @@ function AuditBlock(props) {
   );
 }
 
-export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece, isSubscribed, user, onGoForge, obsoleteDeliverables, setObsoleteDeliverables }) {
+export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offersArray, isActive, currentSalary, onSalaryChange, signature, duelResults, onClose, pieces, displayMode, consumePiece /* DEAD */, isSubscribed, user, onGoForge, obsoleteDeliverables, setObsoleteDeliverables }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
   var setSelectedOfferIdx = selectedOfferState[1];
@@ -213,7 +213,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
       generatorFn();
       return;
     }
-    var allowed = consumePiece ? consumePiece(type) : true;
+    var allowed = consumePiece ? consumePiece(type) : true; // DEAD
     if (!allowed) return;
     generatorFn();
   }
@@ -501,7 +501,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                       {contactScore.tests.map(function(test) {
                         return (
                           <div key={test.id} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10 }}>
-                            <span style={{ color: test.passed ? "#4ecca3" : "#e94560", fontWeight: 700 }}>{test.passed ? "\u2713" : "\u2717"}</span>
+                            <span style={{ color: test.passed ? "#4ecca3" : "#e94560", fontWeight: 700 }}>{test.passed ? "\u2713" : "✗"}</span>
                             <span style={{ color: test.passed ? "#4ecca3" : "#8892b0" }}>{test.label}</span>
                             {!test.passed && <span style={{ color: "#495670", fontSize: 9, marginLeft: 2 }}>{test.fix}</span>}
                           </div>
@@ -784,7 +784,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                           {hookResult.tests.map(function(t) {
                             return (
                               <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
-                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "✗"}</span>
                                 <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
                               </div>
                             );
@@ -808,7 +808,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                           {marieHook.autoTests.map(function(t) {
                             return (
                               <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
-                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "✗"}</span>
                                 <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
                               </div>
                             );
@@ -842,7 +842,7 @@ export function WorkBench({ bricks, targetRoleId, trajectoryToggle, vault, offer
                           {meroe.miroir.autoTests.map(function(t) {
                             return (
                               <div key={t.name} style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}>
-                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "\u2717"}</span>
+                                <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>{t.passed ? "\u2713" : "✗"}</span>
                                 <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>{t.label} — {t.message}</span>
                               </div>
                             );

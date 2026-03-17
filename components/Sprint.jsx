@@ -128,7 +128,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
 
   var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
 
-  function consumePiece(livrableType) {
+  function consumePiece(livrableType) { // DEAD
     if (isSubscribed) return true;
     if (pieces <= 0) {
       setPiecesToast({ type: "empty", message: "Plus de pièces." });
@@ -321,7 +321,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
             <button onClick={function() { setActiveStep(1); }} style={{
               width: "100%", marginTop: 16, padding: 14, background: "#0f3460", color: "#ccd6f6",
               border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-            }}>Passer à l'Assemblage {"\u2192"}</button>
+            }}>Passer à l'Assemblage {"→"}</button>
           )}
           {allSeedsDone && !density.unlocks.forge && (function() {
             var cov = computeCauchemarCoverage(bricks);
@@ -508,7 +508,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
-          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} isSubscribed={isSubscribed} user={user} onGoForge={function() { setEtabliOpen(false); setActiveStep(1); }} obsoleteDeliverables={obsoleteDeliverables} setObsoleteDeliverables={setObsoleteDeliverables} />
+          <WorkBench bricks={bricks} targetRoleId={targetRoleId} vault={vault} offersArray={offersArray} isActive={true} currentSalary={currentSalary} onSalaryChange={setCurrentSalary} signature={signature} duelResults={duelResults} onClose={function() { setEtabliOpen(false); }} pieces={pieces} displayMode={displayMode} consumePiece={consumePiece} /* DEAD */ isSubscribed={isSubscribed} user={user} onGoForge={function() { setEtabliOpen(false); setActiveStep(1); }} obsoleteDeliverables={obsoleteDeliverables} setObsoleteDeliverables={setObsoleteDeliverables} />
         </div>
       )}
 

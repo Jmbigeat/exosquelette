@@ -128,7 +128,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
         <div style={{ marginBottom: 16, padding: 14, background: "#111125", borderRadius: 10, borderLeft: "3px solid " + trajectory.color }}>
           <div style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" }}>TA TRAJECTOIRE</div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#f0f0ff", marginBottom: 10 }}>
-            {previousRole} {"\u2192"} {targetLabel}
+            {previousRole} {"→"} {targetLabel}
           </div>
           <div style={{ marginBottom: 8 }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: trajectory.color, background: trajectory.color + "22", padding: "2px 8px", borderRadius: 6 }}>
@@ -211,9 +211,9 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
           <div style={{ fontSize: 10, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>PROCHAINE ACTION</div>
           <div style={{ padding: 12, background: "#0f3460", borderRadius: 10, borderLeft: "3px solid #3498db" }}>
             <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
-              {"Prochaine action : blinde ta brique \u00AB "}
+              {"Prochaine action : blinde ta brique « "}
               <span style={{ color: "#e94560", fontWeight: 700 }}>{recommendation.nightmare.label}</span>
-              {" \u00BB"}
+              {" »"}
               {recommendation.axesImproved.length > 0
                 ? " sur l'angle " + recommendation.axesImproved.join(" et ") + "."
                 : "."
@@ -236,7 +236,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
             <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7 }}>
               {"Si tu blindes cette brique, ton score passe de "}
               <span style={{ color: "#e94560", fontWeight: 700 }}>{density.score}%</span>
-              {" \u00E0 "}
+              {" à "}
               <span style={{ color: "#4ecca3", fontWeight: 700 }}>{recommendation.simScore}%</span>
               {"."}
               {recommendation.scoreDelta > 0 ? " (+" + recommendation.scoreDelta + " points)" : ""}
@@ -244,7 +244,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
             {recommendation.wouldTriggerSig && (
               <div style={{ marginTop: 8, padding: 8, background: "#4ecca3" + "15", borderRadius: 6, border: "1px solid #4ecca3" + "40" }}>
                 <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5, fontWeight: 600 }}>
-                  {"Tu d\u00E9clenches l'\u00E9cran signature. Tes livrables \u00C9tabli gagnent le filtre pattern."}
+                  {"Tu déclenches l'écran signature. Tes livrables Établi gagnent le filtre pattern."}
                 </div>
               </div>
             )}
@@ -265,7 +265,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
                 width: "100%", marginTop: 12, padding: 12,
                 background: "linear-gradient(135deg, #e94560, #c81d4e)", color: "#fff",
                 border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-              }}>Aller {"\u00E0"} la brique</button>
+              }}>Aller {"à"} la brique</button>
             )}
             {isVitrine && (
               <div style={{ marginTop: 12 }}>
@@ -273,9 +273,9 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
                   width: "100%", padding: 14,
                   background: "linear-gradient(135deg, #4ecca3, #2ecc71)", color: "#0a0a1a",
                   border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-                }}>Continuer {"\u00E0"} forger {"\u2014"} 10{"\u20AC"}/mois</button>
+                }}>Continuer {"à"} forger {"—"} 10{"€"}/mois</button>
                 <div style={{ fontSize: 11, color: "#8892b0", textAlign: "center", marginTop: 6, lineHeight: 1.5 }}>
-                  {"Ton score est \u00E0 " + density.score + "%. " + uncovered.length + " cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + ". La Forge reste ouverte."}
+                  {"Ton score est à " + density.score + "%. " + uncovered.length + " cauchemar" + (uncovered.length > 1 ? "s" : "") + " non couvert" + (uncovered.length > 1 ? "s" : "") + ". La Forge reste ouverte."}
                 </div>
               </div>
             )}
@@ -287,7 +287,7 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
       {uncovered.length === 0 && (
         <div style={{ padding: 12, background: "#4ecca3" + "15", borderRadius: 10, border: "1px solid #4ecca3" + "40", marginBottom: 16 }}>
           <div style={{ fontSize: 12, color: "#4ecca3", lineHeight: 1.6 }}>
-            {"Tous les cauchemars sont couverts. Concentre-toi sur le blindage de tes briques les plus faibles pour monter en densit\u00E9."}
+            {"Tous les cauchemars sont couverts. Concentre-toi sur le blindage de tes briques les plus faibles pour monter en densité."}
           </div>
           {/* Vitrine CTA when all covered but pieces = 0 */}
           {isVitrine && (
@@ -296,9 +296,9 @@ export function Arsenal({ density, bricks, nightmares, signatureThreshold, signa
                 width: "100%", padding: 14,
                 background: "linear-gradient(135deg, #4ecca3, #2ecc71)", color: "#0a0a1a",
                 border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-              }}>Continuer {"\u00E0"} forger {"\u2014"} 10{"\u20AC"}/mois</button>
+              }}>Continuer {"à"} forger {"—"} 10{"€"}/mois</button>
               <div style={{ fontSize: 11, color: "#8892b0", textAlign: "center", marginTop: 6, lineHeight: 1.5 }}>
-                {"Ton score est \u00E0 " + density.score + "%. La Forge reste ouverte."}
+                {"Ton score est à " + density.score + "%. La Forge reste ouverte."}
               </div>
             </div>
           )}

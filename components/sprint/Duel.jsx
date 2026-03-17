@@ -221,7 +221,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
         <button onClick={function() { setPhase("pitch_chrono"); }} style={{
           width: "100%", padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)",
           color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-        }}>J'ai compris. Lancer le Duel {"\u2192"}</button>
+        }}>J'ai compris. Lancer le Duel {"→"}</button>
       </div>
     );
   }
@@ -290,7 +290,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
               <button onClick={function() { setPitchInterrupted(true); }} style={{
                 width: "100%", padding: 14, background: "#e94560" + "22", color: "#e94560",
                 border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 13,
-              }}>J'ai fait mon pitch {"\u2192"} Interruption</button>
+              }}>J'ai fait mon pitch {"→"} Interruption</button>
             </div>
           )}
 
@@ -316,7 +316,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
                 background: pitchAnswer.trim().length >= 10 ? "#e94560" : "#1a1a2e",
                 color: pitchAnswer.trim().length >= 10 ? "#fff" : "#495670",
                 border: "none", borderRadius: 8, cursor: pitchAnswer.trim().length >= 10 ? "pointer" : "default", fontWeight: 700, fontSize: 13,
-              }}>Soumettre {"\u2192"}</button>
+              }}>Soumettre {"→"}</button>
             </div>
           )}
 
@@ -335,7 +335,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
           <button onClick={function() { setPhase("question"); }} style={{
             width: "100%", padding: 14, background: "linear-gradient(135deg, #e94560, #c81d4e)",
             color: "#fff", border: "none", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-          }}>Passer aux questions du Duel {"\u2192"}</button>
+          }}>Passer aux questions du Duel {"→"}</button>
         )}
       </div>
     );
@@ -442,7 +442,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
         <button onClick={function() { setCrisisAnswer(""); setPhase("feedback"); }} style={{
           width: "100%", padding: 14, background: "#0f3460", color: "#ccd6f6",
           border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-        }}>Retour à la question {"\u2192"}</button>
+        }}>Retour à la question {"→"}</button>
       </div>
     );
   }
@@ -601,7 +601,7 @@ export function Duel({ questions, bricks, onComplete, targetRoleId, interviewCoa
         }} style={{
           width: "100%", padding: 14, background: "#0f3460", color: "#ccd6f6",
           border: "2px solid #e94560", borderRadius: 10, cursor: "pointer", fontWeight: 700, fontSize: 14,
-        }}>{idx + 1 >= questions.length ? "Voir le bilan" : "Question suivante"} {"\u2192"}</button>
+        }}>{idx + 1 >= questions.length ? "Voir le bilan" : "Question suivante"} {"→"}</button>
       </div>
     );
   }

@@ -129,7 +129,7 @@ export function Vault({ v, maturity, bricks, nightmareCosts, onCostChange }) {
                   {c.covered && c.costRange && c.hasElasticCovering && (
                     <div style={{ background: "#4ecca3" + "15", borderRadius: 4, padding: 6, marginBottom: 3 }}>
                       <div style={{ fontSize: 10, color: "#4ecca3", lineHeight: 1.4 }}>
-                        {"\u2197\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique à {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K€. Ta négociation commence par ce chiffre.
+                        {"↗\uFE0F"} Levier de négociation : ta brique couvre un cauchemar élastique à {(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K€. Ta négociation commence par ce chiffre.
                       </div>
                     </div>
                   )}
@@ -730,7 +730,7 @@ export function CrossRoleInsight({ bricks, targetRoleId, trajectoryToggle }) {
                     {alt.matchedKpis.slice(0, 3).map(function(mk, i) {
                       return (
                         <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", marginBottom: 2 }}>
-                          <span style={{ fontSize: 10, color: "#4ecca3", flexShrink: 0 }}>{"\u2197\uFE0F"}</span>
+                          <span style={{ fontSize: 10, color: "#4ecca3", flexShrink: 0 }}>{"↗\uFE0F"}</span>
                           <div>
                             <span style={{ fontSize: 10, color: "#ccd6f6" }}>{mk.kpi}</span>
                             <span style={{ fontSize: 9, color: "#495670" }}> {"\u2190"} {mk.brick}</span>
