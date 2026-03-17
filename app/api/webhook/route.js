@@ -22,10 +22,7 @@ export async function POST(req) {
       var supabase = createServerClient();
 
       // Marquer l'utilisateur comme paye
-      await supabase
-        .from("profiles")
-        .update({ paid: true, stripe_customer_id: session.customer })
-        .eq("id", userId);
+      await supabase.from("profiles").update({ paid: true, stripe_customer_id: session.customer }).eq("id", userId);
 
       // Logger le paiement
       await supabase.from("payments").insert({
@@ -39,4 +36,3 @@ export async function POST(req) {
 
   return NextResponse.json({ received: true });
 }
-

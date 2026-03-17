@@ -8,6 +8,9 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint": "eslint components/ lib/ app/",
+    "format": "prettier --write components/ lib/ app/ --ignore-unknown",
+    "format:check": "prettier --check components/ lib/ app/ --ignore-unknown",
     "smoke": "node tests/smoke.mjs",
     "qa": "node scripts/qa-agent.js",
     "install-hooks": "sh scripts/install-hooks.sh"
@@ -21,6 +24,10 @@
     "stripe": "^16.0.0"
   },
   "devDependencies": {
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.7",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "vitest": "^4.1.0"
   }
 }

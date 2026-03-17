@@ -13,13 +13,44 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-        <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code="uNjosHQSAOWdWnAxtkaUZKePV104pfqs"></script>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+        <script
+          defer
+          src="https://api.pirsch.io/pa.js"
+          id="pianjs"
+          data-code="uNjosHQSAOWdWnAxtkaUZKePV104pfqs"
+        ></script>
       </head>
-      <body style={{margin: 0, padding: 0, background: "#0a0a1a", color: "#ccd6f6", fontFamily: "Inter, -apple-system, sans-serif"}}>
+      <body
+        style={{
+          margin: 0,
+          padding: 0,
+          background: "#0a0a1a",
+          color: "#ccd6f6",
+          fontFamily: "Inter, -apple-system, sans-serif",
+        }}
+      >
         {children}
-        <footer style={{ fontSize: 10, color: "#495670", textAlign: "center", padding: "20px 0", borderTop: "1px solid #1a1a3e" }}>
-          abnegation.eu — <a href="/mentions-legales" style={{ color: "#495670", textDecoration: "none" }}>Mentions légales</a> · <a href="/confidentialite" style={{ color: "#495670", textDecoration: "none" }}>Confidentialité</a>
+        <footer
+          style={{
+            fontSize: 10,
+            color: "#495670",
+            textAlign: "center",
+            padding: "20px 0",
+            borderTop: "1px solid #1a1a3e",
+          }}
+        >
+          abnegation.eu —{" "}
+          <a href="/mentions-legales" style={{ color: "#495670", textDecoration: "none" }}>
+            Mentions légales
+          </a>{" "}
+          ·{" "}
+          <a href="/confidentialite" style={{ color: "#495670", textDecoration: "none" }}>
+            Confidentialité
+          </a>
         </footer>
         <CookieBanner />
       </body>

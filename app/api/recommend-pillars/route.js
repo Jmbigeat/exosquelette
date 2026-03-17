@@ -13,15 +13,20 @@ export async function POST(req) {
       return NextResponse.json({ error: "Aucun pilier fourni" }, { status: 400 });
     }
 
-    var pillarsList = pillars.map(function(p) {
-      return "- ID " + p.id + " : " + p.title + " — " + p.desc;
-    }).join("\n");
+    var pillarsList = pillars
+      .map(function (p) {
+        return "- ID " + p.id + " : " + p.title + " — " + p.desc;
+      })
+      .join("\n");
 
-    var takesList = takes.length > 0
-      ? takes.map(function(t) {
-          return "- " + t.title + " : " + (t.desc || "") + (t.text ? " | Preuve : " + t.text.slice(0, 200) : "");
-        }).join("\n")
-      : "Aucune prise de position formulée.";
+    var takesList =
+      takes.length > 0
+        ? takes
+            .map(function (t) {
+              return "- " + t.title + " : " + (t.desc || "") + (t.text ? " | Preuve : " + t.text.slice(0, 200) : "");
+            })
+            .join("\n")
+        : "Aucune prise de position formulée.";
 
     var prompt = `Tu es un expert en positionnement de carrière.
 
@@ -53,7 +58,9 @@ Réponds en JSON strict, sans backticks, sans préambule. Format :
     });
 
     var text = response.content
-      .map(function(b) { return b.type === "text" ? b.text : ""; })
+      .map(function (b) {
+        return b.type === "text" ? b.text : "";
+      })
       .join("");
 
     var clean = text.replace(/```json|```/g, "").trim();

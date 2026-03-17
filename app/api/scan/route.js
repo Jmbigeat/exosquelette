@@ -50,7 +50,9 @@ Reponds en JSON strict, sans backticks, sans preamble. Format :
     });
 
     var text = response.content
-      .map(function (b) { return b.type === "text" ? b.text : ""; })
+      .map(function (b) {
+        return b.type === "text" ? b.text : "";
+      })
       .join("");
 
     // Parse JSON from response
