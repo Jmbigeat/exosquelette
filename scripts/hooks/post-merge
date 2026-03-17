@@ -1,0 +1,49 @@
+#!/bin/sh
+# Abneg@tion post-merge hook
+# Runs QA checks after merge to main
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" != "main" ]; then
+  exit 0
+fi
+
+echo ""
+echo "═══ POST-MERGE CHECK — Abneg@tion ═══"
+echo ""
+
+# Run QA agent if available
+if [ -f "scripts/qa-agent.js" ]; then
+  echo "Lancement QA agent..."
+  echo ""
+  node scripts/qa-agent.js
+else
+  # Fallback: quick checks
+  echo "QA agent non trouvé. Checks rapides :"
+  echo ""
+
+  # Unicode escapes
+  UNICODE=$(grep -rn '\\u00\|\\u20' components/ lib/ app/ --include='*.js' --include='*.jsx' 2>/dev/null)
+  if [ -z "$UNICODE" ]; then
+    echo "  ✓ Unicode escapes    0"
+  else
+    COUNT=$(echo "$UNICODE" | wc -l | tr -d ' ')
+    echo "  ✗ Unicode escapes    $COUNT occurrence(s)"
+    echo "$UNICODE" | head -3 | while read line; do echo "    → $line"; done
+  fi
+
+  # Proxy generators
+  PROXY=$(head -3 lib/sprint/generators.js | grep 'export.*from')
+  if [ -n "$PROXY" ]; then
+    echo "  ✓ Proxy generators   intact"
+  else
+    echo "  ✗ Proxy generators   CASSÉ"
+  fi
+
+  echo ""
+  echo "Pour le check complet : npm run qa"
+fi
+
+echo ""
+echo "═══ FIN POST-MERGE ═══"
+echo ""

@@ -1,0 +1,63 @@
+#!/bin/sh
+# Abneg@tion pre-commit hook
+# Blocks commit if unicode escapes or console.log found in staged files
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx)$')
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+ERRORS=0
+
+# Check 1: Unicode escapes
+UNICODE=$(echo "$STAGED" | xargs grep -n '\\u00\|\\u20' 2>/dev/null)
+if [ -n "$UNICODE" ]; then
+  echo ""
+  echo "✗ UNICODE ESCAPES détectés dans les fichiers staged :"
+  echo "$UNICODE"
+  echo "  → Écrire é, pas \\u00E9. Écrire €, pas \\u20AC."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check 2: console.log (hors commentaires debug)
+CONSOLELOG=$(echo "$STAGED" | xargs grep -n 'console\.log' 2>/dev/null | grep -v '// debug' | grep -v 'smoke-test' | grep -v 'qa-agent')
+if [ -n "$CONSOLELOG" ]; then
+  echo ""
+  echo "✗ CONSOLE.LOG détectés dans les fichiers staged :"
+  echo "$CONSOLELOG"
+  echo "  → Supprimer avant commit. Pas de console.log en production."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check 3: dangerouslySetInnerHTML
+DANGEROUS=$(echo "$STAGED" | xargs grep -n 'dangerouslySetInnerHTML' 2>/dev/null)
+if [ -n "$DANGEROUS" ]; then
+  echo ""
+  echo "✗ dangerouslySetInnerHTML détecté :"
+  echo "$DANGEROUS"
+  echo "  → Interdit. Convertir en texte avant le rendu."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check 4: Sprint Éclair / RAC ressuscités
+DEAD=$(echo "$STAGED" | xargs grep -ni 'sprint.éclair\|sprint_eclair\|sprintEclair\|"RAC"' 2>/dev/null | grep -v '//')
+if [ -n "$DEAD" ]; then
+  echo ""
+  echo "✗ FEATURE MORTE ressuscitée :"
+  echo "$DEAD"
+  echo "  → Sprint Éclair et RAC sont supprimés. Ne jamais ressusciter."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
+if [ $ERRORS -gt 0 ]; then
+  echo "═══ COMMIT BLOQUÉ — $ERRORS problème(s) détecté(s) ═══"
+  echo "Corrige et recommence. Pour bypass (urgence) : git commit --no-verify"
+  exit 1
+fi
+
+exit 0
