@@ -123,7 +123,7 @@ export function OnboardingFlow({ onComplete }) {
             <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>5 KPIS DE CE POSTE</div>
             {KPI_REFERENCE[targetRole].kpis.map(function(k, i) {
               var eColor = k.elasticity === "élastique" ? "#4ecca3" : k.elasticity === "stable" ? "#8892b0" : "#e94560";
-              var eLabel = k.elasticity === "élastique" ? "\u2197\uFE0F" : k.elasticity === "stable" ? "\u2194\uFE0F" : "\u2198\uFE0F";
+              var eLabel = k.elasticity === "élastique" ? "↗\uFE0F" : k.elasticity === "stable" ? "↔\uFE0F" : "↘\uFE0F";
               return (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                   <span style={{ fontSize: 10, color: eColor }}>{eLabel}</span>
@@ -232,11 +232,11 @@ export function OnboardingFlow({ onComplete }) {
           <textarea
             value={offersText}
             onChange={function(e) { setOffersText(e.target.value); }}
-            placeholder="Ex : Account Executive Mid-Market \u2014 Scale-up SaaS B2B série B. Prospection outbound, démos, closing. 3+ ans expérience SaaS..."
+            placeholder="Ex : Account Executive Mid-Market — Scale-up SaaS B2B série B. Prospection outbound, démos, closing. 3+ ans expérience SaaS..."
             style={textareaStyle}
           />
           <div style={{ fontSize: 11, color: "#495670", marginTop: 4, textAlign: "right" }}>
-            {offersText.trim().length > 20 ? "Offre détectée" : "Optionnel \u2014 cauchemars génériques du rôle si vide"}
+            {offersText.trim().length > 20 ? "Offre détectée" : "Optionnel — cauchemars génériques du rôle si vide"}
           </div>
         </div>
 

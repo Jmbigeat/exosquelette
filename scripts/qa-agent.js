@@ -67,7 +67,7 @@ check("anti", "Sprint \u00c9clair / RAC morts",
   "grep -rni 'sprint.\u00e9clair\\|sprint_eclair\\|sprintEclair\\|\"RAC\"' components/ lib/ app/ --include='*.js' --include='*.jsx' | grep -v '//' || true",
   true);
 check("anti", "Pi\u00e8ces d\u00e9sactiv\u00e9es",
-  "grep -rn 'consumePiece' components/ lib/ --include='*.js' --include='*.jsx' | grep -v '// TODO\\|// DEAD\\|// disabled\\|comment\\|function consumePiece' || true",
+  "grep -rn 'consumePiece' components/ lib/ --include='*.js' --include='*.jsx' | grep -v '// TODO\\|// DEAD\\|/\\* DEAD\\|// disabled\\|comment\\|function consumePiece' || true",
   true);
 check("anti", "Unicode escapes",
   "grep -rn '\\\\u00\\|\\\\u20' components/ lib/ app/ --include='*.js' --include='*.jsx' || true",

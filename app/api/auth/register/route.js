@@ -10,7 +10,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
   }
   if (password.length < 8) {
-    return NextResponse.json({ error: "Mot de passe : 8 caract\u00e8res minimum" }, { status: 400 });
+    return NextResponse.json({ error: "Mot de passe : 8 caractères minimum" }, { status: 400 });
   }
 
   var supabase = createServerClient();

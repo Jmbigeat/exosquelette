@@ -46,7 +46,7 @@ export function ImpactReportPanel({ bricks, vault, targetRoleId, trajectoryToggl
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Rapport d'impact</div>
           <div style={{ fontSize: 11, color: "#495670", marginTop: 2 }}>
-            {roleData ? roleData.role : "Non défini"} {"\u00B7"} {trajectoryToggle === "j_y_suis" ? "J'y suis" : "J'y vais"}
+            {roleData ? roleData.role : "Non défini"} {"·"} {trajectoryToggle === "j_y_suis" ? "J'y suis" : "J'y vais"}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
@@ -644,7 +644,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                   <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-line", marginBottom: 10 }}>{currentText}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <span style={{ fontSize: 9, color: openD.color, background: openD.color + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>Registre {diltsP.opens} — {openD.name}</span>
-                    <span style={{ fontSize: 9, color: "#495670" }}>{"\u2192"}</span>
+                    <span style={{ fontSize: 9, color: "#495670" }}>{"→"}</span>
                     <span style={{ fontSize: 9, color: closeD.color, background: closeD.color + "22", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>Registre {diltsP.closes} — {closeD.name}</span>
                     {diltsP.progression > 0 && <span style={{ fontSize: 9, color: "#4ecca3" }}>+{diltsP.progression}</span>}
                     {diltsP.progression <= 0 && <span style={{ fontSize: 9, color: "#e94560" }}>{"\u26A0\uFE0F"}</span>}
@@ -705,7 +705,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
             border: arsenalSection === "cv" ? "1px solid #e94560" : "1px solid #16213e",
             borderRadius: 10, cursor: "pointer", marginBottom: arsenalSection === "cv" ? 12 : 6,
           }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "cv" ? "#e94560" : "#8892b0" }}>{"\uD83D\uDCC4"} CV + Carte de march\u00e9</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: arsenalSection === "cv" ? "#e94560" : "#8892b0" }}>{"\uD83D\uDCC4"} CV + Carte de marché</span>
             <span style={{ fontSize: 12, color: "#495670" }}>{arsenalSection === "cv" ? "\u25B2" : "\u25BC"}</span>
           </button>
           {arsenalSection === "cv" && (
@@ -713,7 +713,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               {(function() {
                 var cvContent = generateCV(bricks, targetRoleId, trajectoryToggle);
                 var cvAudit = auditDeliverable("cv", cvContent, bricks);
-                return <Deliverable emoji={"\uD83D\uDCC4"} title="CV r\u00e9\u00e9crit" content={cvContent} lines={4} auditResult={cvAudit} />;
+                return <Deliverable emoji={"\uD83D\uDCC4"} title="CV réécrit" content={cvContent} lines={4} auditResult={cvAudit} />;
               })()}
               <ImpactReportPanel bricks={bricks} vault={vault} targetRoleId={targetRoleId} trajectoryToggle={trajectoryToggle} />
               <MarketMap bricks={bricks} offersArray={offersArray} targetRoleId={targetRoleId} />
@@ -765,7 +765,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
           <div style={{ background: "#1a1a2e", borderRadius: 10, padding: 16, marginTop: 20, borderLeft: "3px solid #e94560" }}>
             <div style={{ fontSize: 12, color: "#495670", fontWeight: 600, marginBottom: 6 }}>{"\uD83D\uDD10"} NON EXPORTABLE</div>
             <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.7 }}>
-              {validated.length} Briques {"\u00B7"} {vault.pillars} Piliers
+              {validated.length} Briques {"·"} {vault.pillars} Piliers
             </div>
             <div style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 600, marginTop: 8, fontStyle: "italic" }}>"Tu as le PDF. Ton cerveau numérique reste ici."</div>
           </div>
@@ -1227,7 +1227,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         html += "<span style='font-size:11px;font-weight:bold;color:" + p.color + "'>" + p.label + "</span>";
                         html += "<span style='font-size:8px;font-weight:bold;color:" + p.color + ";background:" + p.color + "22;padding:2px 6px;border-radius:4px'>" + p.tag + "</span></div>";
                         if (p.cauchemar) html += "<div style='font-size:9px;color:#e94560;margin-bottom:6px'>\uD83D\uDCA2 " + p.cauchemar + " " + (p.cauchemarCost ? "(" + p.cauchemarCost + "/an)" : "") + "</div>";
-                        p.actions.forEach(function(a) { html += "<div style='font-size:10px;color:#ccd6f6;line-height:1.6;padding-left:8px'>\u2192 " + a + "</div>"; });
+                        p.actions.forEach(function(a) { html += "<div style='font-size:10px;color:#ccd6f6;line-height:1.6;padding-left:8px'>→ " + a + "</div>"; });
                         if (p.brick) html += "<div style='font-size:9px;color:#4ecca3;margin-top:6px;line-height:1.4'>\uD83E\uDDF1 " + (p.brick.length > 100 ? p.brick.slice(0, 100) + "..." : p.brick) + "</div>";
                         if (p.rdvSouverainete) html += "<div style='font-size:8px;font-weight:bold;color:#9b59b6;margin-top:6px;background:#9b59b622;display:inline-block;padding:2px 6px;border-radius:4px'>\u23F0 " + p.rdvSouverainete + "</div>";
                         html += "</div>";
@@ -1286,7 +1286,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                         border: "none", borderRadius: 10, cursor: ready ? "pointer" : "default",
                         fontWeight: 700, fontSize: 14,
                       }}>
-                        {ready ? "Produire la Fiche de Combat \u2192" : "Valide au moins 1 brique pour produire"}
+                        {ready ? "Produire la Fiche de Combat →" : "Valide au moins 1 brique pour produire"}
                       </button>
                       {ready && (
                         <div style={{ fontSize: 11, color: "#495670", textAlign: "center", marginTop: 8 }}>
@@ -1670,7 +1670,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                             <div key={ai} style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginBottom: 6 }}>
                               <div style={{ fontSize: 10, fontWeight: 700, color: sourceColor, marginBottom: 4 }}>{(ai + 1) + ". " + angle.label}{sourceLabel ? " — " + sourceLabel : ""}</div>
                               <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5, marginBottom: 6, fontStyle: "italic" }}>{angle.attack}</div>
-                              <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5 }}>{"\u2192"} {angle.defense}</div>
+                              <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5 }}>{"→"} {angle.defense}</div>
                             </div>
                           );
                         })}
@@ -1694,7 +1694,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                   )}
                   {b.kpiRefMatch && (
                     <div style={{ fontSize: 11, color: b.kpiRefMatch.elasticity === "élastique" ? "#4ecca3" : b.kpiRefMatch.elasticity === "sous_pression" ? "#e94560" : "#8892b0", marginTop: 4, lineHeight: 1.4 }}>
-                      {b.kpiRefMatch.elasticity === "élastique" ? "\u2197\uFE0F" : b.kpiRefMatch.elasticity === "sous_pression" ? "\u2198\uFE0F" : "\u2194\uFE0F"} {b.kpiRefMatch.name} : {b.kpiRefMatch.why}
+                      {b.kpiRefMatch.elasticity === "élastique" ? "↗\uFE0F" : b.kpiRefMatch.elasticity === "sous_pression" ? "↘\uFE0F" : "↔\uFE0F"} {b.kpiRefMatch.name} : {b.kpiRefMatch.why}
                     </div>
                   )}
                   {(function() {
@@ -1814,7 +1814,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
               <Bar pct={leveragePct} />
               {elasticBricks.length > 0 && (
                 <div style={{ marginTop: 10, fontSize: 12, color: "#4ecca3" }}>
-                  {"\u2197\uFE0F"} {elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marché élastique. Tu te positionnes là où la demande accélère.
+                  {"↗\uFE0F"} {elasticBricks.length} brique{elasticBricks.length > 1 ? "s" : ""} sur marché élastique. Tu te positionnes là où la demande accélère.
                 </div>
               )}
               {kpiGaps.length > 0 && (
@@ -1900,7 +1900,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: "#1a1a2e", borderRadius: 8, padding: 12, marginBottom: 10 }}>
                   <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 6 }}>Tu couvres {coveredWithCost.length} cauchemar{coveredWithCost.length > 1 ? "s" : ""} représentant un coût sectoriel de :</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#4ecca3" }}>
-                    {(totalCostMin / 1000).toFixed(0)}K - {(totalCostMax / 1000).toFixed(0)}K{"\u20AC"}/an
+                    {(totalCostMin / 1000).toFixed(0)}K - {(totalCostMax / 1000).toFixed(0)}K{"€"}/an
                   </div>
                   <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>Fourchette basée sur les moyennes Mid-Market SaaS</div>
                 </div>
@@ -1909,11 +1909,11 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                     <div key={c.id} style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginBottom: 6 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
                         <span style={{ fontSize: 11, color: "#ccd6f6", fontWeight: 600 }}>{c.label}</span>
-                        <span style={{ fontSize: 10, color: "#e94560" }}>{(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K{"\u20AC"}</span>
+                        <span style={{ fontSize: 10, color: "#e94560" }}>{(c.costRange[0] / 1000).toFixed(0)}-{(c.costRange[1] / 1000).toFixed(0)}K{"€"}</span>
                       </div>
                       <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>{c.costContext}</div>
                       {c.hasElasticCovering && (
-                        <div style={{ fontSize: 10, color: "#4ecca3", marginTop: 3 }}>{"\u2197\uFE0F"} Couvert par une brique élastique. Position de remède crédible.</div>
+                        <div style={{ fontSize: 10, color: "#4ecca3", marginTop: 3 }}>{"↗\uFE0F"} Couvert par une brique élastique. Position de remède crédible.</div>
                       )}
                       {c.covered && !c.hasElasticCovering && (
                         <div style={{ fontSize: 10, color: "#ff9800", marginTop: 3 }}>{"\u26A0\uFE0F"} Couvert par une brique stable. Levier de négociation limité.</div>
@@ -1924,7 +1924,7 @@ export function EndScreen({ vault, setVault, bricks, duelResults, maturity, targ
                 <div style={{ background: hasElastic ? "#4ecca3" + "15" : "#ff9800" + "15", borderRadius: 6, padding: 8, marginTop: 8 }}>
                   <div style={{ fontSize: 12, color: hasElastic ? "#4ecca3" : "#ff9800", lineHeight: 1.5, fontWeight: 600 }}>
                     {hasElastic
-                      ? "Ta négociation ne porte pas sur ton salaire. Elle porte sur le coût de ne pas te recruter. Le cauchemar coûte " + (totalCostMin / 1000).toFixed(0) + "-" + (totalCostMax / 1000).toFixed(0) + "K\u20AC/an. Ton package est une fraction de ce risque."
+                      ? "Ta négociation ne porte pas sur ton salaire. Elle porte sur le coût de ne pas te recruter. Le cauchemar coûte " + (totalCostMin / 1000).toFixed(0) + "-" + (totalCostMax / 1000).toFixed(0) + "K€/an. Ton package est une fraction de ce risque."
                       : "Tes briques couvrent des cauchemars mais aucune n'est sur un KPI élastique. Ton levier de négociation est réel mais contestable. Cherche un angle élastique."
                     }
                   </div>

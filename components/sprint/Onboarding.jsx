@@ -35,10 +35,10 @@ export function DiagnosticScreen({ diagnostic, cvText, offerText, roleId, readin
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                 <span style={{ fontSize: 12, color: "#ccd6f6", fontWeight: 700 }}>{c.label}</span>
                 {kpiRef && <span style={{ fontSize: 9, color: eColor, background: eColor + "22", padding: "1px 6px", borderRadius: 6 }}>{kpiRef.elasticity}</span>}
-                {c.detected && <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "1px 6px", borderRadius: 6 }}>signal detect{"\u00e9"}</span>}
+                {c.detected && <span style={{ fontSize: 9, color: "#4ecca3", background: "#4ecca3" + "22", padding: "1px 6px", borderRadius: 6 }}>signal detect{"é"}</span>}
               </div>
               <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5, marginBottom: 4 }}>{c.nightmareShort}</div>
-              <div style={{ fontSize: 10, color: "#e94560", fontWeight: 600 }}>Co{"\u00fb"}t : {costStr} / an</div>
+              <div style={{ fontSize: 10, color: "#e94560", fontWeight: 600 }}>Co{"û"}t : {costStr} / an</div>
             </div>
           );
         })}
@@ -226,6 +226,9 @@ export function Onboarding({ onStart, onScan }) {
   var offerSignalsState = useState(null);
   var offerSignals = offerSignalsState[0];
   var setOfferSignals = offerSignalsState[1];
+  var scanErrorState = useState(null);
+  var scanError = scanErrorState[0];
+  var setScanError = scanErrorState[1];
 
   var isPassif = mode === "passif";
   var canStart = isPassif ? cv.trim().length > 20 : (cv.trim().length > 20 && targetRole !== null);
@@ -234,6 +237,7 @@ export function Onboarding({ onStart, onScan }) {
     setPhase("scanning");
     setScanProgress(0);
     setScanMessages([]);
+    setScanError(null);
     var steps = isPassif ? SCAN_STEPS_PASSIF : SCAN_STEPS_ACTIF;
 
     // Parse offer signals immediately (synchronous, keyword-based)
@@ -262,14 +266,18 @@ export function Onboarding({ onStart, onScan }) {
       onScan(cv, offers, targetRole).then(function(data) {
         if (data && !data.error) {
           setScanData(data);
+        } else {
+          setScanData(null);
+          setScanError("Le scan IA a échoué. Tu peux réessayer ou continuer sans l'analyse automatique.");
         }
-        setTimeout(function() { setPhase("ready"); }, Math.max(0, steps.length * 600 + 800 - Date.now()));
         setPhase("ready");
       }).catch(function() {
+        setScanData(null);
+        setScanError("Impossible de joindre l'IA. Vérifie ta connexion et réessaie.");
         setPhase("ready");
       });
     } else {
-      // Fallback: just show progress then ready
+      // Fallback: just show progress puis écran prêt sans IA
       setTimeout(function() { setPhase("ready"); }, steps.length * 600 + 800);
     }
   }
@@ -328,6 +336,18 @@ export function Onboarding({ onStart, onScan }) {
 
     return (
       <div style={{ padding: "32px 20px" }}>
+        {scanError && (
+          <div style={{ marginBottom: 16, padding: 10, borderRadius: 8, background: "#1a1a2e", border: "1px solid #e94560" + "66", color: "#e94560", fontSize: 12 }}>
+            <div style={{ marginBottom: 6 }}>{scanError}</div>
+            <button
+              type="button"
+              onClick={function() { handleScan(); }}
+              style={{ padding: "6px 10px", borderRadius: 6, border: "1px solid #e94560", background: "transparent", color: "#e94560", fontSize: 11, cursor: "pointer" }}
+            >
+              Réessayer le scan IA
+            </button>
+          </div>
+        )}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <div style={{ fontSize: 12, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{scoreLabel}</div>
           <div style={{ position: "relative", width: 140, height: 140, margin: "0 auto 16px" }}>
@@ -355,7 +375,7 @@ export function Onboarding({ onStart, onScan }) {
             var kpiRef = targetRole && KPI_REFERENCE[targetRole] ? KPI_REFERENCE[targetRole].kpis.find(function(k) { return c.kpis && c.kpis.indexOf(k.name) !== -1; }) : null;
             var elasticity = kpiRef ? kpiRef.elasticity : null;
             var eColor = elasticity === "élastique" ? "#4ecca3" : elasticity === "stable" ? "#8892b0" : elasticity === "sous_pression" ? "#e94560" : "#495670";
-            var eLabel = elasticity === "élastique" ? "\u2197\uFE0F" : elasticity === "stable" ? "\u2194\uFE0F" : elasticity === "sous_pression" ? "\u2198\uFE0F" : "\u2022";
+            var eLabel = elasticity === "élastique" ? "↗\uFE0F" : elasticity === "stable" ? "↔\uFE0F" : elasticity === "sous_pression" ? "↘\uFE0F" : "•";
             var eText = elasticity === "élastique" ? "élastique" : elasticity === "stable" ? "stable" : elasticity === "sous_pression" ? "sous pression" : "";
             return (
               <div key={i} style={{ marginBottom: i < 2 ? 10 : 0 }}>
@@ -582,7 +602,7 @@ export function Onboarding({ onStart, onScan }) {
               <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>5 KPIS DE CE POSTE</div>
               {KPI_REFERENCE[targetRole].kpis.map(function(k, i) {
                 var eColor = k.elasticity === "élastique" ? "#4ecca3" : k.elasticity === "stable" ? "#8892b0" : "#e94560";
-                var eLabel = k.elasticity === "élastique" ? "\u2197\uFE0F" : k.elasticity === "stable" ? "\u2194\uFE0F" : "\u2198\uFE0F";
+                var eLabel = k.elasticity === "élastique" ? "↗\uFE0F" : k.elasticity === "stable" ? "↔\uFE0F" : "↘\uFE0F";
                 return (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                     <span style={{ fontSize: 10, color: eColor }}>{eLabel}</span>

@@ -42,7 +42,7 @@ export function Nav({ steps, active, onSelect, density, etabliOpen, onEtabliTogg
       }}>
         <div style={{ fontSize: 18, marginBottom: 2 }}>{"\u26A1"}</div>
         <div style={{ fontSize: 9, color: etabliEnabled ? "#e94560" : "#495670", fontWeight: 600 }}>GARDE: 1+</div>
-        <div style={{ fontSize: 12, color: etabliOpen ? "#e94560" : "#ccd6f6", fontWeight: 700 }}>{"\u00C9tabli"}<Tooltip term="Établi" text={VOCABULARY.etabli} /></div>
+        <div style={{ fontSize: 12, color: etabliOpen ? "#e94560" : "#ccd6f6", fontWeight: 700 }}>{"Établi"}<Tooltip term="Établi" text={VOCABULARY.etabli} /></div>
       </button>
     </div>
   );
