@@ -4,13 +4,13 @@ import { useState, useEffect, useRef } from "react";
 // Lib modules
 import { createBrowserClient } from "@/lib/supabase";
 import { KPI_REFERENCE, STEPS, DUEL_QUESTIONS } from "@/lib/sprint/references";
-import { computeDensityScore, getActiveCauchemars, setActiveCauchemarsGlobal, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
-import { parseOfferSignals, parseInternalSignals, buildActiveCauchemars, mergeOfferSignals, checkOfferCoherence, aggregateOfferSignals, detectSectoralDispersion } from "@/lib/sprint/offers";
+import { computeDensityScore, getActiveCauchemars, computeCauchemarCoverage, assessBrickArmor } from "@/lib/sprint/scoring";
+import { parseOfferSignals } from "@/lib/sprint/offers";
 import { generateAdaptiveSeeds, getAdaptivePillars } from "@/lib/sprint/bricks";
 import { generateInterviewQuestions } from "@/lib/sprint/generators";
 import { getMaturityLevel } from "@/lib/sprint/analysis";
 import { migrateState } from "@/lib/sprint/migrations";
-import { hasReachedSignatureThreshold, generateMaskedHypotheses, computeMetaPatterns, crossReferenceSignature, validateSignatureFormulation, isSignatureArmored } from "@/lib/sprint/signature";
+import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
 
 // Component modules
 import { Bar, Nav, Pillars, OffersManager } from "@/components/sprint/ui";
@@ -27,6 +27,9 @@ import VOCABULARY from "@/lib/vocabulary";
 import { usePersistence } from "@/components/sprint/hooks/usePersistence";
 import { useBrewNotif } from "@/components/sprint/hooks/useBrewNotif";
 import { useBricks } from "@/components/sprint/hooks/useBricks";
+import { useOffers } from "@/components/sprint/hooks/useOffers";
+import { useDuel } from "@/components/sprint/hooks/useDuel";
+import { useSignature } from "@/components/sprint/hooks/useSignature";
 
 export default function Sprint({ initialState, onStateChange, onScan, user, saveStatus }) {
   if (initialState) initialState = migrateState(initialState);
@@ -40,9 +43,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var doneState = useState(initialState && initialState.sprintDone ? initialState.sprintDone : false);
   var sprintDone = doneState[0];
   var setSprintDone = doneState[1];
-  var duelState = useState(initialState && initialState.duelResults ? initialState.duelResults : []);
-  var duelResults = duelState[0];
-  var setDuelResults = duelState[1];
   var paranoState = useState(true);
   var paranoMode = paranoState[0];
   var roleState = useState(initialState && initialState.targetRoleId ? initialState.targetRoleId : null);
@@ -58,15 +58,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   });
   var seeds = seedsState[0];
   var setSeeds = seedsState[1];
-  var parsedOffersState = useState(initialState && initialState.parsedOffers ? initialState.parsedOffers : null);
-  var parsedOffers = parsedOffersState[0];
-  var setParsedOffers = parsedOffersState[1];
-  var offersArrayState = useState(initialState && initialState.offersArray ? initialState.offersArray : []);
-  var offersArray = offersArrayState[0];
-  var setOffersArray = offersArrayState[1];
-  var offerNextIdState = useState(initialState && initialState.offerNextId ? initialState.offerNextId : 1);
-  var offerNextId = offerNextIdState[0];
-  var setOfferNextId = offerNextIdState[1];
   var etabliState = useState(false);
   var etabliOpen = etabliState[0];
   var setEtabliOpen = etabliState[1];
@@ -80,6 +71,20 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var piecesToastState = useState(null);
   var piecesToast = piecesToastState[0];
   var setPiecesToast = piecesToastState[1];
+
+  // ── useOffers hook — offers lifecycle ──
+  var offersHook = useOffers(initialState, targetRoleId);
+  var parsedOffers = offersHook.parsedOffers;
+  var setParsedOffers = offersHook.setParsedOffers;
+  var offersArray = offersHook.offersArray;
+  var setOffersArray = offersHook.setOffersArray;
+  var offerNextId = offersHook.offerNextId;
+  var setOfferNextId = offersHook.setOfferNextId;
+  var obsoleteDeliverables = offersHook.obsoleteDeliverables;
+  var setObsoleteDeliverables = offersHook.setObsoleteDeliverables;
+  var offerCoherence = offersHook.offerCoherence;
+  var handleAddOffer = offersHook.handleAddOffer;
+  var handleRemoveOffer = offersHook.handleRemoveOffer;
 
   // ── useBricks hook — brick lifecycle ──
   var brickHook = useBricks(initialState, targetRoleId, offersArray);
@@ -95,6 +100,31 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var setToastBrick = brickHook.setToastBrick;
   var navigateToBrick = brickHook.navigateToBrick;
   var setNavigateToBrick = brickHook.setNavigateToBrick;
+  var handleForge = brickHook.handleForge;
+  var handleCorrect = brickHook.handleCorrect;
+  var handleMission = brickHook.handleMission;
+  var handleSkip = brickHook.handleSkip;
+  var handleAddBrick = brickHook.handleAddBrick;
+  var handleBrickUpdate = brickHook.handleBrickUpdate;
+
+  // ── useDuel hook — duel lifecycle ──
+  var duelHook = useDuel(bricks, setBricks, targetRoleId);
+  var duelResults = duelHook.duelResults;
+  var duelQRef = duelHook.duelQRef;
+  var buildDuelQuestions = duelHook.buildDuelQuestions;
+  var handleDuelComplete = duelHook.handleDuelComplete;
+  var handleDuelRedo = duelHook.handleDuelRedo;
+
+  // ── useSignature hook — signature lifecycle ──
+  var sigHook = useSignature(initialState, bricks);
+  var signature = sigHook.signature;
+  var sigThresholdReached = sigHook.sigThresholdReached;
+  var renderSignatureOverlay = sigHook.renderSignatureOverlay;
+
+  // ── useBrewNotif hook — Brew notification state ──
+  var brewHook = useBrewNotif(user, { bricks: bricks, vault: vault, signature: signature, duelResults: duelResults, isSubscribed: isSubscribed });
+  var brewNotif = brewHook.brewNotif;
+  var setBrewNotif = brewHook.setBrewNotif;
 
   var displayMode = isSubscribed ? "action" : (pieces > 0 ? "action" : "vitrine");
 
@@ -118,45 +148,15 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var arsenalOpenState = useState(false);
   var arsenalOpen = arsenalOpenState[0];
   var setArsenalOpen = arsenalOpenState[1];
-  // Chantier 18 — Offers drawer + obsolete deliverables
   var offersDrawerState = useState(false);
   var offersDrawerOpen = offersDrawerState[0];
   var setOffersDrawerOpen = offersDrawerState[1];
-  var obsoleteState = useState({});
-  var obsoleteDeliverables = obsoleteState[0];
-  var setObsoleteDeliverables = obsoleteState[1];
   var aiPillarRecsState = useState(initialState && initialState.aiPillarRecs != null ? initialState.aiPillarRecs : null);
   var aiPillarRecs = aiPillarRecsState[0];
   var setAiPillarRecs = aiPillarRecsState[1];
   var currentSalaryState = useState(initialState && initialState.currentSalary != null ? initialState.currentSalary : null);
   var currentSalary = currentSalaryState[0];
   var setCurrentSalary = currentSalaryState[1];
-
-  // Chantier 7 — Ta signature
-  var signatureState = useState(initialState && initialState.signature ? initialState.signature : null);
-  var signature = signatureState[0];
-  var setSignature = signatureState[1];
-  var sigScreenState = useState(null); // null | "question" | "cross" | "formulate"
-  var sigScreen = sigScreenState[0];
-  var setSigScreen = sigScreenState[1];
-  var sigResponseState = useState("");
-  var sigResponse = sigResponseState[0];
-  var setSigResponse = sigResponseState[1];
-  var sigHypothesesRef = useRef(null);
-  var sigCrossRef = useRef(null);
-  var sigFormulationState = useState("");
-  var sigFormulation = sigFormulationState[0];
-  var setSigFormulation = sigFormulationState[1];
-  var sigRejectCountRef = useRef(0);
-  var sigValidationErrorState = useState(null);
-  var sigValidationError = sigValidationErrorState[0];
-  var setSigValidationError = sigValidationErrorState[1];
-  var sigThresholdTriggeredRef = useRef(false);
-
-  // ── useBrewNotif hook — Brew notification state ──
-  var brewHook = useBrewNotif(user, { bricks: bricks, vault: vault, signature: signature, duelResults: duelResults, isSubscribed: isSubscribed });
-  var brewNotif = brewHook.brewNotif;
-  var setBrewNotif = brewHook.setBrewNotif;
 
   // Email confirmation banner
   var emailBannerState = useState("hidden"); // hidden | show | sent
@@ -165,14 +165,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
 
   useEffect(function() {
     if (!user || !user.email) return;
-    // Already confirmed
     if (user.email_confirmed_at) return;
-    // Dismissed recently?
     try {
       var dismissed = localStorage.getItem("email_confirm_dismissed");
       if (dismissed && Date.now() - parseInt(dismissed, 10) < 48 * 60 * 60 * 1000) return;
     } catch (e) {}
-    // Check triggers: >= 3 bricks OR > 24h since account creation
     var accountAge = user.created_at ? Date.now() - new Date(user.created_at).getTime() : 0;
     if (bricks.length >= 3 || accountAge > 24 * 60 * 60 * 1000) {
       setEmailBanner("show");
@@ -191,92 +188,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
     try { localStorage.setItem("email_confirm_dismissed", String(Date.now())); } catch (e) {}
     setEmailBanner("hidden");
   }
-
-  function markDeliverablesObsolete() {
-    var types = ['cv','bio','dm','email','plan30j','posts','questions','interview_prep','report','argument','plan90j'];
-    var obs = {};
-    types.forEach(function(t) { obs[t] = true; });
-    setObsoleteDeliverables(obs);
-  }
-
-  // Synchronous init: set cauchemars BEFORE first render so getActiveCauchemars() is correct
-  if (targetRoleId) {
-    setActiveCauchemarsGlobal(buildActiveCauchemars(parsedOffers, targetRoleId));
-  }
-
-  // Recalculate merged signals when offersArray changes
-  var offerCoherence = checkOfferCoherence(offersArray);
-
-  function recalcOffersSignals(updatedOffers) {
-    var merged = mergeOfferSignals(updatedOffers, targetRoleId);
-    setParsedOffers(merged);
-    if (targetRoleId) {
-      setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
-    }
-  }
-
-  function handleAddOffer(text, type) {
-    var offerType = type || "external";
-    var signals = offerType === "internal"
-      ? parseInternalSignals(text, targetRoleId)
-      : parseOfferSignals(text, targetRoleId);
-    var newOffer = {
-      id: offerNextId,
-      text: text,
-      parsedSignals: signals,
-      type: offerType,
-      addedAt: new Date().toISOString()
-    };
-    var updated = offersArray.concat([newOffer]);
-    setOffersArray(updated);
-    setOfferNextId(offerNextId + 1);
-    recalcOffersSignals(updated);
-    markDeliverablesObsolete();
-  }
-
-  function handleRemoveOffer(offerId) {
-    var updated = offersArray.filter(function(o) { return o.id !== offerId; });
-    setOffersArray(updated);
-    recalcOffersSignals(updated);
-    markDeliverablesObsolete();
-  }
-
-  // Inject Eclaireur data (offer + CV) if available — one-time consumption
-  var eclaireurConsumedRef = useRef(false);
-  useEffect(function() {
-    if (eclaireurConsumedRef.current) return;
-    try {
-      var raw = sessionStorage.getItem("eclaireur_data");
-      if (!raw) return;
-      var parsed = JSON.parse(raw);
-      eclaireurConsumedRef.current = true;
-      sessionStorage.removeItem("eclaireur_data");
-
-      if (parsed.offerText && parsed.offerText.length > 20 && offersArray.length === 0) {
-        var signals = parseOfferSignals(parsed.offerText, targetRoleId);
-        var newOffer = {
-          id: offerNextId,
-          text: parsed.offerText,
-          parsedSignals: signals,
-          type: "external",
-          addedAt: new Date().toISOString(),
-          source: "eclaireur",
-        };
-        var updated = [newOffer];
-        setOffersArray(updated);
-        setOfferNextId(offerNextId + 1);
-        recalcOffersSignals(updated);
-      }
-    } catch (e) {}
-  }, [targetRoleId]);
-
-  // Set global active cauchemars whenever role changes
-  useEffect(function() {
-    if (targetRoleId) {
-      var merged = aggregateOfferSignals(offersArray, targetRoleId);
-      setActiveCauchemarsGlobal(buildActiveCauchemars(merged, targetRoleId));
-    }
-  }, [targetRoleId]);
 
   // ── usePersistence hook — localStorage + Supabase save ──
   usePersistence({
@@ -315,16 +226,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
 
   var maturity = getMaturityLevel(bricks);
 
-  // handleForge, handleCorrect, handleMission, handleSkip, handleAddBrick, handleBrickUpdate → useBricks hook
-  var handleForge = brickHook.handleForge;
-  var handleCorrect = brickHook.handleCorrect;
-  var handleMission = brickHook.handleMission;
-  var handleSkip = brickHook.handleSkip;
-  var handleAddBrick = brickHook.handleAddBrick;
-  var handleBrickUpdate = brickHook.handleBrickUpdate;
-
   function handleValPillars(count, selectedIds, takePillars, aiPillars) {
-    // Store which pillars were selected with their source info
     var selectedPillars = selectedIds.map(function(id) {
       var tp = takePillars.find(function(p) { return p.id === id; });
       if (tp) return { id: id, title: tp.title, desc: tp.desc, source: "take", depth: tp.depth };
@@ -336,100 +238,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
     setActiveStep(2);
   }
 
-  /**
-   * buildDuelQuestions — Chantier 5
-   * Fusionne questions classiques (DUEL_QUESTIONS) + questions dérivées des briques.
-   * Shuffle l'ensemble. Retourne au format attendu par Duel.jsx.
-   */
-  function buildDuelQuestions(classicQuestions, allBricks, roleId) {
-    var validated = allBricks.filter(function(b) { return b.status === "validated" && b.type === "brick"; });
-    var strong = validated.filter(function(b) {
-      var armor = assessBrickArmor(b);
-      return armor.status === "armored" || armor.status === "credible";
-    });
-
-    function snippet(b) {
-      var t = b.text || "";
-      return t.length > 60 ? t.slice(0, 60) + "..." : t;
-    }
-
-    var attackTemplates = [
-      { intent: "Reproductibilité", make: function(b) { return "Vous dites : \"" + snippet(b) + "\". C'est dans un contexte précis. Qu'est-ce qui garantit que ça marche ici ?"; }, danger: "Si tu ne peux pas séparer le contexte de la méthode, ta brique est contextuelle. Le recruteur lit : chanceux, pas compétent.", idealAngle: "Sépare le spécifique du transférable. Nomme la méthode, pas seulement le résultat." },
-      { intent: "Attribution", make: function(b) { return "\"" + snippet(b) + "\" — c'est ton travail ou celui de l'équipe ?"; }, danger: "Si tu dis 'c'était collectif' sans nuancer, le recruteur ne sait plus quel est ton impact individuel.", idealAngle: "Nomme ta contribution spécifique. 'L'équipe exécutait, j'ai structuré le framework et arbitré les priorités.'" },
-      { intent: "Résistance au doute", make: function(b) { return "\"" + snippet(b) + "\" — le recruteur dit : 'J'ai du mal à y croire. Prouvez-le.'"; }, danger: "Si tu te justifies avec des mots, tu perds. Les données parlent.", idealAngle: "Réponds avec le chiffre, la période, et la méthode. Pas d'émotion. Des faits." },
-      { intent: "Obsolescence", make: function(b) { return "\"" + snippet(b) + "\" — c'était il y a combien de temps ? Le marché a changé depuis, non ?"; }, danger: "Si tu ne montres pas que ta compétence est à jour, le recruteur classe : profil passé.", idealAngle: "Montre que le principe est intemporel même si le contexte change. 'La méthode s'applique quel que soit le cycle.'" },
-    ];
-
-    var personalQuestions = [];
-    strong.forEach(function(b, i) {
-      if (i >= 4) return;
-      var tpl = attackTemplates[i % attackTemplates.length];
-      personalQuestions.push({
-        id: 100 + i,
-        question: tpl.make(b),
-        intent: tpl.intent,
-        brickRef: "brick_" + b.id,
-        danger: tpl.danger,
-        idealAngle: tpl.idealAngle,
-      });
-    });
-
-    var all = classicQuestions.concat(personalQuestions);
-    // Fisher-Yates shuffle
-    for (var i = all.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = all[i];
-      all[i] = all[j];
-      all[j] = temp;
-    }
-    return all;
-  }
-
-  var duelQRef = useRef(null);
-
-  /**
-   * handleDuelComplete — Chantier 5
-   * Stocke le résultat du Duel, flag les briques mobilisées.
-   * Ne met PAS sprintDone à true pour permettre le recommencement.
-   */
-  function handleDuelComplete(results) {
-    setDuelResults(results);
-    // Flag mobilized bricks
-    var answeredRefs = results.filter(function(r) { return r.answer; }).map(function(r) { return r.brickRef; });
-    setBricks(function(prev) {
-      return prev.map(function(b) {
-        if (b.status !== "validated" || b.type !== "brick") return b;
-        // Direct match for generated questions (brickRef = "brick_" + id)
-        var directMatch = answeredRefs.some(function(ref) { return ref === "brick_" + b.id; });
-        // Text match: check if any answer contains keywords from the brick
-        var textMatch = false;
-        if (!directMatch && b.text) {
-          var brickWords = b.text.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 4; });
-          results.forEach(function(r) {
-            if (r.answer) {
-              var aLower = r.answer.toLowerCase();
-              var matches = brickWords.filter(function(w) { return aLower.indexOf(w) !== -1; });
-              if (matches.length >= 2) textMatch = true;
-            }
-          });
-        }
-        if (directMatch || textMatch) return Object.assign({}, b, { duelTested: true });
-        return b;
-      });
-    });
-  }
-
-  function handleDuelRedo() {
-    setDuelResults([]);
-    duelQRef.current = null;
-  }
-
   // Chantier 10B — "Aller à la brique" callback from Arsenal
   function handleGoToBrick(nightmareId, angle) {
     setArsenalOpen(false);
     setEtabliOpen(false);
     setActiveStep(1);
-    // Find a brick that covers the recommended nightmare
     var targetBrick = null;
     var cauchemars = getActiveCauchemars();
     var nightmare = cauchemars.find(function(c) { return c.id === nightmareId; });
@@ -461,257 +274,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       window.history.replaceState({}, "", "/sprint");
     }
   }, []);
-
-  // Chantier 7 — Ta signature: threshold check
-  var sigThresholdReached = !signature && hasReachedSignatureThreshold(bricks);
-  // Auto-trigger signature screens when threshold is reached (once per session)
-  useEffect(function() {
-    if (sigThresholdReached && !sigThresholdTriggeredRef.current && !signature && !sigScreen) {
-      sigThresholdTriggeredRef.current = true;
-      // Generate hypotheses in background
-      var armored = bricks.filter(function(b) {
-        return b.status === "validated" && b.type === "brick" && assessBrickArmor(b).status === "armored";
-      });
-      sigHypothesesRef.current = generateMaskedHypotheses(armored, getActiveCauchemars());
-      setSigScreen("question");
-    }
-  }, [sigThresholdReached, signature, sigScreen]);
-
-  function handleSigQuestionNext() {
-    if (sigResponse.trim().split(/\s+/).length < 5) return;
-    // Cross-reference
-    var crossResult = crossReferenceSignature(sigResponse, sigHypothesesRef.current || []);
-    sigCrossRef.current = crossResult;
-    setSigScreen("cross");
-  }
-
-  function handleSigCrossNext(chosenHypIndex) {
-    // In divergence mode, chosenHypIndex indicates which hypothesis the user picked
-    if (sigCrossRef.current && sigCrossRef.current.type === "divergence" && chosenHypIndex != null && sigHypothesesRef.current) {
-      sigCrossRef.current.chosenHypothesis = sigHypothesesRef.current[chosenHypIndex];
-    }
-    setSigScreen("formulate");
-  }
-
-  function handleSigValidate() {
-    var validation = validateSignatureFormulation(sigFormulation, bricks);
-    if (!validation.valid) {
-      sigRejectCountRef.current = (sigRejectCountRef.current || 0) + 1;
-      setSigValidationError(validation);
-      // After 2 rejections, let through anyway but mark it
-      if (sigRejectCountRef.current < 2) return;
-    }
-
-    var armoredBricks = bricks.filter(function(b) {
-      return b.status === "validated" && b.type === "brick" && assessBrickArmor(b).status === "armored";
-    });
-    var meta = computeMetaPatterns(armoredBricks);
-    var isArmored = isSignatureArmored(sigFormulation, bricks);
-    var sigObj = {
-      formulation: sigFormulation.trim(),
-      metaPatterns: meta,
-      armored: isArmored,
-      hypotheses: sigHypothesesRef.current || [],
-      crossResult: sigCrossRef.current || {},
-      assistedFormulation: sigRejectCountRef.current >= 2,
-    };
-    setSignature(sigObj);
-    setSigScreen(null);
-    setSigValidationError(null);
-  }
-
-  // Signature screens component
-  function renderSignatureOverlay() {
-    if (!sigScreen) return null;
-
-    var overlayStyle = {
-      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-      background: "rgba(10,10,26,0.95)", zIndex: 1000,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: 20, overflow: "auto",
-    };
-    var cardStyle = {
-      background: "#1a1a2e", borderRadius: 16, padding: 32, maxWidth: 560,
-      width: "100%", border: "1px solid #16213e",
-    };
-    var titleStyle = { fontSize: 20, fontWeight: 800, color: "#ccd6f6", marginBottom: 4 };
-    var subtitleStyle = { fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 2, marginBottom: 16 };
-    var labelStyle = { fontSize: 14, color: "#8892b0", lineHeight: 1.7, marginBottom: 16 };
-    var inputStyle = {
-      width: "100%", padding: 14, background: "#0a0a1a", color: "#ccd6f6",
-      border: "1px solid #16213e", borderRadius: 10, fontSize: 14,
-      fontFamily: "'Inter', sans-serif", resize: "vertical", minHeight: 80,
-      outline: "none", boxSizing: "border-box",
-    };
-    var btnStyle = function(active) {
-      return {
-        width: "100%", padding: 14, marginTop: 16,
-        background: active ? "linear-gradient(135deg, #e94560, #c81d4e)" : "#0f3460",
-        color: active ? "#fff" : "#495670",
-        border: "none", borderRadius: 10, cursor: active ? "pointer" : "default",
-        fontWeight: 700, fontSize: 14, opacity: active ? 1 : 0.5,
-      };
-    };
-
-    // Screen 1: Question comportementale
-    if (sigScreen === "question") {
-      var wordCount = sigResponse.trim().split(/\s+/).filter(function(w) { return w.length > 0; }).length;
-      var isEnough = wordCount >= 5;
-      var showFallback = wordCount > 0 && wordCount < 5;
-      return (
-        <div style={overlayStyle}>
-          <div style={cardStyle}>
-            <div style={subtitleStyle}>TA SIGNATURE<Tooltip term="Signature" text={VOCABULARY.signature} /></div>
-            <div style={titleStyle}>La question</div>
-            <div style={labelStyle}>
-              Pour quoi tes anciens collègues ou ton manager te sollicitent quand personne d{"'"}autre ne résout le problème ?
-            </div>
-            <textarea
-              style={inputStyle}
-              value={sigResponse}
-              onChange={function(e) { setSigResponse(e.target.value); }}
-              placeholder="Décris la situation concrète..."
-              rows={4}
-            />
-            {showFallback && (
-              <div style={{ fontSize: 12, color: "#e94560", marginTop: 8, lineHeight: 1.5 }}>
-                Pense à la dernière fois qu{"'"}un collègue t{"'"}a appelé en urgence. C{"'"}était pour résoudre quoi exactement ?
-              </div>
-            )}
-            <button style={btnStyle(isEnough)} onClick={isEnough ? handleSigQuestionNext : undefined}>
-              Suivant
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    // Screen 2: Croisement
-    if (sigScreen === "cross") {
-      var cross = sigCrossRef.current || {};
-      var hyps = sigHypothesesRef.current || [];
-      return (
-        <div style={overlayStyle}>
-          <div style={cardStyle}>
-            <div style={subtitleStyle}>TA SIGNATURE</div>
-            <div style={titleStyle}>Le croisement</div>
-            <div style={{ fontSize: 13, color: "#8892b0", lineHeight: 1.6, marginBottom: 16, padding: 12, background: "#0a0a1a", borderRadius: 8, borderLeft: "3px solid #e94560" }}>
-              {"«"} {sigResponse} {"»"}
-            </div>
-
-            {cross.type === "convergence" && (
-              <div>
-                <div style={{ fontSize: 13, color: "#4ecca3", fontWeight: 700, marginBottom: 8 }}>Convergence forte</div>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 8 }}>{cross.diagnostic}</div>
-                <div style={{ padding: 12, background: "#4ecca3" + "15", border: "1px solid #4ecca3" + "40", borderRadius: 8, marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>Hypothèse confirmée</div>
-                  <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{cross.matchedHypothesis ? cross.matchedHypothesis.text : ""}</div>
-                </div>
-                <button style={btnStyle(true)} onClick={function() { handleSigCrossNext(null); }}>Suivant</button>
-              </div>
-            )}
-
-            {cross.type === "partial" && (
-              <div>
-                <div style={{ fontSize: 13, color: "#3498db", fontWeight: 700, marginBottom: 8 }}>Convergence partielle</div>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 12 }}>{cross.diagnostic}</div>
-                {hyps.map(function(h, i) {
-                  return (
-                    <div key={i} style={{ padding: 12, background: "#3498db" + "10", border: "1px solid #3498db" + "30", borderRadius: 8, marginBottom: 8 }}>
-                      <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>Hypothèse {i + 1}</div>
-                      <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{h.text}</div>
-                    </div>
-                  );
-                })}
-                <button style={btnStyle(true)} onClick={function() { handleSigCrossNext(null); }}>Suivant</button>
-              </div>
-            )}
-
-            {cross.type === "divergence" && (
-              <div>
-                <div style={{ fontSize: 13, color: "#e94560", fontWeight: 700, marginBottom: 8 }}>Divergence</div>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 12 }}>{cross.diagnostic}</div>
-                <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12 }}>Choisis la force que tu veux armer :</div>
-                {hyps.map(function(h, i) {
-                  return (
-                    <button key={i} onClick={function() { handleSigCrossNext(i); }} style={{
-                      width: "100%", padding: 14, marginBottom: 8, background: "#0a0a1a",
-                      border: "1px solid #e94560" + "60", borderRadius: 10, cursor: "pointer",
-                      textAlign: "left",
-                    }}>
-                      <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 4 }}>Hypothèse {i + 1}</div>
-                      <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5 }}>{h.text}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    // Screen 3: Formulation
-    if (sigScreen === "formulate") {
-      var cross2 = sigCrossRef.current || {};
-      var rejectCount = sigRejectCountRef.current || 0;
-      var showAssist = rejectCount >= 2 && sigValidationError && !sigValidationError.valid;
-      var assistHyp = sigHypothesesRef.current && sigHypothesesRef.current.length > 0 ? sigHypothesesRef.current[0] : null;
-      if (cross2.matchedHypothesis) assistHyp = cross2.matchedHypothesis;
-      if (cross2.chosenHypothesis) assistHyp = cross2.chosenHypothesis;
-      return (
-        <div style={overlayStyle}>
-          <div style={cardStyle}>
-            <div style={subtitleStyle}>TA SIGNATURE</div>
-            <div style={titleStyle}>Ta formulation</div>
-            <div style={{ padding: 12, background: "#0a0a1a", borderRadius: 8, marginBottom: 16, borderLeft: "3px solid #3498db" }}>
-              <div style={{ fontSize: 11, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>Diagnostic</div>
-              <div style={{ fontSize: 12, color: "#8892b0", lineHeight: 1.5 }}>{cross2.diagnostic || ""}</div>
-            </div>
-            <div style={labelStyle}>
-              En une phrase, qu{"'"}est-ce que tu es le seul à prouver ?
-            </div>
-            <textarea
-              style={inputStyle}
-              value={sigFormulation}
-              onChange={function(e) { setSigFormulation(e.target.value); setSigValidationError(null); }}
-              placeholder="Une phrase. Pas de buzzword. Des faits."
-              rows={3}
-            />
-            {sigFormulation.trim().length > 0 && (
-              <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>
-                {sigFormulation.trim().split(/\s+/).length} / 25 mots
-              </div>
-            )}
-            {sigValidationError && !sigValidationError.valid && rejectCount < 2 && (
-              <div style={{ fontSize: 12, color: "#e94560", marginTop: 8, lineHeight: 1.5 }}>
-                {sigValidationError.suggestion}
-              </div>
-            )}
-            {showAssist && assistHyp && (
-              <div style={{ marginTop: 12, padding: 14, background: "#e94560" + "12", border: "1px dashed #e94560" + "60", borderRadius: 10 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 600, marginBottom: 6 }}>Suggestion assistée</div>
-                <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, fontStyle: "italic" }}>{assistHyp.text}</div>
-                <button onClick={function() { setSigFormulation(assistHyp.text); setSigValidationError(null); }} style={{
-                  marginTop: 8, padding: "6px 12px", background: "#e94560" + "30",
-                  border: "1px solid #e94560", borderRadius: 6, cursor: "pointer",
-                  fontSize: 11, color: "#e94560", fontWeight: 600,
-                }}>Utiliser cette suggestion</button>
-              </div>
-            )}
-            <button style={btnStyle(sigFormulation.trim().length > 0)} onClick={function() {
-              if (sigFormulation.trim().length === 0) return;
-              handleSigValidate();
-            }}>
-              Valider
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  }
 
   var wrap = {
     color: "#ccd6f6",
@@ -943,8 +505,6 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       {!sprintDone && !etabliOpen && <InvestmentIndex bricks={bricks} />}
       {!sprintDone && !etabliOpen && <CrossRoleInsight bricks={bricks} targetRoleId={targetRoleId} />}
 
-      {/* Mise en Veille — supprimé (les données persistent dans Supabase, pas besoin de bouton pause) */}
-
       {/* ===== ÉTABLI OVERLAY — Interruption 2 (PRODUIRE) ===== */}
       {etabliOpen && (
         <div style={{ background: "#16213e", borderRadius: 12, padding: 20, minHeight: "60vh" }}>
@@ -962,12 +522,10 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       {/* ===== ARSENAL DRAWER — Région 3 (ORIENTER) ===== */}
       {arsenalOpen && (
         <div>
-          {/* Backdrop */}
           <div onClick={function() { setArsenalOpen(false); }} style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
             background: "rgba(10,10,26,0.6)", zIndex: 900,
           }} />
-          {/* Drawer — desktop: right panel, mobile: bottom sheet (via media query in style tag above would require classes, so we use responsive width) */}
           <div style={{
             position: "fixed", top: 0, right: 0, bottom: 0,
             width: "min(400px, 85vw)",
@@ -989,7 +547,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
                 density={density}
                 bricks={bricks}
                 nightmares={getActiveCauchemars()}
-                signatureThreshold={hasReachedSignatureThreshold(bricks)}
+                signatureThreshold={sigThresholdReached}
                 signature={signature}
                 vault={vault}
                 duelResults={duelResults}
