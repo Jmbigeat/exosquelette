@@ -420,6 +420,15 @@ export function WorkBench({
   }).length;
   var duelPassed = duelResults && duelResults.length > 0;
 
+  // Von Restorff — recommended deliverable highlight
+  function getRecommendedDeliverable() {
+    if (offersArray && offersArray.length > 0) return "cv";
+    if (blindedCount >= 3) return "bio";
+    if (duelPassed) return "interview_prep";
+    return "cv";
+  }
+  var recommendedDeliverable = getRecommendedDeliverable();
+
   // Generate scripts for selected offer or global
   var targetOffer = offersArray && offersArray.length > 0 ? offersArray[selectedOfferIdx] || offersArray[0] : null;
   var rawScripts = generateContactScripts(bricks, targetRoleId, targetOffer);
@@ -1005,7 +1014,29 @@ export function WorkBench({
               })()}
 
             {/* CV */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+            <div
+              style={{
+                background: "#16213e",
+                borderRadius: 10,
+                padding: 12,
+                marginBottom: 10,
+                border: recommendedDeliverable === "cv" ? "2px solid #ff9800" : "none",
+              }}
+            >
+              {recommendedDeliverable === "cv" && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "#ff9800",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    marginBottom: 4,
+                  }}
+                >
+                  Recommandé
+                </div>
+              )}
               <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
                 {"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})
               </div>
@@ -1043,7 +1074,29 @@ export function WorkBench({
             </div>
 
             {/* PRÉPARATION ENTRETIEN — chantier 16 */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+            <div
+              style={{
+                background: "#16213e",
+                borderRadius: 10,
+                padding: 12,
+                marginBottom: 10,
+                border: recommendedDeliverable === "interview_prep" ? "2px solid #ff9800" : "none",
+              }}
+            >
+              {recommendedDeliverable === "interview_prep" && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "#ff9800",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    marginBottom: 4,
+                  }}
+                >
+                  Recommandé
+                </div>
+              )}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <div>
                   <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
@@ -1267,7 +1320,29 @@ export function WorkBench({
 
             {/* BIO LINKEDIN */}
             {bioText ? (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+              <div
+                style={{
+                  background: "#16213e",
+                  borderRadius: 10,
+                  padding: 12,
+                  marginBottom: 10,
+                  border: recommendedDeliverable === "bio" ? "2px solid #ff9800" : "none",
+                }}
+              >
+                {recommendedDeliverable === "bio" && (
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "#ff9800",
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                      marginBottom: 4,
+                    }}
+                  >
+                    Recommandé
+                  </div>
+                )}
                 <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
                   {"\uD83D\uDC64"} BIO LINKEDIN
                 </div>
