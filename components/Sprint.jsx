@@ -78,6 +78,12 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var piecesToastState = useState(null);
   var piecesToast = piecesToastState[0];
   var setPiecesToast = piecesToastState[1];
+  var fvtState = useState(initialState && initialState.firstVisitToastShown ? true : false);
+  var firstVisitToastShown = fvtState[0];
+  var setFirstVisitToastShown = fvtState[1];
+  var autosaveToastState = useState(null);
+  var autosaveToast = autosaveToastState[0];
+  var setAutosaveToast = autosaveToastState[1];
 
   // ── useOffers hook — offers lifecycle ──
   var offersHook = useOffers(initialState, targetRoleId);
@@ -239,8 +245,27 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       currentSalary: currentSalary,
       signature: signature,
       pieces: pieces,
+      firstVisitToastShown: firstVisitToastShown,
     },
     onStateChange
+  );
+
+  // ── Autosave reassurance toast — first Forge visit only ──
+  useEffect(
+    function () {
+      if (screen !== "sprint" || firstVisitToastShown) return;
+      var timer = setTimeout(function () {
+        setAutosaveToast({ type: "info", message: "Tes briques sont sauvegardées automatiquement." });
+        setFirstVisitToastShown(true);
+        setTimeout(function () {
+          setAutosaveToast(null);
+        }, 5000);
+      }, 2000);
+      return function () {
+        clearTimeout(timer);
+      };
+    },
+    [screen, firstVisitToastShown]
   );
 
   // Fetch AI pillar recommendations ONCE, persist result
@@ -1076,6 +1101,33 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
         />
       )}
       <Toast toast={piecesToast} />
+      {autosaveToast && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            animation: "toastSlideIn 0.3s ease-out",
+          }}
+        >
+          <div
+            style={{
+              background: "#1a1a2e",
+              border: "1px solid #1a1a3e",
+              borderRadius: 10,
+              padding: "12px 20px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+              maxWidth: 360,
+            }}
+          >
+            <span style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, lineHeight: 1.4 }}>
+              {autosaveToast.message}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ===== SAVE STATUS INDICATORS ===== */}
       {saveStatus === "retrying" && (
