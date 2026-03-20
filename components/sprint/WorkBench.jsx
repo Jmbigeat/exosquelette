@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { KPI_REFERENCE } from "@/lib/sprint/references";
+import { KPI_REFERENCE, REPLACEMENT_DATA_BY_ROLE } from "@/lib/sprint/references";
 import { extractBrickSummary } from "@/lib/sprint/analysis";
 import { getActiveCauchemars } from "@/lib/sprint/scoring";
 import { applySignatureFilter } from "@/lib/sprint/signature";
@@ -18,6 +18,7 @@ import {
   scoreContactScript,
   generateFollowUp,
   generateEmailSignature,
+  generateSalaryComparison,
 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts } from "@/lib/sprint/linkedin";
@@ -45,6 +46,7 @@ var DELIVERABLE_AUDIENCE = {
   interview_prep: "external",
   report: "internal",
   argument: "internal",
+  salary_comparison: "internal",
   plan90j: "internal",
 };
 
@@ -256,6 +258,7 @@ export function WorkBench({
   onGoForge,
   obsoleteDeliverables,
   setObsoleteDeliverables,
+  acvTarget,
 }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
@@ -472,6 +475,10 @@ export function WorkBench({
   var replacementText = signature ? applySignatureFilter(rawReplacement, signature) : rawReplacement;
   var rawRaise = generateRaiseArgument(bricks, targetRoleId, salaryNum);
   var raiseText = signature ? applySignatureFilter(rawRaise, signature) : rawRaise;
+  var rawSalaryComp = salaryNum
+    ? generateSalaryComparison(salaryNum, targetRoleId, bricks, getActiveCauchemars(), acvTarget, REPLACEMENT_DATA_BY_ROLE[targetRoleId])
+    : null;
+  var salaryCompText = rawSalaryComp && signature ? applySignatureFilter(rawSalaryComp, signature) : rawSalaryComp;
   var rawPlan90j = generatePlan90jN1(bricks, targetRoleId, internalSignals);
   var plan90jText = signature ? applySignatureFilter(rawPlan90j, signature) : rawPlan90j;
 
@@ -483,6 +490,9 @@ export function WorkBench({
   var auditPlan30j = auditDeliverable("plan30j", plan30jText, bricks, auditCauchemars, "external");
   var auditReplacement = auditDeliverable("report", replacementText, bricks, auditCauchemars, "internal");
   var auditRaise = auditDeliverable("argument", raiseText, bricks, auditCauchemars, "internal");
+  var auditSalaryComp = salaryCompText
+    ? auditDeliverable("salary_comparison", salaryCompText, bricks, auditCauchemars, "internal")
+    : null;
   var auditPlan90j = auditDeliverable("plan90j", plan90jText, bricks, auditCauchemars, "internal");
 
   // Audit for lazy deliverables (questions, interview_prep) stored in state
@@ -535,7 +545,7 @@ export function WorkBench({
     1 +
     (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) +
     1; // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
-  var interneCount = 3; // replacement, raise, plan 90j
+  var interneCount = salaryCompText ? 4 : 3; // replacement, raise, salary comparison (if salary set), plan 90j
 
   return (
     <div style={{ background: "#0d1b2a", borderRadius: 12, overflow: "hidden" }}>
@@ -2451,6 +2461,61 @@ export function WorkBench({
                 }}
               />
             </div>
+
+            {/* COMPARATIF SALARIAL */}
+            {salaryCompText ? (
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                  {"\uD83D\uDCCA"} COMPARATIF SALARIAL
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "#8892b0",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-wrap",
+                    maxHeight: 200,
+                    overflow: "auto",
+                  }}
+                >
+                  {salaryCompText}
+                </div>
+                {renderObsoleteIndicator("salary_comparison")}
+                <AuditBlock
+                  auditResult={auditSalaryComp}
+                  text={salaryCompText}
+                  copyId="salary_comparison"
+                  copiedId={copiedId}
+                  onCopy={handleCopy}
+                  type="salary_comparison"
+                  isVitrine={isVitrine}
+                  corrections={corrCounters["salary_comparison"] || 0}
+                  onGoForge={onGoForge}
+                  onCorrect={function () {
+                    handleCorrect("salary_comparison", function () {
+                      var hints = auditSalaryComp ? auditSalaryComp.correctionHints : [];
+                      var cauchs = getActiveCauchemars();
+                      var raw = generateSalaryComparison(
+                        salaryNum,
+                        targetRoleId,
+                        bricks,
+                        cauchs,
+                        acvTarget,
+                        REPLACEMENT_DATA_BY_ROLE[targetRoleId],
+                        hints
+                      );
+                      salaryCompText = signature ? applySignatureFilter(raw, signature) : raw;
+                    });
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
+                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
+                  {"\uD83D\uDCCA"} COMPARATIF SALARIAL — Renseigne ton salaire ci-dessus
+                </div>
+              </div>
+            )}
 
             {/* PLAN 90 JOURS N+1 */}
             <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
