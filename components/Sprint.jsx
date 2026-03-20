@@ -186,6 +186,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var currentSalary = currentSalaryState[0];
   var setCurrentSalary = currentSalaryState[1];
 
+  // CV text for Arsenal audit
+  var cvTextState = useState(initialState && initialState.cvText ? initialState.cvText : "");
+  var cvText = cvTextState[0];
+  var setCvText = cvTextState[1];
+
   // Email confirmation banner
   var emailBannerState = useState("hidden"); // hidden | show | sent
   var emailBanner = emailBannerState[0];
@@ -246,6 +251,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       signature: signature,
       pieces: pieces,
       firstVisitToastShown: firstVisitToastShown,
+      cvText: cvText,
     },
     onStateChange
   );
@@ -1013,6 +1019,8 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
                 }}
                 previousRole={previousRole}
                 targetRoleId={targetRoleId}
+                cvText={cvText}
+                setCvText={setCvText}
               />
             </div>
           </div>
