@@ -191,6 +191,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var cvText = cvTextState[0];
   var setCvText = cvTextState[1];
 
+  // ACV target for OTE diagnostic (sales roles)
+  var acvTargetState = useState(initialState && initialState.acvTarget ? initialState.acvTarget : null);
+  var acvTarget = acvTargetState[0];
+  var setAcvTarget = acvTargetState[1];
+
   // Email confirmation banner
   var emailBannerState = useState("hidden"); // hidden | show | sent
   var emailBanner = emailBannerState[0];
@@ -252,6 +257,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       pieces: pieces,
       firstVisitToastShown: firstVisitToastShown,
       cvText: cvText,
+      acvTarget: acvTarget,
     },
     onStateChange
   );
@@ -932,6 +938,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
             }}
             obsoleteDeliverables={obsoleteDeliverables}
             setObsoleteDeliverables={setObsoleteDeliverables}
+            acvTarget={acvTarget}
           />
         </div>
       )}
@@ -1021,6 +1028,9 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
                 targetRoleId={targetRoleId}
                 cvText={cvText}
                 setCvText={setCvText}
+                currentSalary={currentSalary}
+                acvTarget={acvTarget}
+                setAcvTarget={setAcvTarget}
               />
             </div>
           </div>

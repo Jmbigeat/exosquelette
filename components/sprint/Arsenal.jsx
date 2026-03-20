@@ -1,13 +1,13 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { ROLE_CLUSTERS } from "@/lib/sprint/references";
+import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
 
 /* ==============================
    ARSENAL — GPS DES MANQUES (Chantier 8)
-   4 blocs : radar 6 axes, prochaine action, simulation delta, audit CV
+   5 blocs : radar 6 axes, prochaine action, simulation delta, audit CV, position marché
    Zéro donnée nouvelle : affichage des calculs existants
    ============================== */
 
@@ -26,6 +26,9 @@ export function Arsenal({
   targetRoleId,
   cvText,
   setCvText,
+  currentSalary,
+  acvTarget,
+  setAcvTarget,
 }) {
   if (!density || !density.axes || density.axes.length === 0) {
     return (
@@ -79,6 +82,43 @@ export function Arsenal({
       return auditCVForge(cvText, bricks, nightmares, density, signature);
     },
     [cvText, bricks, nightmares, density, signature]
+  );
+
+  // Salary diagnostic — bloc 5
+  var salaryDiag = useMemo(
+    function () {
+      if (!currentSalary || currentSalary <= 0) return null;
+      var ranges = SALARY_RANGES_BY_ROLE[targetRoleId];
+      if (!ranges) return null;
+
+      var percentile;
+      if (currentSalary <= ranges.p25) percentile = "< P25";
+      else if (currentSalary <= ranges.p50) percentile = "P25-P50";
+      else if (currentSalary <= ranges.p75) percentile = "P50-P75";
+      else percentile = "> P75";
+
+      var deltaP50 = currentSalary - ranges.p50;
+      var deltaPercent = Math.round((deltaP50 / ranges.p50) * 100);
+
+      var oteSplit = OTE_SPLIT_BY_ROLE[targetRoleId] || null;
+      var oteAlert = null;
+      if (oteSplit && acvTarget && acvTarget > 0) {
+        var ratio = Math.round((currentSalary / acvTarget) * 100);
+        if (ratio > 35) {
+          oteAlert = "OTE/ACV = " + ratio + "% (seuil : 35%). Variable structurellement inatteignable.";
+        }
+      }
+
+      return {
+        ranges: ranges,
+        percentile: percentile,
+        deltaP50: deltaP50,
+        deltaPercent: deltaPercent,
+        oteSplit: oteSplit,
+        oteAlert: oteAlert,
+      };
+    },
+    [currentSalary, targetRoleId, acvTarget]
   );
 
   var axes = density.axes;
@@ -155,6 +195,11 @@ export function Arsenal({
     if (pct >= 70) return "#4ecca3";
     if (pct >= 40) return "#3498db";
     return "#e94560";
+  }
+
+  function formatSalary(n) {
+    if (n >= 1000) return Math.round(n / 1000) + " 000";
+    return String(n);
   }
 
   // Determine recommended angle for "Aller à la brique"
@@ -560,6 +605,101 @@ export function Arsenal({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* BLOC 5 — POSITION MARCHÉ */}
+      {salaryDiag && (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <div
+            style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+          >
+            POSITION MARCHÉ
+          </div>
+          <div
+            style={{
+              padding: 12,
+              background: "#111125",
+              borderRadius: 10,
+              borderLeft:
+                "3px solid " +
+                (salaryDiag.percentile === "> P75" || salaryDiag.percentile === "P50-P75"
+                  ? "#4ecca3"
+                  : salaryDiag.percentile === "P25-P50"
+                    ? "#ff9800"
+                    : "#e94560"),
+            }}
+          >
+            <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 6 }}>
+              {"Ton salaire : " +
+                formatSalary(currentSalary) +
+                "€ — " +
+                salaryDiag.percentile +
+                " (" +
+                (salaryDiag.deltaPercent >= 0
+                  ? salaryDiag.deltaPercent + "% au-dessus de"
+                  : Math.abs(salaryDiag.deltaPercent) + "% sous") +
+                " la médiane)"}
+            </div>
+            <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>
+              {"Médiane : " +
+                formatSalary(salaryDiag.ranges.p50) +
+                "€ | P75 : " +
+                formatSalary(salaryDiag.ranges.p75) +
+                "€"}
+            </div>
+            {salaryDiag.oteAlert && (
+              <div
+                style={{
+                  marginTop: 8,
+                  padding: 8,
+                  background: "#e94560" + "15",
+                  borderRadius: 6,
+                  border: "1px solid #e94560" + "40",
+                }}
+              >
+                <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
+                  {salaryDiag.oteAlert}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ACV input — sales roles only */}
+          {salaryDiag.oteSplit && !acvTarget && (
+            <div style={{ fontSize: 11, color: "#ff9800", marginTop: 8, lineHeight: 1.5 }}>
+              Renseigne ton ACV cible pour un diagnostic OTE complet.
+            </div>
+          )}
+          {salaryDiag.oteSplit && (
+            <div style={{ marginTop: 8 }}>
+              <label
+                style={{ fontSize: 10, color: "#495670", fontWeight: 700, letterSpacing: 1, display: "block", marginBottom: 4 }}
+              >
+                ACV CIBLE (€/AN)
+              </label>
+              <input
+                type="number"
+                placeholder={"Valeur contractuelle annuelle visée..."}
+                value={acvTarget || ""}
+                onChange={function (e) {
+                  setAcvTarget(e.target.value ? Number(e.target.value) : null);
+                }}
+                style={{
+                  width: "100%",
+                  background: "#111125",
+                  border: "1px solid #16213e",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  color: "#ccd6f6",
+                  fontSize: 12,
+                  outline: "none",
+                  fontFamily: "Inter, sans-serif",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 
