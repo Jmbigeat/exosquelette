@@ -1,11 +1,13 @@
 "use client";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { ROLE_CLUSTERS } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
+import { auditCVForge } from "@/lib/forge/audit-cv-forge";
 
 /* ==============================
    ARSENAL — GPS DES MANQUES (Chantier 8)
-   3 blocs : radar 6 axes, prochaine action, simulation delta
+   4 blocs : radar 6 axes, prochaine action, simulation delta, audit CV
    Zéro donnée nouvelle : affichage des calculs existants
    ============================== */
 
@@ -22,6 +24,8 @@ export function Arsenal({
   onClose,
   previousRole,
   targetRoleId,
+  cvText,
+  setCvText,
 }) {
   if (!density || !density.axes || density.axes.length === 0) {
     return (
@@ -44,6 +48,38 @@ export function Arsenal({
       </div>
     );
   }
+
+  // Debounced CV text for textarea — 500ms delay before persisting
+  var localCvState = useState(cvText || "");
+  var localCv = localCvState[0];
+  var setLocalCv = localCvState[1];
+  var debounceRef = useRef(null);
+
+  function handleCvChange(e) {
+    var val = e.target.value;
+    setLocalCv(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(function () {
+      setCvText(val);
+    }, 500);
+  }
+
+  // Sync localCv if cvText changes externally (e.g. state restore)
+  useEffect(
+    function () {
+      setLocalCv(cvText || "");
+    },
+    [cvText]
+  );
+
+  // Audit CV × Forge — reactive via useMemo
+  var auditResult = useMemo(
+    function () {
+      if (!cvText || cvText.length < 100) return null;
+      return auditCVForge(cvText, bricks, nightmares, density, signature);
+    },
+    [cvText, bricks, nightmares, density, signature]
+  );
 
   var axes = density.axes;
   var isVitrine = pieces != null && pieces <= 0;
@@ -526,6 +562,71 @@ export function Arsenal({
           })}
         </div>
       )}
+
+      {/* BLOC 4 — AUDIT CV × FORGE */}
+      {auditResult && auditResult.findings.length > 0 && (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <div
+            style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+          >
+            {"AUDIT CV × FORGE — " +
+              auditResult.findings.filter(function (f) {
+                return f.severity === "high";
+              }).length +
+              " point(s) critique(s)"}
+          </div>
+          {auditResult.findings.map(function (f, i) {
+            var color = f.severity === "high" ? "#e94560" : "#ff9800";
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: 10,
+                  marginBottom: 6,
+                  borderLeft: "3px solid " + color,
+                  background: "#111125",
+                  borderRadius: 6,
+                }}
+              >
+                <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6 }}>{f.message}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* TEXTAREA CV — toujours visible */}
+      <div style={{ marginTop: 16, marginBottom: 16 }}>
+        <div
+          style={{ fontSize: 10, color: "#495670", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+        >
+          TON CV
+        </div>
+        <textarea
+          value={localCv}
+          onChange={handleCvChange}
+          maxLength={10000}
+          placeholder={"Colle ton CV ici pour un diagnostic croisé avec tes briques forgées."}
+          style={{
+            width: "100%",
+            minHeight: 120,
+            padding: 12,
+            background: "#111125",
+            border: "1px solid #16213e",
+            borderRadius: 8,
+            color: "#ccd6f6",
+            fontSize: 12,
+            lineHeight: 1.6,
+            resize: "vertical",
+            fontFamily: "Inter, sans-serif",
+          }}
+        />
+        {localCv && localCv.length > 0 && localCv.length < 100 && (
+          <div style={{ fontSize: 10, color: "#495670", marginTop: 4 }}>
+            {100 - localCv.length + " caractères restants avant diagnostic."}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
