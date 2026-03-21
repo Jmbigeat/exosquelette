@@ -210,6 +210,26 @@ Preuve PM : savoir quand un signal enrichit sans noter. Le LoC deviendra un axe 
 Le One-Pager spécifié le 19 mars est implémenté le 21 mars. 5 blocs. Livrable principal de l'Établi. Von Restorff pointe dessus par défaut. Vocabulaire Abneg@tion absent du document généré (grep vérifié : zéro occurrence de cauchemar, blindage, densité, brique, ATMT). Le document sort de la plateforme et parle la langue du recruteur.
 Preuve PM : un spec de 2 jours plus tôt implémenté sans dérive. Le prompt Claude Code (feat-one-pager.md) traduit la spec en 6 opérations vérifiables. La doctrine de langue est respectée dans le code.
 
+### ROLE_VARIANTS : élargir l'entrée sans élargir le produit (21 mars 2026)
+
+10 rôles × 10-13 variantes FR+EN. "Account Executive" = "Commercial grands comptes" = "Key Account Executive." Le matching dans analyzeOffer utilise la variante la plus longue trouvée. L'Onboarding affiche 3-4 synonymes sous chaque rôle. Le candidat se reconnaît.
+Preuve PM : un problème de conversion (le candidat ne trouve pas son rôle) résolu par des données, pas par du code. Zéro modification du scoring, des generators, ou du flux.
+
+### Cauchemars transversaux : enrichir sans complexifier (21 mars 2026)
+
+3 cauchemars qui traversent tous les rôles : senior/junior manager, critères mouvants, variable inatteignable. Ajoutés via un champ applicableRoles ("all" ou liste de rôles). buildActiveCauchemars concatène spécifiques + transversaux. enterprise_ae passe de 5 à 8 cauchemars. senior_pm de 5 à 7. Les generators, le scoring, le stress test reçoivent la liste enrichie sans modification en aval.
+Preuve PM : architecture additive. Un seul point d'entrée (getActiveCauchemars) absorbe la complexité. Zéro propagation de changement.
+
+### Ratio valeur/coût : transformer la négociation salariale (21 mars 2026)
+
+ROLE_VALUE_RATIO donne la valeur annuelle produite par rôle (revenue, coût évité, valeur projet). Le candidat passe de "je veux une augmentation" à "je coûte 4% de ce que je rapporte." Le ratio est affiché dans l'Arsenal (bloc 5 enrichi) et injecté dans le generator salary-comparison (bloc 3).
+Preuve PM : un levier psychologique (ancrage par le ratio) implémenté en 3 opérations. Même données, argument plus fort.
+
+### Axe séniorité : poser la donnée avant d'en avoir besoin (21 mars 2026)
+
+IC/Manager/Leader. 3 niveaux dans l'Onboarding. Diagnostic dans l'Arsenal (bloc 7 : fourchette ajustée ×1.0/1.25/1.55, focus entretien, risque principal). Zéro modification du scoring. La donnée est posée pour L'Échoppe (filtre recruteur) et les generators (calibration V2).
+Preuve PM : même pattern que le LoC (diagnostic sans scoring). Savoir quand une donnée enrichit le produit sans perturber les mécaniques existantes. Le scoring intégrera la séniorité en V3, quand les données d'usage le justifieront.
+
 ---
 
 ## 5. LEADERSHIP SANS ÉQUIPE
@@ -251,7 +271,7 @@ Non prouvés par Abneg@tion (prouvables par carrière antérieure) : résistance
 | Métrique | Valeur | Date |
 |----------|--------|------|
 | Lignes en production | ~19 000 | mars 2026 |
-| Chantiers livrés | 21 + 18 micro-fixes + 5 refactorings + 4 features (audit CV Forge, comparatif salarial, marqueurs LoC, One-Pager) | 21 mars 2026 |
+| Chantiers livrés | 21 + 18 micro-fixes + 5 refactorings + 8 features (audit CV Forge, comparatif salarial, marqueurs LoC, One-Pager, role variants, cauchemars transversaux, ratio valeur/coût, axe séniorité) | 21 mars 2026 |
 | Smoke tests | 169 | 19 mars 2026 |
 | Unit tests | 10 | 19 mars 2026 |
 | Rôles couverts | 10 (4 secteurs) | mars 2026 |

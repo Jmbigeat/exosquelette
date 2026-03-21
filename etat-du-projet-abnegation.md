@@ -80,6 +80,10 @@ Dernier push : 21 mars 2026.
 | Comparatif salarial — position marché P25/P50/P75 + OTE/ACV + livrable négociation 4 blocs (Arsenal bloc 5 + Établi interne) | ✅ 20 mars |
 | Marqueurs LoC + solo×équipe — hasInternalLocus (22 marqueurs), hasExternalLocus (16 marqueurs), isSoloBrick extrait, diagnostic 4 quadrants Arsenal bloc 6 | ✅ 21 mars |
 | One-Pager generator — 5 blocs (titre+signature, preuves d'impact, pourquoi ce poste, parcours, contact). Livrable principal Établi. Von Restorff par défaut. Zéro jargon Abneg@tion. | ✅ 21 mars |
+| ROLE_VARIANTS — 10 rôles × 10-13 variantes FR+EN. Matching additif dans analyzeOffer. Hints dans l'Onboarding. | ✅ 21 mars |
+| 3 cauchemars transversaux — senior/junior manager (all), moving goalposts (all), variable inatteignable (sales). enterprise_ae=8, senior_pm=7. | ✅ 21 mars |
+| ROLE_VALUE_RATIO — ratio coût/valeur par rôle (10 rôles × low/high/valueType). Arsenal bloc 5 enrichi + generator salary-comparison bloc 3 enrichi. | ✅ 21 mars |
+| Axe séniorité IC/Manager/Leader — SENIORITY_LEVELS + SENIORITY_CALIBRATION dans references.js. Sélection Onboarding. Arsenal bloc 7 (fourchette ajustée ×1.0/1.25/1.55, interview focus, risque). | ✅ 21 mars |
 
 ---
 
@@ -159,14 +163,14 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 - 15h La Trempe V2 (spec définitive prête, bloquée par Stripe/SIRET)
 
 ### Priorité 4 — ENRICHISSEMENT MÉTIER
-16a. Cauchemar transversal "posture senior face à manager junior"
-16b. Cauchemar transversal "critères modifiés en cours de route"
-16c. Cauchemar transversal "variable structurellement inatteignable" (OTE/ACV > 35%)
-16d. ROLE_VARIANTS — titres alternatifs par rôle
-16e. Ratio coût du poste / valeur produite (10 rôles)
-16f. Axe séniorité (IC/Manager/Leader)
-16g. Appel découverte — miroir inversé du Duel (grille 5 questions calibrées cauchemars × rôle + breadcrumbs de preuve = 3 briques blindées reformulées en questions ouvertes). Le Duel teste la défense. L'appel découverte teste l'attaque. Generator ch20 + scoring ch20 + cauchemars = inputs existants. Format nouveau.
-16h. Zeigarnik 4 surfaces — étendre le bloc "Prochaine action" de l'Arsenal aux 4 surfaces. L'Éclaireur ouvre les boucles (5 lacunes → 5 tâches). La Forge les ferme (checklist : blinde 1 brique, couvre 1 cauchemar, passe le Duel). La Trempe en ouvre de nouvelles (couverture piliers). L'Échoppe les rend visibles (signature absente, cauchemar non couvert). Un seul composant lit la surface active et affiche les 3 tâches les plus impactantes. L'Arsenal devient le cockpit Zeigarnik central. Inclut le mécanisme anti-dépendance pédagogique (décidé, non implémenté).
+- 16a ~~Cauchemar transversal "posture senior face à manager junior"~~ → ✅ FAIT 21 mars
+- 16b ~~Cauchemar transversal "critères modifiés en cours de route"~~ → ✅ FAIT 21 mars
+- 16c ~~Cauchemar transversal "variable structurellement inatteignable"~~ → ✅ FAIT 21 mars
+- 16d ~~ROLE_VARIANTS — titres alternatifs par rôle~~ → ✅ FAIT 21 mars
+- 16e ~~Ratio coût du poste / valeur produite~~ → ✅ FAIT 21 mars
+- 16f ~~Axe séniorité (IC/Manager/Leader)~~ → ✅ FAIT 21 mars
+- 16g. Appel découverte — miroir inversé du Duel (grille 5 questions calibrées cauchemars × rôle + breadcrumbs de preuve = 3 briques blindées reformulées en questions ouvertes). Le Duel teste la défense. L'appel découverte teste l'attaque. Generator ch20 + scoring ch20 + cauchemars = inputs existants. Format nouveau.
+- 16h. Zeigarnik 4 surfaces — partiellement bloqué (Trempe + Échoppe manquantes). Codable pour Éclaireur + Forge uniquement.
 
 ### Priorité 5 — SCALE
 29. Intelligence éco locale
@@ -238,12 +242,16 @@ Loic Doufodji : DM envoyé. Co-fondateur Startomatic 3000, ex-RH, associé dev t
 | spec-surface-b2b-definitive.md | Spec L'Échoppe (Surface B2B) définitive | ✅ 20 mars (10 blocs, 52 questions, One-Pager, formulaire structuré) |
 | cadre-theorique-stress-test.md | NfA/Grit/LoC mapping | ✅ 19 mars (3 axes 100% implémentés) |
 | arbitrages-orchestration-ia.md | ADR outillage IA | ✅ 20 mars (Hooks Claude Code ajouté — 7e approche évaluée, rejetée) |
-| portfolio-pm-abnegation.md | Portfolio PM | ✅ 21 mars (15f LoC, 15j One-Pager, métriques à jour) |
+| portfolio-pm-abnegation.md | Portfolio PM | ✅ 21 mars (8 features, séniorité, cauchemars transversaux, ratio valeur) |
 | SKILL-abnegation-dev.md | Skill projet | ✅ 20 mars (4 surfaces, One-Pager, Trempe, Échoppe, anti-patterns 7-8) |
 | about-me.md | Contexte fondateur | ✅ 20 mars (4 surfaces, One-Pager, Échoppe) |
 | brand-voice.md | Ton et vocabulaire | ✅ 20 mars (Trempe, Échoppe, One-Pager, cible élargie, doctrine langue) |
 | feat-one-pager.md | Prompt One-Pager generator | ✅ 21 mars (implémenté) |
 | feat-loc-markers.md | Prompt marqueurs LoC | ✅ 21 mars (implémenté) |
+| feat-role-variants.md | Prompt ROLE_VARIANTS | ✅ 21 mars (implémenté) |
+| feat-transversal-cauchemars.md | Prompt cauchemars transversaux | ✅ 21 mars (implémenté) |
+| feat-role-value-ratio.md | Prompt ratio valeur/coût | ✅ 21 mars (implémenté) |
+| feat-seniority-axis.md | Prompt axe séniorité | ✅ 21 mars (implémenté) |
 | spec-eclaireur-v2-audit-cv.md | Spec Éclaireur V2 | ✅ Implémenté |
 | feat-audit-cv-forge.md | Prompt audit CV Forge | ✅ Prêt |
 | template-prompt-claude-code.md | Template prompts | ✅ |
