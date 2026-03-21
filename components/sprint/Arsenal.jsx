@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RATIO } from "@/lib/sprint/references";
+import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RATIO, SENIORITY_LEVELS, SENIORITY_CALIBRATION } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
@@ -30,6 +30,7 @@ export function Arsenal({
   currentSalary,
   acvTarget,
   setAcvTarget,
+  seniorityLevel,
 }) {
   if (!density || !density.axes || density.axes.length === 0) {
     return (
@@ -186,6 +187,36 @@ export function Arsenal({
       };
     },
     [bricks]
+  );
+
+  // Seniority diagnostic — bloc 7
+  var seniorityDiag = useMemo(
+    function () {
+      if (!seniorityLevel) return null;
+      var calibration = SENIORITY_CALIBRATION[seniorityLevel] || null;
+      if (!calibration) return null;
+      var levelInfo = SENIORITY_LEVELS.find(function (l) { return l.id === seniorityLevel; });
+
+      var adjustedSalary = null;
+      var ranges = SALARY_RANGES_BY_ROLE[targetRoleId];
+      if (ranges && calibration.salaryMultiplier) {
+        adjustedSalary = {
+          p25: Math.round(ranges.p25 * calibration.salaryMultiplier),
+          p50: Math.round(ranges.p50 * calibration.salaryMultiplier),
+          p75: Math.round(ranges.p75 * calibration.salaryMultiplier),
+        };
+      }
+
+      return {
+        level: seniorityLevel,
+        levelLabel: levelInfo ? levelInfo.shortLabel : seniorityLevel,
+        interviewFocus: calibration.interviewFocus,
+        cauchemarFocus: calibration.cauchemarFocus,
+        onePagerAngle: calibration.onePagerAngle,
+        adjustedSalary: adjustedSalary,
+      };
+    },
+    [seniorityLevel, targetRoleId]
   );
 
   var axes = density.axes;
@@ -882,6 +913,62 @@ export function Arsenal({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* BLOC 7 — CALIBRATION SÉNIORITÉ */}
+      {seniorityDiag ? (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <div
+            style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+          >
+            CALIBRATION SÉNIORITÉ
+          </div>
+          <div
+            style={{
+              padding: 12,
+              background: "#111125",
+              borderRadius: 10,
+              borderLeft: "3px solid #8892b0",
+            }}
+          >
+            <div style={{ fontSize: 13, color: "#ccd6f6", fontWeight: 600, marginBottom: 8 }}>
+              {"Niveau : " + seniorityDiag.levelLabel}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 700, marginBottom: 2 }}>
+                Le recruteur évalue :
+              </div>
+              <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.5 }}>
+                {seniorityDiag.interviewFocus}
+              </div>
+            </div>
+            {seniorityDiag.adjustedSalary && (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: "#4ecca3", lineHeight: 1.5 }}>
+                  {"Fourchette ajustée : " +
+                    formatSalary(seniorityDiag.adjustedSalary.p50) +
+                    "€ — " +
+                    formatSalary(seniorityDiag.adjustedSalary.p75) +
+                    "€ (P50-P75)"}
+                </div>
+              </div>
+            )}
+            <div>
+              <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, marginBottom: 2 }}>
+                Risque principal :
+              </div>
+              <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.5 }}>
+                {seniorityDiag.cauchemarFocus}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: "#495670", fontStyle: "italic" }}>
+            Sélectionne ton niveau de séniorité dans l'Onboarding pour calibrer le diagnostic.
+          </div>
         </div>
       )}
 
