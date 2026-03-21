@@ -235,6 +235,10 @@
 **Rôle :** Brick selection logic: scoreBricksByCauchemar, selectGreedyCoverage, selectBestBrick.
 **Exports :** `scoreBricksByCauchemar`, `selectGreedyCoverage`, `selectBestBrick`
 
+### `lib/generators/one-pager.js`
+**Rôle :** Génère un One-Pager : document de preuve en 5 blocs (en-tête, preuves d'impact, pourquoi ce poste, parcours compressé, contact). Zéro vocabulaire Abneg@tion — conçu pour sortir de la plateforme.
+**Exports :** `generateOnePager`
+
 ---
 
 ### lib/sprint/
