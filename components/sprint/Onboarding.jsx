@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   KPI_REFERENCE,
   ROLE_CLUSTERS,
+  ROLE_VARIANTS,
   SCAN_STEPS_ACTIF,
   SCAN_STEPS_PASSIF,
   MARKET_DATA,
@@ -1169,6 +1170,16 @@ export function Onboarding({ onStart, onScan }) {
                           {cluster.label}
                         </div>
                         <div style={{ fontSize: 10, color: "#8892b0", marginTop: 2 }}>{cluster.subtitle}</div>
+                        {ROLE_VARIANTS[cluster.id] && (
+                          <div style={{ fontSize: 11, color: "#8892b0", fontStyle: "italic", marginTop: 4 }}>
+                            {ROLE_VARIANTS[cluster.id]
+                              .slice()
+                              .sort(function (a, b) { return a.length - b.length; })
+                              .slice(0, 4)
+                              .map(function (v) { return v.charAt(0).toUpperCase() + v.slice(1); })
+                              .join(", ")}…
+                          </div>
+                        )}
                       </button>
                     );
                   })}
