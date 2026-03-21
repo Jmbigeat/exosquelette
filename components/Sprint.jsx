@@ -946,6 +946,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
             obsoleteDeliverables={obsoleteDeliverables}
             setObsoleteDeliverables={setObsoleteDeliverables}
             acvTarget={acvTarget}
+            seniorityLevel={seniorityLevel}
           />
         </div>
       )}

@@ -20,6 +20,7 @@ import {
   generateEmailSignature,
   generateSalaryComparison,
   generateOnePager,
+  generateDiscoveryCall,
 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts } from "@/lib/sprint/linkedin";
@@ -43,6 +44,7 @@ var DELIVERABLE_AUDIENCE = {
   plan30j: "external",
   posts: "external",
   questions: "external",
+  discovery_call: "external",
   followup: "external",
   email_signature: "external",
   interview_prep: "external",
@@ -261,6 +263,7 @@ export function WorkBench({
   obsoleteDeliverables,
   setObsoleteDeliverables,
   acvTarget,
+  seniorityLevel,
 }) {
   var selectedOfferState = useState(0);
   var selectedOfferIdx = selectedOfferState[0];
@@ -331,6 +334,14 @@ export function WorkBench({
   var onePagerAuditState = useState(null);
   var onePagerAudit = onePagerAuditState[0];
   var setOnePagerAudit = onePagerAuditState[1];
+
+  // Discovery Call state
+  var discoveryCallTextState = useState(null);
+  var discoveryCallText = discoveryCallTextState[0];
+  var setDiscoveryCallText = discoveryCallTextState[1];
+  var discoveryCallAuditState = useState(null);
+  var discoveryCallAudit = discoveryCallAuditState[0];
+  var setDiscoveryCallAudit = discoveryCallAuditState[1];
 
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
@@ -555,7 +566,8 @@ export function WorkBench({
     (bioText ? 1 : 0) +
     1 +
     (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) +
-    1; // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
+    1 + // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
+    1; // +1 discovery call
   var interneCount = salaryCompText ? 4 : 3; // replacement, raise, salary comparison (if salary set), plan 90j
 
   return (
@@ -2113,6 +2125,113 @@ export function WorkBench({
                   {isVitrine
                     ? "Livrable figé en mode vitrine."
                     : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
+                </div>
+              )}
+            </div>
+
+            {/* APPEL DÉCOUVERTE */}
+            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
+                  {"\uD83D\uDCDE"} APPEL DÉCOUVERTE
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {!isVitrine && (
+                    <button
+                      onClick={function () {
+                        handleGenerate("discovery_call", function () {
+                          var targetOff =
+                            offersArray && offersArray.length > 0
+                              ? offersArray[selectedOfferIdx] || offersArray[0]
+                              : null;
+                          var signals = targetOff ? targetOff.parsedSignals : null;
+                          var raw = generateDiscoveryCall(
+                            bricks.filter(function (b) {
+                              return b.status === "validated";
+                            }),
+                            targetRoleId,
+                            getActiveCauchemars(),
+                            signals,
+                            seniorityLevel,
+                            signature
+                          );
+                          var text = signature ? applySignatureFilter(raw, signature) : raw;
+                          setDiscoveryCallText(text);
+                          setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
+                        });
+                      }}
+                      style={{
+                        padding: "3px 10px",
+                        fontSize: 10,
+                        background: "#0f3460",
+                        color: "#ccd6f6",
+                        border: "1px solid #16213e",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {generatedOnce["discovery_call"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {discoveryCallText ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#8892b0",
+                      lineHeight: 1.6,
+                      whiteSpace: "pre-wrap",
+                      maxHeight: 300,
+                      overflow: "auto",
+                    }}
+                  >
+                    {discoveryCallText}
+                  </div>
+                  {renderObsoleteIndicator("discovery_call")}
+                  <AuditBlock
+                    auditResult={discoveryCallAudit}
+                    text={discoveryCallText}
+                    copyId="discovery_call"
+                    copiedId={copiedId}
+                    onCopy={handleCopy}
+                    type="discovery_call"
+                    isVitrine={isVitrine}
+                    corrections={corrCounters["discovery_call"] || 0}
+                    onGoForge={onGoForge}
+                    onCorrect={function () {
+                      handleCorrect("discovery_call", function () {
+                        var hints = discoveryCallAudit ? discoveryCallAudit.correctionHints : [];
+                        var targetOff =
+                          offersArray && offersArray.length > 0
+                            ? offersArray[selectedOfferIdx] || offersArray[0]
+                            : null;
+                        var signals = targetOff ? targetOff.parsedSignals : null;
+                        var raw = generateDiscoveryCall(
+                          bricks.filter(function (b) {
+                            return b.status === "validated";
+                          }),
+                          targetRoleId,
+                          getActiveCauchemars(),
+                          signals,
+                          seniorityLevel,
+                          signature,
+                          hints
+                        );
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setDiscoveryCallText(text);
+                        setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
+                      });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                  {isVitrine
+                    ? "Livrable figé en mode vitrine."
+                    : "5 questions calibrées pour ton premier appel. Chaque question démontre ta compétence sans rien affirmer."}
                 </div>
               )}
             </div>
