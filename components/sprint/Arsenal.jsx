@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE } from "@/lib/sprint/references";
+import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RATIO } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
@@ -110,6 +110,14 @@ export function Arsenal({
         }
       }
 
+      var valueRatio = ROLE_VALUE_RATIO[targetRoleId] || null;
+      var costRatioLow = null;
+      var costRatioHigh = null;
+      if (valueRatio) {
+        costRatioLow = Math.round((currentSalary / valueRatio.high) * 100);
+        costRatioHigh = Math.round((currentSalary / valueRatio.low) * 100);
+      }
+
       return {
         ranges: ranges,
         percentile: percentile,
@@ -117,6 +125,9 @@ export function Arsenal({
         deltaPercent: deltaPercent,
         oteSplit: oteSplit,
         oteAlert: oteAlert,
+        valueRatio: valueRatio,
+        costRatioLow: costRatioLow,
+        costRatioHigh: costRatioHigh,
       };
     },
     [currentSalary, targetRoleId, acvTarget]
@@ -717,6 +728,29 @@ export function Arsenal({
                 <div style={{ fontSize: 11, color: "#e94560", lineHeight: 1.5, fontWeight: 600 }}>
                   {salaryDiag.oteAlert}
                 </div>
+              </div>
+            )}
+            {salaryDiag.valueRatio && salaryDiag.costRatioLow !== null && (
+              <div style={{ marginTop: 8 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: salaryDiag.costRatioHigh <= 10 ? "#4ecca3" : salaryDiag.costRatioHigh <= 20 ? "#ccd6f6" : "#ff9800",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {"Ratio coût/valeur : " + salaryDiag.costRatioLow + "-" + salaryDiag.costRatioHigh + "% (" + salaryDiag.valueRatio.label + ")"}
+                </div>
+                {salaryDiag.costRatioHigh <= 10 && (
+                  <div style={{ fontSize: 10, color: "#4ecca3", marginTop: 2 }}>
+                    Ton coût est faible par rapport à ta valeur produite.
+                  </div>
+                )}
+                {salaryDiag.costRatioHigh > 20 && (
+                  <div style={{ fontSize: 10, color: "#ff9800", marginTop: 2 }}>
+                    Ton ratio coût/valeur est élevé. Renforce tes preuves d'impact.
+                  </div>
+                )}
               </div>
             )}
           </div>
