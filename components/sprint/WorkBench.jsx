@@ -21,6 +21,7 @@ import {
   generateSalaryComparison,
   generateOnePager,
   generateDiscoveryCall,
+  generateFicheCombat,
 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts } from "@/lib/sprint/linkedin";
@@ -45,6 +46,7 @@ var DELIVERABLE_AUDIENCE = {
   posts: "external",
   questions: "external",
   discovery_call: "external",
+  fiche_combat: "external",
   followup: "external",
   email_signature: "external",
   interview_prep: "external",
@@ -343,6 +345,14 @@ export function WorkBench({
   var discoveryCallAudit = discoveryCallAuditState[0];
   var setDiscoveryCallAudit = discoveryCallAuditState[1];
 
+  // Fiche de combat state
+  var ficheCombatTextState = useState(null);
+  var ficheCombatText = ficheCombatTextState[0];
+  var setFicheCombatText = ficheCombatTextState[1];
+  var ficheCombatAuditState = useState(null);
+  var ficheCombatAudit = ficheCombatAuditState[0];
+  var setFicheCombatAudit = ficheCombatAuditState[1];
+
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
       setGeneratedOnce(function (prev) {
@@ -567,7 +577,8 @@ export function WorkBench({
     1 +
     (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) +
     1 + // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
-    1; // +1 discovery call
+    1 + // +1 discovery call
+    1; // +1 fiche de combat
   var interneCount = salaryCompText ? 4 : 3; // replacement, raise, salary comparison (if salary set), plan 90j
 
   return (
@@ -2232,6 +2243,121 @@ export function WorkBench({
                   {isVitrine
                     ? "Livrable figé en mode vitrine."
                     : "5 questions calibrées pour ton premier appel. Chaque question démontre ta compétence sans rien affirmer."}
+                </div>
+              )}
+            </div>
+
+            {/* FICHE DE COMBAT */}
+            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
+                  {"\uD83D\uDEE1\uFE0F"} FICHE DE COMBAT
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {!isVitrine && (
+                    <button
+                      onClick={function () {
+                        handleGenerate("fiche_combat", function () {
+                          var targetOff =
+                            offersArray && offersArray.length > 0
+                              ? offersArray[selectedOfferIdx] || offersArray[0]
+                              : null;
+                          var signals = targetOff ? targetOff.parsedSignals : null;
+                          var salNum = currentSalary ? parseInt(currentSalary) : null;
+                          if (salNum && isNaN(salNum)) salNum = null;
+                          var raw = generateFicheCombat(
+                            bricks.filter(function (b) {
+                              return b.status === "validated";
+                            }),
+                            targetRoleId,
+                            getActiveCauchemars(),
+                            signature,
+                            seniorityLevel,
+                            salNum,
+                            duelResults,
+                            signals
+                          );
+                          var text = signature ? applySignatureFilter(raw, signature) : raw;
+                          setFicheCombatText(text);
+                          setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
+                        });
+                      }}
+                      style={{
+                        padding: "3px 10px",
+                        fontSize: 10,
+                        background: "#0f3460",
+                        color: "#ccd6f6",
+                        border: "1px solid #16213e",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {generatedOnce["fiche_combat"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {ficheCombatText ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#8892b0",
+                      lineHeight: 1.6,
+                      whiteSpace: "pre-wrap",
+                      maxHeight: 300,
+                      overflow: "auto",
+                    }}
+                  >
+                    {ficheCombatText}
+                  </div>
+                  {renderObsoleteIndicator("fiche_combat")}
+                  <AuditBlock
+                    auditResult={ficheCombatAudit}
+                    text={ficheCombatText}
+                    copyId="fiche_combat"
+                    copiedId={copiedId}
+                    onCopy={handleCopy}
+                    type="fiche_combat"
+                    isVitrine={isVitrine}
+                    corrections={corrCounters["fiche_combat"] || 0}
+                    onGoForge={onGoForge}
+                    onCorrect={function () {
+                      handleCorrect("fiche_combat", function () {
+                        var hints = ficheCombatAudit ? ficheCombatAudit.correctionHints : [];
+                        var targetOff =
+                          offersArray && offersArray.length > 0
+                            ? offersArray[selectedOfferIdx] || offersArray[0]
+                            : null;
+                        var signals = targetOff ? targetOff.parsedSignals : null;
+                        var salNum = currentSalary ? parseInt(currentSalary) : null;
+                        if (salNum && isNaN(salNum)) salNum = null;
+                        var raw = generateFicheCombat(
+                          bricks.filter(function (b) {
+                            return b.status === "validated";
+                          }),
+                          targetRoleId,
+                          getActiveCauchemars(),
+                          signature,
+                          seniorityLevel,
+                          salNum,
+                          duelResults,
+                          signals,
+                          hints
+                        );
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setFicheCombatText(text);
+                        setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
+                      });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                  {isVitrine
+                    ? "Livrable figé en mode vitrine."
+                    : "1 page à imprimer avant l'entretien. 6 blocs, 8 sources, lu en 2 minutes."}
                 </div>
               )}
             </div>
