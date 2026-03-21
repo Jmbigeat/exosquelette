@@ -19,6 +19,7 @@ import {
   generateFollowUp,
   generateEmailSignature,
   generateSalaryComparison,
+  generateOnePager,
 } from "@/lib/sprint/generators";
 import { parseInternalSignals } from "@/lib/sprint/offers";
 import { generateLinkedInPosts } from "@/lib/sprint/linkedin";
@@ -34,6 +35,7 @@ import {
 } from "@/lib/postScore";
 
 var DELIVERABLE_AUDIENCE = {
+  one_pager: "external",
   dm: "external",
   email: "external",
   cv: "external",
@@ -322,6 +324,14 @@ export function WorkBench({
   var emailSigAudit = emailSigAuditState[0];
   var setEmailSigAudit = emailSigAuditState[1];
 
+  // One-Pager state
+  var onePagerTextState = useState(null);
+  var onePagerText = onePagerTextState[0];
+  var setOnePagerText = onePagerTextState[1];
+  var onePagerAuditState = useState(null);
+  var onePagerAudit = onePagerAuditState[0];
+  var setOnePagerAudit = onePagerAuditState[1];
+
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
       setGeneratedOnce(function (prev) {
@@ -425,10 +435,10 @@ export function WorkBench({
 
   // Von Restorff — recommended deliverable highlight
   function getRecommendedDeliverable() {
-    if (offersArray && offersArray.length > 0) return "cv";
+    if (offersArray && offersArray.length > 0) return "one_pager";
     if (blindedCount >= 3) return "bio";
     if (duelPassed) return "interview_prep";
-    return "cv";
+    return "one_pager";
   }
   var recommendedDeliverable = getRecommendedDeliverable();
 
@@ -539,6 +549,7 @@ export function WorkBench({
   }
 
   var externeCount =
+    1 + // one-pager
     (scripts ? 1 : 0) +
     (cvText && validated.length > 0 ? 1 : 0) +
     (bioText ? 1 : 0) +
@@ -762,6 +773,198 @@ export function WorkBench({
                 </div>
               </div>
             )}
+
+            {/* ONE-PAGER */}
+            <div
+              style={{
+                background: "#16213e",
+                borderRadius: 10,
+                padding: 12,
+                marginBottom: 10,
+                border: recommendedDeliverable === "one_pager" ? "2px solid #ff9800" : "none",
+              }}
+            >
+              {recommendedDeliverable === "one_pager" && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "#ff9800",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    marginBottom: 4,
+                  }}
+                >
+                  Recommandé
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
+                    {"\uD83D\uDCCB"} ONE-PAGER
+                  </div>
+                  <div style={{ fontSize: 9, color: "#495670", marginTop: 2 }}>
+                    Document de preuve — 30 secondes de lecture
+                  </div>
+                </div>
+                {!isVitrine && !onePagerText && (
+                  <button
+                    onClick={function () {
+                      handleGenerate("one_pager", function () {
+                        var cauchs = getActiveCauchemars();
+                        var targetOff =
+                          offersArray && offersArray.length > 0
+                            ? offersArray[selectedOfferIdx] || offersArray[0]
+                            : null;
+                        var offerSigs = targetOff ? targetOff.parsedSignals : null;
+                        var name =
+                          user && user.user_metadata && user.user_metadata.full_name
+                            ? user.user_metadata.full_name
+                            : null;
+                        var email = user && user.email ? user.email : null;
+                        var raw = generateOnePager(
+                          bricks,
+                          targetRoleId,
+                          cauchs,
+                          signature,
+                          offerSigs,
+                          name,
+                          email
+                        );
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setOnePagerText(text);
+                        setOnePagerAudit(
+                          auditDeliverable("one_pager", text, bricks, cauchs, "external")
+                        );
+                      });
+                    }}
+                    style={{
+                      padding: "6px 16px",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      border: "none",
+                      background: "linear-gradient(135deg, #e94560, #c81d4e)",
+                      color: "#fff",
+                    }}
+                  >
+                    {generatedOnce["one_pager"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
+                  </button>
+                )}
+              </div>
+              {onePagerText ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: "#8892b0",
+                      lineHeight: 1.6,
+                      whiteSpace: "pre-wrap",
+                      maxHeight: 300,
+                      overflow: "auto",
+                    }}
+                  >
+                    {onePagerText}
+                  </div>
+                  {!isVitrine && (
+                    <div style={{ marginTop: 6, display: "flex", gap: 6 }}>
+                      <button
+                        onClick={function () {
+                          handleGenerate("one_pager", function () {
+                            var cauchs = getActiveCauchemars();
+                            var targetOff =
+                              offersArray && offersArray.length > 0
+                                ? offersArray[selectedOfferIdx] || offersArray[0]
+                                : null;
+                            var offerSigs = targetOff ? targetOff.parsedSignals : null;
+                            var name =
+                              user && user.user_metadata && user.user_metadata.full_name
+                                ? user.user_metadata.full_name
+                                : null;
+                            var email = user && user.email ? user.email : null;
+                            var raw = generateOnePager(
+                              bricks,
+                              targetRoleId,
+                              cauchs,
+                              signature,
+                              offerSigs,
+                              name,
+                              email
+                            );
+                            var text = signature ? applySignatureFilter(raw, signature) : raw;
+                            setOnePagerText(text);
+                            setOnePagerAudit(
+                              auditDeliverable("one_pager", text, bricks, cauchs, "external")
+                            );
+                          });
+                        }}
+                        style={{
+                          padding: "3px 10px",
+                          fontSize: 10,
+                          background: "transparent",
+                          color: "#8892b0",
+                          border: "1px solid #495670",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Régénérer
+                      </button>
+                    </div>
+                  )}
+                  {renderObsoleteIndicator("one_pager")}
+                  <AuditBlock
+                    auditResult={onePagerAudit}
+                    text={onePagerText}
+                    copyId="one_pager"
+                    copiedId={copiedId}
+                    onCopy={handleCopy}
+                    type="one_pager"
+                    isVitrine={isVitrine}
+                    corrections={corrCounters["one_pager"] || 0}
+                    onGoForge={onGoForge}
+                    onCorrect={function () {
+                      handleCorrect("one_pager", function () {
+                        var hints = onePagerAudit ? onePagerAudit.correctionHints : [];
+                        var cauchs = getActiveCauchemars();
+                        var targetOff =
+                          offersArray && offersArray.length > 0
+                            ? offersArray[selectedOfferIdx] || offersArray[0]
+                            : null;
+                        var offerSigs = targetOff ? targetOff.parsedSignals : null;
+                        var name =
+                          user && user.user_metadata && user.user_metadata.full_name
+                            ? user.user_metadata.full_name
+                            : null;
+                        var email = user && user.email ? user.email : null;
+                        var raw = generateOnePager(
+                          bricks,
+                          targetRoleId,
+                          cauchs,
+                          signature,
+                          offerSigs,
+                          name,
+                          email
+                        );
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setOnePagerText(text);
+                        setOnePagerAudit(
+                          auditDeliverable("one_pager", text, bricks, cauchs, "external")
+                        );
+                      });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.4 }}>
+                  {isVitrine
+                    ? "Livrable figé en mode vitrine."
+                    : "Génère un document de preuve organisé par problème résolu, calibré pour le recruteur."}
+                </div>
+              )}
+            </div>
 
             {/* SCRIPT DE CONTACT — 4 variantes (chantier 20) */}
             {scripts &&
