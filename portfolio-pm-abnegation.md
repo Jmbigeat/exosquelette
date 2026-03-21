@@ -199,6 +199,17 @@ Le Brew spécifié avec grille Kano complète. 15 composants classifiés. 3 basi
 
 Décision : la densité n'apparaît pas dans le dashboard Brew. La densité mesure la profondeur des preuves (Forge). Le Brew mesure la couverture et la régularité de la distribution (LinkedIn). Les deux progressent en parallèle. Le Brew pousse indirectement vers la Forge via les angles qui référencent les briques. La confusion aurait nui (le candidat penserait que publier un post augmente sa densité). Preuve Product Sense : savoir quoi NE PAS montrer.
 
+### Diagnostic LoC × solo/équipe : feedback sans scoring (21 mars 2026)
+
+Le Locus of Control (attribution interne vs externe) est un construit académique (Rotter, 1966). L'outil le détecte via 38 marqueurs de vocabulaire (22 internes, 16 externes). Croisé avec solo/équipe, 4 quadrants émergent : autonome, leader, isolé, exécutant. Le diagnostic apparaît dans l'Arsenal (bloc 6) à partir de 3 briques.
+Décision : le LoC est un diagnostic, pas un axe de densité. Il informe sans bloquer. Le candidat "isolé" ou "exécutant" reçoit un message de reformulation. Le candidat "autonome" ou "leader" reçoit une confirmation. Zéro gate. Zéro pénalité. Le candidat est souverain.
+Preuve PM : savoir quand un signal enrichit sans noter. Le LoC deviendra un axe de densité en V3, quand les données d'usage le justifieront.
+
+### One-Pager implémenté (21 mars 2026)
+
+Le One-Pager spécifié le 19 mars est implémenté le 21 mars. 5 blocs. Livrable principal de l'Établi. Von Restorff pointe dessus par défaut. Vocabulaire Abneg@tion absent du document généré (grep vérifié : zéro occurrence de cauchemar, blindage, densité, brique, ATMT). Le document sort de la plateforme et parle la langue du recruteur.
+Preuve PM : un spec de 2 jours plus tôt implémenté sans dérive. Le prompt Claude Code (feat-one-pager.md) traduit la spec en 6 opérations vérifiables. La doctrine de langue est respectée dans le code.
+
 ---
 
 ## 5. LEADERSHIP SANS ÉQUIPE
@@ -240,7 +251,7 @@ Non prouvés par Abneg@tion (prouvables par carrière antérieure) : résistance
 | Métrique | Valeur | Date |
 |----------|--------|------|
 | Lignes en production | ~19 000 | mars 2026 |
-| Chantiers livrés | 21 + 18 micro-fixes + 5 refactorings + 3 features (audit CV Forge, comparatif salarial, marqueurs LoC) | 20 mars 2026 |
+| Chantiers livrés | 21 + 18 micro-fixes + 5 refactorings + 4 features (audit CV Forge, comparatif salarial, marqueurs LoC, One-Pager) | 21 mars 2026 |
 | Smoke tests | 169 | 19 mars 2026 |
 | Unit tests | 10 | 19 mars 2026 |
 | Rôles couverts | 10 (4 secteurs) | mars 2026 |

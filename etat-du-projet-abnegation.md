@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 20 mars 2026
+## Dernière mise à jour : 21 mars 2026
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -34,7 +34,7 @@ Stratégie & Ops : management_consultant (Conseil), strategy_associate (Stratég
 
 Domaine : abnegation.eu (+ www.abnegation.eu). OVH DNS → Vercel. SSL automatique.
 Smoke test : 169 tests. Unit tests : 10.
-Dernier push : 20 mars 2026.
+Dernier push : 21 mars 2026.
 
 | Élément | Statut |
 |---------|--------|
@@ -78,7 +78,8 @@ Dernier push : 20 mars 2026.
 | Von Restorff Établi — livrable recommandé en surbrillance dorée | ✅ 19 mars |
 | Audit CV Forge — 6 tests croisés CV × briques (Arsenal bloc 4, useMemo, debounce 500ms) | ✅ 20 mars |
 | Comparatif salarial — position marché P25/P50/P75 + OTE/ACV + livrable négociation 4 blocs (Arsenal bloc 5 + Établi interne) | ✅ 20 mars |
-| Marqueurs LoC + solo×équipe — hasInternalLocus/hasExternalLocus/isSoloBrick + diagnostic Arsenal bloc 6 "Posture décisionnelle" 4 quadrants | ✅ 20 mars |
+| Marqueurs LoC + solo×équipe — hasInternalLocus (22 marqueurs), hasExternalLocus (16 marqueurs), isSoloBrick extrait, diagnostic 4 quadrants Arsenal bloc 6 | ✅ 21 mars |
+| One-Pager generator — 5 blocs (titre+signature, preuves d'impact, pourquoi ce poste, parcours, contact). Livrable principal Établi. Von Restorff par défaut. Zéro jargon Abneg@tion. | ✅ 21 mars |
 
 ---
 
@@ -132,7 +133,7 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 
 ---
 
-## LISTE D'ATTENTE (réordonnée 20 mars 2026)
+## LISTE D'ATTENTE (réordonnée 21 mars 2026)
 
 ### Priorité 1 — DISTRIBUTION
 1. Mettre l'Éclaireur devant 10 candidats réels
@@ -140,7 +141,6 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 3. ~~Alex BLUMA~~ → call semaine prochaine
 4. ~~Loic Doufodji~~ → DM envoyé
 5. 5 sessions utilisateur observées
-6. Pages "Alternatives à X" SEO/GEO (après les 10 candidats) — 2-3 pages : alternatives à LinkedIn Premium, alternatives à un coach carrière, alternatives au matching IA. Format structuré indexable par LLM. CTA vers l'Éclaireur. Coût : 2-3h rédaction. ROI composé (la page travaille 24/7).
 
 ### Priorité 2 — REVENUS
 7. Micro-entreprise INPI + SIRET
@@ -152,11 +152,11 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 - 15c ~~Von Restorff Établi~~ → ✅ FAIT 19 mars
 - 15d ~~Audit CV Forge~~ → ✅ FAIT 20 mars
 - 15e ~~Comparatif salarial + OTE/ACV~~ → ✅ FAIT 20 mars
-- 15f ~~Enrichir marqueurs LoC + solo×équipe~~ → ✅ FAIT 20 mars
-- 15g Cadre théorique stress test (fait, messaging)
-- 15h La Trempe V2 (spec définitive prête, prérequis Stripe)
-- 15i Rename UI "Brew" → "La Trempe" (3 strings, 10 minutes dans Claude Code)
-- 15j Generator One-Pager dans l'Établi (5 blocs : titre rôle + signature, Preuves d'impact, Pourquoi ce poste, parcours compressé, contact). Mêmes données que le CV. Nouveau format. Livrable principal. Von Restorff pointe vers le One-Pager en premier.
+- 15f ~~Marqueurs LoC + solo×équipe~~ → ✅ FAIT 21 mars
+- 15g ~~Cadre théorique stress test~~ → doc fait, messaging reporté post-10 candidats
+- ~~15i Rename Brew → La Trempe~~ → supprimé (natif dans 15h)
+- 15j ~~One-Pager generator Établi~~ → ✅ FAIT 21 mars
+- 15h La Trempe V2 (spec définitive prête, bloquée par Stripe/SIRET)
 
 ### Priorité 4 — ENRICHISSEMENT MÉTIER
 16a. Cauchemar transversal "posture senior face à manager junior"
@@ -167,7 +167,6 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 16f. Axe séniorité (IC/Manager/Leader)
 16g. Appel découverte — miroir inversé du Duel (grille 5 questions calibrées cauchemars × rôle + breadcrumbs de preuve = 3 briques blindées reformulées en questions ouvertes). Le Duel teste la défense. L'appel découverte teste l'attaque. Generator ch20 + scoring ch20 + cauchemars = inputs existants. Format nouveau.
 16h. Zeigarnik 4 surfaces — étendre le bloc "Prochaine action" de l'Arsenal aux 4 surfaces. L'Éclaireur ouvre les boucles (5 lacunes → 5 tâches). La Forge les ferme (checklist : blinde 1 brique, couvre 1 cauchemar, passe le Duel). La Trempe en ouvre de nouvelles (couverture piliers). L'Échoppe les rend visibles (signature absente, cauchemar non couvert). Un seul composant lit la surface active et affiche les 3 tâches les plus impactantes. L'Arsenal devient le cockpit Zeigarnik central. Inclut le mécanisme anti-dépendance pédagogique (décidé, non implémenté).
-16i. Post rupture éditoriale Trempe — 1 post sur 6 (ou 8) hors pilier. Objectif : "cracker la bulle" algorithmique LinkedIn (algorithme sémantique = risque enfermement thématique). Le post rupture accepte un reach faible. Il élargit la couverture sémantique sans casser la cohérence des 4 piliers. L'instruction Trempe signale "cette semaine : rupture" avec un angle libre ancré dans une brique (pas un post générique). Le compteur pilier ne bouge pas. Le streak continue.
 
 ### Priorité 5 — SCALE
 29. Intelligence éco locale
@@ -234,15 +233,17 @@ Loic Doufodji : DM envoyé. Co-fondateur Startomatic 3000, ex-RH, associé dev t
 
 | Document | Rôle | À jour ? |
 |----------|------|----------|
-| etat-du-projet-abnegation.md | Snapshot source de vérité | ✅ Ce fichier (20 mars) |
+| etat-du-projet-abnegation.md | Snapshot source de vérité | ✅ Ce fichier (21 mars) |
 | spec-brew-v2-definitive.md | Spec La Trempe (Brew V2) définitive | ✅ 20 mars (nom UI La Trempe ajouté) |
 | spec-surface-b2b-definitive.md | Spec L'Échoppe (Surface B2B) définitive | ✅ 20 mars (10 blocs, 52 questions, One-Pager, formulaire structuré) |
-| cadre-theorique-stress-test.md | NfA/Grit/LoC mapping | ✅ 19 mars |
+| cadre-theorique-stress-test.md | NfA/Grit/LoC mapping | ✅ 19 mars (3 axes 100% implémentés) |
 | arbitrages-orchestration-ia.md | ADR outillage IA | ✅ 20 mars (Hooks Claude Code ajouté — 7e approche évaluée, rejetée) |
-| portfolio-pm-abnegation.md | Portfolio PM | ✅ 20 mars (L'Échoppe, One-Pager, cible élargie, doctrine langue) |
+| portfolio-pm-abnegation.md | Portfolio PM | ✅ 21 mars (15f LoC, 15j One-Pager, métriques à jour) |
 | SKILL-abnegation-dev.md | Skill projet | ✅ 20 mars (4 surfaces, One-Pager, Trempe, Échoppe, anti-patterns 7-8) |
 | about-me.md | Contexte fondateur | ✅ 20 mars (4 surfaces, One-Pager, Échoppe) |
 | brand-voice.md | Ton et vocabulaire | ✅ 20 mars (Trempe, Échoppe, One-Pager, cible élargie, doctrine langue) |
+| feat-one-pager.md | Prompt One-Pager generator | ✅ 21 mars (implémenté) |
+| feat-loc-markers.md | Prompt marqueurs LoC | ✅ 21 mars (implémenté) |
 | spec-eclaireur-v2-audit-cv.md | Spec Éclaireur V2 | ✅ Implémenté |
 | feat-audit-cv-forge.md | Prompt audit CV Forge | ✅ Prêt |
 | template-prompt-claude-code.md | Template prompts | ✅ |
