@@ -196,6 +196,11 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
   var acvTarget = acvTargetState[0];
   var setAcvTarget = acvTargetState[1];
 
+  // Seniority level (IC / Manager / Leader)
+  var seniorityLevelState = useState(initialState && initialState.seniorityLevel ? initialState.seniorityLevel : null);
+  var seniorityLevel = seniorityLevelState[0];
+  var setSeniorityLevel = seniorityLevelState[1];
+
   // Email confirmation banner
   var emailBannerState = useState("hidden"); // hidden | show | sent
   var emailBanner = emailBannerState[0];
@@ -258,6 +263,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
       firstVisitToastShown: firstVisitToastShown,
       cvText: cvText,
       acvTarget: acvTarget,
+      seniorityLevel: seniorityLevel,
     },
     onStateChange
   );
@@ -409,9 +415,10 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
     return (
       <div style={wrap}>
         <Onboarding
-          onStart={function (role, offerSignals, rawOfferText) {
+          onStart={function (role, offerSignals, rawOfferText, seniority) {
             setTargetRoleId(role);
             setParsedOffers(offerSignals);
+            if (seniority) setSeniorityLevel(seniority);
             setSeeds(generateAdaptiveSeeds(role));
             if (rawOfferText && rawOfferText.trim().length > 20) {
               var firstOffer = {
@@ -1031,6 +1038,7 @@ export default function Sprint({ initialState, onStateChange, onScan, user, save
                 currentSalary={currentSalary}
                 acvTarget={acvTarget}
                 setAcvTarget={setAcvTarget}
+                seniorityLevel={seniorityLevel}
               />
             </div>
           </div>

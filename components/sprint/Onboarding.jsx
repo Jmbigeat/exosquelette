@@ -4,6 +4,7 @@ import {
   KPI_REFERENCE,
   ROLE_CLUSTERS,
   ROLE_VARIANTS,
+  SENIORITY_LEVELS,
   SCAN_STEPS_ACTIF,
   SCAN_STEPS_PASSIF,
   MARKET_DATA,
@@ -442,9 +443,12 @@ export function Onboarding({ onStart, onScan }) {
   var scanErrorState = useState(null);
   var scanError = scanErrorState[0];
   var setScanError = scanErrorState[1];
+  var seniorityState = useState(null);
+  var seniorityLevel = seniorityState[0];
+  var setSeniorityLevel = seniorityState[1];
 
   var isPassif = mode === "passif";
-  var canStart = isPassif ? cv.trim().length > 20 : cv.trim().length > 20 && targetRole !== null;
+  var canStart = isPassif ? cv.trim().length > 20 : cv.trim().length > 20 && targetRole !== null && seniorityLevel !== null;
 
   function handleScan() {
     setPhase("scanning");
@@ -956,7 +960,7 @@ export function Onboarding({ onStart, onScan }) {
             roleId={targetRole}
             readiness={readiness}
             onStartSprint={function () {
-              onStart(targetRole, offerSignals, offers);
+              onStart(targetRole, offerSignals, offers, seniorityLevel);
             }}
           />
         )}
@@ -1234,6 +1238,45 @@ export function Onboarding({ onStart, onScan }) {
               </div>
             </div>
           )}
+        </div>
+      )}
+      {/* SENIORITY SELECTOR — after role */}
+      {!isPassif && targetRole && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 16 }}>{"\uD83C\uDFAF"}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ccd6f6" }}>Ton niveau</span>
+          </div>
+          <div style={{ fontSize: 12, color: "#8892b0", marginBottom: 12 }}>
+            Le recruteur n'évalue pas un IC comme un Manager. Choisis ton niveau pour calibrer le diagnostic.
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {SENIORITY_LEVELS.map(function (level) {
+              var sel = seniorityLevel === level.id;
+              return (
+                <button
+                  key={level.id}
+                  onClick={function () {
+                    setSeniorityLevel(level.id);
+                  }}
+                  style={{
+                    background: sel ? "#0f3460" : "#1a1a2e",
+                    border: sel ? "2px solid #e94560" : "2px solid #16213e",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700, color: sel ? "#e94560" : "#ccd6f6", lineHeight: 1.3 }}>
+                    {level.shortLabel}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#8892b0", marginTop: 2 }}>{level.description}</div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
       {/* Contexte IA — juste avant La Forge */}
