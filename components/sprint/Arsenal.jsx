@@ -4,10 +4,11 @@ import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE } from "@/lib/s
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
+import { hasInternalLocus, hasExternalLocus, isSoloBrick } from "@/lib/sprint/analysis";
 
 /* ==============================
    ARSENAL — GPS DES MANQUES (Chantier 8)
-   5 blocs : radar 6 axes, prochaine action, simulation delta, audit CV, position marché
+   6 blocs : radar 6 axes, prochaine action, simulation delta, audit CV, position marché, posture décisionnelle
    Zéro donnée nouvelle : affichage des calculs existants
    ============================== */
 
@@ -119,6 +120,61 @@ export function Arsenal({
       };
     },
     [currentSalary, targetRoleId, acvTarget]
+  );
+
+  // LoC diagnostic — bloc 6
+  var locDiag = useMemo(
+    function () {
+      if (!bricks || bricks.length < 3) return null;
+      var val = bricks.filter(function (b) {
+        return b.status === "validated";
+      });
+      if (val.length < 3) return null;
+
+      var internal = 0;
+      var external = 0;
+      var solo = 0;
+      var team = 0;
+
+      val.forEach(function (b) {
+        var text = b.editText || b.text || "";
+        if (hasInternalLocus(text)) internal++;
+        if (hasExternalLocus(text)) external++;
+        if (isSoloBrick(text)) solo++;
+        else team++;
+      });
+
+      var total = val.length;
+      var internalRatio = Math.round((internal / total) * 100);
+      var externalRatio = Math.round((external / total) * 100);
+
+      var dominant = null;
+      if (solo > team && internal > external) dominant = "autonome";
+      else if (solo > team && external >= internal) dominant = "isolé";
+      else if (team >= solo && internal > external) dominant = "leader";
+      else if (team >= solo && external >= internal) dominant = "exécutant";
+
+      var labels = {
+        autonome: "Autonomie prouvée — tu construis et décides seul.",
+        isolé: "Isolement subi — tes briques montrent un contexte solo sans prise de décision. Reformule avec ce que TU as décidé.",
+        leader: "Leadership prouvé — tu alignes et décides en équipe.",
+        exécutant:
+          "Exécution collective — tes briques montrent l'équipe qui décide. Reformule avec ce que TU as initié.",
+      };
+
+      return {
+        internal: internal,
+        external: external,
+        solo: solo,
+        team: team,
+        internalRatio: internalRatio,
+        externalRatio: externalRatio,
+        dominant: dominant,
+        label: labels[dominant] || null,
+        total: total,
+      };
+    },
+    [bricks]
   );
 
   var axes = density.axes;
@@ -700,6 +756,66 @@ export function Arsenal({
               />
             </div>
           )}
+        </div>
+      )}
+
+      {/* BLOC 6 — POSTURE DÉCISIONNELLE */}
+      {locDiag && (
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <div
+            style={{ fontSize: 10, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+          >
+            POSTURE DÉCISIONNELLE
+          </div>
+          <div
+            style={{
+              padding: 12,
+              background: "#111125",
+              borderRadius: 10,
+              borderLeft:
+                "3px solid " +
+                (locDiag.dominant === "autonome" || locDiag.dominant === "leader" ? "#4ecca3" : "#ff9800"),
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 4 }}>
+              {"Attribution interne : " +
+                locDiag.internal +
+                "/" +
+                locDiag.total +
+                " briques (" +
+                locDiag.internalRatio +
+                "%)"}
+            </div>
+            <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 4 }}>
+              {"Attribution externe : " +
+                locDiag.external +
+                "/" +
+                locDiag.total +
+                " briques (" +
+                locDiag.externalRatio +
+                "%)"}
+            </div>
+            <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.7, marginBottom: 8 }}>
+              {"Contexte : " + locDiag.solo + " solo / " + locDiag.team + " équipe"}
+            </div>
+            {locDiag.label && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: locDiag.dominant === "autonome" || locDiag.dominant === "leader" ? "#4ecca3" : "#ff9800",
+                  fontWeight: 700,
+                  lineHeight: 1.6,
+                }}
+              >
+                {locDiag.label}
+              </div>
+            )}
+            {(locDiag.dominant === "isolé" || locDiag.dominant === "exécutant") && (
+              <div style={{ fontSize: 11, color: "#8892b0", marginTop: 8, lineHeight: 1.5, fontStyle: "italic" }}>
+                {"Reformule tes briques avec des verbes de décision : « j'ai décidé », « j'ai lancé », « j'ai tranché ». L'outil réévalue automatiquement."}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

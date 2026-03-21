@@ -9,6 +9,7 @@ import {
   hasExternalization,
   hasInfluenceMarkers,
   hasNumbers,
+  isSoloBrick,
 } from "@/lib/sprint/analysis";
 import { formatCost, getActiveCauchemars, assessBrickArmor } from "@/lib/sprint/scoring";
 import {
@@ -2347,38 +2348,7 @@ var STRESS_ANGLES = [
   },
 ];
 
-var SOLO_MARKERS = [
-  "seul",
-  "solo",
-  "fondateur",
-  "freelance",
-  "indépendant",
-  "sans équipe",
-  "zéro équipe",
-  "de a à z",
-  "j'ai construit",
-  "j'ai créé",
-  "j'ai lancé",
-  "side project",
-  "bootstrap",
-  "l'ia",
-  "l'outil",
-  "claude",
-  "llm",
-  "co-pilote",
-  "copilote",
-  "agent ia",
-  "chatgpt",
-  "ia proposait",
-  "ia a proposé",
-];
-
-function isSoloBrick(brickText) {
-  var lower = (brickText || "").toLowerCase();
-  return SOLO_MARKERS.some(function (m) {
-    return lower.indexOf(m) !== -1;
-  });
-}
+// isSoloBrick imported from @/lib/sprint/analysis
 
 var ANGLE4_SOLO = {
   key: "angle4",
