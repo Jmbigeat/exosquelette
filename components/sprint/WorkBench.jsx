@@ -47,6 +47,7 @@ var DELIVERABLE_AUDIENCE = {
   questions: "external",
   discovery_call: "external",
   fiche_combat: "external",
+  negotiation_bundle: "internal",
   followup: "external",
   email_signature: "external",
   interview_prep: "external",
@@ -353,6 +354,22 @@ export function WorkBench({
   var ficheCombatAudit = ficheCombatAuditState[0];
   var setFicheCombatAudit = ficheCombatAuditState[1];
 
+  // Unified deliverable sub-tabs/views
+  var questionsSubTabState = useState("discovery");
+  var questionsSubTab = questionsSubTabState[0];
+  var setQuestionsSubTab = questionsSubTabState[1];
+  var entretienViewState = useState("prep");
+  var entretienView = entretienViewState[0];
+  var setEntretienView = entretienViewState[1];
+
+  // Negotiation bundle state (merged replacement + raise + salary)
+  var negotiationBundleTextState = useState(null);
+  var negotiationBundleText = negotiationBundleTextState[0];
+  var setNegotiationBundleText = negotiationBundleTextState[1];
+  var negotiationBundleAuditState = useState(null);
+  var negotiationBundleAudit = negotiationBundleAuditState[0];
+  var setNegotiationBundleAudit = negotiationBundleAuditState[1];
+
   function handleGenerate(type, generatorFn) {
     if (!generatedOnce[type]) {
       setGeneratedOnce(function (prev) {
@@ -574,12 +591,35 @@ export function WorkBench({
     (scripts ? 1 : 0) +
     (cvText && validated.length > 0 ? 1 : 0) +
     (bioText ? 1 : 0) +
-    1 +
+    1 + // plan 30j
     (linkedInPosts && linkedInPosts.length > 0 ? 1 : 0) +
-    1 + // +1 script contact (4 variantes), +1 plan 30j, +1 posts piliers, +1 questions entretien
-    1 + // +1 discovery call
-    1; // +1 fiche de combat
-  var interneCount = salaryCompText ? 4 : 3; // replacement, raise, salary comparison (if salary set), plan 90j
+    1 + // questions (discovery + formal)
+    1 + // entretien (prep + fiche)
+    1 + // signature email
+    1; // message post-entretien
+  var interneCount = 2; // negotiation_bundle + plan90j
+
+  function generateNegotiationBundle() {
+    var replacement = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals);
+    var raise = generateRaiseArgument(bricks, targetRoleId, salaryNum);
+    var salComp = salaryNum
+      ? generateSalaryComparison(salaryNum, targetRoleId, bricks, getActiveCauchemars(), acvTarget, REPLACEMENT_DATA_BY_ROLE[targetRoleId])
+      : null;
+    var sections = [];
+    sections.push("── POSITION MARCHÉ ──");
+    if (salComp) {
+      sections.push(salComp);
+    } else {
+      sections.push("Renseigne ton salaire pour activer le comparatif.");
+    }
+    sections.push("");
+    sections.push("── COÛT DE REMPLACEMENT ──");
+    sections.push(replacement);
+    sections.push("");
+    sections.push("── ARGUMENT CALIBRÉ ──");
+    sections.push(raise);
+    return sections.join("\n");
+  }
 
   return (
     <div style={{ background: "#0d1b2a", borderRadius: 12, overflow: "hidden" }}>
@@ -797,6 +837,13 @@ export function WorkBench({
               </div>
             )}
 
+            {/* ── CANDIDATURE ── */}
+            <div style={{ marginTop: 20, marginBottom: 8, borderBottom: "1px solid #1a1a3e", paddingBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8892b0", textTransform: "uppercase" }}>
+                Candidature
+              </div>
+            </div>
+
             {/* ONE-PAGER */}
             <div
               style={{
@@ -987,6 +1034,130 @@ export function WorkBench({
                     : "Génère un document de preuve organisé par problème résolu, calibré pour le recruteur."}
                 </div>
               )}
+            </div>
+
+            {/* CV */}
+            <div
+              style={{
+                background: "#16213e",
+                borderRadius: 10,
+                padding: 12,
+                marginBottom: 10,
+                border: recommendedDeliverable === "cv" ? "2px solid #ff9800" : "none",
+              }}
+            >
+              {recommendedDeliverable === "cv" && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "#ff9800",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    marginBottom: 4,
+                  }}
+                >
+                  Recommandé
+                </div>
+              )}
+              <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                {"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#8892b0",
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                  maxHeight: 100,
+                  overflow: "auto",
+                }}
+              >
+                {cvText}
+              </div>
+              {renderObsoleteIndicator("cv")}
+              <AuditBlock
+                auditResult={auditCv}
+                text={cvText}
+                copyId="cv"
+                copiedId={copiedId}
+                onCopy={handleCopy}
+                type="cv"
+                isVitrine={isVitrine}
+                corrections={corrCounters["cv"] || 0}
+                onGoForge={onGoForge}
+                onCorrect={function () {
+                  handleCorrect("cv", function () {
+                    var hints = auditCv ? auditCv.correctionHints : [];
+                    var raw = generateCV(bricks, targetRoleId, trajectoryToggle, hints);
+                    cvText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }}
+              />
+            </div>
+
+            {/* BIO LINKEDIN */}
+            {bioText ? (
+              <div
+                style={{
+                  background: "#16213e",
+                  borderRadius: 10,
+                  padding: 12,
+                  marginBottom: 10,
+                  border: recommendedDeliverable === "bio" ? "2px solid #ff9800" : "none",
+                }}
+              >
+                {recommendedDeliverable === "bio" && (
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "#ff9800",
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      textTransform: "uppercase",
+                      marginBottom: 4,
+                    }}
+                  >
+                    Recommandé
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                  {"\uD83D\uDC64"} BIO LINKEDIN
+                </div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
+                {renderObsoleteIndicator("bio")}
+                <AuditBlock
+                  auditResult={auditBio}
+                  text={bioText}
+                  copyId="bio"
+                  copiedId={copiedId}
+                  onCopy={handleCopy}
+                  type="bio"
+                  isVitrine={isVitrine}
+                  corrections={corrCounters["bio"] || 0}
+                  onGoForge={onGoForge}
+                  onCorrect={function () {
+                    handleCorrect("bio", function () {
+                      var hints = auditBio ? auditBio.correctionHints : [];
+                      var raw = generateBio(bricks, vault, trajectoryToggle, hints);
+                      bioText = signature ? applySignatureFilter(raw, signature) : raw;
+                    });
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
+                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
+                  {"\uD83D\uDD12"} BIO LINKEDIN — 2 briques minimum
+                </div>
+              </div>
+            )}
+
+            {/* ── PRISE DE CONTACT ── */}
+            <div style={{ marginTop: 20, marginBottom: 8, borderBottom: "1px solid #1a1a3e", paddingBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8892b0", textTransform: "uppercase" }}>
+                Prise de contact
+              </div>
             </div>
 
             {/* SCRIPT DE CONTACT — 4 variantes (chantier 20) */}
@@ -1248,1119 +1419,6 @@ export function WorkBench({
                   </div>
                 );
               })()}
-
-            {/* CV */}
-            <div
-              style={{
-                background: "#16213e",
-                borderRadius: 10,
-                padding: 12,
-                marginBottom: 10,
-                border: recommendedDeliverable === "cv" ? "2px solid #ff9800" : "none",
-              }}
-            >
-              {recommendedDeliverable === "cv" && (
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: "#ff9800",
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
-                    marginBottom: 4,
-                  }}
-                >
-                  Recommandé
-                </div>
-              )}
-              <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                {"\uD83D\uDCC4"} CV ({validated.length} brique{validated.length > 1 ? "s" : ""})
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#8892b0",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
-                  maxHeight: 100,
-                  overflow: "auto",
-                }}
-              >
-                {cvText}
-              </div>
-              {renderObsoleteIndicator("cv")}
-              <AuditBlock
-                auditResult={auditCv}
-                text={cvText}
-                copyId="cv"
-                copiedId={copiedId}
-                onCopy={handleCopy}
-                type="cv"
-                isVitrine={isVitrine}
-                corrections={corrCounters["cv"] || 0}
-                onGoForge={onGoForge}
-                onCorrect={function () {
-                  handleCorrect("cv", function () {
-                    var hints = auditCv ? auditCv.correctionHints : [];
-                    var raw = generateCV(bricks, targetRoleId, trajectoryToggle, hints);
-                    cvText = signature ? applySignatureFilter(raw, signature) : raw;
-                  });
-                }}
-              />
-            </div>
-
-            {/* PRÉPARATION ENTRETIEN — chantier 16 */}
-            <div
-              style={{
-                background: "#16213e",
-                borderRadius: 10,
-                padding: 12,
-                marginBottom: 10,
-                border: recommendedDeliverable === "interview_prep" ? "2px solid #ff9800" : "none",
-              }}
-            >
-              {recommendedDeliverable === "interview_prep" && (
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: "#ff9800",
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    textTransform: "uppercase",
-                    marginBottom: 4,
-                  }}
-                >
-                  Recommandé
-                </div>
-              )}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
-                    {"\uD83C\uDFA4"} PRÉPARATION ENTRETIEN
-                  </div>
-                  <div style={{ fontSize: 9, color: "#495670", marginTop: 2 }}>
-                    {validated.length} brique{validated.length > 1 ? "s" : ""} × 3 versions
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {!isVitrine && (
-                    <button
-                      onClick={function () {
-                        handleGenerate("interview_prep", function () {
-                          var cauchs = getActiveCauchemars();
-                          var data = validated.map(function (b) {
-                            var cvLine = generateCVLine(b, targetRoleId);
-                            var versions = generateInterviewVersions(b, targetRoleId, cauchs);
-                            if (signature) {
-                              cvLine = applySignatureFilter(cvLine, signature);
-                              versions = {
-                                rh: applySignatureFilter(versions.rh, signature),
-                                n1: applySignatureFilter(versions.n1, signature),
-                                direction: applySignatureFilter(versions.direction, signature),
-                              };
-                            }
-                            return {
-                              summary: extractBrickSummary(b.text),
-                              cvLine: cvLine,
-                              versions: versions,
-                              brickType: b.brickType,
-                            };
-                          });
-                          setInterviewPrepData(data);
-                          // Build full text for audit
-                          var fullText = data
-                            .map(function (item) {
-                              return (
-                                "Version CV : " +
-                                item.cvLine +
-                                "\nVersion RH :\n" +
-                                item.versions.rh +
-                                "\nVersion N+1 :\n" +
-                                item.versions.n1 +
-                                "\nVersion Direction :\n" +
-                                item.versions.direction
-                              );
-                            })
-                            .join("\n\n");
-                          setInterviewPrepAudit(
-                            auditDeliverable("interview_prep", fullText, bricks, cauchs, "external")
-                          );
-                        });
-                      }}
-                      style={{
-                        padding: "3px 10px",
-                        fontSize: 10,
-                        background: "#0f3460",
-                        color: "#ccd6f6",
-                        border: "1px solid #16213e",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {generatedOnce["interview_prep"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {interviewPrepData ? (
-                <div>
-                  {interviewPrepData.map(function (item, idx) {
-                    var activeTab = interviewTabs[idx] || "rh";
-                    return (
-                      <div
-                        key={idx}
-                        style={{
-                          borderTop: idx > 0 ? "1px solid #1a1a3e" : "none",
-                          paddingTop: idx > 0 ? 10 : 0,
-                          marginTop: idx > 0 ? 10 : 0,
-                        }}
-                      >
-                        <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>
-                          Brique {idx + 1} : {item.summary}
-                        </div>
-                        <div style={{ background: "#0d0d1a", borderRadius: 6, padding: 8, marginBottom: 8 }}>
-                          <div
-                            style={{
-                              fontSize: 9,
-                              color: "#495670",
-                              fontWeight: 600,
-                              letterSpacing: 1,
-                              marginBottom: 3,
-                            }}
-                          >
-                            VERSION CV (6 sec)
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 11,
-                              color: "#8892b0",
-                              fontFamily: "JetBrains Mono, monospace",
-                              lineHeight: 1.5,
-                            }}
-                          >
-                            {item.cvLine}
-                          </div>
-                        </div>
-                        <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
-                          {["rh", "n1", "direction"].map(function (tab) {
-                            var labels = { rh: "RH", n1: "N+1", direction: "Direction" };
-                            var isActiveTab = activeTab === tab;
-                            return (
-                              <button
-                                key={tab}
-                                onClick={function () {
-                                  setInterviewTabs(function (prev) {
-                                    var next = Object.assign({}, prev);
-                                    next[idx] = tab;
-                                    return next;
-                                  });
-                                }}
-                                style={{
-                                  padding: "3px 10px",
-                                  fontSize: 10,
-                                  fontWeight: 600,
-                                  background: isActiveTab ? "#e94560" : "transparent",
-                                  color: isActiveTab ? "#fff" : "#8892b0",
-                                  border: "1px solid " + (isActiveTab ? "#e94560" : "#1a1a3e"),
-                                  borderRadius: 6,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                {labels[tab]}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <div style={{ background: "#111125", borderRadius: 6, padding: 10 }}>
-                          <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                            {item.versions[activeTab]}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {renderObsoleteIndicator("interview_prep")}
-                  <AuditBlock
-                    auditResult={interviewPrepAudit}
-                    text={(function () {
-                      var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
-                      var roleName = roleData ? roleData.role : "ce poste";
-                      var copyText = "# Préparation entretien — " + roleName + "\n\n";
-                      interviewPrepData.forEach(function (item, i) {
-                        copyText += "## Brique " + (i + 1) + " : " + item.summary + "\n";
-                        copyText += "Version CV : " + item.cvLine + "\n\n";
-                        copyText += "Version RH :\n" + item.versions.rh + "\n\n";
-                        copyText += "Version N+1 :\n" + item.versions.n1 + "\n\n";
-                        copyText += "Version Direction :\n" + item.versions.direction + "\n\n";
-                      });
-                      return copyText.trim();
-                    })()}
-                    copyId="interview_prep"
-                    copiedId={copiedId}
-                    onCopy={handleCopy}
-                    type="interview_prep"
-                    isVitrine={isVitrine}
-                    corrections={corrCounters["interview_prep"] || 0}
-                    onGoForge={onGoForge}
-                    onCorrect={function () {
-                      handleCorrect("interview_prep", function () {
-                        var cauchs = getActiveCauchemars();
-                        var hints = interviewPrepAudit ? interviewPrepAudit.correctionHints : [];
-                        var data = validated.map(function (b) {
-                          var cvLine = generateCVLine(b, targetRoleId, hints);
-                          var versions = generateInterviewVersions(b, targetRoleId, cauchs, hints);
-                          if (signature) {
-                            cvLine = applySignatureFilter(cvLine, signature);
-                            versions = {
-                              rh: applySignatureFilter(versions.rh, signature),
-                              n1: applySignatureFilter(versions.n1, signature),
-                              direction: applySignatureFilter(versions.direction, signature),
-                            };
-                          }
-                          return {
-                            summary: extractBrickSummary(b.text),
-                            cvLine: cvLine,
-                            versions: versions,
-                            brickType: b.brickType,
-                          };
-                        });
-                        setInterviewPrepData(data);
-                        var fullText = data
-                          .map(function (item) {
-                            return (
-                              "Version CV : " +
-                              item.cvLine +
-                              "\nVersion RH :\n" +
-                              item.versions.rh +
-                              "\nVersion N+1 :\n" +
-                              item.versions.n1 +
-                              "\nVersion Direction :\n" +
-                              item.versions.direction
-                            );
-                          })
-                          .join("\n\n");
-                        setInterviewPrepAudit(auditDeliverable("interview_prep", fullText, bricks, cauchs, "external"));
-                      });
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
-                  {isVitrine
-                    ? "Livrable figé en mode vitrine."
-                    : "Génère la version CV + 3 versions entretien (RH, N+1, Direction) pour chaque brique."}
-                </div>
-              )}
-            </div>
-
-            {/* BIO LINKEDIN */}
-            {bioText ? (
-              <div
-                style={{
-                  background: "#16213e",
-                  borderRadius: 10,
-                  padding: 12,
-                  marginBottom: 10,
-                  border: recommendedDeliverable === "bio" ? "2px solid #ff9800" : "none",
-                }}
-              >
-                {recommendedDeliverable === "bio" && (
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: "#ff9800",
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      textTransform: "uppercase",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Recommandé
-                  </div>
-                )}
-                <div style={{ fontSize: 11, color: "#8892b0", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                  {"\uD83D\uDC64"} BIO LINKEDIN
-                </div>
-                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{bioText}</div>
-                {renderObsoleteIndicator("bio")}
-                <AuditBlock
-                  auditResult={auditBio}
-                  text={bioText}
-                  copyId="bio"
-                  copiedId={copiedId}
-                  onCopy={handleCopy}
-                  type="bio"
-                  isVitrine={isVitrine}
-                  corrections={corrCounters["bio"] || 0}
-                  onGoForge={onGoForge}
-                  onCorrect={function () {
-                    handleCorrect("bio", function () {
-                      var hints = auditBio ? auditBio.correctionHints : [];
-                      var raw = generateBio(bricks, vault, trajectoryToggle, hints);
-                      bioText = signature ? applySignatureFilter(raw, signature) : raw;
-                    });
-                  }}
-                />
-              </div>
-            ) : (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
-                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
-                  {"\uD83D\uDD12"} BIO LINKEDIN — 2 briques minimum
-                </div>
-              </div>
-            )}
-
-            {/* PLAN 30 JOURS RH */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                {"\uD83D\uDCC5"} PLAN 30 JOURS RH
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#8892b0",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
-                  maxHeight: 200,
-                  overflow: "auto",
-                }}
-              >
-                {plan30jText}
-              </div>
-              {renderObsoleteIndicator("plan30j")}
-              <AuditBlock
-                auditResult={auditPlan30j}
-                text={plan30jText}
-                copyId="plan30j"
-                copiedId={copiedId}
-                onCopy={handleCopy}
-                type="plan30j"
-                isVitrine={isVitrine}
-                corrections={corrCounters["plan30j"] || 0}
-                onGoForge={onGoForge}
-                onCorrect={function () {
-                  handleCorrect("plan30j", function () {
-                    var hints = auditPlan30j ? auditPlan30j.correctionHints : [];
-                    var raw = generatePlan30jRH(
-                      bricks,
-                      targetRoleId,
-                      targetOffer ? targetOffer.parsedSignals : null,
-                      hints
-                    );
-                    plan30jText = signature ? applySignatureFilter(raw, signature) : raw;
-                  });
-                }}
-              />
-            </div>
-
-            {/* POSTS LINKEDIN (PILIERS) — chantier 21 */}
-            {linkedInPosts && linkedInPosts.length > 0 ? (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>
-                  {"\uD83D\uDCDD"} POSTS (PILIERS)
-                </div>
-                {linkedInPosts.map(function (p, idx) {
-                  var postText = signature ? applySignatureFilter(p.text, signature) : p.text;
-                  var editedText = postEdits[idx] !== undefined ? postEdits[idx] : postText;
-                  var postCopyId = "post_" + idx;
-                  var postAudit = auditDeliverable("posts", editedText, bricks, auditCauchemars, "external");
-
-                  // Chantier 21 — scoring on edited (or original) text
-                  var hookLine =
-                    editedText.split("\n").filter(function (l) {
-                      return l.trim().length > 5;
-                    })[0] || "";
-                  var hookResult = scoreHookPost(hookLine, editedText);
-                  var hookColor = hookResult.score >= 8 ? "#4ecca3" : hookResult.score >= 5 ? "#ff9800" : "#e94560";
-                  var marieHook = marieHookFullPost(editedText, hookLine);
-                  var bodyResult = analyzeBodyPost(editedText);
-                  var meroe = meroeAudit(editedText, hookLine);
-                  var failedNames = hookResult.tests
-                    .filter(function (t) {
-                      return !t.passed;
-                    })
-                    .map(function (t) {
-                      return t.name;
-                    });
-                  var variants = hookResult.score < 7 ? generateHookVariants(hookLine, failedNames, p) : [];
-
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        background: "#0d1b2a",
-                        borderRadius: 8,
-                        padding: 12,
-                        marginBottom: idx < linkedInPosts.length - 1 ? 10 : 0,
-                      }}
-                    >
-                      <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>
-                        Pilier {idx + 1} — {p.pillar}
-                      </div>
-                      {p.diltsLevel && (
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 8 }}>
-                          Dilts : Niveau {p.diltsLevel} — {p.diltsName || getDiltsLabel(p.diltsLevel).name}
-                          {p.diltsTarget && p.diltsLevel < p.diltsTarget && (
-                            <span style={{ fontSize: 10, color: "#ff9800", marginLeft: 8 }}>
-                              (cible : niveau {p.diltsTarget})
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* 1. Textarea éditable */}
-                      <textarea
-                        value={editedText}
-                        onChange={function (e) {
-                          setPostEdits(function (prev) {
-                            var next = Object.assign({}, prev);
-                            next[idx] = e.target.value;
-                            return next;
-                          });
-                        }}
-                        style={{
-                          width: "100%",
-                          minHeight: 140,
-                          maxHeight: 300,
-                          fontSize: 12,
-                          color: "#ccd6f6",
-                          lineHeight: 1.6,
-                          background: "#0a0a1a",
-                          border: "1px solid #495670",
-                          borderRadius: 8,
-                          padding: 10,
-                          fontFamily: "inherit",
-                          resize: "vertical",
-                          marginBottom: 10,
-                        }}
-                      />
-
-                      {/* 2. Accroche (4 tests) — Marie Hook */}
-                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
-                          ── Accroche (4 tests) ──
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: hookColor }}>
-                            Score accroche : {hookResult.score}/10
-                          </span>
-                          <span style={{ fontSize: 14 }}>
-                            {hookResult.score >= 8
-                              ? "\uD83D\uDFE2"
-                              : hookResult.score >= 5
-                                ? "\uD83D\uDFE0"
-                                : "\uD83D\uDD34"}
-                          </span>
-                        </div>
-                        {hookResult.tests.map(function (t) {
-                          return (
-                            <div
-                              key={t.name}
-                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
-                            >
-                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
-                                {t.passed ? "\u2713" : "✗"}
-                              </span>
-                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
-                                {t.label} — {t.message}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {variants.length > 0 && (
-                          <div style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginTop: 6 }}>
-                            {variants.map(function (v, vi) {
-                              return (
-                                <div
-                                  key={vi}
-                                  style={{
-                                    fontSize: 10,
-                                    color: "#ccd6f6",
-                                    lineHeight: 1.5,
-                                    marginBottom: vi < variants.length - 1 ? 4 : 0,
-                                  }}
-                                >
-                                  Variante {vi + 1} : "{v}"
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 3. Post entier — Marie Hook (2 auto + 2 quali) */}
-                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
-                          ── Post entier ──
-                        </div>
-                        {marieHook.autoTests.map(function (t) {
-                          return (
-                            <div
-                              key={t.name}
-                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
-                            >
-                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
-                                {t.passed ? "\u2713" : "✗"}
-                              </span>
-                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
-                                {t.label} — {t.message}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {marieHook.qualitative.map(function (q) {
-                          return (
-                            <div
-                              key={q.id}
-                              style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}
-                            >
-                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* 4. Corps — rétention */}
-                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
-                          ── Corps ──
-                        </div>
-                        {bodyResult.clean ? (
-                          <div style={{ fontSize: 10, color: "#4ecca3" }}>{"\u2713"} Rétention OK</div>
-                        ) : (
-                          bodyResult.issues.map(function (issue, ii) {
-                            return (
-                              <div
-                                key={ii}
-                                style={{
-                                  fontSize: 10,
-                                  color: "#ff9800",
-                                  marginBottom: 3,
-                                  display: "flex",
-                                  gap: 4,
-                                  lineHeight: 1.4,
-                                }}
-                              >
-                                <span style={{ flexShrink: 0 }}>{"\u26A0\uFE0F"}</span> {issue.message}
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-
-                      {/* 5. Structure et angle — Méroé Miroir */}
-                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
-                          ── Structure et angle ──
-                        </div>
-                        {meroe.miroir.autoTests.map(function (t) {
-                          return (
-                            <div
-                              key={t.name}
-                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
-                            >
-                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
-                                {t.passed ? "\u2713" : "✗"}
-                              </span>
-                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
-                                {t.label} — {t.message}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {meroe.miroir.qualitative.map(function (q) {
-                          return (
-                            <div
-                              key={q.id}
-                              style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}
-                            >
-                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* 6. Confrontation — Méroé Luis Enrique */}
-                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 4 }}>
-                          ── Confrontation ──
-                        </div>
-                        <div style={{ fontSize: 10, color: "#495670", marginBottom: 6, fontStyle: "italic" }}>
-                          Réponds mentalement. Si une question te fait douter, le post a un problème.
-                        </div>
-                        {meroe.luisEnrique.map(function (q) {
-                          return (
-                            <div
-                              key={q.id}
-                              style={{
-                                fontSize: 10,
-                                color: "#e94560",
-                                marginBottom: 4,
-                                lineHeight: 1.4,
-                                paddingLeft: 4,
-                              }}
-                            >
-                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* 7. Premier commentaire + micro-instruction */}
-                      {p.firstComment && (
-                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
-                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
-                            ── Premier commentaire ──
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 11,
-                              color: "#ccd6f6",
-                              lineHeight: 1.5,
-                              background: "#1a1a2e",
-                              borderRadius: 6,
-                              padding: 8,
-                            }}
-                          >
-                            {p.firstComment}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 11,
-                              color: "#8892b0",
-                              background: "#0f3460",
-                              borderRadius: 6,
-                              padding: 8,
-                              marginTop: 6,
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            {"\uD83D\uDCA1"} Publie entre 7h30 et 8h30 en semaine. Réponds à tous les commentaires dans
-                            les 2 premières heures.
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 8. Boutons Copier + Rescorer */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-                        <CopyBtn text={editedText} label="Copier le post" />
-                        {p.firstComment && <CopyBtn text={p.firstComment} label="Copier le commentaire" />}
-                        {postEdits[idx] !== undefined && (
-                          <button
-                            onClick={function () {
-                              setPostEdits(function (prev) {
-                                var next = Object.assign({}, prev);
-                                next[idx] = editedText;
-                                return next;
-                              });
-                            }}
-                            style={{
-                              padding: "3px 8px",
-                              fontSize: 10,
-                              color: "#8892b0",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                              textDecoration: "underline",
-                            }}
-                          >
-                            Rescorer
-                          </button>
-                        )}
-                        {postEdits[idx] !== undefined && (
-                          <button
-                            onClick={function () {
-                              setPostEdits(function (prev) {
-                                var next = Object.assign({}, prev);
-                                delete next[idx];
-                                return next;
-                              });
-                            }}
-                            style={{
-                              padding: "3px 8px",
-                              fontSize: 10,
-                              color: "#495670",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Réinitialiser
-                          </button>
-                        )}
-                      </div>
-
-                      {/* 9. Obsolete + Audit ch17 */}
-                      {renderObsoleteIndicator("posts")}
-                      <AuditBlock
-                        auditResult={postAudit}
-                        text={editedText}
-                        copyId={postCopyId + "_audit"}
-                        copiedId={copiedId}
-                        onCopy={handleCopy}
-                        type="posts"
-                        isVitrine={isVitrine}
-                        corrections={corrCounters[postCopyId] || 0}
-                        onGoForge={onGoForge}
-                      />
-                    </div>
-                  );
-                })}
-                {(function () {
-                  var stagnation = detectDiltsStagnation(linkedInPosts);
-                  if (!stagnation || !stagnation.stagnating) return null;
-                  return (
-                    <div
-                      style={{
-                        background: "#1a1a2e",
-                        borderRadius: 8,
-                        padding: 10,
-                        marginTop: 10,
-                        borderLeft: "3px solid #ff9800",
-                      }}
-                    >
-                      <div style={{ fontSize: 12, color: "#ff9800", lineHeight: 1.5 }}>
-                        {"\u26A0\uFE0F"} {stagnation.message}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            ) : (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>
-                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
-                  {"\uD83D\uDD12"} POSTS (PILIERS) — 2 briques + piliers requis
-                </div>
-              </div>
-            )}
-
-            {/* QUESTIONS ENTRETIEN */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
-                  {"\uD83C\uDFAF"} QUESTIONS ENTRETIEN
-                </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {!isVitrine && (
-                    <button
-                      onClick={function () {
-                        handleGenerate("questions", function () {
-                          var targetOff =
-                            offersArray && offersArray.length > 0
-                              ? offersArray[selectedOfferIdx] || offersArray[0]
-                              : null;
-                          var signals = targetOff ? targetOff.parsedSignals : null;
-                          var raw = generateInterviewQuestions(
-                            bricks.filter(function (b) {
-                              return b.status === "validated";
-                            }),
-                            targetRoleId,
-                            getActiveCauchemars(),
-                            signals,
-                            signature
-                          );
-                          var text = signature ? applySignatureFilter(raw, signature) : raw;
-                          setQuestionsText(text);
-                          setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
-                        });
-                      }}
-                      style={{
-                        padding: "3px 10px",
-                        fontSize: 10,
-                        background: "#0f3460",
-                        color: "#ccd6f6",
-                        border: "1px solid #16213e",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {generatedOnce["questions"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {questionsText ? (
-                <div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#8892b0",
-                      lineHeight: 1.6,
-                      whiteSpace: "pre-wrap",
-                      maxHeight: 300,
-                      overflow: "auto",
-                    }}
-                  >
-                    {questionsText}
-                  </div>
-                  {renderObsoleteIndicator("questions")}
-                  <AuditBlock
-                    auditResult={questionsAudit}
-                    text={questionsText}
-                    copyId="questions"
-                    copiedId={copiedId}
-                    onCopy={handleCopy}
-                    type="questions"
-                    isVitrine={isVitrine}
-                    corrections={corrCounters["questions"] || 0}
-                    onGoForge={onGoForge}
-                    onCorrect={function () {
-                      handleCorrect("questions", function () {
-                        var hints = questionsAudit ? questionsAudit.correctionHints : [];
-                        var targetOff =
-                          offersArray && offersArray.length > 0
-                            ? offersArray[selectedOfferIdx] || offersArray[0]
-                            : null;
-                        var signals = targetOff ? targetOff.parsedSignals : null;
-                        var raw = generateInterviewQuestions(
-                          bricks.filter(function (b) {
-                            return b.status === "validated";
-                          }),
-                          targetRoleId,
-                          getActiveCauchemars(),
-                          signals,
-                          signature,
-                          hints
-                        );
-                        var text = signature ? applySignatureFilter(raw, signature) : raw;
-                        setQuestionsText(text);
-                        setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
-                      });
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
-                  {isVitrine
-                    ? "Livrable figé en mode vitrine."
-                    : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
-                </div>
-              )}
-            </div>
-
-            {/* APPEL DÉCOUVERTE */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
-                  {"\uD83D\uDCDE"} APPEL DÉCOUVERTE
-                </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {!isVitrine && (
-                    <button
-                      onClick={function () {
-                        handleGenerate("discovery_call", function () {
-                          var targetOff =
-                            offersArray && offersArray.length > 0
-                              ? offersArray[selectedOfferIdx] || offersArray[0]
-                              : null;
-                          var signals = targetOff ? targetOff.parsedSignals : null;
-                          var raw = generateDiscoveryCall(
-                            bricks.filter(function (b) {
-                              return b.status === "validated";
-                            }),
-                            targetRoleId,
-                            getActiveCauchemars(),
-                            signals,
-                            seniorityLevel,
-                            signature
-                          );
-                          var text = signature ? applySignatureFilter(raw, signature) : raw;
-                          setDiscoveryCallText(text);
-                          setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
-                        });
-                      }}
-                      style={{
-                        padding: "3px 10px",
-                        fontSize: 10,
-                        background: "#0f3460",
-                        color: "#ccd6f6",
-                        border: "1px solid #16213e",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {generatedOnce["discovery_call"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {discoveryCallText ? (
-                <div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#8892b0",
-                      lineHeight: 1.6,
-                      whiteSpace: "pre-wrap",
-                      maxHeight: 300,
-                      overflow: "auto",
-                    }}
-                  >
-                    {discoveryCallText}
-                  </div>
-                  {renderObsoleteIndicator("discovery_call")}
-                  <AuditBlock
-                    auditResult={discoveryCallAudit}
-                    text={discoveryCallText}
-                    copyId="discovery_call"
-                    copiedId={copiedId}
-                    onCopy={handleCopy}
-                    type="discovery_call"
-                    isVitrine={isVitrine}
-                    corrections={corrCounters["discovery_call"] || 0}
-                    onGoForge={onGoForge}
-                    onCorrect={function () {
-                      handleCorrect("discovery_call", function () {
-                        var hints = discoveryCallAudit ? discoveryCallAudit.correctionHints : [];
-                        var targetOff =
-                          offersArray && offersArray.length > 0
-                            ? offersArray[selectedOfferIdx] || offersArray[0]
-                            : null;
-                        var signals = targetOff ? targetOff.parsedSignals : null;
-                        var raw = generateDiscoveryCall(
-                          bricks.filter(function (b) {
-                            return b.status === "validated";
-                          }),
-                          targetRoleId,
-                          getActiveCauchemars(),
-                          signals,
-                          seniorityLevel,
-                          signature,
-                          hints
-                        );
-                        var text = signature ? applySignatureFilter(raw, signature) : raw;
-                        setDiscoveryCallText(text);
-                        setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
-                      });
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
-                  {isVitrine
-                    ? "Livrable figé en mode vitrine."
-                    : "5 questions calibrées pour ton premier appel. Chaque question démontre ta compétence sans rien affirmer."}
-                </div>
-              )}
-            </div>
-
-            {/* FICHE DE COMBAT */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
-                  {"\uD83D\uDEE1\uFE0F"} FICHE DE COMBAT
-                </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {!isVitrine && (
-                    <button
-                      onClick={function () {
-                        handleGenerate("fiche_combat", function () {
-                          var targetOff =
-                            offersArray && offersArray.length > 0
-                              ? offersArray[selectedOfferIdx] || offersArray[0]
-                              : null;
-                          var signals = targetOff ? targetOff.parsedSignals : null;
-                          var salNum = currentSalary ? parseInt(currentSalary) : null;
-                          if (salNum && isNaN(salNum)) salNum = null;
-                          var raw = generateFicheCombat(
-                            bricks.filter(function (b) {
-                              return b.status === "validated";
-                            }),
-                            targetRoleId,
-                            getActiveCauchemars(),
-                            signature,
-                            seniorityLevel,
-                            salNum,
-                            duelResults,
-                            signals
-                          );
-                          var text = signature ? applySignatureFilter(raw, signature) : raw;
-                          setFicheCombatText(text);
-                          setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
-                        });
-                      }}
-                      style={{
-                        padding: "3px 10px",
-                        fontSize: 10,
-                        background: "#0f3460",
-                        color: "#ccd6f6",
-                        border: "1px solid #16213e",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {generatedOnce["fiche_combat"] ? "Régénérer (1 \uD83E\uDE99)" : "Générer"}
-                    </button>
-                  )}
-                </div>
-              </div>
-              {ficheCombatText ? (
-                <div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#8892b0",
-                      lineHeight: 1.6,
-                      whiteSpace: "pre-wrap",
-                      maxHeight: 300,
-                      overflow: "auto",
-                    }}
-                  >
-                    {ficheCombatText}
-                  </div>
-                  {renderObsoleteIndicator("fiche_combat")}
-                  <AuditBlock
-                    auditResult={ficheCombatAudit}
-                    text={ficheCombatText}
-                    copyId="fiche_combat"
-                    copiedId={copiedId}
-                    onCopy={handleCopy}
-                    type="fiche_combat"
-                    isVitrine={isVitrine}
-                    corrections={corrCounters["fiche_combat"] || 0}
-                    onGoForge={onGoForge}
-                    onCorrect={function () {
-                      handleCorrect("fiche_combat", function () {
-                        var hints = ficheCombatAudit ? ficheCombatAudit.correctionHints : [];
-                        var targetOff =
-                          offersArray && offersArray.length > 0
-                            ? offersArray[selectedOfferIdx] || offersArray[0]
-                            : null;
-                        var signals = targetOff ? targetOff.parsedSignals : null;
-                        var salNum = currentSalary ? parseInt(currentSalary) : null;
-                        if (salNum && isNaN(salNum)) salNum = null;
-                        var raw = generateFicheCombat(
-                          bricks.filter(function (b) {
-                            return b.status === "validated";
-                          }),
-                          targetRoleId,
-                          getActiveCauchemars(),
-                          signature,
-                          seniorityLevel,
-                          salNum,
-                          duelResults,
-                          signals,
-                          hints
-                        );
-                        var text = signature ? applySignatureFilter(raw, signature) : raw;
-                        setFicheCombatText(text);
-                        setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
-                      });
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
-                  {isVitrine
-                    ? "Livrable figé en mode vitrine."
-                    : "1 page à imprimer avant l'entretien. 6 blocs, 8 sources, lu en 2 minutes."}
-                </div>
-              )}
-            </div>
 
             {/* SIGNATURE EMAIL */}
             <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
@@ -2745,6 +1803,1064 @@ export function WorkBench({
                 </div>
               )}
             </div>
+
+            {/* PLAN 30 JOURS RH */}
+            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                {"\uD83D\uDCC5"} PLAN 30 JOURS RH
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#8892b0",
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                  maxHeight: 200,
+                  overflow: "auto",
+                }}
+              >
+                {plan30jText}
+              </div>
+              {renderObsoleteIndicator("plan30j")}
+              <AuditBlock
+                auditResult={auditPlan30j}
+                text={plan30jText}
+                copyId="plan30j"
+                copiedId={copiedId}
+                onCopy={handleCopy}
+                type="plan30j"
+                isVitrine={isVitrine}
+                corrections={corrCounters["plan30j"] || 0}
+                onGoForge={onGoForge}
+                onCorrect={function () {
+                  handleCorrect("plan30j", function () {
+                    var hints = auditPlan30j ? auditPlan30j.correctionHints : [];
+                    var raw = generatePlan30jRH(
+                      bricks,
+                      targetRoleId,
+                      targetOffer ? targetOffer.parsedSignals : null,
+                      hints
+                    );
+                    plan30jText = signature ? applySignatureFilter(raw, signature) : raw;
+                  });
+                }}
+              />
+            </div>
+
+            {/* ── ENTRETIEN ── */}
+            <div style={{ marginTop: 20, marginBottom: 8, borderBottom: "1px solid #1a1a3e", paddingBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8892b0", textTransform: "uppercase" }}>
+                Entretien
+              </div>
+            </div>
+
+            {/* QUESTIONS — unified (Discovery + Entretien formel) */}
+            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginTop: 10 }}>
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                🎯 QUESTIONS
+              </div>
+              {/* Sub-tabs */}
+              <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                <button
+                  onClick={function () { setQuestionsSubTab("discovery"); }}
+                  style={{
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                    background: questionsSubTab === "discovery" ? "#0f3460" : "transparent",
+                    border: "1px solid " + (questionsSubTab === "discovery" ? "#e94560" : "#495670"),
+                    color: questionsSubTab === "discovery" ? "#e6e6e6" : "#8892b0",
+                  }}
+                >
+                  Discovery
+                </button>
+                <button
+                  onClick={function () { setQuestionsSubTab("formal"); }}
+                  style={{
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                    background: questionsSubTab === "formal" ? "#0f3460" : "transparent",
+                    border: "1px solid " + (questionsSubTab === "formal" ? "#e94560" : "#495670"),
+                    color: questionsSubTab === "formal" ? "#e6e6e6" : "#8892b0",
+                  }}
+                >
+                  Entretien formel
+                </button>
+              </div>
+
+              {/* Discovery sub-tab — APPEL DÉCOUVERTE content */}
+              {questionsSubTab === "discovery" && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {!isVitrine && (
+                        <button
+                          onClick={function () {
+                            handleGenerate("discovery_call", function () {
+                              var targetOff =
+                                offersArray && offersArray.length > 0
+                                  ? offersArray[selectedOfferIdx] || offersArray[0]
+                                  : null;
+                              var signals = targetOff ? targetOff.parsedSignals : null;
+                              var raw = generateDiscoveryCall(
+                                bricks.filter(function (b) {
+                                  return b.status === "validated";
+                                }),
+                                targetRoleId,
+                                getActiveCauchemars(),
+                                signals,
+                                seniorityLevel,
+                                signature
+                              );
+                              var text = signature ? applySignatureFilter(raw, signature) : raw;
+                              setDiscoveryCallText(text);
+                              setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
+                            });
+                          }}
+                          style={{
+                            padding: "3px 10px",
+                            fontSize: 10,
+                            background: "#0f3460",
+                            color: "#ccd6f6",
+                            border: "1px solid #16213e",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {generatedOnce["discovery_call"] ? "Régénérer (1 🪙)" : "Générer"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {discoveryCallText ? (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#8892b0",
+                          lineHeight: 1.6,
+                          whiteSpace: "pre-wrap",
+                          maxHeight: 300,
+                          overflow: "auto",
+                        }}
+                      >
+                        {discoveryCallText}
+                      </div>
+                      {renderObsoleteIndicator("discovery_call")}
+                      <AuditBlock
+                        auditResult={discoveryCallAudit}
+                        text={discoveryCallText}
+                        copyId="discovery_call"
+                        copiedId={copiedId}
+                        onCopy={handleCopy}
+                        type="discovery_call"
+                        isVitrine={isVitrine}
+                        corrections={corrCounters["discovery_call"] || 0}
+                        onGoForge={onGoForge}
+                        onCorrect={function () {
+                          handleCorrect("discovery_call", function () {
+                            var hints = discoveryCallAudit ? discoveryCallAudit.correctionHints : [];
+                            var targetOff =
+                              offersArray && offersArray.length > 0
+                                ? offersArray[selectedOfferIdx] || offersArray[0]
+                                : null;
+                            var signals = targetOff ? targetOff.parsedSignals : null;
+                            var raw = generateDiscoveryCall(
+                              bricks.filter(function (b) {
+                                return b.status === "validated";
+                              }),
+                              targetRoleId,
+                              getActiveCauchemars(),
+                              signals,
+                              seniorityLevel,
+                              signature,
+                              hints
+                            );
+                            var text = signature ? applySignatureFilter(raw, signature) : raw;
+                            setDiscoveryCallText(text);
+                            setDiscoveryCallAudit(auditDeliverable("discovery_call", text, bricks, auditCauchemars, "external"));
+                          });
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                      {isVitrine
+                        ? "Livrable figé en mode vitrine."
+                        : "5 questions calibrées pour ton premier appel. Chaque question démontre ta compétence sans rien affirmer."}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Formal sub-tab — QUESTIONS ENTRETIEN content */}
+              {questionsSubTab === "formal" && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {!isVitrine && (
+                        <button
+                          onClick={function () {
+                            handleGenerate("questions", function () {
+                              var targetOff =
+                                offersArray && offersArray.length > 0
+                                  ? offersArray[selectedOfferIdx] || offersArray[0]
+                                  : null;
+                              var signals = targetOff ? targetOff.parsedSignals : null;
+                              var raw = generateInterviewQuestions(
+                                bricks.filter(function (b) {
+                                  return b.status === "validated";
+                                }),
+                                targetRoleId,
+                                getActiveCauchemars(),
+                                signals,
+                                signature
+                              );
+                              var text = signature ? applySignatureFilter(raw, signature) : raw;
+                              setQuestionsText(text);
+                              setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
+                            });
+                          }}
+                          style={{
+                            padding: "3px 10px",
+                            fontSize: 10,
+                            background: "#0f3460",
+                            color: "#ccd6f6",
+                            border: "1px solid #16213e",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {generatedOnce["questions"] ? "Régénérer (1 🪙)" : "Générer"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {questionsText ? (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#8892b0",
+                          lineHeight: 1.6,
+                          whiteSpace: "pre-wrap",
+                          maxHeight: 300,
+                          overflow: "auto",
+                        }}
+                      >
+                        {questionsText}
+                      </div>
+                      {renderObsoleteIndicator("questions")}
+                      <AuditBlock
+                        auditResult={questionsAudit}
+                        text={questionsText}
+                        copyId="questions"
+                        copiedId={copiedId}
+                        onCopy={handleCopy}
+                        type="questions"
+                        isVitrine={isVitrine}
+                        corrections={corrCounters["questions"] || 0}
+                        onGoForge={onGoForge}
+                        onCorrect={function () {
+                          handleCorrect("questions", function () {
+                            var hints = questionsAudit ? questionsAudit.correctionHints : [];
+                            var targetOff =
+                              offersArray && offersArray.length > 0
+                                ? offersArray[selectedOfferIdx] || offersArray[0]
+                                : null;
+                            var signals = targetOff ? targetOff.parsedSignals : null;
+                            var raw = generateInterviewQuestions(
+                              bricks.filter(function (b) {
+                                return b.status === "validated";
+                              }),
+                              targetRoleId,
+                              getActiveCauchemars(),
+                              signals,
+                              signature,
+                              hints
+                            );
+                            var text = signature ? applySignatureFilter(raw, signature) : raw;
+                            setQuestionsText(text);
+                            setQuestionsAudit(auditDeliverable("questions", text, bricks, auditCauchemars, "external"));
+                          });
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                      {isVitrine
+                        ? "Livrable figé en mode vitrine."
+                        : "Croise tes briques × cauchemars × signaux d'offre pour générer des questions de niveau 3 à 6."}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* ENTRETIEN — unified (Préparation complète + Fiche de combat) */}
+            <div
+              style={{
+                background: "#16213e",
+                borderRadius: 10,
+                padding: 12,
+                marginTop: 10,
+                border: recommendedDeliverable === "interview_prep" ? "2px solid #ff9800" : "none",
+              }}
+            >
+              {recommendedDeliverable === "interview_prep" && (
+                <div style={{ fontSize: 10, color: "#ff9800", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+                  Recommandé
+                </div>
+              )}
+              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
+                🎤 ENTRETIEN
+              </div>
+              {/* View tabs */}
+              <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                <button
+                  onClick={function () { setEntretienView("prep"); }}
+                  style={{
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                    background: entretienView === "prep" ? "#0f3460" : "transparent",
+                    border: "1px solid " + (entretienView === "prep" ? "#e94560" : "#495670"),
+                    color: entretienView === "prep" ? "#e6e6e6" : "#8892b0",
+                  }}
+                >
+                  Préparation complète
+                </button>
+                <button
+                  onClick={function () { setEntretienView("fiche"); }}
+                  style={{
+                    padding: "4px 10px", fontSize: 10, fontWeight: 600, borderRadius: 6, cursor: "pointer",
+                    background: entretienView === "fiche" ? "#0f3460" : "transparent",
+                    border: "1px solid " + (entretienView === "fiche" ? "#e94560" : "#495670"),
+                    color: entretienView === "fiche" ? "#e6e6e6" : "#8892b0",
+                  }}
+                >
+                  Fiche de combat
+                </button>
+              </div>
+
+              {/* Prep view — PRÉPARATION ENTRETIEN content */}
+              {entretienView === "prep" && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ fontSize: 9, color: "#495670", marginTop: 2 }}>
+                      {validated.length} brique{validated.length > 1 ? "s" : ""} × 3 versions
+                    </div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {!isVitrine && (
+                        <button
+                          onClick={function () {
+                            handleGenerate("interview_prep", function () {
+                              var cauchs = getActiveCauchemars();
+                              var data = validated.map(function (b) {
+                                var cvLine = generateCVLine(b, targetRoleId);
+                                var versions = generateInterviewVersions(b, targetRoleId, cauchs);
+                                if (signature) {
+                                  cvLine = applySignatureFilter(cvLine, signature);
+                                  versions = {
+                                    rh: applySignatureFilter(versions.rh, signature),
+                                    n1: applySignatureFilter(versions.n1, signature),
+                                    direction: applySignatureFilter(versions.direction, signature),
+                                  };
+                                }
+                                return {
+                                  summary: extractBrickSummary(b.text),
+                                  cvLine: cvLine,
+                                  versions: versions,
+                                  brickType: b.brickType,
+                                };
+                              });
+                              setInterviewPrepData(data);
+                              var fullText = data
+                                .map(function (item) {
+                                  return (
+                                    "Version CV : " +
+                                    item.cvLine +
+                                    "\nVersion RH :\n" +
+                                    item.versions.rh +
+                                    "\nVersion N+1 :\n" +
+                                    item.versions.n1 +
+                                    "\nVersion Direction :\n" +
+                                    item.versions.direction
+                                  );
+                                })
+                                .join("\n\n");
+                              setInterviewPrepAudit(
+                                auditDeliverable("interview_prep", fullText, bricks, cauchs, "external")
+                              );
+                            });
+                          }}
+                          style={{
+                            padding: "3px 10px",
+                            fontSize: 10,
+                            background: "#0f3460",
+                            color: "#ccd6f6",
+                            border: "1px solid #16213e",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {generatedOnce["interview_prep"] ? "Régénérer (1 🪙)" : "Générer"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {interviewPrepData ? (
+                    <div>
+                      {interviewPrepData.map(function (item, idx) {
+                        var activeTab = interviewTabs[idx] || "rh";
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              borderTop: idx > 0 ? "1px solid #1a1a3e" : "none",
+                              paddingTop: idx > 0 ? 10 : 0,
+                              marginTop: idx > 0 ? 10 : 0,
+                            }}
+                          >
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "#ccd6f6", marginBottom: 6 }}>
+                              Brique {idx + 1} : {item.summary}
+                            </div>
+                            <div style={{ background: "#0d0d1a", borderRadius: 6, padding: 8, marginBottom: 8 }}>
+                              <div
+                                style={{
+                                  fontSize: 9,
+                                  color: "#495670",
+                                  fontWeight: 600,
+                                  letterSpacing: 1,
+                                  marginBottom: 3,
+                                }}
+                              >
+                                VERSION CV (6 sec)
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  color: "#8892b0",
+                                  fontFamily: "JetBrains Mono, monospace",
+                                  lineHeight: 1.5,
+                                }}
+                              >
+                                {item.cvLine}
+                              </div>
+                            </div>
+                            <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
+                              {["rh", "n1", "direction"].map(function (tab) {
+                                var labels = { rh: "RH", n1: "N+1", direction: "Direction" };
+                                var isActiveTab = activeTab === tab;
+                                return (
+                                  <button
+                                    key={tab}
+                                    onClick={function () {
+                                      setInterviewTabs(function (prev) {
+                                        var next = Object.assign({}, prev);
+                                        next[idx] = tab;
+                                        return next;
+                                      });
+                                    }}
+                                    style={{
+                                      padding: "3px 10px",
+                                      fontSize: 10,
+                                      fontWeight: 600,
+                                      background: isActiveTab ? "#e94560" : "transparent",
+                                      color: isActiveTab ? "#fff" : "#8892b0",
+                                      border: "1px solid " + (isActiveTab ? "#e94560" : "#1a1a3e"),
+                                      borderRadius: 6,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    {labels[tab]}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <div style={{ background: "#111125", borderRadius: 6, padding: 10 }}>
+                              <div style={{ fontSize: 11, color: "#ccd6f6", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                                {item.versions[activeTab]}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {renderObsoleteIndicator("interview_prep")}
+                      <AuditBlock
+                        auditResult={interviewPrepAudit}
+                        text={(function () {
+                          var roleData = targetRoleId && KPI_REFERENCE[targetRoleId] ? KPI_REFERENCE[targetRoleId] : null;
+                          var roleName = roleData ? roleData.role : "ce poste";
+                          var copyText = "# Préparation entretien — " + roleName + "\n\n";
+                          interviewPrepData.forEach(function (item, i) {
+                            copyText += "## Brique " + (i + 1) + " : " + item.summary + "\n";
+                            copyText += "Version CV : " + item.cvLine + "\n\n";
+                            copyText += "Version RH :\n" + item.versions.rh + "\n\n";
+                            copyText += "Version N+1 :\n" + item.versions.n1 + "\n\n";
+                            copyText += "Version Direction :\n" + item.versions.direction + "\n\n";
+                          });
+                          return copyText.trim();
+                        })()}
+                        copyId="interview_prep"
+                        copiedId={copiedId}
+                        onCopy={handleCopy}
+                        type="interview_prep"
+                        isVitrine={isVitrine}
+                        corrections={corrCounters["interview_prep"] || 0}
+                        onGoForge={onGoForge}
+                        onCorrect={function () {
+                          handleCorrect("interview_prep", function () {
+                            var cauchs = getActiveCauchemars();
+                            var hints = interviewPrepAudit ? interviewPrepAudit.correctionHints : [];
+                            var data = validated.map(function (b) {
+                              var cvLine = generateCVLine(b, targetRoleId, hints);
+                              var versions = generateInterviewVersions(b, targetRoleId, cauchs, hints);
+                              if (signature) {
+                                cvLine = applySignatureFilter(cvLine, signature);
+                                versions = {
+                                  rh: applySignatureFilter(versions.rh, signature),
+                                  n1: applySignatureFilter(versions.n1, signature),
+                                  direction: applySignatureFilter(versions.direction, signature),
+                                };
+                              }
+                              return {
+                                summary: extractBrickSummary(b.text),
+                                cvLine: cvLine,
+                                versions: versions,
+                                brickType: b.brickType,
+                              };
+                            });
+                            setInterviewPrepData(data);
+                            var fullText = data
+                              .map(function (item) {
+                                return (
+                                  "Version CV : " +
+                                  item.cvLine +
+                                  "\nVersion RH :\n" +
+                                  item.versions.rh +
+                                  "\nVersion N+1 :\n" +
+                                  item.versions.n1 +
+                                  "\nVersion Direction :\n" +
+                                  item.versions.direction
+                                );
+                              })
+                              .join("\n\n");
+                            setInterviewPrepAudit(auditDeliverable("interview_prep", fullText, bricks, cauchs, "external"));
+                          });
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                      {isVitrine
+                        ? "Livrable figé en mode vitrine."
+                        : "Génère la version CV + 3 versions entretien (RH, N+1, Direction) pour chaque brique."}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Fiche view — FICHE DE COMBAT content */}
+              {entretienView === "fiche" && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {!isVitrine && (
+                        <button
+                          onClick={function () {
+                            handleGenerate("fiche_combat", function () {
+                              var targetOff =
+                                offersArray && offersArray.length > 0
+                                  ? offersArray[selectedOfferIdx] || offersArray[0]
+                                  : null;
+                              var signals = targetOff ? targetOff.parsedSignals : null;
+                              var salNum = currentSalary ? parseInt(currentSalary) : null;
+                              if (salNum && isNaN(salNum)) salNum = null;
+                              var raw = generateFicheCombat(
+                                bricks.filter(function (b) {
+                                  return b.status === "validated";
+                                }),
+                                targetRoleId,
+                                getActiveCauchemars(),
+                                signature,
+                                seniorityLevel,
+                                salNum,
+                                duelResults,
+                                signals
+                              );
+                              var text = signature ? applySignatureFilter(raw, signature) : raw;
+                              setFicheCombatText(text);
+                              setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
+                            });
+                          }}
+                          style={{
+                            padding: "3px 10px",
+                            fontSize: 10,
+                            background: "#0f3460",
+                            color: "#ccd6f6",
+                            border: "1px solid #16213e",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {generatedOnce["fiche_combat"] ? "Régénérer (1 🪙)" : "Générer"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {ficheCombatText ? (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#8892b0",
+                          lineHeight: 1.6,
+                          whiteSpace: "pre-wrap",
+                          maxHeight: 300,
+                          overflow: "auto",
+                        }}
+                      >
+                        {ficheCombatText}
+                      </div>
+                      {renderObsoleteIndicator("fiche_combat")}
+                      <AuditBlock
+                        auditResult={ficheCombatAudit}
+                        text={ficheCombatText}
+                        copyId="fiche_combat"
+                        copiedId={copiedId}
+                        onCopy={handleCopy}
+                        type="fiche_combat"
+                        isVitrine={isVitrine}
+                        corrections={corrCounters["fiche_combat"] || 0}
+                        onGoForge={onGoForge}
+                        onCorrect={function () {
+                          handleCorrect("fiche_combat", function () {
+                            var hints = ficheCombatAudit ? ficheCombatAudit.correctionHints : [];
+                            var targetOff =
+                              offersArray && offersArray.length > 0
+                                ? offersArray[selectedOfferIdx] || offersArray[0]
+                                : null;
+                            var signals = targetOff ? targetOff.parsedSignals : null;
+                            var salNum = currentSalary ? parseInt(currentSalary) : null;
+                            if (salNum && isNaN(salNum)) salNum = null;
+                            var raw = generateFicheCombat(
+                              bricks.filter(function (b) {
+                                return b.status === "validated";
+                              }),
+                              targetRoleId,
+                              getActiveCauchemars(),
+                              signature,
+                              seniorityLevel,
+                              salNum,
+                              duelResults,
+                              signals,
+                              hints
+                            );
+                            var text = signature ? applySignatureFilter(raw, signature) : raw;
+                            setFicheCombatText(text);
+                            setFicheCombatAudit(auditDeliverable("fiche_combat", text, bricks, auditCauchemars, "external"));
+                          });
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                      {isVitrine
+                        ? "Livrable figé en mode vitrine."
+                        : "1 page à imprimer avant l'entretien. 6 blocs, 8 sources, lu en 2 minutes."}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* ── LINKEDIN ── */}
+            <div style={{ marginTop: 20, marginBottom: 8, borderBottom: "1px solid #1a1a3e", paddingBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8892b0", textTransform: "uppercase" }}>
+                LinkedIn
+              </div>
+            </div>
+
+            {/* POSTS LINKEDIN (PILIERS) — chantier 21 */}
+            {linkedInPosts && linkedInPosts.length > 0 ? (
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
+                <div style={{ fontSize: 11, color: "#3498db", fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>
+                  {"\uD83D\uDCDD"} POSTS (PILIERS)
+                </div>
+                {linkedInPosts.map(function (p, idx) {
+                  var postText = signature ? applySignatureFilter(p.text, signature) : p.text;
+                  var editedText = postEdits[idx] !== undefined ? postEdits[idx] : postText;
+                  var postCopyId = "post_" + idx;
+                  var postAudit = auditDeliverable("posts", editedText, bricks, auditCauchemars, "external");
+
+                  // Chantier 21 — scoring on edited (or original) text
+                  var hookLine =
+                    editedText.split("\n").filter(function (l) {
+                      return l.trim().length > 5;
+                    })[0] || "";
+                  var hookResult = scoreHookPost(hookLine, editedText);
+                  var hookColor = hookResult.score >= 8 ? "#4ecca3" : hookResult.score >= 5 ? "#ff9800" : "#e94560";
+                  var marieHook = marieHookFullPost(editedText, hookLine);
+                  var bodyResult = analyzeBodyPost(editedText);
+                  var meroe = meroeAudit(editedText, hookLine);
+                  var failedNames = hookResult.tests
+                    .filter(function (t) {
+                      return !t.passed;
+                    })
+                    .map(function (t) {
+                      return t.name;
+                    });
+                  var variants = hookResult.score < 7 ? generateHookVariants(hookLine, failedNames, p) : [];
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        background: "#0d1b2a",
+                        borderRadius: 8,
+                        padding: 12,
+                        marginBottom: idx < linkedInPosts.length - 1 ? 10 : 0,
+                      }}
+                    >
+                      <div style={{ fontSize: 10, color: "#3498db", fontWeight: 600, marginBottom: 4 }}>
+                        Pilier {idx + 1} — {p.pillar}
+                      </div>
+                      {p.diltsLevel && (
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 8 }}>
+                          Dilts : Niveau {p.diltsLevel} — {p.diltsName || getDiltsLabel(p.diltsLevel).name}
+                          {p.diltsTarget && p.diltsLevel < p.diltsTarget && (
+                            <span style={{ fontSize: 10, color: "#ff9800", marginLeft: 8 }}>
+                              (cible : niveau {p.diltsTarget})
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 1. Textarea éditable */}
+                      <textarea
+                        value={editedText}
+                        onChange={function (e) {
+                          setPostEdits(function (prev) {
+                            var next = Object.assign({}, prev);
+                            next[idx] = e.target.value;
+                            return next;
+                          });
+                        }}
+                        style={{
+                          width: "100%",
+                          minHeight: 140,
+                          maxHeight: 300,
+                          fontSize: 12,
+                          color: "#ccd6f6",
+                          lineHeight: 1.6,
+                          background: "#0a0a1a",
+                          border: "1px solid #495670",
+                          borderRadius: 8,
+                          padding: 10,
+                          fontFamily: "inherit",
+                          resize: "vertical",
+                          marginBottom: 10,
+                        }}
+                      />
+
+                      {/* 2. Accroche (4 tests) — Marie Hook */}
+                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
+                          ── Accroche (4 tests) ──
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: hookColor }}>
+                            Score accroche : {hookResult.score}/10
+                          </span>
+                          <span style={{ fontSize: 14 }}>
+                            {hookResult.score >= 8
+                              ? "\uD83D\uDFE2"
+                              : hookResult.score >= 5
+                                ? "\uD83D\uDFE0"
+                                : "\uD83D\uDD34"}
+                          </span>
+                        </div>
+                        {hookResult.tests.map(function (t) {
+                          return (
+                            <div
+                              key={t.name}
+                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
+                            >
+                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
+                                {t.passed ? "\u2713" : "✗"}
+                              </span>
+                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
+                                {t.label} — {t.message}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {variants.length > 0 && (
+                          <div style={{ background: "#1a1a2e", borderRadius: 6, padding: 8, marginTop: 6 }}>
+                            {variants.map(function (v, vi) {
+                              return (
+                                <div
+                                  key={vi}
+                                  style={{
+                                    fontSize: 10,
+                                    color: "#ccd6f6",
+                                    lineHeight: 1.5,
+                                    marginBottom: vi < variants.length - 1 ? 4 : 0,
+                                  }}
+                                >
+                                  Variante {vi + 1} : "{v}"
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. Post entier — Marie Hook (2 auto + 2 quali) */}
+                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
+                          ── Post entier ──
+                        </div>
+                        {marieHook.autoTests.map(function (t) {
+                          return (
+                            <div
+                              key={t.name}
+                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
+                            >
+                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
+                                {t.passed ? "\u2713" : "✗"}
+                              </span>
+                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
+                                {t.label} — {t.message}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {marieHook.qualitative.map(function (q) {
+                          return (
+                            <div
+                              key={q.id}
+                              style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}
+                            >
+                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* 4. Corps — rétention */}
+                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
+                          ── Corps ──
+                        </div>
+                        {bodyResult.clean ? (
+                          <div style={{ fontSize: 10, color: "#4ecca3" }}>{"\u2713"} Rétention OK</div>
+                        ) : (
+                          bodyResult.issues.map(function (issue, ii) {
+                            return (
+                              <div
+                                key={ii}
+                                style={{
+                                  fontSize: 10,
+                                  color: "#ff9800",
+                                  marginBottom: 3,
+                                  display: "flex",
+                                  gap: 4,
+                                  lineHeight: 1.4,
+                                }}
+                              >
+                                <span style={{ flexShrink: 0 }}>{"\u26A0\uFE0F"}</span> {issue.message}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+
+                      {/* 5. Structure et angle — Méroé Miroir */}
+                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
+                          ── Structure et angle ──
+                        </div>
+                        {meroe.miroir.autoTests.map(function (t) {
+                          return (
+                            <div
+                              key={t.name}
+                              style={{ fontSize: 10, marginBottom: 3, display: "flex", gap: 4, lineHeight: 1.4 }}
+                            >
+                              <span style={{ color: t.passed ? "#4ecca3" : "#e94560", fontWeight: 700, flexShrink: 0 }}>
+                                {t.passed ? "\u2713" : "✗"}
+                              </span>
+                              <span style={{ color: t.passed ? "#4ecca3" : "#8892b0" }}>
+                                {t.label} — {t.message}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {meroe.miroir.qualitative.map(function (q) {
+                          return (
+                            <div
+                              key={q.id}
+                              style={{ fontSize: 10, color: "#8892b0", marginTop: 4, lineHeight: 1.4, paddingLeft: 4 }}
+                            >
+                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* 6. Confrontation — Méroé Luis Enrique */}
+                      <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 4 }}>
+                          ── Confrontation ──
+                        </div>
+                        <div style={{ fontSize: 10, color: "#495670", marginBottom: 6, fontStyle: "italic" }}>
+                          Réponds mentalement. Si une question te fait douter, le post a un problème.
+                        </div>
+                        {meroe.luisEnrique.map(function (q) {
+                          return (
+                            <div
+                              key={q.id}
+                              style={{
+                                fontSize: 10,
+                                color: "#e94560",
+                                marginBottom: 4,
+                                lineHeight: 1.4,
+                                paddingLeft: 4,
+                              }}
+                            >
+                              <span style={{ color: "#495670", marginRight: 4 }}>{"\u25A1"}</span> {q.question}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* 7. Premier commentaire + micro-instruction */}
+                      {p.firstComment && (
+                        <div style={{ borderTop: "1px solid #1a1a2e", paddingTop: 8, marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, color: "#8892b0", fontWeight: 600, marginBottom: 6 }}>
+                            ── Premier commentaire ──
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#ccd6f6",
+                              lineHeight: 1.5,
+                              background: "#1a1a2e",
+                              borderRadius: 6,
+                              padding: 8,
+                            }}
+                          >
+                            {p.firstComment}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#8892b0",
+                              background: "#0f3460",
+                              borderRadius: 6,
+                              padding: 8,
+                              marginTop: 6,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {"\uD83D\uDCA1"} Publie entre 7h30 et 8h30 en semaine. Réponds à tous les commentaires dans
+                            les 2 premières heures.
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 8. Boutons Copier + Rescorer */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                        <CopyBtn text={editedText} label="Copier le post" />
+                        {p.firstComment && <CopyBtn text={p.firstComment} label="Copier le commentaire" />}
+                        {postEdits[idx] !== undefined && (
+                          <button
+                            onClick={function () {
+                              setPostEdits(function (prev) {
+                                var next = Object.assign({}, prev);
+                                next[idx] = editedText;
+                                return next;
+                              });
+                            }}
+                            style={{
+                              padding: "3px 8px",
+                              fontSize: 10,
+                              color: "#8892b0",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            Rescorer
+                          </button>
+                        )}
+                        {postEdits[idx] !== undefined && (
+                          <button
+                            onClick={function () {
+                              setPostEdits(function (prev) {
+                                var next = Object.assign({}, prev);
+                                delete next[idx];
+                                return next;
+                              });
+                            }}
+                            style={{
+                              padding: "3px 8px",
+                              fontSize: 10,
+                              color: "#495670",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Réinitialiser
+                          </button>
+                        )}
+                      </div>
+
+                      {/* 9. Obsolete + Audit ch17 */}
+                      {renderObsoleteIndicator("posts")}
+                      <AuditBlock
+                        auditResult={postAudit}
+                        text={editedText}
+                        copyId={postCopyId + "_audit"}
+                        copiedId={copiedId}
+                        onCopy={handleCopy}
+                        type="posts"
+                        isVitrine={isVitrine}
+                        corrections={corrCounters[postCopyId] || 0}
+                        onGoForge={onGoForge}
+                      />
+                    </div>
+                  );
+                })}
+                {(function () {
+                  var stagnation = detectDiltsStagnation(linkedInPosts);
+                  if (!stagnation || !stagnation.stagnating) return null;
+                  return (
+                    <div
+                      style={{
+                        background: "#1a1a2e",
+                        borderRadius: 8,
+                        padding: 10,
+                        marginTop: 10,
+                        borderLeft: "3px solid #ff9800",
+                      }}
+                    >
+                      <div style={{ fontSize: 12, color: "#ff9800", lineHeight: 1.5 }}>
+                        {"\u26A0\uFE0F"} {stagnation.message}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, opacity: 0.4 }}>
+                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
+                  {"\uD83D\uDD12"} POSTS (PILIERS) — 2 briques + piliers requis
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -2834,136 +2950,74 @@ export function WorkBench({
               )}
             </div>
 
-            {/* RAPPORT DE REMPLACEMENT */}
-            <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                {"\uD83D\uDCCA"} RAPPORT DE REMPLACEMENT
+            {/* ── NÉGOCIATION ── */}
+            <div style={{ marginTop: 20, marginBottom: 8, borderBottom: "1px solid #1a1a3e", paddingBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#8892b0", textTransform: "uppercase" }}>
+                Négociation
               </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#8892b0",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
-                  maxHeight: 200,
-                  overflow: "auto",
-                }}
-              >
-                {replacementText}
-              </div>
-              {renderObsoleteIndicator("report")}
-              <AuditBlock
-                auditResult={auditReplacement}
-                text={replacementText}
-                copyId="replacement"
-                copiedId={copiedId}
-                onCopy={handleCopy}
-                type="report"
-                isVitrine={isVitrine}
-                corrections={corrCounters["replacement"] || 0}
-                onGoForge={onGoForge}
-                onCorrect={function () {
-                  handleCorrect("replacement", function () {
-                    var hints = auditReplacement ? auditReplacement.correctionHints : [];
-                    var raw = generateReplacementReport(bricks, targetRoleId, salaryNum, internalSignals, hints);
-                    replacementText = signature ? applySignatureFilter(raw, signature) : raw;
-                  });
-                }}
-              />
             </div>
 
-            {/* ARGUMENTAIRE D'AUGMENTATION */}
+            {/* NÉGOCIATION SALARIALE */}
             <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: "#ff9800", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                {"\uD83D\uDCB0"} ARGUMENTAIRE D'AUGMENTATION
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: "#e94560", fontWeight: 700, letterSpacing: 1 }}>
+                  💰 NÉGOCIATION SALARIALE
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {!isVitrine && (
+                    <button
+                      onClick={function () {
+                        handleGenerate("negotiation_bundle", function () {
+                          var raw = generateNegotiationBundle();
+                          var text = signature ? applySignatureFilter(raw, signature) : raw;
+                          setNegotiationBundleText(text);
+                          setNegotiationBundleAudit(auditDeliverable("negotiation_bundle", text, bricks, auditCauchemars, "internal"));
+                        });
+                      }}
+                      style={{
+                        padding: "3px 10px", fontSize: 10, background: "#0f3460", color: "#ccd6f6",
+                        border: "1px solid #16213e", borderRadius: 6, cursor: "pointer", fontWeight: 600,
+                      }}
+                    >
+                      {generatedOnce["negotiation_bundle"] ? "Régénérer (1 🪙)" : "Générer tout"}
+                    </button>
+                  )}
+                </div>
               </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#8892b0",
-                  lineHeight: 1.6,
-                  whiteSpace: "pre-wrap",
-                  maxHeight: 200,
-                  overflow: "auto",
-                }}
-              >
-                {raiseText}
-              </div>
-              {renderObsoleteIndicator("argument")}
-              <AuditBlock
-                auditResult={auditRaise}
-                text={raiseText}
-                copyId="raise"
-                copiedId={copiedId}
-                onCopy={handleCopy}
-                type="argument"
-                isVitrine={isVitrine}
-                corrections={corrCounters["raise"] || 0}
-                onGoForge={onGoForge}
-                onCorrect={function () {
-                  handleCorrect("raise", function () {
-                    var hints = auditRaise ? auditRaise.correctionHints : [];
-                    var raw = generateRaiseArgument(bricks, targetRoleId, salaryNum, hints);
-                    raiseText = signature ? applySignatureFilter(raw, signature) : raw;
-                  });
-                }}
-              />
+              {negotiationBundleText ? (
+                <div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 400, overflow: "auto" }}>
+                    {negotiationBundleText}
+                  </div>
+                  {renderObsoleteIndicator("negotiation_bundle")}
+                  <AuditBlock
+                    auditResult={negotiationBundleAudit}
+                    text={negotiationBundleText}
+                    copyId="negotiation_bundle"
+                    copiedId={copiedId}
+                    onCopy={handleCopy}
+                    type="negotiation_bundle"
+                    isVitrine={isVitrine}
+                    corrections={corrCounters["negotiation_bundle"] || 0}
+                    onGoForge={onGoForge}
+                    onCorrect={function () {
+                      handleCorrect("negotiation_bundle", function () {
+                        var raw = generateNegotiationBundle();
+                        var text = signature ? applySignatureFilter(raw, signature) : raw;
+                        setNegotiationBundleText(text);
+                        setNegotiationBundleAudit(auditDeliverable("negotiation_bundle", text, bricks, auditCauchemars, "internal"));
+                      });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: "#495670", lineHeight: 1.5 }}>
+                  {isVitrine
+                    ? "Livrable figé en mode vitrine."
+                    : "Position marché + coût de remplacement + argumentaire d'augmentation. Renseigne ton salaire pour un dossier complet."}
+                </div>
+              )}
             </div>
-
-            {/* COMPARATIF SALARIAL */}
-            {salaryCompText ? (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-                <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>
-                  {"\uD83D\uDCCA"} COMPARATIF SALARIAL
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "#8892b0",
-                    lineHeight: 1.6,
-                    whiteSpace: "pre-wrap",
-                    maxHeight: 200,
-                    overflow: "auto",
-                  }}
-                >
-                  {salaryCompText}
-                </div>
-                {renderObsoleteIndicator("salary_comparison")}
-                <AuditBlock
-                  auditResult={auditSalaryComp}
-                  text={salaryCompText}
-                  copyId="salary_comparison"
-                  copiedId={copiedId}
-                  onCopy={handleCopy}
-                  type="salary_comparison"
-                  isVitrine={isVitrine}
-                  corrections={corrCounters["salary_comparison"] || 0}
-                  onGoForge={onGoForge}
-                  onCorrect={function () {
-                    handleCorrect("salary_comparison", function () {
-                      var hints = auditSalaryComp ? auditSalaryComp.correctionHints : [];
-                      var cauchs = getActiveCauchemars();
-                      var raw = generateSalaryComparison(
-                        salaryNum,
-                        targetRoleId,
-                        bricks,
-                        cauchs,
-                        acvTarget,
-                        REPLACEMENT_DATA_BY_ROLE[targetRoleId],
-                        hints
-                      );
-                      salaryCompText = signature ? applySignatureFilter(raw, signature) : raw;
-                    });
-                  }}
-                />
-              </div>
-            ) : (
-              <div style={{ background: "#16213e", borderRadius: 10, padding: 12, marginBottom: 10, opacity: 0.4 }}>
-                <div style={{ fontSize: 11, color: "#495670", fontWeight: 700 }}>
-                  {"\uD83D\uDCCA"} COMPARATIF SALARIAL — Renseigne ton salaire ci-dessus
-                </div>
-              </div>
-            )}
 
             {/* PLAN 90 JOURS N+1 */}
             <div style={{ background: "#16213e", borderRadius: 10, padding: 12 }}>
