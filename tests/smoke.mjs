@@ -520,6 +520,47 @@ assert("audit email_signature channel calibration ≤80 passes", auditSig.passed
 var auditSigLong = audit.auditDeliverable("email_signature", "A".repeat(100), testBricks, [], "external");
 assert("audit email_signature >80 fails D", auditSigLong.passed.indexOf("D") === -1);
 
+// ─── 16i. Checklist intégration 90 jours ──────────────────────────
+
+console.log("\n=== INTEGRATION MILESTONES SMOKE ===");
+
+assert("INTEGRATION_MILESTONES exists", typeof references.INTEGRATION_MILESTONES === "object");
+assert("INTEGRATION_MILESTONES has week1", references.INTEGRATION_MILESTONES.week1 !== undefined);
+assert("INTEGRATION_MILESTONES has month1", references.INTEGRATION_MILESTONES.month1 !== undefined);
+assert("INTEGRATION_MILESTONES has month3", references.INTEGRATION_MILESTONES.month3 !== undefined);
+assert("week1 has universal array", Array.isArray(references.INTEGRATION_MILESTONES.week1.universal));
+assert("week1 has byCluster", typeof references.INTEGRATION_MILESTONES.week1.byCluster === "object");
+
+assert("getRoleCluster exists", typeof references.getRoleCluster === "function");
+assert("getRoleCluster enterprise_ae = growth", references.getRoleCluster("enterprise_ae") === "growth");
+assert("getRoleCluster senior_pm = product", references.getRoleCluster("senior_pm") === "product");
+assert("getRoleCluster fractional_coo = strategy", references.getRoleCluster("fractional_coo") === "strategy");
+assert("getRoleCluster unknown = growth (fallback)", references.getRoleCluster("unknown_role") === "growth");
+
+// Plan 30j includes milestones
+var testCauchemars = [{ id: "c1", label: "Pipeline stagnant", kpis: ["Pipeline velocity"], nightmareShort: "Le pipeline stagne" }];
+var plan30 = generators.generatePlan30jRH(testBricks, "enterprise_ae", null);
+assert("Plan 30j contains integration milestones", plan30.indexOf("jalons") !== -1 || plan30.indexOf("Jalons") !== -1);
+assert("Plan 30j contains Semaine 1", plan30.indexOf("Semaine 1") !== -1);
+assert("Plan 30j contains growth-specific milestone", plan30.indexOf("dashboards") !== -1 || plan30.indexOf("CRM") !== -1);
+
+// Plan 90j includes milestones
+var plan90 = generators.generatePlan90jN1(testBricks, "senior_pm", null);
+assert("Plan 90j contains progression milestones", plan90.indexOf("jalons") !== -1 || plan90.indexOf("Jalons") !== -1);
+assert("Plan 90j contains Mois 3", plan90.indexOf("Mois 3") !== -1);
+assert("Plan 90j contains product-specific milestone", plan90.indexOf("feature") !== -1 || plan90.indexOf("roadmap") !== -1);
+
+// Plan 90j no Semaine 1 (Plan 30j only)
+assert("Plan 90j does not contain Semaine 1", plan90.indexOf("Semaine 1") === -1);
+
+// Discovery call Q6 integration
+var disco = generators.generateDiscoveryCall(testBricks, "management_consultant", testCauchemars, null, "ic", null, null);
+assert("Discovery call contains integration question", disco.indexOf("premier mois réussi") !== -1 || disco.indexOf("Intégration") !== -1);
+
+// Plan 30j fallback for unknown role (no crash, universal milestones present)
+var plan30Unknown = generators.generatePlan30jRH(testBricks, "unknown_xyz", null);
+assert("Plan 30j unknown role no crash", typeof plan30Unknown === "string" && plan30Unknown.indexOf("Semaine 1") !== -1);
+
 // ─── 16j. One-Pager whyThisRole ──────────────────────────────────
 
 console.log("\n=== ONE-PAGER WHY THIS ROLE SMOKE ===");
