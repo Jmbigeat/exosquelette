@@ -520,6 +520,34 @@ assert("audit email_signature channel calibration ≤80 passes", auditSig.passed
 var auditSigLong = audit.auditDeliverable("email_signature", "A".repeat(100), testBricks, [], "external");
 assert("audit email_signature >80 fails D", auditSigLong.passed.indexOf("D") === -1);
 
+// ─── 16n. Parcours non linéaire — detectNonLinearCareer ──────────
+
+console.log("\n=== PARCOURS NON LINÉAIRE SMOKE ===");
+
+assert("detectNonLinearCareer exists", typeof generators.detectNonLinearCareer === "function");
+
+// 3+ contextes différents → non-linear
+var nlBricks = [
+  { status: "validated", editText: "Chez Danone j'ai restructuré le pipeline", text: "Chez Danone j'ai restructuré le pipeline", armorScore: 3 },
+  { status: "validated", editText: "Chez Salesforce j'ai piloté 12 comptes", text: "Chez Salesforce j'ai piloté 12 comptes", armorScore: 4 },
+  { status: "validated", editText: "En startup j'ai lancé le produit en 3 mois", text: "En startup j'ai lancé le produit en 3 mois", armorScore: 2 },
+];
+var nlResult = generators.detectNonLinearCareer(nlBricks);
+assert("detectNonLinearCareer 3 contexts = non-linear", nlResult.isNonLinear === true);
+assert("detectNonLinearCareer returns 3 contexts", nlResult.count === 3);
+
+// 2 briques même contexte → linear
+var linearBricks = [
+  { status: "validated", editText: "Chez Danone j'ai restructuré le pipeline", text: "Chez Danone j'ai restructuré le pipeline", armorScore: 3 },
+  { status: "validated", editText: "Chez Danone j'ai doublé le CA", text: "Chez Danone j'ai doublé le CA", armorScore: 4 },
+];
+var linResult = generators.detectNonLinearCareer(linearBricks);
+assert("detectNonLinearCareer same context = linear", linResult.isNonLinear === false);
+
+// 0 briques → linear (no crash)
+var emptyResult = generators.detectNonLinearCareer([]);
+assert("detectNonLinearCareer empty = linear", emptyResult.isNonLinear === false && emptyResult.count === 0);
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");
