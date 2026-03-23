@@ -617,6 +617,47 @@ var elastByField = { id: "elf1", status: "validated", brickType: "proof", elasti
 var elfST = generators.generateStressTest(elastByField, "enterprise_ae", []);
 assert("stress test elasticity field triggers friction", elfST.some(function(a) { return a.type === "friction"; }));
 
+// ─── 16l. Filtre anti-pattern Arsenal (orphan armored bricks) ────
+
+console.log("\n=== ANTI-PATTERN ORPHAN BRICKS SMOKE ===");
+
+var signatureMod = await import("../lib/sprint/signature.js");
+assert("detectOrphanArmoredBricks exists", typeof signatureMod.detectOrphanArmoredBricks === "function");
+assert("brickFeedsSignature exists", typeof signatureMod.brickFeedsSignature === "function");
+
+// Brique 4/4 hors Signature → orpheline
+var sigObj16l = { formulation: "je restructure les pipelines en crise", metaPatterns: { archetype: "pompier", modifier: "direct", tempo: "court" } };
+var orphanBrick = { status: "validated", armorScore: 4, editText: "J'ai formé 5 juniors en 3 mois sur les process qualité" };
+var orphResult = signatureMod.detectOrphanArmoredBricks([orphanBrick], sigObj16l);
+assert("orphan brick detected", orphResult.length === 1);
+
+// Brique 4/4 dans Signature → pas orpheline
+var alignedBrick16l = { status: "validated", armorScore: 4, editText: "Pipeline restructuré de 400K à 1.2M en 4 mois en pleine crise" };
+var alignResult = signatureMod.detectOrphanArmoredBricks([alignedBrick16l], sigObj16l);
+assert("aligned brick not orphan", alignResult.length === 0);
+
+// Pas de Signature → array vide
+var noSigResult = signatureMod.detectOrphanArmoredBricks([orphanBrick], null);
+assert("no signature = no orphans", noSigResult.length === 0);
+
+// armorScore < 4 → pas orpheline
+var weakBrick16l = { status: "validated", armorScore: 2, editText: "J'ai formé 5 juniors" };
+var weakResult = signatureMod.detectOrphanArmoredBricks([weakBrick16l], sigObj16l);
+assert("weak brick not orphan", weakResult.length === 0);
+
+// armorScore 3/4 → pas orpheline (flanc ouvert, doit blinder d'abord)
+var threeFourBrick = { status: "validated", armorScore: 3, editText: "J'ai formé 5 juniors en 3 mois" };
+var threeFourResult = signatureMod.detectOrphanArmoredBricks([threeFourBrick], sigObj16l);
+assert("3/4 brick not orphan (must armor first)", threeFourResult.length === 0);
+
+// Mixed: 1 aligned + 1 orphan → only orphan returned
+var mixedResult = signatureMod.detectOrphanArmoredBricks([alignedBrick16l, orphanBrick], sigObj16l);
+assert("mixed bricks returns only orphan", mixedResult.length === 1);
+
+// brickFeedsSignature: kpi with matching keyword feeds signature
+var kpiBrick = { status: "validated", armorScore: 4, editText: "Restructurer le pipeline commercial", kpi: "Pipeline velocity" };
+assert("kpi pipeline feeds signature", signatureMod.brickFeedsSignature(kpiBrick, sigObj16l) === true);
+
 // ─── 16n. Parcours non linéaire — detectNonLinearCareer ──────────
 
 console.log("\n=== PARCOURS NON LINÉAIRE SMOKE ===");

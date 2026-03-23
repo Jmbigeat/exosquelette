@@ -2,7 +2,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RATIO, SENIORITY_LEVELS, SENIORITY_CALIBRATION } from "@/lib/sprint/references";
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
-import { hasReachedSignatureThreshold } from "@/lib/sprint/signature";
+import { hasReachedSignatureThreshold, detectOrphanArmoredBricks } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
 import { hasInternalLocus, hasExternalLocus, isSoloBrick } from "@/lib/sprint/analysis";
 
@@ -84,6 +84,14 @@ export function Arsenal({
       return auditCVForge(cvText, bricks, nightmares, density, signature);
     },
     [cvText, bricks, nightmares, density, signature]
+  );
+
+  // Anti-pattern: armored bricks outside Signature (16l)
+  var orphanBricks = useMemo(
+    function () {
+      return detectOrphanArmoredBricks(bricks, signature);
+    },
+    [bricks, signature]
   );
 
   // Salary diagnostic — bloc 5
@@ -680,6 +688,50 @@ export function Arsenal({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Bloc anti-pattern : briques blindées hors Signature (16l) */}
+      {signature && signature.formulation && orphanBricks.length > 0 && (
+        <div
+          style={{
+            marginTop: 16,
+            padding: 14,
+            background: "#f0a500" + "10",
+            border: "1px solid #f0a500" + "40",
+            borderRadius: 10,
+          }}
+        >
+          <div style={{ fontSize: 12, color: "#f0a500", fontWeight: 700, marginBottom: 6 }}>
+            Brique blindée, mauvais mur
+          </div>
+          <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.5, marginBottom: 10 }}>
+            {orphanBricks.length === 1
+              ? "1 brique est blindée 4/4 mais ne nourrit pas ta Signature."
+              : orphanBricks.length + " briques sont blindées 4/4 mais ne nourrissent pas ta Signature."}
+          </div>
+          {orphanBricks.map(function (b, i) {
+            return (
+              <div
+                key={i}
+                style={{
+                  fontSize: 11,
+                  color: "#8892b0",
+                  lineHeight: 1.5,
+                  marginBottom: 4,
+                  paddingLeft: 8,
+                  borderLeft: "2px solid #f0a500" + "44",
+                }}
+              >
+                {(b.editText || b.text || "").substring(0, 80)}
+                {(b.editText || b.text || "").length > 80 ? "…" : ""}
+              </div>
+            );
+          })}
+          <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5, marginTop: 8, fontStyle: "italic" }}>
+            Ces preuves sont solides. Mais elles ne renforcent pas ton positionnement principal. Tu peux les garder
+            pour diversifier ou les reformuler vers ta Signature.
+          </div>
         </div>
       )}
 
