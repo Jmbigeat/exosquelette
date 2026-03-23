@@ -658,6 +658,33 @@ assert("mixed bricks returns only orphan", mixedResult.length === 1);
 var kpiBrick = { status: "validated", armorScore: 4, editText: "Restructurer le pipeline commercial", kpi: "Pipeline velocity" };
 assert("kpi pipeline feeds signature", signatureMod.brickFeedsSignature(kpiBrick, sigObj16l) === true);
 
+// ─── 16m. Briques × livrables count ─────────────────────────────
+
+console.log("\n=== BRICK DELIVERABLE COUNT SMOKE ===");
+
+assert("computeBrickDeliverableCount exists", typeof scoring.computeBrickDeliverableCount === "function");
+
+// Strong brick feeds more deliverables than weak brick
+var strongBrick16m = { id: "s1", status: "validated", armorScore: 4, brickType: "proof", brickCategory: "decision", editText: "Pipeline restructuré de 400K à 1.2M", kpi: "Pipeline velocity", blinded: true };
+var weakBrick16m = { id: "w1", status: "validated", armorScore: 1, brickType: "proof", editText: "J'ai aidé l'équipe", kpi: "autre" };
+var countBricks = [strongBrick16m, weakBrick16m];
+var dCounts = scoring.computeBrickDeliverableCount(countBricks, "enterprise_ae", null, null);
+var sCount = dCounts.get("s1") || 0;
+var wCount = dCounts.get("w1") || 0;
+assert("strong brick feeds more deliverables", sCount > wCount);
+assert("strong brick feeds at least 5", sCount >= 5);
+assert("count is <= 11", sCount <= 11);
+assert("weak brick count >= 0", wCount >= 0);
+
+// Empty bricks → empty map
+var emptyCounts = scoring.computeBrickDeliverableCount([], "enterprise_ae", null, null);
+assert("empty bricks returns empty map", emptyCounts.size === 0);
+
+// Take bricks excluded
+var takeBrick16m = { id: "t1", status: "validated", armorScore: 4, brickType: "take", editText: "Position" };
+var takeCounts = scoring.computeBrickDeliverableCount([takeBrick16m], "enterprise_ae", null, null);
+assert("take bricks excluded from count", takeCounts.size === 0);
+
 // ─── 16n. Parcours non linéaire — detectNonLinearCareer ──────────
 
 console.log("\n=== PARCOURS NON LINÉAIRE SMOKE ===");
