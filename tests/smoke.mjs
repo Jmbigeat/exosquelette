@@ -848,6 +848,32 @@ assert("Zeigarnik: zero loops when all complete", zLoops7.length === 0);
 // Reset global cauchemars
 scoring.setActiveCauchemarsGlobal(null);
 
+// ─── 16p — Réflexes comportementaux entretien ────────────────────
+
+console.log("\n=== INTERVIEW REFLEXES SMOKE ===");
+
+assert("INTERVIEW_REFLEXES exists", Array.isArray(references.INTERVIEW_REFLEXES));
+assert("INTERVIEW_REFLEXES has 4 items", references.INTERVIEW_REFLEXES.length === 4);
+assert("each reflex has id, label, risk, counter, dominantFor", references.INTERVIEW_REFLEXES.every(function(r) {
+  return r.id && r.label && r.risk && r.counter && Array.isArray(r.dominantFor);
+}));
+
+// Fiche de combat includes reflexes block
+var ficheCombatMod = await import("../lib/generators/fiche-combat.js");
+var combatSheet = ficheCombatMod.generateFicheCombat(testBricks, "enterprise_ae", testCauchemars, null, "leader", null, null, null, null);
+assert("combat sheet contains reflexes section", combatSheet.indexOf("RÉFLEXES À SURVEILLER") !== -1);
+assert("combat sheet contains adding_value reflex", combatSheet.indexOf("Ajouter trop de valeur") !== -1);
+assert("combat sheet contains selling_past reflex", combatSheet.indexOf("Vendre son passé") !== -1);
+
+// Leader seniority: adding_value and listening_to_reply are dominant (⚠️)
+assert("combat sheet leader: adding_value dominant", combatSheet.indexOf("Ajouter trop de valeur ⚠️") !== -1);
+assert("combat sheet leader: listening dominant", combatSheet.indexOf("Écouter en mode réponse ⚠️") !== -1);
+
+// IC seniority: yes_but and selling_past are dominant
+var combatSheetIC = ficheCombatMod.generateFicheCombat(testBricks, "senior_pm", testCauchemars, null, "ic", null, null, null, null);
+assert("combat sheet IC: yes_but dominant", combatSheetIC.indexOf("Le 'oui mais' ⚠️") !== -1);
+assert("combat sheet IC: selling_past dominant", combatSheetIC.indexOf("Vendre son passé ⚠️") !== -1);
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");
