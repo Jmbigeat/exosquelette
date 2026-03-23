@@ -580,6 +580,43 @@ assert("generateOnePager with whyThisRole contains candidate text", opWithWhy.in
 var opEmptyWhy = generators.generateOnePager(testBricks, "am", [], { formulation: "Test", whyThisRole: "" }, null, "Jean", "jean@test.com");
 assert("generateOnePager empty whyThisRole uses auto", opEmptyWhy.indexOf("Pourquoi ce poste") !== -1 && opEmptyWhy.length > 50);
 
+// ─── 16k. Frictions/Intersections briques élastiques ─────────────
+
+console.log("\n=== ELASTIC BRICK STRESS ANGLES SMOKE ===");
+
+assert("generateStressTest exists", typeof generators.generateStressTest === "function");
+
+// STRESS_ANGLES has friction and intersection pools
+assert("STRESS_ANGLES has friction pool", Array.isArray(references.STRESS_ANGLES.friction) && references.STRESS_ANGLES.friction.length >= 2);
+assert("STRESS_ANGLES has intersection pool", Array.isArray(references.STRESS_ANGLES.intersection) && references.STRESS_ANGLES.intersection.length >= 2);
+
+// Elastic brick → stress test includes friction + intersection angles
+var elasticBrick = { id: "elast1", status: "validated", brickType: "elastic", text: "6h entraînement sportif par semaine pendant 3 ans", editText: "6h entraînement sportif par semaine pendant 3 ans", armorScore: 2, kpi: "Discipline" };
+var elasticST = generators.generateStressTest(elasticBrick, "enterprise_ae", []);
+assert("stress test elastic returns array", Array.isArray(elasticST) && elasticST.length >= 4);
+var hasFriction = elasticST.some(function(a) { return a.type === "friction"; });
+var hasIntersection = elasticST.some(function(a) { return a.type === "intersection"; });
+assert("stress test elastic includes friction", hasFriction);
+assert("stress test elastic includes intersection", hasIntersection);
+
+// Proof brick → stress test does NOT include friction/intersection
+var proofBrick = { id: "proof1", status: "validated", brickType: "proof", text: "Pipeline restructuré de 400K à 1.2M en 4 mois", editText: "Pipeline restructuré de 400K à 1.2M en 4 mois", armorScore: 4, kpi: "Pipeline" };
+var proofST = generators.generateStressTest(proofBrick, "enterprise_ae", []);
+var proofHasFriction = proofST.some(function(a) { return a.type === "friction"; });
+var proofHasIntersection = proofST.some(function(a) { return a.type === "intersection"; });
+assert("stress test proof excludes friction", !proofHasFriction);
+assert("stress test proof excludes intersection", !proofHasIntersection);
+
+// Cicatrice brick → no friction/intersection either
+var scarBrick = { id: "scar1", status: "validated", brickType: "cicatrice", text: "J'ai perdu un client majeur de 200K", editText: "J'ai perdu un client majeur de 200K", armorScore: 3, kpi: "Rétention" };
+var scarST = generators.generateStressTest(scarBrick, "enterprise_ae", []);
+assert("stress test cicatrice excludes friction", !scarST.some(function(a) { return a.type === "friction"; }));
+
+// Elastic via elasticity field also triggers
+var elastByField = { id: "elf1", status: "validated", brickType: "proof", elasticity: "élastique", text: "Méthode sportive appliquée au management", editText: "Méthode sportive appliquée au management", armorScore: 3, kpi: "Méthode" };
+var elfST = generators.generateStressTest(elastByField, "enterprise_ae", []);
+assert("stress test elasticity field triggers friction", elfST.some(function(a) { return a.type === "friction"; }));
+
 // ─── 16n. Parcours non linéaire — detectNonLinearCareer ──────────
 
 console.log("\n=== PARCOURS NON LINÉAIRE SMOKE ===");
