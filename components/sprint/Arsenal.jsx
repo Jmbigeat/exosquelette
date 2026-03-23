@@ -4,7 +4,7 @@ import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RAT
 import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, detectOrphanArmoredBricks } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
-import { hasInternalLocus, hasExternalLocus, isSoloBrick } from "@/lib/sprint/analysis";
+import { hasInternalLocus, hasExternalLocus, isSoloBrick, detectBridges } from "@/lib/sprint/analysis";
 
 /* ==============================
    ARSENAL — GPS DES MANQUES (Chantier 8)
@@ -92,6 +92,14 @@ export function Arsenal({
       return detectOrphanArmoredBricks(bricks, signature);
     },
     [bricks, signature]
+  );
+
+  // Bridges between bricks from different contexts (16o)
+  var bridges = useMemo(
+    function () {
+      return detectBridges(bricks, nightmares);
+    },
+    [bricks, nightmares]
   );
 
   // Salary diagnostic — bloc 5
@@ -731,6 +739,75 @@ export function Arsenal({
           <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5, marginTop: 8, fontStyle: "italic" }}>
             Ces preuves sont solides. Mais elles ne renforcent pas ton positionnement principal. Tu peux les garder
             pour diversifier ou les reformuler vers ta Signature.
+          </div>
+        </div>
+      )}
+
+      {/* Bloc ponts — Le fil de ton parcours (16o) */}
+      {bridges.length > 0 && (
+        <div
+          style={{
+            marginTop: 16,
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{ fontSize: 10, color: "#9b59b6", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}
+          >
+            LE FIL DE TON PARCOURS
+          </div>
+          <div
+            style={{
+              padding: 12,
+              background: "#111125",
+              borderRadius: 10,
+              borderLeft: "3px solid #9b59b6",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#ccd6f6", lineHeight: 1.6, marginBottom: 10 }}>
+              {bridges.length +
+                " pont" +
+                (bridges.length > 1 ? "s" : "") +
+                " entre tes contextes. Le recruteur voit un fil, pas une liste."}
+            </div>
+            {bridges.slice(0, 5).map(function (bridge, i) {
+              var typeLabels = { cauchemar: "Cauchemar commun", kpi: "KPI commun", keyword: "Méthode commune" };
+              var typeColors = { cauchemar: "#e94560", kpi: "#3498db", keyword: "#4ecca3" };
+              return (
+                <div
+                  key={i}
+                  style={{
+                    marginBottom: 8,
+                    paddingLeft: 8,
+                    borderLeft: "2px solid " + (typeColors[bridge.type] || "#495670") + "44",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: typeColors[bridge.type] || "#8892b0",
+                      fontWeight: 600,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {(typeLabels[bridge.type] || bridge.type) + " — " + bridge.label}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.4 }}>
+                    {(bridge.contextA || "?") + " ↔ " + (bridge.contextB || "?")}
+                  </div>
+                </div>
+              );
+            })}
+            {bridges.length > 5 && (
+              <div style={{ fontSize: 11, color: "#495670", marginTop: 4 }}>
+                {"+" +
+                  (bridges.length - 5) +
+                  " autre" +
+                  (bridges.length - 5 > 1 ? "s" : "") +
+                  " pont" +
+                  (bridges.length - 5 > 1 ? "s" : "")}
+              </div>
+            )}
           </div>
         </div>
       )}

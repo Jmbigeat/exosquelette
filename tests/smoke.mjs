@@ -713,6 +713,80 @@ assert("detectNonLinearCareer same context = linear", linResult.isNonLinear === 
 var emptyResult = generators.detectNonLinearCareer([]);
 assert("detectNonLinearCareer empty = linear", emptyResult.isNonLinear === false && emptyResult.count === 0);
 
+// ─── 4h. Ponts entre briques (16o) ──────────────────────────────
+
+console.log("\n=== BRIDGES (16o) ===");
+
+// extractContextMarker exported from analysis
+assert("extractContextMarker exported", typeof analysis.extractContextMarker === "function");
+
+// extractContextMarker: "chez X"
+assert("extractContextMarker chez", analysis.extractContextMarker("Réduit le churn chez Doctolib") === "doctolib");
+
+// extractContextMarker: "au sein de X"
+assert("extractContextMarker au sein de", analysis.extractContextMarker("Déployé au sein de Spendesk") === "spendesk");
+
+// extractContextMarker: org type
+assert("extractContextMarker startup", analysis.extractContextMarker("Lancé en startup early-stage") === "startup");
+
+// extractContextMarker: null when no context
+assert("extractContextMarker null", analysis.extractContextMarker("Réduit le churn de 30%") === null);
+
+// detectBridges exported
+assert("detectBridges exported", typeof analysis.detectBridges === "function");
+
+// detectBridges: cauchemar commun from different contexts
+var bridgeBricks1 = [
+  { id: "b1", status: "validated", text: "Réduit le churn de 30% chez Doctolib via restructuration process", kpi: "Retention rate", brickType: "preuve" },
+  { id: "b2", status: "validated", text: "Augmenté la rétention de 25% pour Spendesk avec pipeline optimisé", kpi: "Retention rate", brickType: "preuve" },
+];
+var bridgeCauchs1 = [
+  { id: "c1", label: "Churn silencieux", kpis: ["Retention rate", "NRR"], costRange: [50000, 200000] },
+];
+var result1 = analysis.detectBridges(bridgeBricks1, bridgeCauchs1);
+assert("detectBridges cauchemar commun", result1.some(function (b) { return b.type === "cauchemar" && b.label === "Churn silencieux"; }));
+assert("detectBridges contexts differ", result1[0] && result1[0].contextA !== result1[0].contextB);
+
+// detectBridges: KPI commun
+assert("detectBridges KPI commun", result1.some(function (b) { return b.type === "kpi"; }));
+
+// detectBridges: keyword commun (pipeline + restructuration in both)
+assert("detectBridges keyword commun", result1.some(function (b) { return b.type === "keyword"; }));
+
+// detectBridges: same context → no bridge
+var sameBricks = [
+  { id: "b3", status: "validated", text: "Réduit le churn chez Doctolib", kpi: "Retention rate", brickType: "preuve" },
+  { id: "b4", status: "validated", text: "Pipeline chez Doctolib optimisé", kpi: "Pipeline velocity", brickType: "preuve" },
+];
+var sameResult = analysis.detectBridges(sameBricks, bridgeCauchs1);
+assert("detectBridges same context no bridge", sameResult.length === 0);
+
+// detectBridges: no context → no bridge
+var noCtxBricks = [
+  { id: "b5", status: "validated", text: "Réduit le churn de 30%", kpi: "Retention rate", brickType: "preuve" },
+  { id: "b6", status: "validated", text: "Pipeline optimisé +40%", kpi: "Pipeline velocity", brickType: "preuve" },
+];
+assert("detectBridges no context no bridge", analysis.detectBridges(noCtxBricks, bridgeCauchs1).length === 0);
+
+// detectBridges: empty bricks → empty
+assert("detectBridges empty", analysis.detectBridges([], []).length === 0);
+
+// detectBridges: take bricks excluded
+var takeBricks = [
+  { id: "b7", status: "validated", text: "Réduit chez Doctolib", kpi: "Retention rate", brickType: "take" },
+  { id: "b8", status: "validated", text: "Pipeline pour Spendesk", kpi: "Retention rate", brickType: "preuve" },
+];
+assert("detectBridges take excluded", analysis.detectBridges(takeBricks, bridgeCauchs1).length === 0);
+
+// One-Pager includes "Fil conducteur" when bridges exist
+var opBricks = [
+  { id: "op1", status: "validated", text: "Réduit le churn de 30% chez Doctolib via process structuré", kpi: "Retention rate", brickType: "preuve", armorScore: 4 },
+  { id: "op2", status: "validated", text: "Augmenté la rétention de 25% pour Spendesk avec pipeline", kpi: "Retention rate", brickType: "preuve", armorScore: 3 },
+];
+var onePagerMod = await import("../lib/generators/one-pager.js");
+var opResult = onePagerMod.generateOnePager(opBricks, "enterprise_ae", bridgeCauchs1, null, null, "Test", "test@test.com");
+assert("One-Pager fil conducteur", opResult.indexOf("Fil conducteur") !== -1);
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");
