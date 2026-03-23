@@ -9,6 +9,7 @@ import {
   computeCauchemarCoverage,
   computeCauchemarCoverageDetailed,
   formatCost,
+  computeBrickDeliverableCount,
 } from "@/lib/sprint/scoring";
 import { extractBestNum, generateTransitionScript } from "@/lib/sprint/generators";
 import { generateWeeklyPosts, generateSleepComment, proposeSleepBrick } from "@/lib/sprint/linkedin";
@@ -580,6 +581,7 @@ export function BricksRecap({ bricks }) {
   var expanded = expandedState[0];
   var setExpanded = expandedState[1];
   var coverage = computeCauchemarCoverage(bricks);
+  var deliverableCounts = computeBrickDeliverableCount(bricks, null, null, null);
   if (validated.length === 0 && missions.length === 0) return null;
 
   function isCovering(brick) {
@@ -675,6 +677,24 @@ export function BricksRecap({ bricks }) {
                       {"\u2705"} cauchemar
                     </span>
                   )}
+                  {(function () {
+                    var dCount = deliverableCounts.get(b.id) || 0;
+                    return (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          whiteSpace: "nowrap",
+                          background: dCount >= 8 ? "#4ecca3" : dCount >= 5 ? "#f0a500" : "#495670",
+                          color: dCount >= 8 ? "#0a0a1a" : dCount >= 5 ? "#0a0a1a" : "#ccd6f6",
+                        }}
+                      >
+                        {dCount}/11
+                      </span>
+                    );
+                  })()}
                   <span style={{ fontSize: 10, color: "#495670", marginLeft: "auto" }}>
                     {isOpen ? "\u25B2" : "\u25BC"}
                   </span>
