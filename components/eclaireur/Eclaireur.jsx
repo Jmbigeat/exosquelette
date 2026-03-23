@@ -398,6 +398,32 @@ export function Eclaireur() {
           </div>
         )}
 
+        {/* ZEIGARNIK MICRO-BLOC (16h) */}
+        {(function () {
+          var allC = result.allCauchemars;
+          if (!allC || allC.length === 0) {
+            var templates = CAUCHEMAR_TEMPLATES_BY_ROLE[result.detectedRoleId] || [];
+            allC = templates;
+          }
+          var cauchCount = allC.length;
+          if (cauchCount <= 0) return null;
+          return (
+            <div
+              style={{
+                padding: 12,
+                marginBottom: 16,
+                background: "#111125",
+                borderRadius: 10,
+                borderLeft: "3px solid #e67e22",
+              }}
+            >
+              <div style={{ fontSize: 12, color: "#e67e22", fontWeight: 600, lineHeight: 1.5 }}>
+                {cauchCount} cauchemar{cauchCount > 1 ? "s" : ""} détecté{cauchCount > 1 ? "s" : ""}. Aucune preuve forgée pour l'instant.
+              </div>
+            </div>
+          );
+        })()}
+
         {/* BLOC FLOUTÉ */}
         <div style={{ position: "relative", marginBottom: 20 }}>
           <div style={{ filter: "blur(6px)", userSelect: "none", pointerEvents: "none" }}>
