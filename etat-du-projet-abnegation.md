@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 23 mars 2026
+## Dernière mise à jour : 23 mars 2026 (soir)
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -33,8 +33,8 @@ Stratégie & Ops : management_consultant (Conseil), strategy_associate (Stratég
 ## EN PRODUCTION (main)
 
 Domaine : abnegation.eu (+ www.abnegation.eu). OVH DNS → Vercel. SSL automatique.
-Smoke test : 169 tests. Unit tests : 10.
-Dernier push : 21 mars 2026.
+Smoke test : 209+ tests. Unit tests : 10.
+Dernier push : 23 mars 2026.
 
 | Élément | Statut |
 |---------|--------|
@@ -88,6 +88,14 @@ Dernier push : 21 mars 2026.
 | Fiche de combat V2 — 6 blocs assemblés depuis 8 sources (cauchemars triés par couverture, briques+parades calibrées LoC+blindage, 3 questions discovery, pitch+signature+séniorité, posture+ratio, position marché). | ✅ 21 mars |
 | Refactor unification livrables — 17→11 livrables × 5 catégories (Candidature, Prise de contact, Entretien, LinkedIn, Négociation). Zones 1-3 fusionnées. UI only. | ✅ 21 mars |
 | Refactor landing = Éclaireur — hero contient le champ Éclaireur (Approche A, embed direct). Zéro jargon. Forge absente du fold. Placeholders commentés. FAQ intègre pricing. | ✅ 21 mars |
+| 16n Question parcours non linéaire — detectNonLinearCareer(bricks), heuristique "chez X/pour X/au sein de X" + mots-clés org, section conditionnelle dans generateInterviewQuestions, parade top 3 briques par armorScore. 4 smoke tests. | ✅ 23 mars |
+| 16j Question "Pourquoi" post-Signature — 4ème écran overlay Signature (sigScreen "why"), whyThisRole stocké sur objet signature, 2 sorties (Valider/Passer), One-Pager bloc 3 intègre voix candidat si rempli, fallback auto sinon. 5 smoke tests. | ✅ 23 mars |
+| 16i Checklist intégration 90 jours — INTEGRATION_MILESTONES (week1/month1/month3 × growth/product/strategy) + getRoleCluster dans references.js. Plan 30j enrichi (Semaine 1 + Mois 1). Plan 90j enrichi (Mois 1 + Mois 3). Discovery Call +Q6 intégration. Séniorité non câblée (V2). 20 smoke tests. | ✅ 23 mars |
+| 16k Frictions/Intersections briques élastiques — 2 angles conditionnels dans STRESS_ANGLES (friction 3 variantes + intersection 3 variantes). generateStressTest Source 4 : déclenchement si brickType === "elastic" ou elasticity === "élastique". Proof/cicatrice non impactés. 10 smoke tests. | ✅ 23 mars |
+| 16l Filtre anti-pattern Arsenal — detectOrphanArmoredBricks + brickFeedsSignature (heuristique metaPatterns) dans signature.js. Alerte "Brique blindée, mauvais mur" dans Arsenal (bordure jaune, armorScore === 4 strict). Conditionnel : Signature détectée + brique orpheline. Informatif, zéro blocage. | ✅ 23 mars |
+| lessons.md ajouté au repo (10 entrées, bugs réels + règles) | ✅ 23 mars |
+| working-style.md enrichi (section Claude.ai : challenge before validating, verdict first, ask questions when stuck, never re-explain context) | ✅ 23 mars |
+| template-prompt-claude-code.md enrichi (Opération 0 statechart obligatoire pour modifications UI, lessons.md au démarrage, feat- dans les types de branche) | ✅ 23 mars |
 
 ---
 
@@ -98,35 +106,19 @@ Dernier push : 21 mars 2026.
 - Email : contact@abnegation.eu (Zimbra Starter OVH, actif)
 - Analytics : Pirsch (4€/mois, RGPD, script dans layout.js)
 - Repo : ~/Downloads/exosquelette
-- Smoke test : npm run smoke (169 tests)
-- Unit tests : npm test (10 tests vitest)
-- QA agent : npm run qa (15 checks)
-- Supabase Auth : email confirmation DÉSACTIVÉE (9 mars 2026). Le candidat crée un compte et accède à la Forge immédiatement. Pas de redirect externe. Le sessionStorage survit. Confirmation différée implémentée : bandeau après 3 briques ou 24h.
+- Monitoring : UptimeRobot (5 min, alerte email)
+- DNS : OVH → Vercel (A + CNAME). Propagation terminée.
 
 ---
 
-## ARCHITECTURE extractBrickCore (10 mars 2026)
+## TREMPE V2 (spec définitive — 19 mars 2026)
 
-brick.fields stocké au forge via buildStructuredFields dans Interrogation.jsx (3 chemins : Archiver, Anon confirm, Presque). extractBrickCore fast path : si brick.fields.result existe, extraction directe du nombre. Sinon fallback heuristique inchangé. Briques corrigées : pas de structuredFields (editText = source de vérité post-correction, fallback heuristique). 6 types de briques : seuls chiffre et decision mappent f3→result. Les 4 autres (influence, cicatrice, take, unfair) passent par le fallback. 10 call sites vérifiés.
-
----
-
-## SPEC BREW V2 — DÉFINITIVE (19 mars 2026)
-
-Spec complète : spec-brew-v2-definitive.md. Remplace spec-linkedin-360-brew-v2.md.
-
-10 arbitrages tranchés (three mental models) + 4 manques intégrés + Kano + statechart Couche 2.
-
-Doctrine : "La Trempe prépare, la Forge exécute." (code interne garde "brew" partout)
-Cycle : dimanche 19h, email + in-app. Pilier + angle personnalisé par les briques.
-Pilier : rotation par défaut + correction par couverture réelle.
-Angle : personnalisé (briques) ou générique (si 0 brique). Dilts invisible dans l'angle.
-Format : libre (post et/ou commentaire). Le candidat choisit.
-Tracking : déclaratif (bouton "Fait" + lien optionnel + format).
-Module commentaire : candidat colle post tiers → filtre pertinence ("Génère" / "Like et passe" / "Pas ta zone").
-Dashboard : couverture piliers (4 barres) + streak + historique. Zéro engagement LinkedIn. Zéro densité.
-Alerte stagnation Dilts : en langage humain. Disparaît après déclaration. Compteur reset. Revient après 3 nouveaux posts même niveau. Maximum une fois par mois.
-Signal DM : timing sans générer ni cibler. Bloc conditionnel si semaine précédente déclarée.
+Nom UI : La Trempe. Code interne : brew (tables, hooks, routes). Renommage UI-only.
+Doctrine : "La Trempe prépare, la Forge exécute."
+Cycle : dimanche 19h → pilier + angle personnalisé → candidat exécute → déclare Fait.
+Couverture piliers : rotation par défaut, corrigée par couverture réelle.
+Angles : personnalisés par briques + niveau Dilts (invisible candidat).
+Dashboard : 3 zones (instruction active, historique, progression).
 Lien Trempe → Forge (code : brew → sprint) : router.push('/sprint?brew_pillar={N}&brew_dilts={N}') → Établi pré-injecté.
 Statechart : Couche 2 (pas une région du Sprint). BREW.LOCKED → BREW.ACTIVE (INSTRUCTION ↔ DECLARED).
 Gate : abonnement (is_subscribed). Pas de pièces.
@@ -141,7 +133,7 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 
 ---
 
-## LISTE D'ATTENTE (réordonnée 21 mars 2026)
+## LISTE D'ATTENTE (réordonnée 23 mars 2026)
 
 ### Priorité 1 — DISTRIBUTION
 1. Mettre l'Éclaireur devant 10 candidats réels
@@ -152,6 +144,7 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 6. Contacter Loris (Big Idea / canal distribution)
 7. DM Noota (dans 2 semaines, post screening IA publié avant)
 8. Profil consultante carrière 700 profils (après 10 candidats)
+9. npm audit périodique (dépendances) — après Stripe + 10 candidats. Source : Julien Gelee post ai-rsk / CRA.
 
 ### Priorité 2 — REVENUS
 7. Micro-entreprise INPI + SIRET
@@ -181,17 +174,17 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 - ~~Refactor unification livrables 17→11~~ → ✅ FAIT 21 mars
 - ~~Refactor landing = Éclaireur~~ → ✅ FAIT 21 mars
 - 16h. Zeigarnik 4 surfaces — partiellement bloqué (Trempe + Échoppe manquantes). Codable pour Éclaireur + Forge uniquement.
-- 16i. Checklist intégration 90 jours — enrichir generators Plan 30j RH + Plan 90j N+1 + question discovery. Source : Cécile Kiavué.
-- 16j. Question "Pourquoi" post-Signature — nourrit One-Pager bloc 3. Source : Jeu Infini.
-- 16k. Questions Frictions/Intersections dans Onboarding/stress test (briques élastiques). Source : Jeu Infini angles C+E.
-- 16l. Filtre anti-pattern Arsenal — brique blindée 4/4 hors Signature = alerte. Source : Anti-Patterns Jeu Infini.
-- 16m. Indicateur briques × livrables dans l'Arsenal — chaque brique affiche combien de livrables elle alimente (ex: "7/11"). Rend visible le mécanisme d'intérêts composés. Source : Ha Hack Moreau.
-- 16n. Question parcours non linéaire — dans generateInterviewQuestions, question conditionnelle si 3+ postes en < 5 ans. Parade pré-formulée : "Chaque poste = un problème résolu." Source : verbatim Moreau.
+- ~~16i. Checklist intégration 90 jours~~ → ✅ FAIT 23 mars (INTEGRATION_MILESTONES + getRoleCluster + Plan 30j/90j enrichis + Discovery Q6)
+- ~~16j. Question "Pourquoi" post-Signature~~ → ✅ FAIT 23 mars (4ème écran overlay, whyThisRole sur signature, One-Pager bloc 3)
+- ~~16k. Questions Frictions/Intersections briques élastiques~~ → ✅ FAIT 23 mars (2 angles conditionnels STRESS_ANGLES, Source 4 generateStressTest)
+- ~~16l. Filtre anti-pattern Arsenal~~ → ✅ FAIT 23 mars (detectOrphanArmoredBricks, alerte "mauvais mur", armorScore === 4 strict)
+- 16m. Indicateur briques × livrables dans l'Arsenal — spec prête (feat-16m-bricks-deliverables.md). computeBrickDeliverableCount + badge "X/11" par brique. Source : Ha Hack Moreau.
+- ~~16n. Question parcours non linéaire~~ → ✅ FAIT 23 mars (detectNonLinearCareer + section conditionnelle generateInterviewQuestions)
 - 16o. Ponts entre briques — dans Arsenal ou One-Pager, connexions entre briques consécutives ("Brique 1 → Brique 2 : compétence transférée"). Parcours non linéaire = narratif, pas risque. Source : template Narratif Polymathe Moreau.
 
 ### Priorité 5 — SCALE
 29. Intelligence éco locale
-30. Scoring LLM
+30. Scoring LLM (signal Promptfoo pour unit testing quand outputs non-déterministes)
 31. GEO
 32. L'Échoppe — Surface B2B (spec définitive prête : 10 blocs, 52 questions, 25 étapes d'implémentation sur 3 phases). Lancement après 20 profils opt-in/rôle. Beta 2-3 cabinets avant ouverture payante.
 33. Éclaireur inversé (recruteur colle offre → profils matchés) — après 100 profils/rôle
@@ -227,13 +220,14 @@ Registre : artisanat de guerre. L'artisan fabrique l'arme (Forge, Trempe, Échop
 Modèle : B2C2B. Forge gratuite. Livrables en abonnement. Pièces mortes. Trempe critique pour rétention.
 Produit : ATMT. Blindage invisible. Densité > temps. Additif strict. Statechart = vérité UI. Proof deposits pas reach.
 Cible : le candidat avec insight enfoui et craft absent. Le senior a 15 ans d'insight professionnel. Le junior a 5 ans d'insight de vie (sport, projets, associations, études, hobbies). Les deux manquent du même craft. Les deux sont le même gisement. Le Blindage fonctionne identiquement (chiffre, décision, influence, transférabilité). Les 10 rôles restent seniors au lancement. L'extension junior est une vision, pas un chantier immédiat.
-Workflow : Claude.ai (spec/arbitrage) → Claude Code (implémentation). Branche avant chaque chantier. Review avant merge.
+Workflow : Claude.ai (spec/arbitrage) → Claude Code (implémentation). Branche avant chaque chantier. Review avant merge. Opération 0 statechart obligatoire dans le template pour toute modification UI.
 Parcours : Éclaireur → sessionStorage → Onboarding (rôle pré-sélectionné, skip profil + offres) → Forge (offre injectée).
 extractBrickCore : brick.fields.result = fast path. Heuristique = fallback legacy + corrections. Jamais structuredFields sur chemin correction.
 Trempe : Couche 2 du statechart. Code interne "brew" (tables, hooks, routes). Densité absente du dashboard Trempe. Alerte stagnation Dilts = reset après déclaration. Module commentaire = filtre pertinence avant génération.
 Échoppe : Couche 3. Spec définitive 19 mars (10 blocs, 52 questions). Cabinet = premier client. Coach = canal gratuit. Seuil 20 profils/rôle (pas 200). Lancement rôle par rôle. Prix 150€/crédit, packs sans récurrence. Même domaine (/recruiter), même base Supabase + RLS. Vue temps réel (trigger, pas snapshot). Contact par formulaire structuré (1 rôle, 1 cauchemar, contexte 80 mots, note 30 mots — l'outil assemble l'email, pas le recruteur). Opt-in global + 1 exclusion sectorielle. Retrait immédiat. Couche publique indexable AIO + couche privée authentifiée. Beta 2-3 cabinets avant ouverture payante.
 Livrables Établi : 11 livrables × 5 catégories (Candidature : One-Pager + CV + Bio. Prise de contact : Script contact + Message post-entretien + Plan 30j. Entretien : Questions [Discovery/Formel] + Entretien [Préparation/Fiche de combat]. LinkedIn : Posts piliers. Négociation : bundle salarial [position marché + coût remplacement + argument calibré] + Plan 90j N+1). Le One-Pager est le livrable principal. Von Restorff par défaut.
 Landing : abnegation.eu = l'Éclaireur. Le hero contient le champ (Approche A, embed direct). Le candidat colle et scanne sans quitter la page. Zéro jargon Abneg@tion sur la landing. La Forge se vend dans le résultat de l'Éclaireur, pas sur la landing.
+Claude.ai : challenge before validating (posture avocat du diable par défaut). Verdict first, reasoning second, implementation last. Ask questions when JM is stuck. Never re-explain context.
 
 ---
 
@@ -259,7 +253,7 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 
 | Document | Rôle | À jour ? |
 |----------|------|----------|
-| etat-du-projet-abnegation.md | Snapshot source de vérité | ✅ Ce fichier (23 mars) |
+| etat-du-projet-abnegation.md | Snapshot source de vérité | ✅ Ce fichier (23 mars soir) |
 | prompt-linkedin-post-jm.md | Prompt LinkedIn JM (8 étapes, Blindage Post 4 cases) | ✅ 23 mars |
 | spec-brew-v2-definitive.md | Spec La Trempe (Brew V2) définitive | ✅ 20 mars (nom UI La Trempe ajouté) |
 | spec-surface-b2b-definitive.md | Spec L'Échoppe (Surface B2B) définitive | ✅ 20 mars (10 blocs, 52 questions, One-Pager, formulaire structuré) |
@@ -269,19 +263,10 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 | SKILL-abnegation-dev.md | Skill projet | ✅ 20 mars (4 surfaces, One-Pager, Trempe, Échoppe, anti-patterns 7-8) |
 | about-me.md | Contexte fondateur | ✅ 20 mars (4 surfaces, One-Pager, Échoppe) |
 | brand-voice.md | Ton et vocabulaire | ✅ 20 mars (Trempe, Échoppe, One-Pager, cible élargie, doctrine langue) |
-| feat-one-pager.md | Prompt One-Pager generator | ✅ 21 mars (implémenté) |
-| feat-loc-markers.md | Prompt marqueurs LoC | ✅ 21 mars (implémenté) |
-| feat-role-variants.md | Prompt ROLE_VARIANTS | ✅ 21 mars (implémenté) |
-| feat-transversal-cauchemars.md | Prompt cauchemars transversaux | ✅ 21 mars (implémenté) |
-| feat-role-value-ratio.md | Prompt ratio valeur/coût | ✅ 21 mars (implémenté) |
-| feat-seniority-axis.md | Prompt axe séniorité | ✅ 21 mars (implémenté) |
-| feat-discovery-call.md | Prompt appel découverte | ✅ 21 mars (implémenté) |
-| feat-fiche-combat.md | Prompt fiche de combat V2 | ✅ 21 mars (implémenté) |
-| refactor-unify-deliverables.md | Prompt unification livrables | ✅ 21 mars (implémenté) |
-| refactor-landing-eclaireur.md | Prompt landing = Éclaireur | ✅ 21 mars (implémenté) |
-| spec-eclaireur-v2-audit-cv.md | Spec Éclaireur V2 | ✅ Implémenté |
-| feat-audit-cv-forge.md | Prompt audit CV Forge | ✅ Prêt |
-| template-prompt-claude-code.md | Template prompts | ✅ |
+| working-style.md | Comportement Claude | ✅ 23 mars (section Claude.ai conversations ajoutée : 4 règles) |
+| template-prompt-claude-code.md | Template prompts | ✅ 23 mars (Opération 0 statechart + lessons.md au démarrage + feat- branche) |
+| lessons.md | Règles anti-bugs (10 entrées) | ✅ 23 mars (ajouté au repo) |
+| feat-16m-bricks-deliverables.md | Prompt indicateur briques × livrables | ✅ 23 mars (spec prête, non implémenté) |
 | analyse-risques-production-mars-2026.md | ADR sécurité | ✅ |
 | README.md | Onboarding dev | ✅ 10 mars |
 | CODEMAP.md | Module map (51 fichiers) | ✅ 10 mars |
