@@ -15,7 +15,7 @@ import VOCABULARY from "@/lib/vocabulary";
 /**
  * Manages Signature detection and overlay lifecycle.
  * Triggers at 3 armored bricks × 2+ different cauchemars.
- * 3 screens: question → cross-reference → formulation.
+ * 4 screens: question → cross-reference → formulation → why.
  *
  * @param {object} initialState - persisted state (from page.js)
  * @param {Array} bricks - all bricks (from useBricks)
@@ -26,7 +26,7 @@ export function useSignature(initialState, bricks) {
   var signature = signatureState[0];
   var setSignature = signatureState[1];
 
-  var sigScreenState = useState(null); // null | "question" | "cross" | "formulate"
+  var sigScreenState = useState(null); // null | "question" | "cross" | "formulate" | "why"
   var sigScreen = sigScreenState[0];
   var setSigScreen = sigScreenState[1];
 
@@ -46,6 +46,12 @@ export function useSignature(initialState, bricks) {
   var sigValidationErrorState = useState(null);
   var sigValidationError = sigValidationErrorState[0];
   var setSigValidationError = sigValidationErrorState[1];
+
+  var sigWhyState = useState("");
+  var sigWhy = sigWhyState[0];
+  var setSigWhy = sigWhyState[1];
+
+  var sigPendingRef = useRef(null);
 
   var sigThresholdTriggeredRef = useRef(false);
 
@@ -107,9 +113,23 @@ export function useSignature(initialState, bricks) {
       crossResult: sigCrossRef.current || {},
       assistedFormulation: sigRejectCountRef.current >= 2,
     };
+    sigPendingRef.current = sigObj;
+    setSigScreen("why");
+    setSigValidationError(null);
+  }
+
+  function handleWhyValidate() {
+    var sigObj = sigPendingRef.current;
+    if (sigObj && sigWhy.trim()) {
+      sigObj.whyThisRole = sigWhy.trim();
+    }
     setSignature(sigObj);
     setSigScreen(null);
-    setSigValidationError(null);
+  }
+
+  function handleWhySkip() {
+    setSignature(sigPendingRef.current);
+    setSigScreen(null);
   }
 
   function renderSignatureOverlay() {
@@ -445,6 +465,69 @@ export function useSignature(initialState, bricks) {
               }}
             >
               Valider
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Screen 4: Pourquoi ce rôle
+    if (sigScreen === "why") {
+      var pendingSig = sigPendingRef.current || {};
+      return (
+        <div style={overlayStyle}>
+          <div style={cardStyle}>
+            <div style={subtitleStyle}>TA SIGNATURE</div>
+            <div style={titleStyle}>Pourquoi ce rôle</div>
+            <div
+              style={{
+                padding: 12,
+                background: "#0a0a1a",
+                borderRadius: 8,
+                marginBottom: 16,
+                borderLeft: "3px solid #4ecca3",
+              }}
+            >
+              <div style={{ fontSize: 11, color: "#4ecca3", fontWeight: 600, marginBottom: 4 }}>Ta signature</div>
+              <div style={{ fontSize: 13, color: "#ccd6f6", lineHeight: 1.5, fontStyle: "italic" }}>
+                {pendingSig.formulation || ""}
+              </div>
+            </div>
+            <div style={labelStyle}>
+              Sachant ce que tu fais naturellement, pourquoi ce rôle est-il le bon terrain ?
+            </div>
+            <textarea
+              style={inputStyle}
+              value={sigWhy}
+              onChange={function (e) {
+                setSigWhy(e.target.value);
+              }}
+              placeholder="Ce poste me correspond parce que..."
+              rows={3}
+            />
+            <button
+              style={btnStyle(sigWhy.trim().length > 0)}
+              onClick={function () {
+                if (sigWhy.trim().length === 0) return;
+                handleWhyValidate();
+              }}
+            >
+              Valider
+            </button>
+            <button
+              onClick={handleWhySkip}
+              style={{
+                width: "100%",
+                padding: 10,
+                marginTop: 8,
+                background: "transparent",
+                color: "#495670",
+                border: "none",
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              Passer
             </button>
           </div>
         </div>
