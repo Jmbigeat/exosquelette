@@ -520,6 +520,25 @@ assert("audit email_signature channel calibration ≤80 passes", auditSig.passed
 var auditSigLong = audit.auditDeliverable("email_signature", "A".repeat(100), testBricks, [], "external");
 assert("audit email_signature >80 fails D", auditSigLong.passed.indexOf("D") === -1);
 
+// ─── 16j. One-Pager whyThisRole ──────────────────────────────────
+
+console.log("\n=== ONE-PAGER WHY THIS ROLE SMOKE ===");
+
+assert("generateOnePager exists", typeof generators.generateOnePager === "function");
+
+// generateOnePager without whyThisRole → auto-generated why block
+var opNoWhy = generators.generateOnePager(testBricks, "am", [], { formulation: "Je transforme les pipelines stagnants en machines de closing" }, null, "Jean", "jean@test.com");
+assert("generateOnePager without whyThisRole returns string", typeof opNoWhy === "string" && opNoWhy.length > 50);
+assert("generateOnePager without whyThisRole contains Pourquoi", opNoWhy.indexOf("Pourquoi ce poste") !== -1);
+
+// generateOnePager with whyThisRole → candidate's text in bloc 3
+var opWithWhy = generators.generateOnePager(testBricks, "am", [], { formulation: "Je transforme les pipelines stagnants en machines de closing", whyThisRole: "Ce poste me correspond parce que le segment mid-market est mon terrain naturel depuis 5 ans." }, null, "Jean", "jean@test.com");
+assert("generateOnePager with whyThisRole contains candidate text", opWithWhy.indexOf("mid-market est mon terrain naturel") !== -1);
+
+// generateOnePager with whyThisRole empty string → auto fallback
+var opEmptyWhy = generators.generateOnePager(testBricks, "am", [], { formulation: "Test", whyThisRole: "" }, null, "Jean", "jean@test.com");
+assert("generateOnePager empty whyThisRole uses auto", opEmptyWhy.indexOf("Pourquoi ce poste") !== -1 && opEmptyWhy.length > 50);
+
 // ─── 16n. Parcours non linéaire — detectNonLinearCareer ──────────
 
 console.log("\n=== PARCOURS NON LINÉAIRE SMOKE ===");
