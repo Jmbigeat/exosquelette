@@ -69,6 +69,21 @@ Méthode : 10 blocs × 52 questions tranchées une par une avec three mental mod
 Résultat : spec définitive de 500+ lignes. Modèle de revenu (crédits 150€, packs sans récurrence). Quality gate candidat (opt-in + prévisualisation + seuil minimum). Parcours recruteur complet (onboarding → filtres cauchemar → fiche structurelle → contact par email). Infrastructure (même domaine, même base, RLS, trigger temps réel). Seuil réduit de 200 à 20 profils/rôle (lancement 14 mois plus tôt). Calendrier réaliste (4-5 mois).
 Preuves PM : Discovery (52 questions identifiées et structurées en 10 blocs), Product Sense (connexion Forge ↔ B2B via opt-in + prévisualisation + CV déclenché, séparation ATMT/Blindage étendue au recruteur), Strategy (modèle de revenu B2C2B bouclé — le candidat forge gratuitement, le recruteur paie pour contacter, le coach remplit la base gratuitement), Delivery (séquence d'implémentation en 24 étapes sur 3 phases).
 
+### Analyse de contenu tiers comme Discovery produit (23 mars 2026)
+
+Problème : valider les mécanismes de l'outil sans utilisateurs réels. Les 10 candidats ne sont pas encore là.
+Méthode : 26 contenus tiers analysés en 1 session (12 articles Moreau + 14 posts/prompts LinkedIn). Chaque contenu passé au filtre "Pour l'outil / Pour le prompt LinkedIn / Pass." 3 catégories de verdict : connexion directe (mécanisme existant confirmé), item backlog (mécanisme manquant identifié), formulation stockable (matériau pour les 4 piliers).
+Résultat : 8 connexions produit confirmées (intérêts composés = densité, identité fluide = Signature, pre-mortem = Duel, vraisemblances/indices/tekmerions = Blindage 4 cases, pensée systémique = stress test, WOOP = fiche de combat, outil compétitif vs complémentaire = anti-dépendance). 3 items backlog ajoutés (16m indicateur briques × livrables, 16n question parcours non linéaire, 16o ponts entre briques). ~10 formulations stockables pour les 4 piliers. 14 contenus passés (hors cible).
+Preuves PM : Discovery (extraire du signal produit de contenus non liés au produit), Product Sense (chaque connexion mappée sur un mécanisme existant ou un item backlog — pas de feature creep), Discipline (14 pass sur 26 contenus = savoir quoi NE PAS intégrer).
+
+### Canaux de distribution identifiés (23 mars 2026)
+
+5 canaux identifiés via analyse de contenu et veille LinkedIn :
+- Coachs carrière (Alex BLUMA, Loris, consultante 700 profils) : facturent la couche humaine. L'outil fait la couche commodité. 20 candidats/mois par coach.
+- Noota (agent IA screening) : complémentarité input candidat × tri automatisé. DM prévu dans 2 semaines, post screening IA publié avant. Angle : "votre outil trie, le nôtre structure l'input."
+- Agents IA hiring : les posts LinkedIn blindés deviennent des aimants sémantiques pour les agents qui indexent les publications.
+Preuve PM : identifier des canaux de distribution avant d'avoir un seul utilisateur, en analysant la chaîne de valeur recrutement.
+
 ---
 
 ## 2. DELIVERY & EXÉCUTION
@@ -230,6 +245,47 @@ Preuve PM : un levier psychologique (ancrage par le ratio) implémenté en 3 op�
 IC/Manager/Leader. 3 niveaux dans l'Onboarding. Diagnostic dans l'Arsenal (bloc 7 : fourchette ajustée ×1.0/1.25/1.55, focus entretien, risque principal). Zéro modification du scoring. La donnée est posée pour L'Échoppe (filtre recruteur) et les generators (calibration V2).
 Preuve PM : même pattern que le LoC (diagnostic sans scoring). Savoir quand une donnée enrichit le produit sans perturber les mécaniques existantes. Le scoring intégrera la séniorité en V3, quand les données d'usage le justifieront.
 
+### Appel découverte : le Duel inversé (21 mars 2026)
+
+Le Duel entraîne la défense. L'appel découverte entraîne l'attaque. 5 questions calibrées par cauchemar × séniorité × briques. Chaque question contient un breadcrumb (indice de preuve reformulé en question ouverte). Le candidat démontre sa compréhension sans rien affirmer. Séparation nette avec "Questions entretien" (ch15) : ch15 = entretien formel (niveaux 3-6), appel découverte = premier appel (qualification tactique).
+Preuve PM : identifier que deux moments candidat (premier appel vs entretien formel) exigent deux formats de questions. Le même matériau (briques, cauchemars) sert deux usages distincts.
+
+### Fiche de combat : le dernier kilomètre (21 mars 2026)
+
+15 livrables dans l'Établi. Aucun conçu pour être lu en 2 minutes avant l'entretien. La fiche de combat assemble 8 sources existantes (cauchemars triés par couverture, briques + parades calibrées par blindage + LoC, 3 questions discovery, pitch + signature + séniorité, posture + ratio coût/valeur, position marché) en 1 page. Zéro donnée nouvelle. Zéro calcul nouveau. Format nouveau.
+Preuve PM : identifier un trou fonctionnel (le candidat est armé mais dispersé) et le combler par assemblage, pas par ajout. Le livrable qui convertit le travail de la Forge en performance réelle.
+
+### Unification livrables 17→11 × 5 catégories (21 mars 2026)
+
+17 livrables dans un panneau. Hick's Law : trop de choix = pas de choix. 3 fusions identifiées (Questions discovery+formel, Entretien préparation+fiche, Négociation rapport+argumentaire+comparatif). 5 catégories visuelles (Candidature, Prise de contact, Entretien, LinkedIn, Négociation). Zéro generator modifié. UI refactoring uniquement.
+Preuve PM : savoir quand simplifier l'interface sans simplifier le produit. Les generators restent séparés (testables, auditables). L'UI regroupe (lisible, navigable). La complexité vit dans le code. La clarté vit dans l'écran.
+
+### Landing = Éclaireur (21 mars 2026)
+
+La landing décrivait l'outil. Le candidat lisait, comprenait, ne faisait rien. Le hero contient maintenant le champ Éclaireur (Approche A, embed direct). Le candidat colle et scanne sans quitter la page. Zéro jargon Abneg@tion sur la landing. La Forge se vend dans le résultat de l'Éclaireur, pas sur la landing.
+Preuve PM : la meilleure landing n'explique pas le produit. Elle EST le produit. 8 secondes entre le clic et l'action.
+
+### Blindage Post 4 cases — framework qualité contenu LinkedIn (23 mars 2026)
+
+Problème : les posts LinkedIn JM n'avaient pas de filtre qualité mécanique. Le workflow 7 étapes (Méroé, Marie Hook) testait le style et l'accroche. Rien ne testait la substance du post.
+Décision : créer un Blindage Post à 4 cases, miroir du Blindage 4 cases candidat. Case 1 (Fait Situé) : chiffre non rond, date, contexte. Case 2 (Détail Inutile) : micro-détail concret qui ancre la scène. Case 3 (Tension Vécue) : décision, alternative refusée, conséquence. Case 4 (Leçon Non Universelle) : l'injonction finale ne s'applique pas à tout le monde. Scoring : 4/4 ou ne pas publier.
+Résultat : le workflow passe de 7 à 8 étapes. Le Blindage Post est vérifié à l'étape 2 (complétion), à l'étape 7 (check binaire), et à l'étape 8 (refactorisation). Le même framework (4 cases obligatoires) s'applique au candidat (briques) et au fondateur (posts). La cohérence produit/marketing est mécanique, pas accidentelle.
+Preuve PM : transférer un framework produit interne (Blindage candidat) à un framework marketing (Blindage Post). Même architecture. Même rigueur. Deux usages.
+
+### Prompt LinkedIn JM — système de production complet (23 mars 2026)
+
+Problème : le workflow LinkedIn était dispersé entre le prompt Méroé, le prompt Marie Hook, les doctrines post/commentaire, les verbatims terrain, et les constantes JM. 6 sources non reliées.
+Décision : unifier en 1 prompt de 272 lignes. 8 étapes séquentielles. Modules intégrés : cadrage (5 pourquoi si concept abstrait), complétion Blindage Post (1 question par case vide), 4 piliers × 6 niveaux Dilts, vécu JM (tensions, détails, verbatims, coûts d'inaction, constantes), matériau frais, vocabulaire interdit, check binaire 5 tests.
+Résultat : 1 prompt produit 1 post blindé 4/4 en 8 étapes vérifiables. Le premier post produit (screening IA × qualité matériau) a passé Marie Hook accroche 8.25/10, Marie Hook post entier 8.4/10, Méroé zéro correction, check binaire 5/5.
+Preuve PM : savoir quand 6 outils séparés créent de la friction et les unifier en 1 système. Même logique que l'unification des 17 livrables en 11.
+
+### Analyse concurrentielle : screening IA × qualité input (23 mars 2026)
+
+Problème : Noota Talent lance un agent IA de screening (centaines de millions de profils, shortlist 24h). Menace ou opportunité ?
+Méthode : three mental models. First principles : Noota résout le tri (volume). Abneg@tion résout l'input (qualité). Les deux problèmes sont différents. Inversion : si le candidat non forgé passe le screening Noota, le recruteur perd du temps en entretien. Conséquences de second ordre : le candidat forgé est le seul que l'agent Noota classera correctement (bon signaux, bons mots, bonnes preuves).
+Décision : complémentarité, pas concurrence. DM privé dans 2 semaines. Post public anonymisé (zéro marqueur Noota). L'angle "le bottleneck est l'input, pas le filtre" dépose une preuve de positionnement sans attaquer le concurrent.
+Preuve PM : analyser un concurrent indirect et transformer la menace en canal de distribution potentiel. La décision "anonymiser le post + DM privé" protège la relation tout en capitalisant sur l'insight.
+
 ---
 
 ## 5. LEADERSHIP SANS ÉQUIPE
@@ -271,7 +327,11 @@ Non prouvés par Abneg@tion (prouvables par carrière antérieure) : résistance
 | Métrique | Valeur | Date |
 |----------|--------|------|
 | Lignes en production | ~19 000 | mars 2026 |
-| Chantiers livrés | 21 + 18 micro-fixes + 5 refactorings + 8 features (audit CV Forge, comparatif salarial, marqueurs LoC, One-Pager, role variants, cauchemars transversaux, ratio valeur/coût, axe séniorité) | 21 mars 2026 |
+| Chantiers livrés | 21 + 18 micro-fixes + 7 refactorings + 12 features (audit CV, salary, LoC, One-Pager, role variants, cauchemars transversaux, ratio valeur/coût, séniorité, discovery call, fiche combat, unification 17→11, landing = Éclaireur) | 23 mars 2026 |
+| Contenus tiers analysés | 26 (12 articles Moreau + 14 posts/prompts). 8 connexions produit, 3 items backlog (16m-16o), ~10 formulations stockables, 14 pass | 23 mars 2026 |
+| Prompt LinkedIn JM | 272 lignes, 8 étapes, Blindage Post 4 cases, check binaire 5 tests | 23 mars 2026 |
+| Posts LinkedIn forgés | 1 (screening IA × qualité matériau). Marie Hook accroche 8.25/10, post entier 8.4/10, Méroé 0 correction, check binaire 5/5 | 23 mars 2026 |
+| Canaux distribution identifiés | 5 (3 coachs carrière, 1 agent IA screening, 1 agents IA hiring sémantique) | 23 mars 2026 |
 | Smoke tests | 169 | 19 mars 2026 |
 | Unit tests | 10 | 19 mars 2026 |
 | Rôles couverts | 10 (4 secteurs) | mars 2026 |
@@ -304,6 +364,7 @@ Non prouvés par Abneg@tion (prouvables par carrière antérieure) : résistance
 | QA Agent | scripts/qa-agent.js (15 checks automatisés) |
 | State snapshot | etat-du-projet-abnegation.md |
 | Workflow LinkedIn | workflow-linkedin-acquisition-jm.md |
+| Prompt LinkedIn JM | prompt-linkedin-post-jm.md (272 lignes, 8 étapes, Blindage Post 4 cases) |
 | CODEMAP | CODEMAP.md (51 fichiers documentés) |
 | README | README.md (professionnel, onboarding dev en 60s) |
 | Portfolio PM | portfolio-pm-abnegation.md (ce fichier) |
