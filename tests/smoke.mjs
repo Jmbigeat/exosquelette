@@ -787,6 +787,67 @@ var onePagerMod = await import("../lib/generators/one-pager.js");
 var opResult = onePagerMod.generateOnePager(opBricks, "enterprise_ae", bridgeCauchs1, null, null, "Test", "test@test.com");
 assert("One-Pager fil conducteur", opResult.indexOf("Fil conducteur") !== -1);
 
+// ─── 4h. computeOpenLoops (Zeigarnik 16h) ────────────────────────
+
+console.log("\n=== ZEIGARNIK — OPEN LOOPS ===");
+
+assert("computeOpenLoops exists", typeof scoring.computeOpenLoops === "function");
+
+// Unarmored loop appears when validated bricks have armorScore < 4
+var zBricks1 = [
+  { id: "z1", status: "validated", text: "Result 100K", kpi: "revenue", armorScore: 2 },
+  { id: "z2", status: "validated", text: "Result 200K", kpi: "retention", armorScore: 1 },
+];
+var zLoops1 = scoring.computeOpenLoops({ bricks: zBricks1, cauchemars: [], signature: null, duelResults: null, densityScore: 0 });
+assert("Zeigarnik: unarmored bricks loop", zLoops1.some(function (l) { return l.id === "unarmored_bricks"; }));
+
+// Uncovered cauchemars loop
+var zCauchs = [
+  { id: "c1", label: "Churn", kpis: ["Retention rate"], kw: ["churn"], costRange: [50000, 150000] },
+  { id: "c2", label: "Pipeline", kpis: ["Pipeline velocity"], kw: ["pipeline"], costRange: [30000, 100000] },
+];
+scoring.setActiveCauchemarsGlobal(zCauchs);
+var zBricks2 = [
+  { id: "z3", status: "validated", text: "Result churn", kpi: "revenue", armorScore: 4 },
+];
+var zLoops2 = scoring.computeOpenLoops({ bricks: zBricks2, cauchemars: zCauchs, signature: null, duelResults: null, densityScore: 0 });
+assert("Zeigarnik: uncovered cauchemars loop", zLoops2.some(function (l) { return l.id === "uncovered_cauchemars"; }));
+
+// No signature loop — only if 2+ bricks with armorScore >= 3
+var zBricks3 = [
+  { id: "z4", status: "validated", text: "Result A", kpi: "revenue", armorScore: 3 },
+  { id: "z5", status: "validated", text: "Result B", kpi: "retention", armorScore: 4 },
+];
+var zLoops3 = scoring.computeOpenLoops({ bricks: zBricks3, cauchemars: [], signature: null, duelResults: null, densityScore: 0 });
+assert("Zeigarnik: no_signature when 2+ armored", zLoops3.some(function (l) { return l.id === "no_signature"; }));
+
+// No signature loop should NOT appear if too few armored bricks
+var zBricks4 = [
+  { id: "z6", status: "validated", text: "Result C", kpi: "revenue", armorScore: 1 },
+  { id: "z7", status: "validated", text: "Result D", kpi: "retention", armorScore: 2 },
+];
+var zLoops4 = scoring.computeOpenLoops({ bricks: zBricks4, cauchemars: [], signature: null, duelResults: null, densityScore: 0 });
+assert("Zeigarnik: no_signature absent when few armored", !zLoops4.some(function (l) { return l.id === "no_signature"; }));
+
+// Duel loop only when density >= 40
+var zLoops5 = scoring.computeOpenLoops({ bricks: zBricks3, cauchemars: [], signature: { formulation: "test" }, duelResults: null, densityScore: 50 });
+assert("Zeigarnik: duel_not_done when density >= 40", zLoops5.some(function (l) { return l.id === "duel_not_done"; }));
+
+var zLoops6 = scoring.computeOpenLoops({ bricks: zBricks3, cauchemars: [], signature: { formulation: "test" }, duelResults: null, densityScore: 20 });
+assert("Zeigarnik: no duel loop when density < 40", !zLoops6.some(function (l) { return l.id === "duel_not_done"; }));
+
+// Zero loops when everything is complete
+var zBricksComplete = [
+  { id: "z8", status: "validated", text: "Result", kpi: "Retention rate", armorScore: 4 },
+  { id: "z9", status: "validated", text: "Result", kpi: "Pipeline velocity", armorScore: 4 },
+];
+scoring.setActiveCauchemarsGlobal(zCauchs);
+var zLoops7 = scoring.computeOpenLoops({ bricks: zBricksComplete, cauchemars: zCauchs, signature: { formulation: "test" }, duelResults: [{ id: 1 }], densityScore: 80 });
+assert("Zeigarnik: zero loops when all complete", zLoops7.length === 0);
+
+// Reset global cauchemars
+scoring.setActiveCauchemarsGlobal(null);
+
 // ─── 5. Dev server check ─────────────────────────────────────────
 
 console.log("\n=== DEV SERVER CHECK ===");

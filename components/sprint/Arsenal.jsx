@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { ROLE_CLUSTERS, SALARY_RANGES_BY_ROLE, OTE_SPLIT_BY_ROLE, ROLE_VALUE_RATIO, SENIORITY_LEVELS, SENIORITY_CALIBRATION } from "@/lib/sprint/references";
-import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor } from "@/lib/sprint/scoring";
+import { computeCauchemarCoverage, computeDensityScore, assessBrickArmor, computeOpenLoops } from "@/lib/sprint/scoring";
 import { hasReachedSignatureThreshold, detectOrphanArmoredBricks } from "@/lib/sprint/signature";
 import { auditCVForge } from "@/lib/forge/audit-cv-forge";
 import { hasInternalLocus, hasExternalLocus, isSoloBrick, detectBridges } from "@/lib/sprint/analysis";
@@ -100,6 +100,20 @@ export function Arsenal({
       return detectBridges(bricks, nightmares);
     },
     [bricks, nightmares]
+  );
+
+  // Zeigarnik — open loops (16h)
+  var openLoops = useMemo(
+    function () {
+      return computeOpenLoops({
+        bricks: bricks,
+        cauchemars: nightmares,
+        signature: signature,
+        duelResults: duelResults,
+        densityScore: density ? density.score : 0,
+      });
+    },
+    [bricks, nightmares, signature, duelResults, density]
   );
 
   // Salary diagnostic — bloc 5
@@ -378,6 +392,40 @@ export function Arsenal({
 
   return (
     <div>
+      {/* ZEIGARNIK — BOUCLES OUVERTES (16h) */}
+      {openLoops.length > 0 && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: 14,
+            background: "#111125",
+            borderRadius: 10,
+            borderLeft: "3px solid #e67e22",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              color: "#e67e22",
+              fontWeight: 700,
+              letterSpacing: 2,
+              marginBottom: 10,
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+          >
+            {openLoops.length} BOUCLE{openLoops.length > 1 ? "S" : ""} OUVERTE{openLoops.length > 1 ? "S" : ""}
+          </div>
+          {openLoops.map(function (loop) {
+            return (
+              <div key={loop.id} style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#f0f0ff" }}>{loop.label}</div>
+                <div style={{ fontSize: 11, color: "#8892b0", lineHeight: 1.5 }}>{loop.action}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* BLOC 0 — TRAJECTOIRE */}
       {previousRole && trajectory && armoredCoveringCount > 0 ? (
         <div
