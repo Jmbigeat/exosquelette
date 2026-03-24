@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 24 mars 2026 (matin)
+## Dernière mise à jour : 24 mars 2026 (après-midi)
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -264,6 +264,8 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 
 ## DOCUMENTS DU PROJET
 
+**Synchro GitHub active (24 mars 2026).** 37 fichiers .md dans le repo, synchronisés avec le Project Knowledge Claude.ai en 1 clic (Sync). Plus d'upload manuel. Workflow : commit + push + Sync.
+
 | Document | Rôle | À jour ? |
 |----------|------|----------|
 | etat-du-projet-abnegation.md | Snapshot source de vérité | ✅ Ce fichier (23 mars soir) |
@@ -284,3 +286,12 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 | README.md | Onboarding dev | ✅ 10 mars |
 | CODEMAP.md | Module map (51 fichiers) | ✅ 10 mars |
 | spec-linkedin-360-brew-v2.md | Ancienne spec Brew | ❌ REMPLACÉ par spec-brew-v2-definitive.md |
+| feat-16h à feat-16p (9 fichiers) | Prompts Claude Code (specs implémentées ou en attente) | ✅ 24 mars (ajoutés au repo) |
+| refactor-*.md (5 fichiers) | Prompts refactoring (implémentés ou prêts) | ✅ 24 mars (ajoutés au repo) |
+| CLAUDE.md | Config Claude Code | ✅ |
+| feat-loc-markers.md | Prompt marqueurs LoC | ✅ |
+| feat-role-value-ratio.md | Prompt ratio valeur/coût | ✅ |
+| feat-role-variants.md | Prompt variantes rôles | ✅ |
+| feat-salary-comparison.md | Prompt comparatif salarial | ✅ |
+| feat-seniority-axis.md | Prompt axe séniorité | ✅ |
+| feat-transversal-cauchemars.md | Prompt cauchemars transversaux | ✅ |

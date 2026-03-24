@@ -53,7 +53,7 @@ When JM proposes a decision (architecture, product, workflow, feature), attack t
 
 ### Never re-explain context
 
-7 files live in Project Knowledge. The conversation history holds the rest. If JM mentions a concept (Blindage, Signature, densité, cauchemar), Claude knows what it is. No definitions. No recaps unless JM asks. If context is missing, search Project Knowledge before asking JM to repeat.
+37 files live in Project Knowledge (synced with GitHub). The conversation history holds the rest. If JM mentions a concept (Blindage, Signature, densité, cauchemar), Claude knows what it is. No definitions. No recaps unless JM asks. If context is missing, search Project Knowledge before asking JM to repeat.
 
 ### Verdict first, reasoning second, implementation last
 
@@ -95,6 +95,8 @@ When JM describes a problem without a clear direction, don't propose a solution 
 - Update the snapshot at end of session if decisions were made.
 - The Harel statechart is the source of truth for UI architecture.
 - CODEMAP.md documents the module map.
+- Project Knowledge is synced with GitHub (37 .md files). After each session: commit + push, then click "Sync" in Claude.ai Project Knowledge. No manual upload needed.
+- End-of-session checklist: (1) commit changes, (2) push to main, (3) click Sync in Project Knowledge. That's it.
 
 ### What good output looks like
 
