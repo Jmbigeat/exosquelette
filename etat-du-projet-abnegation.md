@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 23 mars 2026 (soir)
+## Dernière mise à jour : 24 mars 2026 (matin)
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -257,6 +257,8 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 | DM ciblé réseau × entreprise visée | Le candidat exporte son réseau LinkedIn (CSV). Croise avec une entreprise cible. Identifie les ponts. Génère les messages. Le Brew V2 recommande posts et timing. Il ne recommande pas de DM ciblés vers des connexions existantes chez l'entreprise visée. Cas d'usage Brew V3 ou livrable Établi séparé. | Guide "Job Search x IA" — Prompt 3 referral | 24 mars |
 | Dossier cible entreprise | Briefing pré-entretien : signaux publics (funding, taille, turnover LinkedIn, ratio PM/dev, culture). L'Appel Découverte (mergé) produit les questions. Il ne produit pas le briefing amont. Enrichirait la Fiche de Combat V2. Nécessite web search ou scraping — incompatible avec l'archi actuelle (zéro appel API externe). | Guide "Job Search x IA" — Prompt 4 due diligence | 24 mars |
 | Angle stress test "coût d'opportunité" | Question "Qu'est-ce que tu n'as PAS fait pour obtenir ce résultat ?" Le sacrifice contient la décision (Blindage case 2) + le coût d'opportunité. Marqueur de séniorité : le junior décide, le senior arbitre entre deux options de valeur. Injection dans generateInterviewQuestions ou Appel Découverte. Petit scope, fort impact. | Post LinkedIn "5 questions valeur" (anonyme) | 24 mars |
+| Scoring qualité questions discovery (échelle Méroé) | Bloc Arsenal "qualité de tes questions." Score les questions discovery générées sur l'échelle Méroé (niveaux -1 à 6 : absence → wikipedia → logistique → fonctionnelle → contextuelle → miroir → révélatrice → inconfortable). Feedback candidat : "Tes questions sont au niveau 2 (fonctionnel). Tu as le matériau pour atteindre le niveau 4 (miroir)." Le Duel évalue la défense. Rien n'évalue la qualité des questions posées en retour. | Newsletter Méroé Nguimbi "Le Plus Gros Mensonge du Recrutement en 2026" (3 mars 2026) | 24 mars |
+| Dossier cible entreprise — confirmation signal | Le niveau 6 Méroé (question inconfortable basée sur due diligence anciens employés) confirme le signal "Dossier cible entreprise" du même jour. Le generator Appel Découverte produit les questions. Il ne produit pas le matériau de recherche qui nourrit les questions de niveau 5-6. Deux sources indépendantes pointent le même manque. | Newsletter Méroé + Guide "Job Search x IA" | 24 mars |
 
 ---
 
