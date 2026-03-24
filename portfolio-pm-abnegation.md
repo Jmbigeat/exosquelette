@@ -170,6 +170,11 @@ Ce que le recruteur PM cherche : "Tu comprends l'utilisateur. Tu fais des choix 
 
 Le candidat voit ATMT (Accroche, Tension, Méthode, Transfert). Le moteur interne utilise le Blindage 4 cases (Chiffre, Décision, Influence, Transférabilité). Les deux ne s'intersectent jamais dans l'UI. Raison : le candidat ne pense pas en axes d'évaluation. Il pense en narration. ATMT suit la narration. Le Blindage suit l'évaluation.
 
+### Blindage = framework universel, pas spécifique candidat (24 mars 2026)
+
+Le même framework (delta chiffré, unité, arbitrage, seuil, sacrifice) s'applique à trois niveaux : le projet (OKR trimestriel d'une équipe produit), le candidat (Blindage 4 cases dans la Forge), le recruteur (évaluation en entretien). L'outil encode les trois niveaux dans la même mécanique. Un post LinkedIn tiers listant 5 questions d'alignement équipe ("c'est quoi le delta attendu ?", "dans quelle unité ?", "pourquoi cette métrique ?", "comment tu sauras ?", "qu'est-ce que tu sacrifies ?") mappe directement sur les 4 cases du Blindage. La question 5 (sacrifice = coût d'opportunité) ouvre un angle absent : le Blindage case 2 capture la décision, pas l'arbitrage entre deux options de valeur. Signal backlog noté.
+Preuve PM : reconnaître qu'un framework interne (Blindage candidat) est une instance d'un pattern plus large (évaluation de la valeur créée). Le produit ne réinvente pas une grille. Il applique une grille universelle à un cas spécifique.
+
 ### Densité > temps
 
 La Forge avance par seuils de densité (70% = armé), pas par durée. Un candidat qui blinde 3 briques en 20 minutes avance plus qu'un candidat qui passe 3 heures sans chiffrer. La densité est un score 6 axes pondéré (Blindage 25%, Couverture cauchemars 20%, Matériau brut 15%, Singularité 15%, CV prêt 15%, Duel 10%).

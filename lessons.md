@@ -82,3 +82,11 @@ Règle : ne jamais introduire dangerouslySetInnerHTML. Si un generator produit d
 Constat : SUPABASE_SERVICE_ROLE_KEY existe uniquement dans lib/supabase.js (createServerClient), utilisé par les API routes server-side. Jamais exposé côté client (vérifié 10 mars 2026).
 
 Règle : ne jamais importer createServerClient ou SUPABASE_SERVICE_ROLE_KEY dans un fichier composant (components/) ou dans un fichier lib/ utilisé côté client. Vérifier : grep -rn 'SERVICE_ROLE' components/ —include='*.js' —include='*.jsx'
+
+---
+
+## Ordre de lecture des fichiers dans les prompts Claude Code — 24 mars 2026
+
+Constat : la fenêtre de contexte LLM a un biais de récence. Le dernier fichier lu par Claude Code est le plus saillant quand le raisonnement commence. Dans un prompt Opération 1 "lis ces 6 fichiers", le fichier en position 6 domine le contexte. Le fichier en position 1 est le moins saillant au moment de la première modification.
+
+Règle : dans chaque prompt, lister le fichier à MODIFIER en dernier dans la liste de lecture. Les fichiers de contexte pur (references.js, helpers.js) viennent en premier. Le fichier cible (celui que Claude Code va éditer) vient en dernier. Si plusieurs fichiers sont modifiés, les ordonner du moins critique au plus critique.
