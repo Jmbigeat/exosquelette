@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 24 mars 2026 (après-midi)
+## Dernière mise à jour : 25 mars 2026
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 

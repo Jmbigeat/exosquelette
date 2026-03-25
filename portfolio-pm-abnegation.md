@@ -84,6 +84,11 @@ Preuves PM : Discovery (extraire du signal produit de contenus non liés au prod
 - Agents IA hiring : les posts LinkedIn blindés deviennent des aimants sémantiques pour les agents qui indexent les publications.
 Preuve PM : identifier des canaux de distribution avant d'avoir un seul utilisateur, en analysant la chaîne de valeur recrutement.
 
+### Compétences critiques PM 2026 mappées (25 mars 2026)
+
+Mathias Frachon (TPC) identifie 3 compétences critiques PM en 2026. Les trois mappent sur des pratiques documentées dans le projet. "Cadrer un problème avec précision" = les 21 prompts markdown avec section "Ce que tu ne fais pas" (le cadrage négatif protège contre la sur-ingénierie). "Pensée systémique pour orchestrer des workflows IA" = les 3 mental models appliqués à chaque décision structurelle (first principles, inversion, second-order consequences). "Jugement business : savoir ce qu'il ne faut pas construire" = 3 features tuées (Sprint Éclair, toggle j'y suis/j'y vais, RAC), 6 approches IA rejetées sur 7 évaluées, section anti-patterns documentée.
+Preuve PM : les compétences que le marché valorise le plus en 2026 (cadrage, pensée systémique, jugement) sont les compétences les plus documentées dans le projet. Pas par hasard — par construction.
+
 ---
 
 ## 2. DELIVERY & EXÉCUTION
@@ -92,7 +97,7 @@ Ce que le recruteur PM cherche : "Tu sais livrer. Tu gères le scope, les deadli
 
 ### Vélocité
 
-De zéro à 19K lignes en production en 25 jours. 21 chantiers. 169 smoke tests. Domaine live (abnegation.eu). Stack complète : Next.js 14, Supabase, Stripe, Vercel.
+De zéro à 40 100 lignes en production en 40 jours. 21 chantiers. 145 déploiements Vercel. 209 smoke tests. Domaine live (abnegation.eu). Stack complète : Next.js 14, Supabase, Stripe, Vercel.
 Zéro background technique. L'IA code (Claude Code), je décide. Chaque spec écrite en markdown. Chaque diff reviewé avant merge. Commits atomiques.
 
 ### Workflow spec → implémentation
@@ -179,6 +184,11 @@ Preuve PM : reconnaître qu'un framework interne (Blindage candidat) est une ins
 
 La newsletter Méroé Nguimbi (3 mars 2026) établit une hiérarchie de 8 niveaux pour les questions posées par le candidat en entretien : de l'absence de question (niveau -1) à la question inconfortable basée sur une due diligence d'anciens employés (niveau 6). Le generator Appel Découverte produit des questions de niveau 4-5 (contextuelle, miroir, révélatrice) là où le candidat non forgé arrive au niveau 1-2 (logistique, fonctionnel). La différence : le matériau forgé (briques blindées × cauchemars × séniorité) rend les questions de haut niveau possibles. Le craft transforme le niveau, pas le talent. Signal backlog identifié : un scoring qui montrerait au candidat le niveau Méroé de ses questions discovery ("Tes questions sont au niveau 2. Tu as le matériau pour le niveau 4.").
 Preuve PM : ancrer un mécanisme produit (Appel Découverte) sur un framework externe documenté (hiérarchie Méroé). L'outil ne réinvente pas la grille d'évaluation. Il produit les questions que la grille valorise.
+
+### Mapping rhétorique Moreau — 5 mécanismes encodés sans les nommer (25 mars 2026)
+
+Les 53 micro-skills rhétoriques d'Emmanuel Moreau (Microscope Polymathique) mappent sur 5 mécanismes existants de l'outil. Crystallisation de Concepts (#40) = Signature (le pattern comportemental diffus cristallisé en une phrase). Hook Architecture (#46) = Marie Hook (4 tests accroche dans ch21). Avocat du Diable (#51) = Duel (le candidat défend ses briques face aux cauchemars). Redéfinition (#21) = ATMT Transfert (recadrer une expérience passée pour prouver sa valeur sur le poste visé). Densité & Clarté (#53) = densité Forge (scoring 6 axes, ratio preuve/bruit). L'outil encode des compétences rhétoriques sans les nommer. Le candidat ne sait pas qu'il fait de la crystallisation. Il sait que sa Signature est détectée.
+Preuve PM : reconnaître que les mécanismes produit encodent des compétences académiquement documentées (rhétorique, Aristote→Schwartz→Moreau). Le produit ne réinvente pas la rhétorique. Il l'applique à un cas spécifique.
 
 ### Densité > temps
 
@@ -309,6 +319,11 @@ Pas d'équipe à manager. Mais chaque rôle est assumé :
 - Designer : design system (palette, fonts, spacing) documenté et cohérent.
 - QA : 169 smoke tests, tests manuels obligatoires dans chaque prompt, review avant merge.
 - Ops : DNS, monitoring, RGPD, email, analytics.
+
+### Profil PM-opérateur validé par TPC (25 mars 2026)
+
+Le co-fondateur de The Product Crew (900 entreprises, référence salaires tech France) décrit en mars 2026 le profil PM gagnant : "shipper seul en mode augmenté, prototyper sans équipe technique, construire un vrai produit." Abneg@tion est la preuve matérielle de ce profil. 40 100 lignes, 145 déploiements, 4 surfaces architecturées, zéro background technique. Le formulaire TPC Product Compass score 63/100 (Complexité 18/20, Atouts Marché 19/20, Rôle 10/20, Séniorité 8/20). L'écart entre Complexité/Atouts (top) et Rôle/Séniorité (bas) reflète le biais des formulaires déclaratifs : le titre et les années d'expérience PM dominent le score, pas le track record. C'est le problème que le Blindage résout.
+Preuve PM : être le cas d'usage de son propre produit. Le formulaire TPC ne capture pas les preuves. Abneg@tion les capture.
 
 ### Collaboration avec l'IA comme pair technique
 

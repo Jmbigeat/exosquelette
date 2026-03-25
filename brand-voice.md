@@ -69,3 +69,17 @@ passionné, dynamique, proactif, orienté résultats, fort de, doté de, riche e
 - Code: English.
 - Generated content: French.
 - No unicode escapes. Write é, not \u00E9. Write €, not \u20AC.
+
+---
+
+## MESSAGING TREMPE (25 mars 2026)
+
+Formulation candidate pour la landing ou l'onboarding Trempe :
+
+"Le contenu que tu publies n'est pas du personal branding. C'est une preuve de compétence déposée dans l'esprit d'un recruteur qui aura un besoin dans 3 mois. Ce jour-là, il ne comparera pas 200 CV. Il t'appellera toi."
+
+Source : post LinkedIn doctrine proof deposit (anonyme, mars 2026). Reformulée pour le candidat Abneg@tion.
+
+Variante courte : "Chaque post est une micro-preuve. Le recruteur qui aura un mandat dans 3 mois t'appellera toi."
+
+Anti-pattern : ne jamais dire "personal branding" dans l'UI ou le messaging. Le candidat entend "marketing de soi" et décroche. Dire "preuve déposée" ou "trace sédimentée."
