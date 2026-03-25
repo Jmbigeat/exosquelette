@@ -89,6 +89,11 @@ Preuve PM : identifier des canaux de distribution avant d'avoir un seul utilisat
 Mathias Frachon (TPC) identifie 3 compétences critiques PM en 2026. Les trois mappent sur des pratiques documentées dans le projet. "Cadrer un problème avec précision" = les 21 prompts markdown avec section "Ce que tu ne fais pas" (le cadrage négatif protège contre la sur-ingénierie). "Pensée systémique pour orchestrer des workflows IA" = les 3 mental models appliqués à chaque décision structurelle (first principles, inversion, second-order consequences). "Jugement business : savoir ce qu'il ne faut pas construire" = 3 features tuées (Sprint Éclair, toggle j'y suis/j'y vais, RAC), 6 approches IA rejetées sur 7 évaluées, section anti-patterns documentée.
 Preuve PM : les compétences que le marché valorise le plus en 2026 (cadrage, pensée systémique, jugement) sont les compétences les plus documentées dans le projet. Pas par hasard — par construction.
 
+### Call Alex BLUMA — stress test du cadre théorique (25 mars 2026)
+
+Premier call avec un designer pédagogique spécialisé évaluation des compétences. 5 objections reçues. La plus forte : "les 4 cases du Blindage restent du déclaratif." Réponse identifiée post-call : le Blindage transforme du déclaratif invérifiable (CV) en déclaratif vérifiable (brique blindée). La vérification reste humaine. Deux signaux backlog : brique "projet technique" avec lien livrable (hard skill junior) et croisement briques × sources tierces V3. L'objection "l'ère des projets est morte" contrée : le problème n'est pas le projet, c'est l'absence de craft pour en extraire la preuve. L'objection "comment prouver sa part dans un résultat collectif" couverte par le delta (avant/après au lieu du chiffre global).
+Preuve PM : soumettre le cadre théorique à un expert externe et ressortir avec des améliorations concrètes au lieu de défendre l'existant.
+
 ---
 
 ## 2. DELIVERY & EXÉCUTION
@@ -324,6 +329,17 @@ Pas d'équipe à manager. Mais chaque rôle est assumé :
 
 Le co-fondateur de The Product Crew (900 entreprises, référence salaires tech France) décrit en mars 2026 le profil PM gagnant : "shipper seul en mode augmenté, prototyper sans équipe technique, construire un vrai produit." Abneg@tion est la preuve matérielle de ce profil. 40 100 lignes, 145 déploiements, 4 surfaces architecturées, zéro background technique. Le formulaire TPC Product Compass score 63/100 (Complexité 18/20, Atouts Marché 19/20, Rôle 10/20, Séniorité 8/20). L'écart entre Complexité/Atouts (top) et Rôle/Séniorité (bas) reflète le biais des formulaires déclaratifs : le titre et les années d'expérience PM dominent le score, pas le track record. C'est le problème que le Blindage résout.
 Preuve PM : être le cas d'usage de son propre produit. Le formulaire TPC ne capture pas les preuves. Abneg@tion les capture.
+
+### Méthodologie vibe coding 7 couches — système reproductible (25 mars 2026)
+
+En 40 jours, construction non intentionnelle d'une méthodologie de vibe coding complète. Le vibe coder classique fait Spec-to-Code (un prompt, un terminal, du code généré). Le système Abneg@tion fait Code-Spec-Code avec 7 couches de contrôle. (1) Statechart Harel = source de vérité UI, aucun vibe coder n'a ça. (2) lessons.md = 12 bugs transformés en règles permanentes, lues au démarrage de chaque session. (3) Template prompt = contrat d'exécution (Opération 0, "Ce que tu ne fais pas", tests manuels, vérification finale). (4) CODEMAP = carte de 51 fichiers, lisible à 40 100 lignes. (5) Scoring déterministe = 80% du moteur tourne sans LLM, l'IA ne décide pas. (6) Smoke tests = 209 tests, filet de sécurité automatique. (7) Workflow Claude.ai → Claude Code = séparation spec/implémentation, deux contextes, deux rôles, zéro mélange.
+Le vibe coder qui fait la Phase 3 sans les Phases 1 et 2 produit des sites shadcn/ui génériques que le scanner détecte en 3 secondes. Celui qui fait Code-Spec-Code produit 40 100 lignes avec un moat invisible à la surface.
+Preuve PM : construire un système de pilotage reproductible pour le développement IA-augmenté, sans background technique. La méthodologie est documentée, versionnée, et transférable.
+
+### Réponse "moat" préparée pour entretien PM (25 mars 2026)
+
+Le scanner DeathByClawd score abnegation.eu à 89/100 "Déjà mort" et génère un prompt de remplacement de 31 lignes. La surface (champ + bouton + résultat IA) ressemble à un wrapper. Le moat est invisible à la surface. Trois composants du moat : (1) Données métier structurées — 10 rôles × 8 cauchemars × coûts sectoriels × fourchettes salariales × variantes titres × séniorité × ratio valeur/coût. Un prompt ne les a pas. (2) Parcours contraint — statechart Harel, densité par seuils, Blindage invisible, Duel, Signature qui émerge de 3 briques. Un prompt ne contraint rien. (3) Accumulation — briques persistantes, densité qui monte, Trempe qui dépose des preuves semaine après semaine. Un prompt repart de zéro.
+Preuve PM : identifier que le moat d'un produit IA n'est pas dans le modèle (remplaçable) mais dans les données métier (compilées), le parcours contraint (architecturé), et l'accumulation (persistante). Savoir répondre à "c'est quoi ton moat" en 30 secondes.
 
 ### Collaboration avec l'IA comme pair technique
 

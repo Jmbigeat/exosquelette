@@ -90,3 +90,11 @@ Règle : ne jamais importer createServerClient ou SUPABASE_SERVICE_ROLE_KEY dans
 Constat : la fenêtre de contexte LLM a un biais de récence. Le dernier fichier lu par Claude Code est le plus saillant quand le raisonnement commence. Dans un prompt Opération 1 "lis ces 6 fichiers", le fichier en position 6 domine le contexte. Le fichier en position 1 est le moins saillant au moment de la première modification.
 
 Règle : dans chaque prompt, lister le fichier à MODIFIER en dernier dans la liste de lecture. Les fichiers de contexte pur (references.js, helpers.js) viennent en premier. Le fichier cible (celui que Claude Code va éditer) vient en dernier. Si plusieurs fichiers sont modifiés, les ordonner du moins critique au plus critique.
+
+---
+
+## Déclaratif vérifiable vs déclaratif invérifiable — 25 mars 2026
+
+Constat : lors du call Alex BLUMA (designer pédagogique), l'objection "les 4 cases du Blindage restent du déclaratif" n'a pas pu être contrée. L'argument manquant : le Blindage ne supprime pas le déclaratif. Il le rend vérifiable. Le CV dit "expérience en développement commercial" — le recruteur ne sait pas quoi vérifier. La brique dit "croissance de +22% du portefeuille Mid-Market chez Danone en 12 mois" — le recruteur appelle Danone et demande "c'est vrai ?"
+
+Règle : quand quelqu'un objecte "c'est du déclaratif", la réponse est : "Oui, du déclaratif vérifiable. Le CV est du déclaratif invérifiable. La brique est du déclaratif vérifiable." Deuxième argument : le delta. L'outil ne demande pas le chiffre global (98%). Il demande le delta (de 89% à 98%). Le delta isole la contribution personnelle du système.

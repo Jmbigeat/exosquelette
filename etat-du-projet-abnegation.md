@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 25 mars 2026
+## Dernière mise à jour : 25 mars 2026 (soir)
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -233,7 +233,7 @@ Claude.ai : challenge before validating (posture avocat du diable par défaut). 
 
 ## CONTACTS EN MOUVEMENT (23 mars 2026)
 
-Alex BLUMA : call semaine prochaine. Designer pédagogique, étude évaluation compétences. Écouter, décrire le problème, ne pas pitcher.
+Alex BLUMA : call fait 25 mars. Designer pédagogique, étude évaluation compétences. 5 objections : (1) Blindage = déclaratif → réponse : déclaratif vérifiable vs invérifiable. (2) ATS offre du temps → compatible, pas concurrent. (3) Hard skills difficiles à prouver junior → signal backlog brique projet technique avec lien livrable. (4) Ère des projets morte → non, le craft d'extraction manque. (5) Part dans un résultat collectif → le delta avant/après, pas le chiffre global. Next step : deuxième call si intéressé.
 Loic Doufodji : DM envoyé. Co-fondateur Startomatic 3000, ex-RH, associé dev thèse IA. Call 30 min. Ne pas montrer le code ni le workflow.
 Loris (Big Idea) : à contacter. Newsletter singularité/5P. Même pattern qu'Alex — coach fait la couche humaine, outil fait la couche commodité. Canal distribution.
 Noota : DM dans 2 semaines. Post screening IA publié avant. Angle : complémentarité screening IA × qualité input candidat. Ne pas attaquer leur produit.
@@ -259,6 +259,8 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 | Angle stress test "coût d'opportunité" | Question "Qu'est-ce que tu n'as PAS fait pour obtenir ce résultat ?" Le sacrifice contient la décision (Blindage case 2) + le coût d'opportunité. Marqueur de séniorité : le junior décide, le senior arbitre entre deux options de valeur. Injection dans generateInterviewQuestions ou Appel Découverte. Petit scope, fort impact. | Post LinkedIn "5 questions valeur" (anonyme) | 24 mars |
 | Scoring qualité questions discovery (échelle Méroé) | Bloc Arsenal "qualité de tes questions." Score les questions discovery générées sur l'échelle Méroé (niveaux -1 à 6 : absence → wikipedia → logistique → fonctionnelle → contextuelle → miroir → révélatrice → inconfortable). Feedback candidat : "Tes questions sont au niveau 2 (fonctionnel). Tu as le matériau pour atteindre le niveau 4 (miroir)." Le Duel évalue la défense. Rien n'évalue la qualité des questions posées en retour. | Newsletter Méroé Nguimbi "Le Plus Gros Mensonge du Recrutement en 2026" (3 mars 2026) | 24 mars |
 | Dossier cible entreprise — confirmation signal | Le niveau 6 Méroé (question inconfortable basée sur due diligence anciens employés) confirme le signal "Dossier cible entreprise" du même jour. Le generator Appel Découverte produit les questions. Il ne produit pas le matériau de recherche qui nourrit les questions de niveau 5-6. Deux sources indépendantes pointent le même manque. | Newsletter Méroé + Guide "Job Search x IA" | 24 mars |
+| Brique "projet technique" avec lien livrable | Type de brique qui accepte un lien vers un livrable concret (repo GitHub, prototype, document). Le junior montre le code. La hard skill n'est plus déclarative, elle est vérifiable par le livrable. | Call Alex BLUMA 25 mars — objection "hard skill difficile à prouver" | 25 mars |
+| Croisement briques × sources tierces (V3) | Réduire le déclaratif en croisant les briques avec recommandations LinkedIn, attestations employeur, données publiques. Le Blindage passe de "déclaratif vérifiable" à "déclaratif vérifié." Horizon V3. | Call Alex BLUMA 25 mars — objection "le Blindage reste du déclaratif" | 25 mars |
 
 ---
 
