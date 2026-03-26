@@ -581,7 +581,7 @@ export function BricksRecap({ bricks }) {
   var expanded = expandedState[0];
   var setExpanded = expandedState[1];
   var coverage = computeCauchemarCoverage(bricks);
-  var deliverableCounts = computeBrickDeliverableCount(bricks, null, null, null);
+  var deliverableCounts = computeBrickDeliverableCount(bricks, null, getActiveCauchemars(), null);
   if (validated.length === 0 && missions.length === 0) return null;
 
   function isCovering(brick) {
