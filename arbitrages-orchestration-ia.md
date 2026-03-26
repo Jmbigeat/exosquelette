@@ -100,9 +100,48 @@ Rejeté (20 mars 2026). Raison : les hooks couvrent 20% des bugs (mécaniques : 
 
 ## RÉÉVALUATION PRÉVUE
 
-- Cursor : quand le repo dépasse 100 fichiers ou quand un deuxième contributeur rejoint.
-- Multi-agent : quand les tâches deviennent parallélisables (ex : 3 generators à refactorer indépendamment en même temps).
-- BMAD : quand une équipe de 3+ personnes travaille sur le produit.
-- Agent Analyst : quand PostHog est actif et que les données utilisateurs remplacent l'intuition.
-- MCP Servers (Supabase, Stripe, Vercel) : quand Stripe est actif et que les vérifications base/webhook deviennent quotidiennes.
-- Hooks Claude Code : quand un dev humain rejoint le projet. Le dev ne connaît pas les 52 arbitrages. Les hooks compensent le manque de contexte. Solo founder = le fondateur est le hook.
+- Cursor : RÉÉVALUÉ 25 mars. Le repo atteint 88 fichiers (51 code + 37 docs). Grepper 51 fichiers ralentit la phase recherche. Cursor en mode lecture seule (autocomplete désactivé, pas d'édition directe) accélérerait le terminal A du two-instance. Risque : tentation d'éditer directement. Atténuation : mode lecture seule strict. Action : tester sur le prochain chantier complexe.
+- Multi-agent : PARTIELLEMENT RÉÉVALUÉ 25 mars. Le framework multi-agent (BMAD, Task tool) reste rejeté. Le two-instance kickoff (parallélisme léger, convergence manuelle) est la bonne granularité. Deux terminaux Claude Code, tâches différentes, JM comme pont. Le rejet initial était trop binaire.
+- BMAD : rejet confirmé 25 mars. Toujours solo. Réévaluer quand 3+ personnes.
+- Agent Analyst : rejet confirmé 25 mars. La valeur est dans l'angle (contrepied), pas dans le résumé. 26+ posts analysés manuellement le prouvent.
+- MCP Servers (Supabase, Stripe, Vercel) : rejet confirmé 25 mars. Stripe inactif. Zéro candidat. Réévaluer quand Stripe actif et vérifications quotidiennes.
+- Hooks Claude Code (LLM-review) : rejet confirmé 25 mars. Les hooks déterministes (pre-commit, post-merge) sont implémentés depuis le 20 mars. Le hook LLM (Claude review Claude) reste rejeté — faux sentiment de sécurité.
+- Agent Dev autonome (option 2) : RÉÉVALUÉ 25 mars. L'auto mode Claude Code (classifieur IA, actions sûres auto-approuvées, actions risquées bloquées) est le compromis. Preview Team uniquement. À activer dès disponible plan Pro.
+- Optimisation tokens (choix dynamique du modèle) : évalué 25 mars, rejeté temporairement. Non exploitable plan Pro. Pattern documenté dans everything-claude-code (96K stars). Backlog signal stocké.
+
+---
+
+## RÉÉVALUATION 25 MARS 2026
+
+Contexte : 40 100 lignes, 51+ fichiers code, 37 fichiers docs, 209 smoke tests, 10 unit tests, 88 fichiers total. Le repo a doublé depuis les arbitrages initiaux (10 mars). Déclencheur : le repo everything-claude-code (96K stars) et le two-instance kickoff ont montré que certains rejets étaient trop binaires.
+
+### Items jamais formellement évalués
+
+#### Promptfoo / Evals LLM sur les generators
+
+Contexte : 11 generators produisent du texte non-déterministe. Les unit tests (vitest) testent les helpers déterministes. Rien ne teste la qualité des outputs generators. Un generator qui produit un One-Pager médiocre passe le build et les smoke tests.
+Évaluation : Promptfoo permettrait de définir des assertions sur les outputs LLM ("le One-Pager contient un chiffre", "le DM mentionne le cauchemar", "la bio ne dépasse pas 210 caractères").
+Verdict : pas maintenant (zéro candidat, zéro données d'usage). Après les 10 candidats. Les outputs generators seront testables sur des cas réels.
+Réévaluation : quand un generator est modifié et qu'on veut vérifier que la modification n'a pas dégradé la qualité. Prérequis : 10 candidats réels + outputs réels à évaluer.
+
+#### Cowork (gestion connaissance + tâches planifiées)
+
+Contexte : le workflow Sync manuel (commit → push → clic Sync) a un délai. Les fichiers vivants sont mis à jour manuellement. Les rappels de priorité sont dans la tête de JM.
+Évaluation : Cowork accède aux fichiers locaux en temps réel. Tâches planifiées (rappel priorité 1 le lundi matin, mise à jour compteurs le vendredi). Dispatch depuis le téléphone. Triangle Cowork + Claude.ai + Claude Code remplace la ligne séquentielle.
+Verdict : à implémenter. Plan Pro compatible. Setup 5 minutes. Gain immédiat sur la maintenance documentaire et les rappels priorité.
+Action : installer Claude Desktop, pointer sur ~/Downloads/exosquelette, tester la première tâche.
+
+#### Two-Instance Kickoff
+
+Contexte : les chantiers complexes sont séquentiels. L'Opération 1 (lire 6-8 fichiers) bloque l'Opération 2+ (coder). Le temps d'attente de la lecture est du temps perdu.
+Évaluation : deux terminaux Claude Code. Instance A (recherche) lit et rapporte. Instance B (scaffold) crée les signatures vides. Les deux convergent. JM est le pont.
+Verdict : à tester immédiatement. Aucun coût. Aucune dépendance. Le premier test est prévu sur feat-16m (indicateur briques × livrables).
+Source : repo everything-claude-code (96K stars), pattern documenté.
+
+### Principe de décision mis à jour
+
+Ancien : "Est-ce que cet outil résout un problème que j'ai aujourd'hui ou demain ? Si demain, rejeté."
+
+Nouveau (25 mars) : même principe, avec deux ajouts :
+1. Réévaluer les rejets quand le contexte double (taille repo, nombre de fichiers, complexité des sessions). Le rejet de Cursor à 27 fichiers n'est pas le même qu'à 88 fichiers.
+2. Distinguer les rejets binaires (BMAD = non) des rejets graduels (multi-agent = pas le framework, mais le parallélisme léger oui). Le two-instance prouve qu'un rejet partiel est plus utile qu'un rejet total.
