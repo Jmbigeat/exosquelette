@@ -94,6 +94,23 @@ Preuve PM : les compétences que le marché valorise le plus en 2026 (cadrage, p
 Premier call avec un designer pédagogique spécialisé évaluation des compétences. 5 objections reçues. La plus forte : "les 4 cases du Blindage restent du déclaratif." Réponse identifiée post-call : le Blindage transforme du déclaratif invérifiable (CV) en déclaratif vérifiable (brique blindée). La vérification reste humaine. Deux signaux backlog : brique "projet technique" avec lien livrable (hard skill junior) et croisement briques × sources tierces V3. L'objection "l'ère des projets est morte" contrée : le problème n'est pas le projet, c'est l'absence de craft pour en extraire la preuve. L'objection "comment prouver sa part dans un résultat collectif" couverte par le delta (avant/après au lieu du chiffre global).
 Preuve PM : soumettre le cadre théorique à un expert externe et ressortir avec des améliorations concrètes au lieu de défendre l'existant.
 
+### Pricing itératif sous incertitude (février-mars 2026)
+
+3 modèles de pricing évalués et pivotés en 6 semaines. D'abord 49€ one-shot (bloquait la conversion). Puis 149€ Sprint évalué et rejeté (le signal "investissement" ne compense pas la friction). Puis 19€/mois abonnement + Forge gratuite (le candidat prouve d'abord, paie ensuite). L'arbitrage B2B (150€/crédit) tranché question par question avec three mental models : prix par rôle (non — la qualité du profil est identique), prix par ville (non — la rareté est structurelle, pas liée à la plateforme), prix unique (oui — la simplicité bat l'optimisation). Le ratio valeur/coût candidat chiffré : le candidat coûte 3-14% de ce qu'il rapporte.
+Preuve PM : le parcours de la décision pricing est la preuve, pas le résultat. Itérer 3 fois en 6 semaines avec des modèles mentaux documentés montre le jugement business.
+
+### Analyse concurrentielle structurée (mars 2026)
+
+5+ concurrents et adjacents identifiés, classés, et positionnés. Noota (agent IA screening) : complémentarité, pas concurrence — analysé avec 3 mental models, DM privé prévu, post public anonymisé. Olivier Marx (cv.jobdo.ai) : concurrent direct, terrain miné, pas de contact. Palio.app : concurrent indirect, partenaire potentiel Échoppe. DeathByClawd : scanner satirique, score 89/100 "déjà mort" — diagnostic utilisé pour identifier que la landing ne montre pas le moat. Team.is : anti-IA recrutement, like sans commentaire, verbatim stockable.
+Chaque concurrent classé (direct, indirect, partenaire, canal) avec une décision de positionnement. L'angle Noota ("le bottleneck est l'input, pas le filtre") dépose une preuve de positionnement sans attaquer le concurrent.
+Preuve PM : transformer chaque concurrent en signal produit. La menace Noota devient un canal de distribution potentiel.
+
+### Acquisition organique conçue comme produit (mars 2026)
+
+Le workflow LinkedIn JM est un système de production à 8 étapes : triage, complétion Blindage Post, rédaction, Marie Hook accroche (4 tests, variantes si <7/10), Marie Hook post entier (5 tests), Méroé (Miroir + Luis Enrique), check binaire 5 tests, livraison. Le Blindage Post 4 cases (Fait Situé, Détail Inutile, Tension Vécue, Leçon Non Universelle) est le miroir du Blindage candidat 4 cases. 4/4 ou ne pas publier. Stratégie de couverture : 4 piliers × 6 niveaux Dilts. Alerte stagnation si 3 posts consécutifs au même niveau.
+La Trempe automatise le même système pour le candidat. La cohérence produit/marketing est architecturale : le candidat forge ses briques avec le Blindage. Le fondateur forge ses posts avec le Blindage Post. Même framework, deux usages.
+Preuve PM : concevoir un système d'acquisition organique avec les mêmes standards de qualité que le produit. "Mon système d'acquisition est un produit, pas une tâche marketing."
+
 ---
 
 ## 2. DELIVERY & EXÉCUTION
@@ -128,6 +145,16 @@ Chaque chantier a une section "Ce que tu ne fais pas." Chaque prompt protège co
 ### Spec compliance en review (19 mars 2026)
 
 Micro-fix Von Restorff : Claude Code propose getRecommendedDeliverable avec l'ordre Duel → briques → offre. La spec dit offre → briques → Duel. Le candidat avec une offre active a besoin de son CV d'abord. Déviation catchée à la review, corrigée avant merge. Preuve : la review du diff n'est pas cosmétique. Elle attrape les inversions de priorité.
+
+### Gestion de la dette technique sans background technique (mars 2026)
+
+4 refactorings identifiés et priorisés sans savoir coder. panels.jsx 2562 → 970 lignes. Sprint.jsx 1065 → 622 lignes. Generators : logique de sélection extraite dans selectors.js (4 fonctions pures). Séquence ordonnée (P2→P3→P4→P5, chaque prompt dépend du précédent). L'identification du problème (2562 lignes dans un fichier = vélocité en baisse) et l'arbitrage du timing (refactorer maintenant vs livrer des features) sont les mêmes compétences qu'un PM en scale-up exerce avec son tech lead.
+Preuve PM : identifier quand le code freine la vélocité et arbitrer le moment du refactoring. Le même jugement s'applique avec ou sans background technique.
+
+### Cadrage négatif systématique — "Ce que tu ne fais pas" (mars 2026)
+
+21 prompts Claude Code. Chaque prompt contient une section "Ce que tu ne fais pas." Chaque spec contient des anti-patterns. Chaque arbitrage contient les options rejetées. Le cadrage négatif n'est pas un événement. C'est un pattern systémique de scope control. 21 prompts × 1 section négative = 21 exercices de protection contre la sur-ingénierie. Exemples : "Tu ne réécris pas extractBrickCore en entier", "Tu ne modifies pas la structure du state des briques", "Tu ne touches pas aux generators eux-mêmes."
+Preuve PM : le scope control le plus efficace n'est pas de dire ce qu'on fait. C'est de dire ce qu'on ne fait pas. La section négative protège contre les dérives de l'IA et du fondateur.
 
 ---
 
@@ -311,6 +338,19 @@ Méthode : three mental models. First principles : Noota résout le tri (volume)
 Décision : complémentarité, pas concurrence. DM privé dans 2 semaines. Post public anonymisé (zéro marqueur Noota). L'angle "le bottleneck est l'input, pas le filtre" dépose une preuve de positionnement sans attaquer le concurrent.
 Preuve PM : analyser un concurrent indirect et transformer la menace en canal de distribution potentiel. La décision "anonymiser le post + DM privé" protège la relation tout en capitalisant sur l'insight.
 
+### Design pédagogique inconscient — l'outil est une formation déguisée (25 mars 2026)
+
+5 mécanismes pédagogiques encodés dans le produit sans les nommer. Scaffolding (l'extraction guide du simple au complexe, l'outil retire les échafaudages progressivement). Testing effect (le Blindage et le Duel forcent l'auto-test — se tester consolide mieux que relire). Maïeutique (la Signature fait émerger un pattern que le candidat ne voyait pas — l'outil ne dit pas, il fait découvrir). Apprentissage expérientiel Kolb (la Trempe : agir → observer → réfléchir → planifier, cycle hebdomadaire). Pratique délibérée Ericsson (la Trempe structure la pratique avec feedback et difficulté progressive via les niveaux Dilts).
+Mécanismes anti-dépendance prévus : audit-before-copy (l'audit au-dessus du livrable), "pourquoi ça marche" (une ligne sous chaque livrable), compteur de régénération (rappel du principe structurel). Le candidat qui résilie garde les compétences.
+Confirmé par Alex BLUMA (designer pédagogique) lors du call du 25 mars : l'outil est un dispositif de formation déguisé en outil de carrière.
+Preuve PM : encoder des compétences pédagogiques dans un produit sans les surfacer. Le candidat ne sait pas qu'il apprend. Il sait que ses briques sont blindées.
+
+### Transfert de frameworks inter-domaines — pattern systémique (25 mars 2026)
+
+Pattern récurrent : transférer un framework d'un domaine à un problème produit spécifique. Blindage candidat (4 cases) → Blindage Post (4 cases) → Blindage universel (OKR, évaluation équipe). Code-Spec-Code (modernisation legacy) → parcours candidat (extraction → enrichissement → génération). 53 micro-skills Moreau (rhétorique académique) → 5 mécanismes produit encodés. NfA/Grit/LoC (psychologie) → scoring déterministe. Hiérarchie Méroé (questions entretien) → generator Appel Découverte.
+Chaque transfert est documenté individuellement dans le portfolio. Le pattern lui-même est la compétence : reconnaître qu'un framework existant dans un autre domaine résout un problème produit. Ne pas réinventer. Transférer.
+Preuve PM : la micro-skill #21 de Moreau (Redéfinition) appliquée au niveau meta. Le produit ne crée pas de frameworks. Il applique des frameworks existants à un cas spécifique.
+
 ---
 
 ## 5. LEADERSHIP SANS ÉQUIPE
@@ -367,6 +407,23 @@ Chaque décision structurante est documentée avec les three mental models. Le s
 | Storytelling de circonstance | L'Éclaireur raconte "tu as un problème" au candidat. Le même outil raconte "vos offres ne convertissent pas" au DRH (plan C outplacement). Le même build raconte "21 chantiers en 25 jours" au recruteur PM (plan B). Même fait, trois angles. |
 
 Non prouvés par Abneg@tion (prouvables par carrière antérieure) : résistance aux revirements de direction, absorption des conflits entre stakeholders. Ces deux nécessitent une équipe et un CEO. Solo founder n'a ni l'un ni l'autre.
+
+### Revue PM auto-calibrée (mars 2026)
+
+Système de revue hebdomadaire conçu et calibré sur la situation réelle (fondateur solo, pré-lancement). 3 compétences PM mesurées chaque semaine (product sense, execution, judgment). Le format "PM généraliste 15 compétences" évalué et rejeté avec les 3 mental models : il crée de la culpabilité sans apprentissage (11 cases vides sur 15). Le template évolue avec le produit. Quand le premier utilisateur paie, la grille ajoute les compétences correspondantes (user research, support structuré).
+Preuve PM : concevoir un outil d'auto-évaluation adaptatif. "Je mesure 3 compétences PM par semaine et j'ajuste la grille quand le contexte change."
+
+### Documentation comme produit — 37 fichiers .md maintenus (mars 2026)
+
+37 fichiers .md synchronisés GitHub → Project Knowledge. 8 fichiers vivants avec cycle de mise à jour. CODEMAP (51 fichiers documentés). Statechart Harel (source de vérité UI). Template prompt réutilisable (9 sections obligatoires). lessons.md (12 règles de bugs). Workflow LinkedIn (8 étapes). Portfolio PM (ce fichier). Chaque fichier a un rôle, une audience, et un cycle de vie.
+Le système de connaissance est dans le repo, versionné, et synchronisé avec Claude.ai. N'importe quel agent IA ou développeur peut comprendre le produit en lisant les fichiers. C'est l'équivalent d'un Notion/Confluence pour une équipe solo.
+Preuve PM : gestion de la connaissance produit. Un PM en scale-up maintient Notion. Un PM solo maintient 37 fichiers .md versionnés. Le résultat est le même : la connaissance survit au contexte.
+
+### Gestion de la relation IA comme stakeholder management (25 mars 2026)
+
+Claude.ai et Claude Code gérés comme des stakeholders avec des personnalités distinctes. Claude.ai reçoit des instructions stratégiques (working-style.md : 5 règles anti-chambre d'écho, posture avocat du diable, verdict first). Claude Code reçoit des contrats d'exécution (template prompt, "Ce que tu ne fais pas", option 1 toujours). Feedback calibré : refusé un fix Claude Code diplomatiquement ("editText est la source de vérité" au lieu de "ton code est mauvais"). Corrigé un biais de validation de Claude.ai ("tu ne l'appliques pas" — session 25 mars). Construit lessons.md comme système de feedback pour l'IA. Imposé une posture avocat du diable via 5 règles écrites.
+Le PM de 2026 gère des agents IA comme des rapports directs. Les agents ont des biais (chambre d'écho, accord systématique, dérive de spec). Les corriger demande les mêmes compétences que corriger un junior qui acquiesce trop vite.
+Preuve PM : stakeholder management appliqué à des agents IA. Même compétence (feedback, calibration, instructions claires), nouveau contexte (l'agent est un LLM, pas un humain).
 
 ---
 
