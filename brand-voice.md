@@ -192,3 +192,24 @@ Question recruteur : "Comment tu segmentes tes utilisateurs ?"
 Réponse : "Pas par titre de poste. Par comportement de recherche. Le candidat à 40K joue au volume. Le candidat à 70K négocie. Le candidat à 100K+ joue au poker. Même outil, même densité cible (70%), parcours différent."
 
 Source : post Méroé "Théorie du Fusible" (mars 2026). Preuve PM : segmentation comportementale vs démographique.
+
+---
+
+## MESSAGING DIFFÉRENCIATION IA (30 mars 2026)
+
+Positionnement : "IA dans le moteur, humain dans la preuve." Pas anti-IA. Pas pro-IA. Troisième camp.
+
+**Formulation candidat** : "Un CV généré par l'IA passe les ATS. Une brique blindée passe l'entretien."
+
+**Formulation recruteur (Échoppe)** : "Vos candidats arrivent avec des livrables auto-générés. Les nôtres arrivent avec des preuves qu'ils ont forgées eux-mêmes. Le Blindage 4/4 signifie : chiffre vérifié, décision documentée, influence prouvée, transférabilité argumentée. Aucun outil IA ne produit ça sans le candidat."
+
+**Formulation DRH (Plan C)** : "Le cabinet d'outplacement classique reformule le CV à la place du salarié. L'IA le fait aussi, 10x plus vite. Aucun des deux ne change ce que le salarié sait dire en entretien. L'entretien reste humain. Les preuves doivent l'être aussi."
+
+**Source** : analyse newsletter Rémi (système IA prestataire, 30 mars 2026). Le contraste "80% délégué à l'IA" vs "le candidat fait le travail" est le fil rouge du positionnement.
+
+**Usage** :
+- Pages GEO "Alternatives à X" (post-10 candidats) : colonne "outils qui produisent à ta place" vs "outils qui t'aident à formuler"
+- Post LinkedIn pilier 3 : architecture ATMT (accroche chiffre contraste, tension candidat nu en entretien, méthode la preuve se forge, transfert le lecteur reconnaît son CV auto-généré)
+- One-Pager B2B : la dernière phrase du bloc 2 rappelle que les preuves sont forgées par le candidat, pas générées
+
+**Anti-pattern** : ne jamais attaquer un outil IA nommé. Le contraste oppose deux philosophies, pas deux produits.
