@@ -1,5 +1,5 @@
 # ÉTAT DU PROJET — Abneg@tion
-## Dernière mise à jour : 25 mars 2026 (soir)
+## Dernière mise à jour : 25 mars 2026 (fin de session)
 
 Ce document est la source de vérité. Il remplace journal.txt. Chaque session Claude.ai commence par le lire. Chaque session Claude.ai finit par le mettre à jour.
 
@@ -225,6 +225,8 @@ Parcours : Éclaireur → sessionStorage → Onboarding (rôle pré-sélectionn�
 extractBrickCore : brick.fields.result = fast path. Heuristique = fallback legacy + corrections. Jamais structuredFields sur chemin correction.
 Trempe : Couche 2 du statechart. Code interne "brew" (tables, hooks, routes). Densité absente du dashboard Trempe. Alerte stagnation Dilts = reset après déclaration. Module commentaire = filtre pertinence avant génération.
 Échoppe : Couche 3. Spec définitive 19 mars (10 blocs, 52 questions). Cabinet = premier client. Coach = canal gratuit. Seuil 20 profils/rôle (pas 200). Lancement rôle par rôle. Prix 150€/crédit, packs sans récurrence. Même domaine (/recruiter), même base Supabase + RLS. Vue temps réel (trigger, pas snapshot). Contact par formulaire structuré (1 rôle, 1 cauchemar, contexte 80 mots, note 30 mots — l'outil assemble l'email, pas le recruteur). Opt-in global + 1 exclusion sectorielle. Retrait immédiat. Couche publique indexable AIO + couche privée authentifiée. Beta 2-3 cabinets avant ouverture payante.
+Plan C : outplacement B2B. Le cadre licencié forge ses preuves le jour du départ (chiffres frais). L'entreprise paie pour le cadre, pas le cadre pour lui-même.
+Plan C enrichi (25 mars) : l'outplacement touche les profils 80K-150K en priorité ("le fusible le plus cher est celui qu'on remplace en premier" — Méroé). Outplacement classique : 3-8K€/personne, 6-12 mois, résultat médiocre. Abneg@tion outplacement : le cadre forge le jour du départ (chiffres frais), blinde en 2 semaines. Pricing : 500-1500€/cadre (3-10× moins). Meilleur résultat, moindre coût.
 Livrables Établi : 11 livrables × 5 catégories (Candidature : One-Pager + CV + Bio. Prise de contact : Script contact + Message post-entretien + Plan 30j. Entretien : Questions [Discovery/Formel] + Entretien [Préparation/Fiche de combat]. LinkedIn : Posts piliers. Négociation : bundle salarial [position marché + coût remplacement + argument calibré] + Plan 90j N+1). Le One-Pager est le livrable principal. Von Restorff par défaut.
 Landing : abnegation.eu = l'Éclaireur. Le hero contient le champ (Approche A, embed direct). Le candidat colle et scanne sans quitter la page. Zéro jargon Abneg@tion sur la landing. La Forge se vend dans le résultat de l'Éclaireur, pas sur la landing.
 Claude.ai : challenge before validating (posture avocat du diable par défaut). Verdict first, reasoning second, implementation last. Ask questions when JM is stuck. Never re-explain context.
@@ -238,6 +240,7 @@ Loic Doufodji : DM envoyé. Co-fondateur Startomatic 3000, ex-RH, associé dev t
 Loris (Big Idea) : à contacter. Newsletter singularité/5P. Même pattern qu'Alex — coach fait la couche humaine, outil fait la couche commodité. Canal distribution.
 Noota : DM dans 2 semaines. Post screening IA publié avant. Angle : complémentarité screening IA × qualité input candidat. Ne pas attaquer leur produit.
 Consultante carrière (700 profils) : après 10 candidats. Canal distribution. Elle facture la couche humaine (coaching entretien, posture). L'outil fait la couche commodité.
+Méroé Nguimbi : pas de contact maintenant. Audience candidats 80K-150K = cible premium Abneg@tion. Contact Échoppe après 20 profils opt-in. "Théorie du Fusible" + "Hiérarchie des questions" = deux signaux forts de compatibilité.
 
 ---
 
@@ -264,6 +267,10 @@ Consultante carrière (700 profils) : après 10 candidats. Canal distribution. E
 | Croisement briques × sources tierces (V3) | Réduire le déclaratif en croisant les briques avec recommandations LinkedIn, attestations employeur, données publiques. Le Blindage passe de "déclaratif vérifiable" à "déclaratif vérifié." Horizon V3. | Call Alex BLUMA 25 mars — objection "le Blindage reste du déclaratif" | 25 mars |
 | Optimisation tokens Claude Code — choix dynamique du modèle | Les prompts docs (modifier une date, ajouter une ligne dans un tableau) consomment autant de tokens qu'un chantier complexe. Le choix dynamique (Haiku pour la maintenance, Opus pour l'architecture) réduirait la consommation. Non exploitable en plan Pro. À activer quand passage au plan supérieur ou à l'API. Pattern documenté dans everything-claude-code (96K stars). | Repo everything-claude-code + analyse session 25 mars | 25 mars |
 | Instrumentation tokens production — coût par candidat | La prochaine fois qu'un generator est touché, ajouter un compteur de tokens consommés par livrable (console.log en dev, 5 lignes). Pas de caching ni batching maintenant. Juste la mesure. Le jour où 100 candidats génèrent 11 livrables chacun, la facture API sera le premier poste de coût. Savoir combien coûte un candidat avant que le problème existe. | Post LinkedIn "les prix des LLMs vont grimper" + architecture 80% déterministe existante | 25 mars |
+| Chatbot d'extraction hybride (V3+) | Le formulaire censure le candidat (champs structurés = réponses courtes). Un chatbot poserait les questions ATMT naturellement et produirait une brique structurée. Le moteur déterministe évalue. Chatbot seul = wrapper. Chatbot + moteur déterministe = produit. Après validation sur 10 candidats réels. | Post LinkedIn "Ask to Get" + analyse 3 mental models session 25 mars | 25 mars |
+| Parcours adaptatif par bande salariale dans la Forge | Le candidat à 40K joue au volume (CV rapide). Le candidat à 100K+ joue au poker (Blindage complet, Signature, Duel). La densité cible est la même (70%). Le parcours est différent. 4 bandes : 35-45K, 55-70K, 80-100K, 120K+. | Post Méroé "Théorie du Fusible" (mars 2026) | 25 mars |
+| Messaging "Forge pendant que tu as les chiffres" | Le candidat en recherche oublie ses chiffres. Le moment idéal pour forger = le jour du départ, pas 6 mois après. Messaging Trempe pour candidats en poste qui sentent le vent tourner. | Post Méroé "Théorie du Fusible" — asymétrie d'information | 25 mars |
+| Consultants indépendants comme segment candidat | 5-10 missions courtes au lieu de 2-3 postes longs. Chaque mission = une brique. Signature cross-missions. Les recruteurs creusent les missions. Le Blindage produit le matériau creusé. Segment naturellement compatible, non ciblé. | Post Méroé "Théorie du Fusible" | 25 mars |
 
 ---
 

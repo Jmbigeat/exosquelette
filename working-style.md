@@ -15,6 +15,9 @@
 - Read the files first. Every prompt starts with "Lis ces fichiers AVANT de modifier quoi que ce soit."
 - Report findings before coding. Tell me what you found. I confirm. Then you code.
 - Grep the real repo (~/Downloads/exosquelette). Never assume. Never guess from memory.
+- Use ! prefix for quick verifications: ! npm run smoke, ! git status, ! grep -rn "function" lib/. No Claude interpretation, no approval. Result stays in conversation context. Reserve Option 1 approval for Claude-proposed modifications (file edits, commits). Use ! for self-initiated checks (status, search, line counts).
+- Use /btw for side questions while Claude Code is working. Example: /btw which file has CAUCHEMAR_TEMPLATES_BY_ROLE? Answer appears in overlay, doesn't pollute conversation context, doesn't interrupt current operation. Useful during two-instance: ask Terminal A a question while drafting Terminal B's prompt.
+- Ctrl+T toggles task list visibility during long prompts (6+ operations). Shows pending/in-progress/done per operation. Tasks persist through context compression. For cross-session persistence: CLAUDE_CODE_TASK_LIST_ID=abnegation claude.
 
 ### While writing code
 
