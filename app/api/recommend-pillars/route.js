@@ -1,17 +1,31 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+var recommendSchema = z.object({
+  pillars: z
+    .array(z.object({ id: z.number(), title: z.string(), desc: z.string() }))
+    .min(1),
+  takes: z.array(z.any()).optional(),
+});
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req) {
   try {
-    var body = await req.json();
-    var pillars = body.pillars || [];
-    var takes = body.takes || [];
+    var body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    }
 
-    if (pillars.length === 0) {
+    var parsed = recommendSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json({ error: "Aucun pilier fourni" }, { status: 400 });
     }
+    var pillars = parsed.data.pillars;
+    var takes = parsed.data.takes || [];
 
     var pillarsList = pillars
       .map(function (p) {

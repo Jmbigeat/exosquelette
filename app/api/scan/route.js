@@ -1,18 +1,31 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+var scanSchema = z.object({
+  cv: z.string().min(20),
+  offers: z.string().min(20),
+  roleId: z.string().optional(),
+});
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req) {
   try {
-    var body = await req.json();
-    var cv = body.cv || "";
-    var offers = body.offers || "";
-    var roleId = body.roleId || "";
+    var body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    }
 
-    if (cv.length < 20 || offers.length < 20) {
+    var parsed = scanSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json({ error: "Contenu insuffisant" }, { status: 400 });
     }
+    var cv = parsed.data.cv;
+    var offers = parsed.data.offers;
+    var roleId = parsed.data.roleId || "";
 
     var prompt = `Tu es un expert en recrutement et positionnement de carrière.
 

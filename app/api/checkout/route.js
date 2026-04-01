@@ -1,5 +1,30 @@
 import { stripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+var rateLimit = new Map();
+var WINDOW = 15 * 60 * 1000; // 15 minutes
+var MAX = 5; // 5 tentatives par IP
+
+function checkRateLimit(ip) {
+  var now = Date.now();
+  for (var [key] of rateLimit) {
+    if (now - rateLimit.get(key).start > WINDOW) rateLimit.delete(key);
+  }
+  var record = rateLimit.get(ip);
+  if (!record || now - record.start > WINDOW) {
+    rateLimit.set(ip, { count: 1, start: now });
+    return false;
+  }
+  record.count++;
+  return record.count > MAX;
+}
+
+var checkoutSchema = z.object({
+  userId: z.string().min(1),
+  email: z.string().email(),
+  type: z.enum(["sprint", "subscription"]).optional(),
+});
 
 var CHECKOUT_CONFIGS = {
   sprint: {
@@ -17,19 +42,42 @@ var CHECKOUT_CONFIGS = {
 };
 
 export async function POST(req) {
-  try {
-    var body = await req.json();
-    var userId = body.userId;
-    var email = body.email;
-    var type = body.type || "sprint";
+  var ip = req.headers.get("x-forwarded-for") || "unknown";
+  if (checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez dans 15 minutes." },
+      { status: 429 },
+    );
+  }
 
-    if (!userId || !email) {
-      return NextResponse.json({ error: "Utilisateur requis" }, { status: 400 });
+  try {
+    var body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return NextResponse.json(
+        { error: "Requête invalide." },
+        { status: 400 },
+      );
     }
+
+    var parsed = checkoutSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Données invalides." },
+        { status: 400 },
+      );
+    }
+    var userId = parsed.data.userId;
+    var email = parsed.data.email;
+    var type = parsed.data.type || "sprint";
 
     var config = CHECKOUT_CONFIGS[type];
     if (!config) {
-      return NextResponse.json({ error: "Type de produit invalide" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Type de produit invalide" },
+        { status: 400 },
+      );
     }
 
     var priceId = process.env[config.priceEnvKey];

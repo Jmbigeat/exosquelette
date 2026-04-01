@@ -1,17 +1,55 @@
 import { createServerClient } from "@/lib/supabase";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+var rateLimit = new Map();
+var WINDOW = 15 * 60 * 1000; // 15 minutes
+var MAX = 5; // 5 tentatives par IP
+
+function checkRateLimit(ip) {
+  var now = Date.now();
+  for (var [key] of rateLimit) {
+    if (now - rateLimit.get(key).start > WINDOW) rateLimit.delete(key);
+  }
+  var record = rateLimit.get(ip);
+  if (!record || now - record.start > WINDOW) {
+    rateLimit.set(ip, { count: 1, start: now });
+    return false;
+  }
+  record.count++;
+  return record.count > MAX;
+}
+
+var registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 
 export async function POST(req) {
-  var body = await req.json();
-  var email = body.email;
-  var password = body.password;
+  var ip = req.headers.get("x-forwarded-for") || "unknown";
+  if (checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez dans 15 minutes." },
+      { status: 429 },
+    );
+  }
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
+  var body;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   }
-  if (password.length < 8) {
-    return NextResponse.json({ error: "Mot de passe : 8 caractères minimum" }, { status: 400 });
+
+  var parsed = registerSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Email ou mot de passe invalide." },
+      { status: 400 },
+    );
   }
+  var email = parsed.data.email;
+  var password = parsed.data.password;
 
   var supabase = createServerClient();
 
@@ -24,10 +62,16 @@ export async function POST(req) {
 
   if (result.error) {
     // Supabase renvoie "already registered" si le compte existe
-    if (result.error.message && result.error.message.toLowerCase().indexOf("already") !== -1) {
+    if (
+      result.error.message &&
+      result.error.message.toLowerCase().indexOf("already") !== -1
+    ) {
       return NextResponse.json({ error: "exists" }, { status: 409 });
     }
-    return NextResponse.json({ error: "Inscription impossible. Réessayez ou contactez le support." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Inscription impossible. Réessayez ou contactez le support." },
+      { status: 400 },
+    );
   }
 
   // Le trigger handle_new_user() dans schema.sql crée automatiquement la row profiles
