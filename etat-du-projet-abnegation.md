@@ -370,6 +370,8 @@ Méroé Nguimbi : pas de contact maintenant. Audience candidats 80K-150K = cible
 | Post LinkedIn pilier 3 "preuve forgée vs générée" | Architecture prête : accroche = recruteur reçoit 200 CV IA + 3 profils forgés, appelle les 3. Tension = candidat nu en entretien. Méthode = la preuve se forge. Transfert = le lecteur reconnaît son CV. À passer dans le workflow 8 étapes. | Analyse newsletter Rémi (système IA prestataire) | 30 mars |
 | Brique périmée Trempe (feat-brew-staleness) | refreshed_at + STALENESS_THRESHOLDS par cluster + injection pilier 4 + warning Arsenal > 3. ~45 lignes. Prérequis : Trempe V2 (15h). | Session arbitrage 30 mars | 30 mars |
 | Spec Plan C outplacement | Flag Éclaireur + pré-remplissage fiche de poste + lien par rôle + rapport PDF mensuel + wording différencié + transition abonnement. ~1 semaine dev. Prérequis : Stripe + 10 candidats + Échoppe V1. | Session arbitrage 30 mars | 30 mars |
+| Tests e2e Playwright — 3 parcours critiques | 3 tests e2e : (1) Éclaireur coller offre → résultat, (2) Inscription → compte, (3) Forge ajouter brique → densité. Les 258 smoke tests vérifient la structure. Les 10 unit tests vérifient le comportement. Rien ne vérifie le parcours bout en bout. 2-4h setup. Après les 10 candidats. | Article "Tester son code IA" Pilier 1 (mars 2026) | 25 mars |
+| GitHub Actions CI — lint + tests auto à chaque push | Fichier .github/workflows/ci.yml (15 lignes). À chaque push : npm run lint + npm test + npm run smoke. Le seul filet actuel est la discipline manuelle. L'automatisation tiendrait mieux. 30 min setup. Sentry (error tracking) et PostHog (funnels) en même temps. | Article "CI/CD et monitoring" Pilier 2 (mars 2026) | 25 mars |
 
 ---
 
