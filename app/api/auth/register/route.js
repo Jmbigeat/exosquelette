@@ -27,7 +27,7 @@ export async function POST(req) {
     if (result.error.message && result.error.message.toLowerCase().indexOf("already") !== -1) {
       return NextResponse.json({ error: "exists" }, { status: 409 });
     }
-    return NextResponse.json({ error: result.error.message }, { status: 400 });
+    return NextResponse.json({ error: "Inscription impossible. Réessayez ou contactez le support." }, { status: 400 });
   }
 
   // Le trigger handle_new_user() dans schema.sql crée automatiquement la row profiles
