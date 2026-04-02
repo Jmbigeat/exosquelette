@@ -1,75 +1,150 @@
-# CLAUDE.md
+# CLAUDE.md — Abneg@tion
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Identité du projet
+Abneg@tion est une plateforme de positionnement carrière qui structure des preuves vérifiables pour les candidats. Marché SaaS français. Cible : candidats en transition ou négociation qui veulent des arguments factuels, pas du coaching flou. Construit par Exosquelette.
 
-## Project Overview
+## Stack
+- Framework : Next.js 14 (App Router), Vanilla JavaScript (pas de TypeScript), path aliases @/*
+- Base de données : Supabase (Auth email/password, PostgreSQL, RLS sur toutes les tables, Edge Functions)
+- Paiement : Stripe (Checkout 49€, webhooks, webhook fonctionne uniquement en production)
+- IA : Claude API Sonnet 4 (max 3000 chars input, 1500 max tokens output)
+- Déploiement : Vercel (deploy auto sur push main)
+- Domaine : abnegation.eu (OVH, DNS → Vercel)
+- Style : CSS inline objets (pas de framework CSS). Dark theme #0a0a1a, accent #e94560, Inter font
+- React Strict Mode désactivé
 
-Abneg@tion is a French-language career development sprint platform built by Exosquelette. Users authenticate, pay 49€ via Stripe, then go through a multi-step sprint that uses Claude AI to analyze their CV against job offers and extract proof of value, hidden KPIs, and negotiation leverage.
-
-## Commands
-
+## Commandes
 ```bash
-npm install        # Install dependencies
-npm run dev        # Start dev server at http://localhost:3000
-npm run build      # Production build
-npm start          # Start production server
-npm test           # Run the 53 tests in tests/
+npm install        # Dépendances
+npm run dev        # Server local localhost:3000
+npm run build      # Build production
+npm start          # Server production
+npm test           # 53 tests (vitest)
+npm run smoke      # 258 smoke tests structurels
+npm run qa         # 15 checks QA agent post-merge
+npx eslint .       # Lint
+npx prettier --write .  # Format
+npm audit          # Vulnérabilités
 ```
 
-## Environment
-
-Requires `.env.local` with keys for Supabase, Stripe, Anthropic, and app URL. See `.env.example` for the template.
+## Environnement
+Requiert `.env.local` avec : NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, ANTHROPIC_API_KEY. Voir `.env.example`.
 
 ## Architecture
 
-**Next.js 14 App Router** with vanilla JavaScript (no TypeScript). Path aliases via `@/*` (jsconfig.json).
+### Flow utilisateur
+Auth (/auth) → Paywall check → Stripe checkout (/api/checkout) → Webhook confirme paiement (/api/webhook) → Sprint UI → AI scan (/api/scan) → Auto-save Supabase toutes les 2s.
 
-### User Flow
+### Flow produit (verrouillé)
+Extraction → Établi → Assemblage → Arsenal → Signature → filtre
 
-Auth (`/auth`) → Paywall check → Stripe checkout (`/api/checkout`) → Webhook confirms payment (`/api/webhook`) → Sprint UI loads → AI scan (`/api/scan`) → Sprint state auto-saves to Supabase every 2s.
+### Modules et choix LLM vs déterministe
+- Scoring briques : DÉTERMINISTE. scoreBricksByCauchemar, selectGreedyCoverage, selectBestBrick. Pas de LLM.
+- Blindage (4 cases) : DÉTERMINISTE. Validation structurelle.
+- Densité (6 axes pondérés) : DÉTERMINISTE. Calcul algorithmique.
+- ATMT (2 couches candidat) : DÉTERMINISTE. Extraction de patterns.
+- Signature comportementale cross-brique : DÉTERMINISTE. 38 marqueurs vocabulaire.
+- Generators (One-Pager, CV, DM, scripts, bio) : LLM. Claude Sonnet 4 au dernier kilomètre. Le moteur est 80% déterministe, l'API Claude intervient uniquement pour la génération finale.
+- Scan initial (/api/scan) : LLM. Envoie CV + offres à Claude, extrait briques, KPIs, compétences, gaps.
 
-### API Routes (`app/api/`)
+### Routes API
+- `app/api/scan/route.js` — POST. CV + offres → Claude Sonnet 4 → briques extraites. Zod validation.
+- `app/api/checkout/route.js` — Crée session Stripe 49€. Rate limit 5/15min. Zod validation.
+- `app/api/webhook/route.js` — Reçoit checkout.session.completed, marque paid dans Supabase.
+- `app/api/auth/register/route.js` — Rate limit 5/15min. Zod (email, password min 6).
+- `app/api/recommend-pillars/route.js` — Zod (pillars array min 1).
 
-- **`scan/route.js`** — POST endpoint. Sends CV + job offers to Claude Sonnet 4 (max 3000 chars each, 1500 max tokens). Returns extracted bricks, KPIs, skills, gaps.
-- **`checkout/route.js`** — Creates a Stripe checkout session for the 49€ product.
-- **`webhook/route.js`** — Receives Stripe `checkout.session.completed` events, marks user as `paid` in Supabase profiles table.
+### Pages
+- `app/page.js` — Redirige vers /sprint.
+- `app/auth/page.js` — Login/signup Supabase Auth.
+- `app/sprint/page.js` — Auth check serveur, charge/sauve sprint, paywall ou Sprint component. Auto-save debounce 2s.
 
-### Pages (`app/`)
+### Sprint Module (19 fichiers)
+`Sprint.jsx` (429 lignes) est l'orchestrateur. Décomposé en :
+- `components/sprint/` — 7 composants React (UI par étape du sprint).
+- `lib/sprint/` — 12 modules fonctions pures (scoring, validation, KPI, génération rapports).
 
-- **`page.js`** — Redirects to `/sprint`.
-- **`auth/page.js`** — Email/password login and signup via Supabase Auth.
-- **`sprint/page.js`** — Server-side auth check, loads/saves sprint state, renders paywall or Sprint component. Auto-save uses a 2-second debounce.
+### Libraries
+- `lib/supabase.js` — createClient() (browser) + createServerClient() (serveur, SUPABASE_SERVICE_ROLE_KEY).
+- `lib/stripe.js` — Singleton Stripe.
+- `lib/sprint-db.js` — loadSprint(), saveSprint(), checkPaid().
 
-### Sprint Module (19 files)
+### Base de données (supabase/schema.sql)
+Trois tables, RLS actif sur chacune :
+- `profiles` — Métadonnées user + booléen paid. Auto-créé au signup via trigger.
+- `sprints` — État sprint complet en JSONB. Une ligne par user.
+- `payments` — Log transactions Stripe.
 
-`Sprint.jsx` (429 lines) is the orchestrator. The former monolithic component has been split into:
+## Glossaire
+- Exosquelette : le livrable candidat complet (l'ensemble des outputs générés)
+- Coffre-Fort : l'espace où les briques extraites sont stockées
+- Blindage : validation structurelle en 4 cases, vérifie la solidité des arguments
+- Densité : score sur 6 axes pondérés, mesure la richesse des preuves
+- ATMT : deux couches d'analyse candidat
+- Forge : le moteur de transformation des briques brutes en arguments structurés
+- Établi : première étape de travail, se déclenche sur la première brique
+- Arsenal : collection d'arguments prêts à l'emploi
+- Signature : empreinte comportementale cross-brique (38 marqueurs vocabulaire)
+- Chantier : un lot de travail sur le produit
+- Briques : unités atomiques d'information extraites du CV et des offres
+- Cauchemars : les problèmes récurrents par rôle que le candidat doit résoudre
+- Piliers : les axes de contenu (4 piliers verrouillés)
+- Cicatrice : preuve vécue, marque d'expérience réelle
+- Élastique : capacité d'adaptation démontrée par les preuves
 
-- **`components/sprint/`** — 7 React components (UI for each sprint step).
-- **`lib/sprint/`** — 12 pure function modules (scoring, validation, KPI logic, report generation, etc.).
+## Filtres de contenu
+Trois filtres nommés s'appliquent aux outputs générés :
+- Méroé — filtre de style
+- Marie Hook — filtre d'accroche
+- Luis Enrique — filtre d'audit
 
-### Content Filters
+## Décisions verrouillées
+- Architecture 80% déterministe. Le LLM intervient au dernier kilomètre uniquement. Ne pas ajouter de LLM là où un algorithme suffit.
+- Polissage supprimé. Ne pas recréer cette feature.
+- Sprint Éclair supprimé définitivement. Ne pas recréer.
+- Blindage = 4 cases. Ne pas modifier la structure.
+- Densité = 6 axes. Ne pas ajouter d'axes.
+- Établi se déclenche sur la première brique. Ne pas modifier ce trigger.
+- 4 piliers content verrouillés. Ne pas en ajouter.
+- Pricing 49€ via Stripe Checkout. Paywall bypassé pour le moment.
 
-Three named filters apply to generated output:
-- **Méroé** — style filter.
-- **Marie Hook** — hook/accroche filter.
-- **Luis Enrique** — audit filter.
+## Ce que Claude ne fait PAS
+- Ne réécrit jamais les generators sans passer par les filtres Méroé/MarieHook/LuisEnrique.
+- Ne fait jamais référence au recrutement ou au headhunting. Abneg@tion positionne le candidat, pas le recruteur.
+- N'ajoute aucune feature sans passer par Kano (basique/performance/attractif/indifférent/inverse).
+- N'utilise jamais les mots bannis dans le contenu user-facing : approfondir, favoriser, complexe, très, vraiment, littéralement, game-changer, disruptif, révolutionner.
+- Ne touche pas au scoring déterministe pour y injecter du LLM.
+- Ne modifie pas Sprint.jsx sans vérifier l'impact sur les 19 fichiers du module.
 
-### Libraries (`lib/`)
+## Conventions spécifiques
+- Langue française obligatoire dans toutes les strings user-facing. Maintenir les accents.
+- CSS inline objets. Pas de framework CSS.
+- Contenu LinkedIn : filtres Méroé/MarieHook/LuisEnrique, Dilts + funnel sur chaque post.
+- Accroches : in media res. Règle du three interdite.
+- 4 piliers content : Silence = prix / Chiffre ouvre + cicatrice ferme / Se forge / Périssable.
 
-- **`supabase.js`** — Exports two Supabase clients: `createClient()` for browser-side and `createServerClient()` for server-side (uses `SUPABASE_SERVICE_ROLE_KEY`).
-- **`stripe.js`** — Stripe client singleton.
-- **`sprint-db.js`** — `loadSprint()`, `saveSprint()`, `checkPaid()` utilities for Supabase operations.
+## Documentation clé
+| Fichier | Rôle |
+|---|---|
+| CODEMAP.md | Index 51 fichiers (rôle, exports) |
+| lessons.md | 12 règles de bugs (lues au démarrage) |
+| etat-du-projet-abnegation.md | Snapshot état du projet (source de vérité) |
+| working-style.md | Conventions de travail JM ↔ Claude |
+| arbitrages-orchestration-ia.md | Décisions outils IA (7 évaluées, 1 retenue) |
+| brand-voice.md | Formulations marketing stockées |
+| competitive-complaints.md | 7 plaintes concurrents + réponses |
 
-### Database (`supabase/schema.sql`)
+## Tests
+- Smoke tests : `npm run smoke` (258 tests structurels)
+- Unit tests : `npm test` (Vitest)
+- QA agent : `npm run qa` (15 checks post-merge)
+- Lint : `npx eslint .`
+- Types : pas de TypeScript, pas de typecheck
+- Pre-commit hook : bloque unicode escapes, console.log, dangerouslySetInnerHTML, features mortes
+- Post-merge hook : lance QA agent
 
-Three tables with row-level security:
-- **`profiles`** — User metadata + `paid` boolean. Auto-created on signup via trigger.
-- **`sprints`** — Stores entire sprint state as JSONB. One row per user.
-- **`payments`** — Stripe transaction log.
-
-## Key Conventions
-
-- **Langue française obligatoire** dans toutes les strings user-facing. Maintenir les accents français.
-- Styling is inline CSS objects (no CSS framework). Dark theme (`#0a0a1a` background, `#e94560` accent red, Inter font).
-- React Strict Mode is disabled (`next.config.js`).
-- Deployed on Vercel. Stripe webhook only works in production (not localhost).
+## Déploiement
+- Preview : push sur une branche → Vercel preview auto
+- Production : merge sur main → Vercel deploy auto
+- Variables d'environnement : Vercel dashboard (jamais dans le code)
+- Stripe webhook : production uniquement (pas localhost)
