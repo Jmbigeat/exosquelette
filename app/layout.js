@@ -1,4 +1,5 @@
 import CookieBanner from "@/components/CookieBanner";
+import { PostHogProvider } from "./posthog-provider";
 
 export const metadata = {
   title: "ABNEG@TION - Forge Carrière",
@@ -33,26 +34,28 @@ export default function RootLayout({ children }) {
           fontFamily: "Inter, -apple-system, sans-serif",
         }}
       >
-        {children}
-        <footer
-          style={{
-            fontSize: 10,
-            color: "#495670",
-            textAlign: "center",
-            padding: "20px 0",
-            borderTop: "1px solid #1a1a3e",
-          }}
-        >
-          abnegation.eu —{" "}
-          <a href="/mentions-legales" style={{ color: "#495670", textDecoration: "none" }}>
-            Mentions légales
-          </a>{" "}
-          ·{" "}
-          <a href="/confidentialite" style={{ color: "#495670", textDecoration: "none" }}>
-            Confidentialité
-          </a>
-        </footer>
-        <CookieBanner />
+        <PostHogProvider>
+          {children}
+          <footer
+            style={{
+              fontSize: 10,
+              color: "#495670",
+              textAlign: "center",
+              padding: "20px 0",
+              borderTop: "1px solid #1a1a3e",
+            }}
+          >
+            abnegation.eu —{" "}
+            <a href="/mentions-legales" style={{ color: "#495670", textDecoration: "none" }}>
+              Mentions légales
+            </a>{" "}
+            ·{" "}
+            <a href="/confidentialite" style={{ color: "#495670", textDecoration: "none" }}>
+              Confidentialité
+            </a>
+          </footer>
+          <CookieBanner />
+        </PostHogProvider>
       </body>
     </html>
   );
