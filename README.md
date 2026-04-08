@@ -75,5 +75,3 @@ npm run qa       # 15 checks post-merge
 Jean-Mikaël Bigeat — [abnegation.eu](https://abnegation.eu) — contact@abnegation.eu
 
 Je ne définis pas le produit. Je le construis et je le livre.
-
-Commit : "docs: rewrite README for public repo — architecture, stress test, metrics" puis push.
