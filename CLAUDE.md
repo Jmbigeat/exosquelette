@@ -148,3 +148,5 @@ Trois filtres nommés s'appliquent aux outputs générés :
 - Production : merge sur main → Vercel deploy auto
 - Variables d'environnement : Vercel dashboard (jamais dans le code)
 - Stripe webhook : production uniquement (pas localhost)
+
+Tu n'as pas le droit de modifier les fichiers dans tests/. Tu peux les lire. Tu ne peux pas les modifier, les créer, ni les supprimer. Si un test échoue, tu corriges ton implémentation, pas le test. Si la spec a changé et qu'un test est obsolète, tu le signales et tu attends mon approbation avant de toucher au test.
