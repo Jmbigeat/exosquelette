@@ -98,3 +98,11 @@ Règle : dans chaque prompt, lister le fichier à MODIFIER en dernier dans la li
 Constat : lors du call Alex BLUMA (designer pédagogique), l'objection "les 4 cases du Blindage restent du déclaratif" n'a pas pu être contrée. L'argument manquant : le Blindage ne supprime pas le déclaratif. Il le rend vérifiable. Le CV dit "expérience en développement commercial" — le recruteur ne sait pas quoi vérifier. La brique dit "croissance de +22% du portefeuille Mid-Market chez Danone en 12 mois" — le recruteur appelle Danone et demande "c'est vrai ?"
 
 Règle : quand quelqu'un objecte "c'est du déclaratif", la réponse est : "Oui, du déclaratif vérifiable. Le CV est du déclaratif invérifiable. La brique est du déclaratif vérifiable." Deuxième argument : le delta. L'outil ne demande pas le chiffre global (98%). Il demande le delta (de 89% à 98%). Le delta isole la contribution personnelle du système.
+
+Une idée n'existe pas tant qu'elle n'est pas un prompt. Hiérarchie : morte (pas de trace) → dormante (un déclencheur, pas de prompt) → vivante (un prompt prêt) → faite (un commit).
+
+Règle 6 anti-écho : si Claude répond en < 30s avec un pattern matching, demande 3 raisons contre avant d'accepter.
+
+Pattern session : sens → action → structure → cadre. Les urgences sautent au sens et commencent par l'action.
+
+1 session = maximum 3 signaux backlog. Au-delà, chaque signal supplémentaire dilue l'attention sur les précédents.
