@@ -111,6 +111,14 @@ Dernier push : 23 mars 2026.
 
 ---
 
+## PLAN B DÉPENDANCES
+Vercel tombe → Netlify ou Railway (même deploy flow)
+Supabase tombe → Firebase ou Neon (migration lourde, 2-3 jours)
+Stripe tombe → Paddle ou LemonSqueezy (migration moyenne, 1 jour)
+Anthropic coupe l'API → OpenAI ou Mistral (les generators sont des prompts, portables en changeant l'endpoint)
+
+---
+
 ## TREMPE V2 (spec définitive — 19 mars 2026)
 
 Nom UI : La Trempe. Code interne : brew (tables, hooks, routes). Renommage UI-only.
