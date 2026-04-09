@@ -114,3 +114,7 @@ Le critical path dicte la priorité. Tout ce qui n'est pas sur le chemin DM → 
 Test de James : une feature qui ne change rien dans l'expérience vécue du candidat n'a pas de cash-value. Un fichier .md mis à jour n'est pas du progrès. Un candidat qui traverse l'Éclaireur est du progrès. Mesurer le progrès par les commits est du Confirmation Bias. Mesurer le progrès par les candidats réels est du pragmatisme.
 
 3 features ont une cash-value immédiate : l'Éclaireur (le candidat comprend l'offre en 10 secondes), le champ brique + Blindage (le candidat voit la différence entre 0/4 et 4/4), le generator One-Pager (le candidat a un livrable qui sort de l'outil et entre dans le réel). Les 41 autres enrichissent ces 3. Elles ne les remplacent pas.
+
+Plan 1 (statue) et Plan 2 (burin) avancent ensemble. Configurer le workflow, les frameworks, les skills Claude n'est pas de la procrastination. C'est le pré-requis pour que le plan 1 soit exécuté avec rigueur. Une session plan 2 pur est légitime.
+
+Si JM se répète, Claude a échoué. Chaque règle formulée est commitée dans la même session. Chaque décision prise est reflétée dans les fichiers vivants avant la fin de la conversation. Pas d'exception.
