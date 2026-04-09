@@ -33,8 +33,8 @@ Stratégie & Ops : management_consultant (Conseil), strategy_associate (Stratég
 ## EN PRODUCTION (main)
 
 Domaine : abnegation.eu (+ www.abnegation.eu). OVH DNS → Vercel. SSL automatique.
-Smoke test : 209+ tests. Unit tests : 10.
-Dernier push : 23 mars 2026.
+Smoke test : 258+ tests. Unit tests : 10.
+Dernier push : 9 avril 2026.
 
 | Élément | Statut |
 |---------|--------|
@@ -344,6 +344,8 @@ Loris (Big Idea) : à contacter. Newsletter singularité/5P. Même pattern qu'Al
 Noota : DM dans 2 semaines. Post screening IA publié avant. Angle : complémentarité screening IA × qualité input candidat. Ne pas attaquer leur produit.
 Consultante carrière (700 profils) : après 10 candidats. Canal distribution. Elle facture la couche humaine (coaching entretien, posture). L'outil fait la couche commodité.
 Méroé Nguimbi : pas de contact maintenant. Audience candidats 80K-150K = cible premium Abneg@tion. Contact Échoppe après 20 profils opt-in. "Théorie du Fusible" + "Hiérarchie des questions" = deux signaux forts de compatibilité.
+Santiago Fernández de Valderrama (Career-Ops) : Head of Applied AI chez Zinkee. Créateur de Career-Ops (22K+ stars GitHub). Builder solo, même stack (Claude Code, Supabase, Vercel). DM envoyé 8 avril en espagnol. Career-Ops filtre les offres (scoring 10 dimensions). Abneg@tion arme le candidat (Blindage 4 cases). Les deux sont complémentaires. Repo partagé. En attente de réponse.
+Malvina Préveaux : recruteuse Digital & Marketing freelance, coach carrière. 9 ans, 700+ profils. Doctrine compatible (lever les doutes avant qu'ils apparaissent, preuves concrètes, résultats chiffrés). Contact potentiel — même séquence que Gwladys (commenter posts → DM après 10 candidats). Non contactée.
 
 ---
 
@@ -402,7 +404,7 @@ Méroé Nguimbi : pas de contact maintenant. Audience candidats 80K-150K = cible
 | lessons.md | Règles anti-bugs (10 entrées) | ✅ 23 mars (ajouté au repo) |
 | feat-16m-bricks-deliverables.md | Prompt indicateur briques × livrables | ✅ 23 mars (spec prête, non implémenté) |
 | analyse-risques-production-mars-2026.md | ADR sécurité | ✅ |
-| README.md | Onboarding dev | ✅ 10 mars |
+| README.md | Architecture, stress test, métriques (repo public) | ✅ 8 avril |
 | CODEMAP.md | Module map (51 fichiers) | ✅ 10 mars |
 | spec-linkedin-360-brew-v2.md | Ancienne spec Brew | ❌ REMPLACÉ par spec-brew-v2-definitive.md |
 | feat-16h à feat-16p (9 fichiers) | Prompts Claude Code (specs implémentées ou en attente) | ✅ 24 mars (ajoutés au repo) |

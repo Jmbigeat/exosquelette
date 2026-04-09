@@ -111,6 +111,11 @@ Le workflow LinkedIn JM est un système de production à 8 étapes : triage, com
 La Trempe automatise le même système pour le candidat. La cohérence produit/marketing est architecturale : le candidat forge ses briques avec le Blindage. Le fondateur forge ses posts avec le Blindage Post. Même framework, deux usages.
 Preuve PM : concevoir un système d'acquisition organique avec les mêmes standards de qualité que le produit. "Mon système d'acquisition est un produit, pas une tâche marketing."
 
+### Ingénierie de l'abstraction — calibrage de granularité IA (25 mars 2026)
+
+Compétence nommée à partir de l'article SearchResearch. Distincte du context engineering (environnement) et du prompt design (format). Le skill de calibrer le niveau de détail de chaque interaction IA. Les prompts Claude Code séquencent abstrait → précis (Opération 0 statechart = abstrait, Opération N modification = précis). Le bon grain produit des résultats actionnables. Le mauvais grain produit du générique ou des hallucinations.
+Preuve PM : chaque prompt est un exemple de calibrage. 21 chantiers × prompts multi-opérations = 100+ exemples de granularité calibrée.
+
 ---
 
 ## 2. DELIVERY & EXÉCUTION
@@ -196,6 +201,13 @@ Règle : additif strict. V2 construit sur V1. Zéro réécriture. Chaque refacto
 ### Lessons.md : boucle d'amélioration
 
 Chaque bug non trivial génère une règle écrite. Claude Code lit le fichier au démarrage. Les erreurs ne se répètent pas. 11 leçons documentées après une session.
+
+### Hardening sécurité sans background technique (25 mars 2026)
+
+Problème : 4 API routes sans validation d'input ni rate limiting. Score sécurité estimé 4/10.
+Action : en 2 heures, 4 corrections. (1) Rate limiting 5/15min sur register + checkout. (2) Zod validation sur les 4 API routes. (3) Pen test manuel : auth bypass corrigé, IDOR documenté (low-risk), XSS vérifié. (4) npm audit fix (3→1 vulnérabilité).
+Résultat : score sécurité 7/10. 258 tests verts post-modification.
+Preuve PM : spécifier, auditer, et vérifier la sécurité sans écrire le code. La même session qu'un dev senior, faite par un PM avec Claude Code en 2 heures.
 
 ---
 

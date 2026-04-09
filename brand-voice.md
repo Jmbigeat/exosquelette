@@ -213,3 +213,21 @@ Positionnement : "IA dans le moteur, humain dans la preuve." Pas anti-IA. Pas pr
 - One-Pager B2B : la dernière phrase du bloc 2 rappelle que les preuves sont forgées par le candidat, pas générées
 
 **Anti-pattern** : ne jamais attaquer un outil IA nommé. Le contraste oppose deux philosophies, pas deux produits.
+
+---
+
+## SÉQUENCE DM 3 TOUCHES (8 avril 2026)
+
+Source : post "offre irrésistible" (verbaliser → projeter → palpable) + framework 80-8-4.
+
+DM1 (jour 0) — Verbaliser la douleur :
+"Tu as refait ton CV. Tu as testé les outils IA. Le recruteur ne rappelle pas. Le problème n'est pas le format — c'est que tes preuves ne sont pas structurées. Je construis un outil qui extrait tes preuves depuis ton vécu et les blinde sur 4 axes. Pas de contenu inventé. 2 minutes pour tester : abnegation.eu. Je cherche 3 retours honnêtes."
+
+DM2 (jour 4, si pas de réponse) — Preuve :
+Avant 10 candidats : "Pas de relance. Juste un contexte supplémentaire. J'ai construit l'outil en 40 jours. 40 000 lignes. 258 tests automatisés. Le repo est public : github.com/Jmbigeat/exosquelette. Je cherche 3 retours pour améliorer, pas pour vendre."
+Après 10 candidats : remplacer par un résultat réel candidat.
+
+DM3 (jour 10, si pas de réponse) — Sortie facile :
+"Dernier message sur le sujet. Si le timing ne colle pas, aucun souci. L'outil reste gratuit : abnegation.eu. Si un jour tu veux structurer tes preuves, c'est là."
+
+Tracking : Google Sheet 10 colonnes (nom, LinkedIn, bande salariale, rôle, date DM1, réponse1, date DM2, réponse2, date DM3, réponse3, statut).
