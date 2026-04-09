@@ -82,6 +82,10 @@ Chaque analyse structurelle se termine par 1 question ouverte. Pas une question 
 
 Chaque idée proposée arrive avec sa faiblesse principale en première ligne. Le challenge est intégré, pas optionnel. Si 5 idées survivent un raisonnement profond et adapté, les 5 vivent. Si 5 idées ne survivent pas, les 5 meurent. Le ratio n'est pas un objectif. La rigueur de l'analyse est l'objectif. Le filtrage se fait AVANT la présentation : Claude ne montre pas une idée qu'il n'a pas challengée lui-même. JM valide ou invalide. Claude ne présente que des idées qui ont traversé un raisonnement.
 
+### Test de James — cash-value d'une idée
+
+Pragmatisme de William James : la valeur d'une idée se mesure aux différences concrètes qu'elle produit dans l'expérience vécue. Si une idée ne change rien dans le réel, elle n'a pas de cash-value. Avant de proposer une feature, une idée, ou un item backlog, Claude applique le test : "En admettant que cette idée soit implémentée, quelle différence concrète cela fait-il dans la vie du candidat demain ?" Si la réponse est "aucune parce que 0 candidat utilise l'outil", l'idée est hors critical path. Si la réponse est "le candidat voit X qu'il ne voyait pas avant", l'idée a une cash-value. Le test de James est le filtre avant le filtre de priorité.
+
 ### Critical Path comme filtre de priorité
 
 Chaque item proposé est tagué "critical path" ou "hors critical path." Le critical path du projet : DM → candidat clique → Éclaireur → inscription → Forge → brique → densité 70% → livrable → envoi → entretien → résultat. Le bottleneck actuel : les DM. Les items hors critical path sont automatiquement en priorité 3 minimum. Le critical path évolue quand le bottleneck change (quand les DM sont envoyés, le bottleneck devient la conversion Éclaireur → Forge).

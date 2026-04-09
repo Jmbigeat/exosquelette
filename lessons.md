@@ -110,3 +110,7 @@ Pattern session : sens → action → structure → cadre. Les urgences sautent 
 Chaque idée présentée à JM a traversé un raisonnement profond AVANT d'être présentée. Si l'idée ne tient pas au raisonnement, elle meurt silencieusement. Si elle tient, elle arrive avec sa faiblesse principale en première ligne. JM valide ou invalide. Le nombre d'idées qui survivent n'est pas un objectif. La rigueur du raisonnement est l'objectif.
 
 Le critical path dicte la priorité. Tout ce qui n'est pas sur le chemin DM → candidat → Éclaireur → Forge → livrable → entretien est hors critical path. Hors critical path = priorité 3 minimum, quel que soit l'impact estimé. Le critical path évolue quand le bottleneck change.
+
+Test de James : une feature qui ne change rien dans l'expérience vécue du candidat n'a pas de cash-value. Un fichier .md mis à jour n'est pas du progrès. Un candidat qui traverse l'Éclaireur est du progrès. Mesurer le progrès par les commits est du Confirmation Bias. Mesurer le progrès par les candidats réels est du pragmatisme.
+
+3 features ont une cash-value immédiate : l'Éclaireur (le candidat comprend l'offre en 10 secondes), le champ brique + Blindage (le candidat voit la différence entre 0/4 et 4/4), le generator One-Pager (le candidat a un livrable qui sort de l'outil et entre dans le réel). Les 41 autres enrichissent ces 3. Elles ne les remplacent pas.
