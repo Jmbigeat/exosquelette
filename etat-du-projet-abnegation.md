@@ -141,101 +141,100 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 
 ---
 
-## LISTE D'ATTENTE (réordonnée 23 mars 2026)
+## LISTE D'ATTENTE (mise à jour 9 avril 2026)
 
-### Priorité 1 — DISTRIBUTION
-1. Mettre l'Éclaireur devant 10 candidats réels
-2. 20 DM + 1 canal d'acquisition mesuré
-3. ~~Alex BLUMA~~ → call semaine prochaine
-4. ~~Loic Doufodji~~ → DM envoyé
-5. 5 sessions utilisateur observées
-6. Contacter Loris (Big Idea / canal distribution)
-7. DM Noota (dans 2 semaines, post screening IA publié avant)
-8. Profil consultante carrière 700 profils (après 10 candidats)
-9. npm audit périodique (dépendances) — après Stripe + 10 candidats. Source : Julien Gelee post ai-rsk / CRA.
+### Priorité 1 — IMMÉDIAT (avant les 10 candidats)
+
+Distribution :
+1. Séquence DM 3 touches — template DM1/DM2/DM3 + Google Sheet 10 colonnes
+2. Séquence relationnelle Gwladys — étape 1 : commenter ses posts 15 premières minutes, 5 min/jour
+3. DM Santiago — ✅ envoyé 8 avril
+4. Page /pourquoi-abnegation — 7 plaintes competitive-complaints en page web. 1-2h. Support post-DM
+5. Messaging "forge pendant que tu as les chiffres" — wording DM + onboarding
+
+Crédibilité landing :
+6. 2 signaux confiance landing — lien repo public + 3 lignes de confiance. 5 min
+7. Repo public — ✅ fait 8 avril
+8. README réécrit — ✅ fait 8 avril
+
+Conversion Éclaireur :
+9. Bouton "Voir un exemple" — 3 offres-types pré-calculées. 20-30 lignes React + 3 JSON statiques
+10. Auto-diagnostic 5 questions — entre Éclaireur et Forge. 30-40 lignes React
+
+Instrumentation :
+11. Instrumentation coût par candidat — console.log tokens sur /api/scan. 5 lignes. Pré-requis Stripe
+
+Workflow :
+12. Full trunk-based — ✅ actif
+13. Plan B dépendances — ✅ fait 9 avril
+14. 6ème règle anti-écho — ✅ fait 9 avril
+15. Pattern session sens→action→structure→cadre — ✅ fait 9 avril
+16. Règle protection tests dans CLAUDE.md — ✅ fait 9 avril
+17. 2 slash commands /smoke + /docs dans .claude/commands/
+18. Hiérarchie morte/dormante/vivante/faite dans lessons.md — ✅ fait 9 avril
+
+Portfolio :
+19. Phrase hook portfolio PM — en attente (doit venir de JM, pas générée)
+20. Trajectoire ligne droite — en attente (doit venir de JM, pas générée)
+21. "The system IS the portfolio" dans le README — ✅ fait 8 avril
 
 ### Priorité 2 — REVENUS
-7. Micro-entreprise INPI + SIRET
-8. Stripe config (produit 19€, webhook, rate limit, user.id, is_subscribed, paywall)
 
-### Priorité 3 — PRODUIT (réordonné par impact/effort)
-- 15a ~~Bio 210 chars~~ → ✅ FAIT 19 mars
-- 15b ~~Autosave toast~~ → ✅ FAIT 19 mars
-- 15c ~~Von Restorff Établi~~ → ✅ FAIT 19 mars
-- 15d ~~Audit CV Forge~~ → ✅ FAIT 20 mars
-- 15e ~~Comparatif salarial + OTE/ACV~~ → ✅ FAIT 20 mars
-- 15f ~~Marqueurs LoC + solo×équipe~~ → ✅ FAIT 21 mars
-- 15g ~~Cadre théorique stress test~~ → doc fait, messaging reporté post-10 candidats
-- ~~15i Rename Brew → La Trempe~~ → supprimé (natif dans 15h)
-- 15j ~~One-Pager generator Établi~~ → ✅ FAIT 21 mars
-- 15h La Trempe V2 (spec définitive prête, bloquée par Stripe/SIRET)
+22. Micro-entreprise INPI + SIRET
+23. Stripe config (produit 19€, webhook, is_subscribed, paywall)
+24. Calculateur coût d'inaction Plan C — Google Sheet 4 onglets. Après SIRET
+25. Pricing Plan C par tier — Forge 800€, Arsenal 1500€, Blindage 2000€. Dans CGV B2B. Après SIRET
 
-### Priorité 4 — ENRICHISSEMENT MÉTIER
-- 16a ~~Cauchemar transversal "posture senior face à manager junior"~~ → ✅ FAIT 21 mars
-- 16b ~~Cauchemar transversal "critères modifiés en cours de route"~~ → ✅ FAIT 21 mars
-- 16c ~~Cauchemar transversal "variable structurellement inatteignable"~~ → ✅ FAIT 21 mars
-- 16d ~~ROLE_VARIANTS — titres alternatifs par rôle~~ → ✅ FAIT 21 mars
-- 16e ~~Ratio coût du poste / valeur produite~~ → ✅ FAIT 21 mars
-- 16f ~~Axe séniorité (IC/Manager/Leader)~~ → ✅ FAIT 21 mars
-- 16g ~~Appel découverte — miroir inversé du Duel~~ → ✅ FAIT 21 mars
-- ~~Fiche de combat V2~~ → ✅ FAIT 21 mars (6 blocs, 8 sources)
-- ~~Refactor unification livrables 17→11~~ → ✅ FAIT 21 mars
-- ~~Refactor landing = Éclaireur~~ → ✅ FAIT 21 mars
-- 16h. Zeigarnik 4 surfaces — partiellement bloqué (Trempe + Échoppe manquantes). Codable pour Éclaireur + Forge uniquement.
-- ~~16i. Checklist intégration 90 jours~~ → ✅ FAIT 23 mars (INTEGRATION_MILESTONES + getRoleCluster + Plan 30j/90j enrichis + Discovery Q6)
-- ~~16j. Question "Pourquoi" post-Signature~~ → ✅ FAIT 23 mars (4ème écran overlay, whyThisRole sur signature, One-Pager bloc 3)
-- ~~16k. Questions Frictions/Intersections briques élastiques~~ → ✅ FAIT 23 mars (2 angles conditionnels STRESS_ANGLES, Source 4 generateStressTest)
-- ~~16l. Filtre anti-pattern Arsenal~~ → ✅ FAIT 23 mars (detectOrphanArmoredBricks, alerte "mauvais mur", armorScore === 4 strict)
-- 16m. Indicateur briques × livrables dans l'Arsenal — spec prête (feat-16m-bricks-deliverables.md). computeBrickDeliverableCount + badge "X/11" par brique. Source : Ha Hack Moreau.
-- ~~16n. Question parcours non linéaire~~ → ✅ FAIT 23 mars (detectNonLinearCareer + section conditionnelle generateInterviewQuestions)
-- 16o. Ponts entre briques — dans Arsenal ou One-Pager, connexions entre briques consécutives ("Brique 1 → Brique 2 : compétence transférée"). Parcours non linéaire = narratif, pas risque. Source : template Narratif Polymathe Moreau.
+### Priorité 3 — PRODUIT POST-10 CANDIDATS
 
-### Priorité 4 bis — TREMPE : BRIQUE PÉRIMÉE (30 mars 2026)
+Forge :
+26. Mode guidé optionnel (proto-chatbot) — 5 questions séquentielles, adaptées par type de brique (proof standard, cicatrice séquence Malvina, élastique friction/intersection). 50-70 lignes
+27. Brief de reprise contextuel — 3 lignes en haut de Sprint.jsx. Densité + dernière brique + action recommandée. Inclut 1 mention Signature à 2 briques blindées (informatif, pas promissif, pas de répétition). 30-40 lignes
+28. Exercice écriture manuelle Fiche de Combat — 1 champ libre + comparaison One-Pager
+29. Diagnostic de cible (rôle recommandé après 3 briques) — scoreBricksByCauchemar sur les 10 rôles
+30. Signature co-écrite (assembleur 3 composantes) — verbe + domaine + transférabilité. 60-80 lignes
+31. Champ "ce que je refuse" — 1 champ profil + alerte compatibilité Éclaireur
+32. Audit-before-copy — avertissement non bloquant sous CopyBtn. "3 lignes sur 5 sont blindées"
+33. Table anti-rationalisation — 4-5 phrases par étape dans tooltips/references.js. 0 code nouveau
 
-Mécanisme de fraîcheur des briques. Le pilier 4 ("le positionnement est périssable") se concrétise dans la Trempe. 5 décisions tranchées avec three mental models.
+Éclaireur :
+34. Score d'adéquation candidat×offre — wording action ("il te manque 2 cauchemars"), jamais verdict
 
-**Champ refreshed_at** : ajouté dans le JSON brique (savedState). Mis à jour à la forge (handleForge), à la correction (handleCorrect), et à chaque montée d'armorScore. Zéro autre événement. La publication Trempe ne réinitialise pas le compteur (distribution ≠ rafraîchissement). Le champ sert la Trempe ET le ranking fraîcheur de l'Échoppe.
+Generators :
+35. Scripts contact verbaliser→projeter→palpable — restructurer les 4 templates. Cauchemar #1 comme ouverture
+36. One-Pager auto-recalibré par offre — chaînage Éclaireur → generator. Inclut phrase de désamorçage cauchemar #1 bloc 3 en hypothèse
 
-**Seuil par cluster** (invisible pour le candidat) :
-- Croissance : 7 mois (alerte douce) / 12 mois (alerte forte)
-- Produit&Tech : 5 mois / 10 mois
-- Stratégie&Ops : 4 mois / 8 mois
-Constantes STALENESS_THRESHOLDS dans references.js. Ajustables sur données réelles après 50 candidats.
+Duel :
+37. STRESS_ANGLES "caractère" par rôle — 3 questions par rôle (tolérance imperfection, autonomie, rebond)
+38. Duel sur livrable (One-Pager/CV) — toggle briques/livrable comme input
+39. Inversion Duel grille fit culturel — tag culture_signal sur les STRESS_ANGLES
 
-**Injection Trempe** : option C retenue. La brique périmée la plus ancienne est injectée comme angle prioritaire dans le pilier 4 de la rotation. Si aucune brique périmée, angle générique normal du pilier 4. Le pilier 4 gagne en matériau concret. La rotation 1-2-3-4 reste intacte.
+Trempe :
+40. Test "How I vs How to" scoring post — 9ème test heuristique. 15-20 lignes
 
-**Arsenal** : pas d'alerte par brique individuelle. Warning global si briques périmées > 3. Message différencié :
-- Abonné : "X de tes briques datent de plus de Y mois. La Trempe t'aide à les rafraîchir."
-- Gratuit : "X de tes briques datent de plus de Y mois. Abonne-toi pour activer la Trempe et les rafraîchir."
-La péremption devient un argument de conversion vers l'abonnement.
+Design :
+41. Design hygiene pass — 5 actions ciblées. 3-4h
 
-**Coût** : ~45 lignes. refreshed_at (2 lignes/event), isStale() (10 lignes), STALENESS_THRESHOLDS (6 lignes), condition sélection angle Trempe pilier 4 (15 lignes), warning Arsenal conditionnel (10 lignes). Zéro module. Zéro table. Zéro dépendance.
+Enrichissement :
+42. STRESS_ANGLE réputation adverse — 1-2 angles par rôle
+43. Question extraction CV Fantôme — 1 question dans la Forge
+44. Audit visibilité IA profil LinkedIn — Éclaireur V3. Après Trempe V2
 
-**Prérequis** : Trempe V2 implémentée (15h). La brique périmée est un enrichissement de la Trempe, pas un chantier indépendant.
+Infra :
+45. 3 tests e2e critiques (Éclaireur colle offre → cauchemars, Forge brique → Blindage, Arsenal génère One-Pager → copie)
+46. GitHub Actions CI
 
-### Priorité 5 — SCALE
-29. Intelligence éco locale
-30. Scoring LLM (signal Promptfoo pour unit testing quand outputs non-déterministes)
-31. GEO
-32. L'Échoppe — Surface B2B (spec définitive prête : 10 blocs, 52 questions, 25 étapes d'implémentation sur 3 phases). Lancement après 20 profils opt-in/rôle. Beta 2-3 cabinets avant ouverture payante.
-33. Éclaireur inversé (recruteur colle offre → profils matchés) — après 100 profils/rôle
-34. Page comparatif alternatives (template Growth Room : URL mot-clé + intro problème + alternatives + tableau + CTA). Après 10 candidats + données d'usage.
+### Priorité 4 — DORMANTES (déclencheur explicite)
 
-### Hypothèses à tester
-- Prix 19€/mois candidat (sur 50 candidats)
-- Taux Éclaireur → Forge (sur 10 candidats)
-- Rétention mois 2 Trempe (churn < 10%)
-- Streak moyen Trempe (> 6 semaines)
-- Taux déclaration Fait (> 60%)
-- Prix 150€/crédit B2B (sur 5 cabinets beta)
-- Taux d'acceptation candidat opt-in (cible > 40%)
-- Seuil 20 profils/rôle (assez pour le recruteur ?)
-- Taux conversion contact → placement (cible 20%)
-- Taux opt-in parmi les candidats ≥ 70% densité
-- Prix 800€/tête outplacement (sur 3 contrats) — taux signature > 50% des prospects contactés
-- Taux d'activation salarié outplacement — % liens cliqués / distribués > 60%
-- Conversion Plan C → Plan A (post-expiration) — % salariés qui s'abonnent à 19€ > 20%
-- Seuils péremption par cluster — % briques rafraîchies dans les 30j post-alerte > 40%
+47. Chatbot hybride V3+ — déclencheur : mode guidé validé
+48. Benchmark main de poker — déclencheur : 50 candidats/rôle
+49. Tri briques par cauchemar — déclencheur : 1 candidat atteint 10+ briques
+50. Détection livrables périmés — déclencheur : verbatim "j'ai envoyé l'ancien chiffre"
+51. Question ouverte One-Pager bloc 5 — déclencheur : verbatims recruteurs
+52. Rapport Duel 2 sections Échoppe — déclencheur : l'Échoppe existe
+53. Brew wording par profil apprenant — déclencheur : 10 candidats + patterns
+54. Brew boucle contacts + DM — déclencheur : Trempe V2 implémentée
+55. Découpage SKILL en fichiers par surface — déclencheur : SKILL > 400 lignes
 
 ---
 
