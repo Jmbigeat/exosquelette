@@ -106,3 +106,7 @@ Règle 6 anti-écho : si Claude répond en < 30s avec un pattern matching, deman
 Pattern session : sens → action → structure → cadre. Les urgences sautent au sens et commencent par l'action.
 
 1 session = maximum 3 signaux backlog. Au-delà, chaque signal supplémentaire dilue l'attention sur les précédents.
+
+Chaque idée présentée à JM a traversé un raisonnement profond AVANT d'être présentée. Si l'idée ne tient pas au raisonnement, elle meurt silencieusement. Si elle tient, elle arrive avec sa faiblesse principale en première ligne. JM valide ou invalide. Le nombre d'idées qui survivent n'est pas un objectif. La rigueur du raisonnement est l'objectif.
+
+Le critical path dicte la priorité. Tout ce qui n'est pas sur le chemin DM → candidat → Éclaireur → Forge → livrable → entretien est hors critical path. Hors critical path = priorité 3 minimum, quel que soit l'impact estimé. Le critical path évolue quand le bottleneck change.

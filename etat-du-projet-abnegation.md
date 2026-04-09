@@ -399,7 +399,7 @@ Malvina Préveaux : recruteuse Digital & Marketing freelance, coach carrière. 9
 | SKILL-abnegation-dev.md | Skill projet | ✅ 20 mars (4 surfaces, One-Pager, Trempe, Échoppe, anti-patterns 7-8) |
 | about-me.md | Contexte fondateur | ✅ 20 mars (4 surfaces, One-Pager, Échoppe) |
 | brand-voice.md | Ton et vocabulaire | ✅ 20 mars (Trempe, Échoppe, One-Pager, cible élargie, doctrine langue) |
-| working-style.md | Comportement Claude | ✅ 23 mars (section Claude.ai conversations ajoutée : 4 règles) |
+| working-style.md | Comportement Claude | ✅ 9 avril (frameworks adaptatifs, biais cognitifs, critical path, filtrage par profondeur, perspectives multiples) |
 | template-prompt-claude-code.md | Template prompts | ✅ 23 mars (Opération 0 statechart + lessons.md au démarrage + feat- branche) |
 | lessons.md | Règles anti-bugs (10 entrées) | ✅ 23 mars (ajouté au repo) |
 | feat-16m-bricks-deliverables.md | Prompt indicateur briques × livrables | ✅ 23 mars (spec prête, non implémenté) |
