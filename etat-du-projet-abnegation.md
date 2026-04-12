@@ -141,100 +141,146 @@ Inversé (3) : métriques engagement, blocage semaine, format imposé.
 
 ---
 
-## LISTE D'ATTENTE (mise à jour 9 avril 2026)
+## LISTE D'ATTENTE — ORIENTÉE RÉSULTATS (mise à jour 12 avril 2026)
 
-### Priorité 1 — IMMÉDIAT (avant les 10 candidats)
+Format Gibson Biddle : problème à résoudre → indicateur → maintenant / ensuite / à considérer.
 
-Distribution :
-1. Séquence DM 3 touches — template DM1/DM2/DM3 + Google Sheet 10 colonnes
-2. Séquence relationnelle Gwladys — étape 1 : commenter ses posts 15 premières minutes, 5 min/jour
-3. DM Santiago — ✅ envoyé 8 avril
-4. Page /pourquoi-abnegation — 7 plaintes competitive-complaints en page web. 1-2h. Support post-DM
-5. Messaging "forge pendant que tu as les chiffres" — wording DM + onboarding
+### PROBLÈME 1 — PERSONNE NE CONNAÎT L'OUTIL
+Indicateur : DM envoyés / taux de clic sur abnegation.eu
+Bottleneck actuel.
 
-Crédibilité landing :
-6. 2 signaux confiance landing — lien repo public + 3 lignes de confiance. 5 min
-7. Repo public — ✅ fait 8 avril
-8. README réécrit — ✅ fait 8 avril
+Maintenant :
+- Séquence DM 3 touches + Google Sheet 10 colonnes (template dans brand-voice.md)
+- 2 signaux confiance landing — lien repo public + 3 lignes. 5 min
 
-Conversion Éclaireur :
-9. Bouton "Voir un exemple" — 3 offres-types pré-calculées. 20-30 lignes React + 3 JSON statiques
-10. Auto-diagnostic 5 questions — entre Éclaireur et Forge. 30-40 lignes React
+Ensuite :
+- Page /pourquoi-abnegation — 7 plaintes en page web. Déclencheur : 1 candidat pose la question
+- Bouton "Voir un exemple" Éclaireur — 3 offres-types. Déclencheur : trafic organique augmente
+- Séquence relationnelle Gwladys — commenter ses posts. Subordonné aux DM (pas de commentaire un jour sans 3 DM envoyés)
 
-Instrumentation :
-11. Instrumentation coût par candidat — console.log tokens sur /api/scan. 5 lignes. Pré-requis Stripe
+À considérer :
+- Messaging "forge pendant que tu as les chiffres" — DM V3 segment froid. Après validation DM V2 sur 10 candidats en recherche active
 
-Workflow :
-12. Full trunk-based — ✅ actif
-13. Plan B dépendances — ✅ fait 9 avril
-14. 6ème règle anti-écho — ✅ fait 9 avril
-15. Pattern session sens→action→structure→cadre — ✅ fait 9 avril
-16. Règle protection tests dans CLAUDE.md — ✅ fait 9 avril
-17. 2 slash commands /smoke + /docs dans .claude/commands/
-18. Hiérarchie morte/dormante/vivante/faite dans lessons.md — ✅ fait 9 avril
+Fait : ✅ DM Santiago (8 avril), ✅ repo public (8 avril), ✅ README réécrit (8 avril)
 
-Portfolio :
-19. Phrase hook portfolio PM — en attente (doit venir de JM, pas générée)
-20. Trajectoire ligne droite — en attente (doit venir de JM, pas générée)
-21. "The system IS the portfolio" dans le README — ✅ fait 8 avril
+### PROBLÈME 2 — LE VISITEUR ARRIVE ET REPART
+Indicateur : taux de rebond Pirsch (actuellement ~80%)
 
-### Priorité 2 — REVENUS
+Maintenant :
+- Signaux confiance landing (partagé avec problème 1). 5 min
 
-22. Micro-entreprise INPI + SIRET
-23. Stripe config (produit 19€, webhook, is_subscribed, paywall)
-24. Calculateur coût d'inaction Plan C — Google Sheet 4 onglets. Après SIRET
-25. Pricing Plan C par tier — Forge 800€, Arsenal 1500€, Blindage 2000€. Dans CGV B2B. Après SIRET
+Ensuite :
+- Bouton "Voir un exemple" (partagé avec problème 1)
+- Design hygiene pass — 5 actions ciblées. 3-4h
 
-### Priorité 3 — PRODUIT POST-10 CANDIDATS
+À considérer :
+- Les données des 10 premiers visiteurs diront pourquoi ils partent
 
-Forge :
-26. Mode guidé optionnel (proto-chatbot) — 5 questions séquentielles, adaptées par type de brique (proof standard, cicatrice séquence Malvina, élastique friction/intersection). 50-70 lignes
-27. Brief de reprise contextuel — 3 lignes en haut de Sprint.jsx. Densité + dernière brique + action recommandée. Inclut 1 mention Signature à 2 briques blindées (informatif, pas promissif, pas de répétition). 30-40 lignes
-28. Exercice écriture manuelle Fiche de Combat — 1 champ libre + comparaison One-Pager
-29. Diagnostic de cible (rôle recommandé après 3 briques) — scoreBricksByCauchemar sur les 10 rôles
-30. Signature co-écrite (assembleur 4 composantes) — verbe + domaine + transférabilité + contexte de rareté. Le contexte de rareté est calculé par fréquence sectorielle dans les briques ("3 briques sur 5 sont en SaaS mid-market → c'est là que tu es rare"). La Signature passe de "ce que tu fais" à "ce que tu fais, où tu es le seul." Enrichissement analyzeSignature. 60-80 lignes
-31. Champ "ce que je refuse" — 1 champ profil + alerte compatibilité Éclaireur
-32. Audit-before-copy — avertissement non bloquant sous CopyBtn. "3 lignes sur 5 sont blindées"
-33. Table anti-rationalisation — 4-5 phrases par étape dans tooltips/references.js. 0 code nouveau
+### PROBLÈME 3 — LE CANDIDAT NE CRÉE PAS DE COMPTE
+Indicateur : taux Éclaireur → inscription
 
-Éclaireur :
-34. Score d'adéquation candidat×offre — wording action ("il te manque 2 cauchemars"), jamais verdict
+Maintenant :
+- Observer sur les 10 premiers candidats
+- Vérifier : Éclaireur accessible sans inscription ? (bug potentiel priorité 0)
+- Tester : parcours mobile depuis DM LinkedIn (sessionStorage navigateur in-app)
 
-Generators :
-35. Scripts contact verbaliser→projeter→palpable — restructurer les 4 templates. Cauchemar #1 comme ouverture
-36. One-Pager auto-recalibré par offre — chaînage Éclaireur → generator. Inclut phrase de désamorçage cauchemar #1 bloc 3 en hypothèse
+Ensuite :
+- À déterminer par les données
 
-Duel :
-37. STRESS_ANGLES "caractère" par rôle — 3 questions par rôle (tolérance imperfection, autonomie, rebond)
-38. Duel sur livrable (One-Pager/CV) — toggle briques/livrable comme input
-39. Inversion Duel grille fit culturel — tag culture_signal sur les STRESS_ANGLES
+À considérer :
+- Ce problème se résout par l'observation, pas par des features
 
-Trempe :
-40. Test "How I vs How to" scoring post — 9ème test heuristique. 15-20 lignes
+### PROBLÈME 4 — LE CANDIDAT SE FIGE DANS LA FORGE
+Indicateur : taux de candidats qui forgent 1+ brique en 10 minutes
 
-Design :
-41. Design hygiene pass — 5 actions ciblées. 3-4h
+Maintenant :
+- Test utilisateur 0 : JM traverse son propre outil de bout en bout
+- 5 anti-rationalisations dans les tooltips (1 par mur cognitif). 10 min d'écriture
 
-Enrichissement :
-42. STRESS_ANGLE réputation adverse — 1-2 angles par rôle
-43. Question extraction CV Fantôme — 1 question dans la Forge
-44. Audit visibilité IA profil LinkedIn — Éclaireur V3. Après Trempe V2
+Ensuite :
+- Mode guidé optionnel — 5 questions séquentielles, adaptées par type de brique (proof, cicatrice séquence Malvina, élastique). 50-70 lignes. Déclencheur : friction confirmée sur test utilisateur 0 ou 1er candidat
+- Question extraction CV Fantôme — 1 question dans la Forge
+
+À considérer :
+- Chatbot hybride V3+ — déclencheur : mode guidé validé
+- Tri briques par cauchemar — déclencheur : 1 candidat atteint 10+ briques
+
+### PROBLÈME 5 — LE CANDIDAT NE REVIENT PAS
+Indicateur : taux rétention session 1 → session 2
+
+Maintenant :
+- Observer. Pirsch montre les visites répétées sur /sprint
+
+Ensuite :
+- Brief de reprise contextuel — densité + dernière brique + action recommandée + 1 mention Signature à 2 briques blindées. 30-40 lignes. Déclencheur : 1 candidat dit "je ne savais pas par quoi reprendre"
+- Détection livrables périmés — déclencheur : verbatim "j'ai envoyé l'ancien chiffre"
+
+À considérer :
+- Exercice écriture Fiche de Combat — déclencheur : 1 candidat a un entretien prévu
+- Brew wording par profil apprenant — déclencheur : 10 candidats + patterns observés
+
+### PROBLÈME 6 — LE LIVRABLE NE CONVERTIT PAS
+Indicateur : taux de réponse recruteur sur les One-Pagers/scripts envoyés
+
+Maintenant :
+- Observer. Le premier candidat qui envoie un One-Pager produit la première donnée
+
+Ensuite :
+- Phrase de désamorçage cauchemar #1 dans One-Pager bloc 3 en hypothèse. 5-10 lignes template
+- Audit-before-copy — avertissement non bloquant sous CopyBtn. Déclencheur : 1 candidat génère un One-Pager
+- Scripts contact restructurés verbaliser→projeter→palpable. Déclencheur : 3 candidats envoient le template actuel sans réponse
+- Diagnostic de cible — rôle recommandé après 3 briques. Déclencheur : 1 candidat hésite sur son rôle
+- Score d'adéquation candidat×offre. Déclencheur : 1 candidat analyse une 2ème offre
+- Signature co-écrite 4 composantes (verbe + domaine + transférabilité + contexte de rareté). Déclencheur : 1 candidat atteint la Signature et dit "la phrase ne me ressemble pas"
+
+À considérer :
+- STRESS_ANGLES "caractère" — 3 questions par rôle. Déclencheur : Duel couche 1 validé
+- Duel sur livrable (One-Pager/CV). Déclencheur : Duel validé + entretien prévu
+- Inversion Duel grille fit culturel — tag culture_signal + zones de friction. Enrichissement STRESS_ANGLES
+- STRESS_ANGLE réputation adverse — 1-2 angles par rôle
+- Question ouverte One-Pager bloc 5 — déclencheur : verbatims recruteurs
+- Rapport Duel 2 sections Échoppe — déclencheur : l'Échoppe existe
+- Benchmark main de poker — déclencheur : 50 candidats/rôle
+
+### PROBLÈME 7 — PAS DE REVENUS
+Indicateur : nombre de candidats prêts à payer 19€/mois
+
+Maintenant :
+- Micro-entreprise INPI + SIRET (30 min en ligne, 2-4 semaines traitement)
+
+Ensuite :
+- Stripe config (produit 19€, webhook, is_subscribed, paywall). Après 10 candidats gratuits
+- Instrumentation coût par candidat — console.log tokens /api/scan. 5 lignes. N'est plus pré-requis Stripe
+
+À considérer :
+- Calculateur coût d'inaction Plan C — Google Sheet 4 onglets. Déclencheur : SIRET + 1er DRH identifié
+
+### TRANSVERSE
 
 Infra :
-45. 3 tests e2e critiques (Éclaireur colle offre → cauchemars, Forge brique → Blindage, Arsenal génère One-Pager → copie)
-46. GitHub Actions CI
+- 3 tests e2e critiques (Éclaireur → cauchemars, Forge → Blindage, Arsenal → One-Pager). Après 10 candidats
+- GitHub Actions CI. Après tests e2e
 
-### Priorité 4 — DORMANTES (déclencheur explicite)
+Portfolio PM :
+- Phrase hook — en attente (vient de JM après test utilisateur 0)
+- Trajectoire ligne droite — en attente (idem)
 
-47. Chatbot hybride V3+ — déclencheur : mode guidé validé
-48. Benchmark main de poker — déclencheur : 50 candidats/rôle
-49. Tri briques par cauchemar — déclencheur : 1 candidat atteint 10+ briques
-50. Détection livrables périmés — déclencheur : verbatim "j'ai envoyé l'ancien chiffre"
-51. Question ouverte One-Pager bloc 5 — déclencheur : verbatims recruteurs
-52. Rapport Duel 2 sections Échoppe — déclencheur : l'Échoppe existe
-53. Brew wording par profil apprenant — déclencheur : 10 candidats + patterns
-54. Brew boucle contacts + DM — déclencheur : Trempe V2 implémentée
-55. Découpage SKILL en fichiers par surface — déclencheur : SKILL > 400 lignes
+Trempe :
+- Test "How I vs How to" — 9ème test heuristique. Après Trempe V2
+- Brew boucle contacts + DM. Après Trempe V2
+
+Éclaireur V3 :
+- Audit visibilité IA profil LinkedIn. Après Trempe V2
+
+Burin :
+- Découpage SKILL en fichiers par surface. Déclencheur : SKILL > 400 lignes
+
+### ITEMS TUÉS (cumul sessions 8 avril - 12 avril 2026)
+
+28 items tués au total. 23 tués par 3 mental models (sessions 8-9 avril, kill ratio 45%). 5 tués par le cadre résultat (12 avril) : auto-diagnostic 5 questions (absorbé par mode guidé), slash commands /smoke + /docs (gain cosmétique), pricing Plan C 3 tiers (se fixe en négociation), champ "ce que je refuse" (le candidat sait), One-Pager auto-recalibrage (un clic Régénérer suffit).
+
+### WORKFLOW TUÉS (sessions 8-9 avril)
+12-18 : ✅ faits (trunk-based, plan B dépendances, anti-écho, pattern session, protection tests, hiérarchie idées). 17 slash commands : tué (gain cosmétique).
 
 ---
 
