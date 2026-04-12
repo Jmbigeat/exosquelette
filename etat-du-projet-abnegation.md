@@ -192,7 +192,7 @@ Forge :
 27. Brief de reprise contextuel — 3 lignes en haut de Sprint.jsx. Densité + dernière brique + action recommandée. Inclut 1 mention Signature à 2 briques blindées (informatif, pas promissif, pas de répétition). 30-40 lignes
 28. Exercice écriture manuelle Fiche de Combat — 1 champ libre + comparaison One-Pager
 29. Diagnostic de cible (rôle recommandé après 3 briques) — scoreBricksByCauchemar sur les 10 rôles
-30. Signature co-écrite (assembleur 3 composantes) — verbe + domaine + transférabilité. 60-80 lignes
+30. Signature co-écrite (assembleur 4 composantes) — verbe + domaine + transférabilité + contexte de rareté. Le contexte de rareté est calculé par fréquence sectorielle dans les briques ("3 briques sur 5 sont en SaaS mid-market → c'est là que tu es rare"). La Signature passe de "ce que tu fais" à "ce que tu fais, où tu es le seul." Enrichissement analyzeSignature. 60-80 lignes
 31. Champ "ce que je refuse" — 1 champ profil + alerte compatibilité Éclaireur
 32. Audit-before-copy — avertissement non bloquant sous CopyBtn. "3 lignes sur 5 sont blindées"
 33. Table anti-rationalisation — 4-5 phrases par étape dans tooltips/references.js. 0 code nouveau

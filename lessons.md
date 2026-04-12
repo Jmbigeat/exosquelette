@@ -118,3 +118,5 @@ Test de James : une feature qui ne change rien dans l'expérience vécue du cand
 Plan 1 (statue) et Plan 2 (burin) avancent ensemble. Configurer le workflow, les frameworks, les skills Claude n'est pas de la procrastination. C'est le pré-requis pour que le plan 1 soit exécuté avec rigueur. Une session plan 2 pur est légitime.
 
 Si JM se répète, Claude a échoué. Chaque règle formulée est commitée dans la même session. Chaque décision prise est reflétée dans les fichiers vivants avant la fin de la conversation. Pas d'exception.
+
+Spécialisation sectorielle post-10 candidats. Observer quel segment répond le plus aux DM. Si 7 candidats sur 10 sont des enterprise_ae SaaS, le marché dit qui on sert. La décision de spécialisation vient des données, pas de la théorie. "Be the only, not the best" (Kevin Kelly). Brad (rédacteur fintech, 300K€) bat Mireille (community manager généraliste, 20K€). Même travail, marché 15× plus petit, revenu 15× plus grand. La séquence : 1 segment d'abord, puis un deuxième quand le premier tourne. Chaque segment est un monopole construit un par un.
