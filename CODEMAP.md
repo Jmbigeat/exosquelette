@@ -56,7 +56,7 @@
 **Exports :** `POST`
 
 ### `app/api/checkout/route.js` (71 lignes)
-**Rôle :** POST — crée une session Stripe Checkout (49 €).
+**Rôle :** POST — crée une session Stripe Checkout (abonnement 19€/mois).
 **Exports :** `POST`
 
 ### `app/api/checkout/verify/route.js` (23 lignes)
@@ -172,7 +172,7 @@
 ### components/paywall/
 
 ### `components/paywall/Paywall.jsx` (150 lignes)
-**Rôle :** Composant paywall — présentation offre 49 €, redirect Stripe Checkout.
+**Rôle :** Composant paywall — présentation abonnement 19€/mois, redirect Stripe Checkout.
 **Exports :** `Paywall`
 
 ---
@@ -332,7 +332,7 @@
 **Exports :** aucun (test unitaire)
 
 ### `tests/smoke.mjs` (548 lignes)
-**Rôle :** Suite de 170 smoke tests — couvre scoring, generators, analysis, offers, brickExtractor, éclaireur, email signature, dilts, contact score, brew utils, post score, dev server.
+**Rôle :** Suite de 258 smoke tests — couvre scoring, generators, analysis, offers, brickExtractor, éclaireur, email signature, dilts, contact score, brew utils, post score, dev server.
 **Exports :** aucun (script exécutable)
 
 ---
