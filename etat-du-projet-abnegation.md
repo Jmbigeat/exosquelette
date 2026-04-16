@@ -400,6 +400,12 @@ Malvina Préveaux : recruteuse Digital & Marketing freelance, coach carrière. 9
 
 ---
 
+## DETTE TECHNIQUE RECONNUE
+
+- architecture.md (statechart Harel formel des 3 couches) et design.md (tokens complets) à écrire le jour où un chantier ou un onboarding humain le justifie. Pas urgent tant que Claude.ai tient la cohérence.
+
+---
+
 ## BACKLOG SIGNAUX (non priorisé, non planifié)
 
 | Signal | Description | Source | Date |
