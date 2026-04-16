@@ -252,9 +252,9 @@ Quick reference:
 ## Current State (March 2026)
 
 - **Shipped**: 21 chantiers + 2 refactorings (generators split, Sprint hooks) + 15 micro-fixes. All merged to main.
-- **Pricing**: Forge gratuite (B2C2B). Pièces mortes. Paywall 49€ bypassé. Abonnement 19€/mois à activer (prérequis: micro-entreprise + Stripe).
+- **Pricing**: Forge gratuite (B2C2B). Pièces mortes. Abonnement 19€/mois à activer (prérequis: micro-entreprise + Stripe).
 - **Éclaireur**: Free tool. Paste offer → detect role → reveal 1 KPI → optional CV audit (5 cross-tests + English detection) → CTA Forge.
-- **Smoke tests**: 169 tests via `npm run smoke`.
+- **Smoke tests**: 258 tests via `npm run smoke`.
 - **Domain**: abnegation.eu (live).
 - **Key files**: `lessons.md` (bug rules), `etat-du-projet-abnegation.md` (source of truth snapshot), `CODEMAP.md` (51 files documented).
 
