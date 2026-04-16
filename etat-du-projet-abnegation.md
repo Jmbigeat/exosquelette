@@ -18,7 +18,6 @@ Payant (abonnement) : livrables calibrés par canal/interlocuteur (One-Pager = a
 B2B : L'Échoppe. Profil anonymisé, cabinets paient par crédits (150€/crédit). Quality gate : densité ≥70% + blindage ≥3/4. Seuil lancement : 20 profils opt-in/rôle, lancement progressif rôle par rôle. Le contact déclenche le One-Pager calibré pour le mandat. CV sur demande.
 
 Pièces = mécanisme mort (ch14, code désactivé, compteur masqué dans le header).
-Paywall 49€ = bypassé (redirect /paywall → /onboarding).
 
 ---
 
@@ -45,7 +44,6 @@ Dernier push : 9 avril 2026.
 | Generator signature email (≤80 chars) | ✅ |
 | Éclaireur V2 audit CV × offre (5 tests croisés) | ✅ |
 | LinkedIn 360 Brew V2 (page /brew, 2 tables Supabase, 3 zones) | ✅ |
-| Bypass paywall 49€ (redirect → /onboarding) | ✅ |
 | Continuité sessionStorage Éclaireur → Onboarding → Forge | ✅ |
 | Skip onboarding (profil + offres si eclaireur_data) | ✅ |
 | Tooltips vocabulaire (15 termes) | ✅ |
@@ -56,7 +54,6 @@ Dernier push : 9 avril 2026.
 | Fix intervieweur dira (extractBrickCore resultNumber) | ✅ |
 | Fix largeur Éclaireur (aligné sur Forge) | ✅ |
 | Suppression bouton Mise en Veille | ✅ |
-| Compteur pièces masqué dans header | ✅ |
 | 62,8% stat restreinte aux rôles sales | ✅ |
 | Mot de passe oublié (resetPasswordForEmail) | ✅ |
 | redirectTo → abnegation.eu partout | ✅ |
@@ -65,7 +62,7 @@ Dernier push : 9 avril 2026.
 | Trajectoire : brick.transferStatement (champ optionnel Assemblage) | ✅ |
 | Trajectoire : bloc Arsenal (distance linéaire/transverse/atypique) | ✅ |
 | Landing page restructurée wireframe (bénéfices, 3 étapes, placeholders) | ✅ |
-| Landing page B2C2B (Forge gratuite, 0 mention 49€) | ✅ |
+| Landing page B2C2B : Forge gratuite, paywall livrables 19€/mois | ✅ |
 | Pirsch analytics (script layout.js) | ✅ |
 | Confirmation email différée (bandeau après 3 briques ou 24h) | ✅ |
 | Retry sauvegarde + backup localStorage offline | ✅ |
