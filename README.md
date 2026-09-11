@@ -39,7 +39,7 @@ Un outil de positionnement professionnel qui structure les preuves vérifiables 
 
 ## Stack
 
-Next.js 14 · Supabase (auth + persistence) · Stripe (paiements) · Claude API (scan Éclaireur) · Vercel (deploy) · ESLint + Prettier · Zod (validation API) · Rate limiting (4 routes)
+Next.js 14 · Supabase (auth + persistence) · Stripe (paiements) · Google Gen AI API (scan Éclaireur avec Gemini 3.6 Flash) · Vercel (deploy) · ESLint + Prettier · Zod (validation API) · Rate limiting (4 routes)
 
 ## Le stress test
 
@@ -57,7 +57,7 @@ Les questions sont calibrées par rôle (10 rôles) et par séniorité (IC/Manag
 
 ```bash
 cp .env.example .env.local
-# Remplir les variables (Supabase, Stripe, Anthropic)
+# Remplir les variables (Supabase, Stripe, Google)
 npm install
 npm run dev
 ```
