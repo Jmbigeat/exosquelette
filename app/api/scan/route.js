@@ -1,11 +1,21 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { createRateLimiter, getClientIp } from "@/lib/rateLimit";
+
+// Limitation : max 5 requêtes par IP par tranche de 15 minutes
+const scanRateLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 });
 
 var scanSchema = z.object({
-  cv: z.string().min(20),
-  offers: z.string().min(20),
-  roleId: z.string().optional(),
+  cv: z
+    .string()
+    .min(20, "Profil trop court (minimum 20 caractères)")
+    .max(15000, "Profil trop long (maximum 15 000 caractères)"),
+  offers: z
+    .string()
+    .min(20, "Offre trop courte (minimum 20 caractères)")
+    .max(15000, "Offre trop longue (maximum 15 000 caractères)"),
+  roleId: z.string().max(100).optional(),
 });
 
 // Guard : vérifier que la clé API est configurée
@@ -19,6 +29,14 @@ const client = process.env.ANTHROPIC_API_KEY
 
 export async function POST(req) {
   try {
+    const ip = getClientIp(req);
+    if (scanRateLimiter(ip)) {
+      return NextResponse.json(
+        { error: "Trop de requêtes. Veuillez patienter 15 minutes avant de réessayer." },
+        { status: 429 }
+      );
+    }
+
     if (!client) {
       return NextResponse.json(
         { error: "Le moteur de scan est temporairement indisponible." },
@@ -29,13 +47,14 @@ export async function POST(req) {
     var body;
     try {
       body = await req.json();
-    } catch (e) {
-      return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    } catch {
+      return NextResponse.json({ error: "Format JSON invalide." }, { status: 400 });
     }
 
     var parsed = scanSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Contenu insuffisant" }, { status: 400 });
+      const issue = parsed.error.issues[0]?.message || "Contenu insuffisant";
+      return NextResponse.json({ error: issue }, { status: 400 });
     }
     var cv = parsed.data.cv;
     var offers = parsed.data.offers;
@@ -92,4 +111,5 @@ Reponds en JSON strict, sans backticks, sans preamble. Format :
     return NextResponse.json({ error: "Erreur lors du scan" }, { status: 500 });
   }
 }
+
 
