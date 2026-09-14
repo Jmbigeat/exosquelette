@@ -8,10 +8,24 @@ var scanSchema = z.object({
   roleId: z.string().optional(),
 });
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Guard : vérifier que la clé API est configurée
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error("⚠️ ANTHROPIC_API_KEY manquante — l'API Scan sera indisponible");
+}
+
+const client = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : null;
 
 export async function POST(req) {
   try {
+    if (!client) {
+      return NextResponse.json(
+        { error: "Le moteur de scan est temporairement indisponible." },
+        { status: 503 }
+      );
+    }
+
     var body;
     try {
       body = await req.json();
@@ -78,3 +92,4 @@ Reponds en JSON strict, sans backticks, sans preamble. Format :
     return NextResponse.json({ error: "Erreur lors du scan" }, { status: 500 });
   }
 }
+

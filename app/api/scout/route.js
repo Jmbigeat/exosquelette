@@ -9,11 +9,25 @@ const ScoutOutputSchema = z.object({
   cauchemars: z.array(z.string())
 });
 
+// Guard : vérifier que la clé API est configurée
+if (!process.env.GEMINI_API_KEY) {
+  console.error("⚠️ GEMINI_API_KEY manquante — l'API Scout sera indisponible");
+}
+
 // Initialisation sécurisée
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = process.env.GEMINI_API_KEY
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
 
 export async function POST(req) {
   try {
+    if (!ai) {
+      return NextResponse.json(
+        { error: "Le moteur d'analyse est temporairement indisponible." },
+        { status: 503 }
+      );
+    }
+
     const { jobDescription } = await req.json();
 
     if (!jobDescription) {
@@ -45,9 +59,9 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("💥 Erreur de l'Éclaireur :", error);
-    return NextResponse.json({
-      error: "Erreur interne du moteur d'analyse",
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erreur interne du moteur d'analyse" },
+      { status: 500 }
+    );
   }
 }
