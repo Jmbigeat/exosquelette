@@ -37,13 +37,13 @@ Face à la saturation des ATS par les candidatures générées par LLM (**+182 %
 
 ---
 
-## 📊 Métriques & Chiffres Clés
+## 📊 Métriques d'Invariance & Qualité Logicielle
 
-- **40 100** lignes de code
-- **258 tests Jest automatisés** (smoke tests & harnais de non-régression) + 10 unit tests
-- **13 pièces de spécifications cliniques** et registres d'arbitrage produit
-- **44 features** déployées
-- **10 rôles × 4 secteurs** modélisés
+- **13 pièces de spécifications cliniques** et registres d'arbitrage produit (contrats de données prêts pour passation dev V2)
+- **258 tests Jest automatisés** (smoke tests & harnais de non-régression à 0 hallucination) + 10 unit tests
+- **4 surfaces métier unifiées** (Éclaireur, Forge, Trempe, Échoppe)
+- **4 arbitrages majeurs de suppression** (Kill List documentée : suppression des crédits, des toggles et du dashboard RH)
+- **10 rôles professionnels × 4 secteurs** modélisés
 - **145+ déploiements** Vercel en production continue
 
 ---
