@@ -1,77 +1,69 @@
-Ouvre README.md à la racine du repo. Remplace tout le contenu par :
+# ABNEG@TION — Système d'Évaluation & Matrice de Preuves RH
 
-# ABNEG@TION
+> **Concept-car logiciel & banc d'essai R&D conçu par Jean-Mikaël Bigeat (Product Manager — Talent Assessment & AI Systems).**  
+> *« Le candidat ne déclare plus. Il prouve. »*
 
-Un outil de positionnement professionnel qui structure les preuves vérifiables d'un candidat expérimenté. Le candidat ne déclare plus. Il prouve.
+---
 
-## Le problème
+## 🎯 Le Problème & La Thèse de Marché
 
-95% des CV sont déclaratifs. "J'ai géré des projets." Le recruteur lit, hoche la tête, et passe au suivant. Le candidat expérimenté a 10 ans de preuves enfouies. Il ne sait pas les formuler de manière vérifiable.
+Face à la saturation des ATS par les candidatures générées par LLM (**+182 % de volume par embauche** selon l'étude Ashby sur 109M de candidatures tech), 95 % des CV sont devenus du déclaratif pur sans valeur de signal.
 
-## Ce que fait l'outil
+**Abneg@tion** inverse cette dynamique : plutôt que d'amplifier le bruit par de l'IA générative complaisante, l'outil décompose le vécu professionnel du candidat en **preuves de compétences vérifiables**, audite leur consistance sous contrainte et élimine les hallucinations algorithmiques.
 
-4 surfaces, 1 pipeline.
+---
 
-**L'Éclaireur** — Le candidat colle une offre d'emploi. L'outil détecte le rôle, révèle le KPI caché du recruteur, et identifie les cauchemars (les peurs spécifiques que le recruteur ne formule pas dans l'offre).
+## ⚙️ Ce que fait l'outil (4 surfaces, 1 pipeline)
 
-**La Forge** — Le candidat écrit ses expériences (les briques). Chaque brique est testée sur 4 axes : chiffre vérifiable, décision personnelle, influence prouvée, transférabilité argumentée. Le stress test attaque chaque brique avec des questions de pression calibrées par rôle et séniorité. Le Duel simule un entretien adverse de 90 secondes.
+1. **L'Éclaireur (Couche 0) :** Analyse sémantique de l'offre d'emploi cible. Détecte le rôle, extrait le KPI implicite du recruteur et cartographie les « cauchemars opérationnels » (les risques réels que l'employeur redoute sans les expliciter dans l'annonce).
+2. **La Forge (Couche Moteur) :** Extraction et structuration des briques d'expérience. Chaque brique est soumise au **Blindage déterministe sur 4 axes** : *Chiffre vérifiable*, *Décision personnelle*, *Influence prouvée*, *Transférabilité argumentée*.
+   - **Le Stress Test :** Attaque chaque preuve sous 4 angles contradictoires calibrés par rôle et séniorité.
+   - **Le Duel :** Épreuve textuelle contradictoire de 90 secondes confrontant le candidat à un sparring-partner adverse pour tester la tenue de ses preuves sous pression.
+3. **La Trempe :** Transformation des preuves validées en artefacts de positionnement (articles de fond et posts d'autorité sédimentés, scorés par 8 heuristiques).
+4. **L'Échoppe (Spécification prête) :** Espace recruteurs inversé. Matching direct par profil d'anomalie couverte et déclenchement du One-Pager opposable.
 
-**La Trempe** — Le candidat publie des preuves sur LinkedIn. 4 piliers narratifs. Scoring automatique (8 tests heuristiques). Les posts sont des preuves sédimentées, pas du contenu viral.
+---
 
-**L'Échoppe** — Les recruteurs trouvent les candidats forgés. Profils anonymisés, filtrés par cauchemar couvert. Le contact déclenche le One-Pager calibré. (Spec prête, pas encore en production.)
+## 🏛️ Architecture & Invariants Produit
 
-## Architecture
+- **Architecture Hybride (80 % déterministe / 20 % IA) :** Les moteurs de calcul, les validateurs de règles, le Blindage et la densité sont des **fonctions pures locales (0 token)**. Zéro modèle probabiliste dans le chemin critique d'évaluation : le risque d'hallucination de compétences est mathématiquement nul.
+- **Conformité Native EU AI Act :** Conçu pour respecter les exigences des systèmes de recrutement classés "Haut Risque" :
+  - **Article 14 (Supervision humaine effective) :** Les métriques restent transparentes et auditables par un humain.
+  - **Article 86 (Droit à l'explicabilité) :** Zéro boîte noire de scoring prédictif opaque protégeant les entreprises contre le risque de ruine juridique.
+- **Découplage Clinique Moteur vs Narration :** L'utilisateur interagit avec une structure narrative intuitive (ATMT : Accroche, Tension, Méthode, Transfert). Le moteur sous-jacent applique un modèle de contrainte distinct (Blindage 4 cases). Les deux couches ne se polluent jamais.
+- **Arbitrages de Renoncement Documentés :**
+  - Suppression de 3 mois de développement front sur le dashboard propriétaire au profit d'une injection native par webhooks dans l'ATS (éviter le syndrome du "4ᵉ onglet" pour les managers).
+  - Suppression de 3 fonctionnalités parasites en production (recharge à l'acte, compteur de crédits, option d'onboarding) pour fluidifier la boucle d'usage.
 
-- 80% déterministe. Les generators, le scoring, le Blindage, la densité sont des fonctions pures. Pas de LLM sauf pour le scan initial (Éclaireur).
-- Le candidat ne voit jamais le moteur interne (Blindage 4 cases). Il voit ATMT (Accroche, Tension, Méthode, Transfert). Les deux couches ne s'intersectent jamais.
-- La densité avance par seuils, pas par durée.
+---
 
-## Chiffres
+## 📊 Métriques & Chiffres Clés
 
-- 40 100 lignes de code
-- 258 smoke tests + 10 unit tests
-- 51 fichiers documentés (CODEMAP.md)
-- 44 features en production
-- 10 rôles × 4 secteurs couverts
-- 21 chantiers mergés
-- 145+ déploiements Vercel
-- 1 personne
+- **40 100** lignes de code
+- **258 tests Jest automatisés** (smoke tests & harnais de non-régression) + 10 unit tests
+- **13 pièces de spécifications cliniques** et registres d'arbitrage produit
+- **44 features** déployées
+- **10 rôles × 4 secteurs** modélisés
+- **145+ déploiements** Vercel en production continue
 
-## Stack
+---
 
-Next.js 14 · Supabase (auth + persistence) · Stripe (paiements) · Google Gen AI API (scan Éclaireur avec Gemini 3.6 Flash) · Vercel (deploy) · ESLint + Prettier · Zod (validation API) · Rate limiting (4 routes)
+## 🛠️ Stack Technique
 
-## Le stress test
+- **Front-end / Framework :** Next.js 14 (App Router), React, Tailwind CSS
+- **Back-end & Persistance :** Supabase (PostgreSQL, Auth, RLS)
+- **Validation & Sécurité :** Zod (schémas d'API stricts), Rate limiting (Upstash Redis)
+- **Paiements :** Stripe API
+- **IA (Dernier kilomètre uniquement) :** Google Gen AI API (Gemini 1.5 Flash sur le scan initial de l'Éclaireur)
+- **Qualité & Tests :** Jest, ESLint, Prettier
 
-Chaque brique est attaquée sur 4 angles :
-- **Chiffre** : "C'est le portefeuille total ou ta contribution personnelle ?"
-- **Décision** : "Qui a approuvé ? Si ton manager avait dit non ?"
-- **Influence** : "Quelqu'un d'autre aurait-il obtenu le même résultat ?"
-- **Transférabilité** : "Qu'est-ce qui ne s'applique pas dans le nouveau contexte ?"
+---
 
-2 angles conditionnels pour les briques élastiques (compétences transférées d'un domaine non professionnel) : friction de transfert et intersection cachée.
+## 👤 Conception & Paternité Produit
 
-Les questions sont calibrées par rôle (10 rôles) et par séniorité (IC/Manager/Leader). Entièrement déterministe. Zéro LLM.
+**Jean-Mikaël Bigeat** — Product Manager (Talent Assessment & AI Systems)  
+- Démo & Application : [abnegation.eu](https://abnegation.eu)
+- Profil d'autorité & gouvernance : [github.com/Jmbigeat](https://github.com/Jmbigeat)
+- Contact : contact@abnegation.eu · jeanmikael.bigeat@email.com
 
-## Lancer en local
-
-```bash
-cp .env.example .env.local
-# Remplir les variables (Supabase, Stripe, Google)
-npm install
-npm run dev
-```
-
-## Tests
-
-```bash
-npm run smoke    # 258 tests
-npm run test     # 10 unit tests
-npm run qa       # 15 checks post-merge
-```
-
-## Construit par
-
-Jean-Mikaël Bigeat — [abnegation.eu](https://abnegation.eu) — contact@abnegation.eu
-
-Je ne définis pas le produit. Je le construis et je le livre.
+> *« Du terrain au logiciel : résoudre des frictions opérationnelles réelles par le cadrage d'invariants et l'élimination du superflu. »*
