@@ -8,3 +8,4 @@ node_modules/
 .gemini/
 gha-creds-*.json
 .venv/
+tests/.vitest-last-run.json
