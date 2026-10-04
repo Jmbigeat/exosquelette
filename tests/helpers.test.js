@@ -19,7 +19,7 @@ test("extractBrickCore uses brick.fields.result when available", function() {
 });
 
 // Test 2 — extractBrickCore fallback (no fields)
-// Legacy bricks without .fields must not crash
+// Legacy bricks without .fields must not crash and must not pick situation context number (12)
 test("extractBrickCore falls back to heuristic when fields missing", function() {
   var brick = {
     text: "Équipe de 12 personnes\n\nRestructuré le pipeline\n\nMRR passé de 18K€ à 45K€\n\nBudget gelé",
@@ -27,6 +27,8 @@ test("extractBrickCore falls back to heuristic when fields missing", function() 
   var core = extractBrickCore(brick);
   expect(core).not.toBeNull();
   expect(core.resultNumber).toBeDefined();
+  expect(core.resultNumber).not.toBe("12");
+  expect(core.resultNumber).toMatch(/18K€|45K€/i);
 });
 
 // Test 3 — extractBrickCore brick with no numbers
