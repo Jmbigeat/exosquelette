@@ -9,3 +9,4 @@ node_modules/
 gha-creds-*.json
 .venv/
 tests/.vitest-last-run.json
+.agent-handoff.json

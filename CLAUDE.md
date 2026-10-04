@@ -150,3 +150,19 @@ Trois filtres nommés s'appliquent aux outputs générés :
 - Stripe webhook : production uniquement (pas localhost)
 
 Tu n'as pas le droit de modifier les fichiers dans tests/. Tu peux les lire. Tu ne peux pas les modifier, les créer, ni les supprimer. Si un test échoue, tu corriges ton implémentation, pas le test. Si la spec a changé et qu'un test est obsolète, tu le signales et tu attends mon approbation avant de toucher au test.
+
+## Protocole d'Audit & Handoff vers Antigravity (Blackboard)
+Quand tu audites le code ou les specs et détectes une faille, un manque d'assertion ou un refactoring nécessaire :
+Ne produis pas de longue prose explicative. Écris directement ou formate le payload standardisé dans le blackboard local `.agent-handoff.json` à la racine :
+```json
+{
+  "timestamp": "YYYY-MM-DDTHH:MM:SSZ",
+  "source_agent": "Claude-Pro-RedTeam",
+  "target_file": "chemin/du/fichier.js",
+  "issue_detected": "Description synthétique de la faille",
+  "recommended_action": "Action concrète ou implémentation recommandée",
+  "test_target": "tests/cible.test.js",
+  "status": "PENDING"
+}
+```
+Antigravity (Google AI Builder) prend le relais de manière déterministe dès que JM formule « GO Handoff » : il implémente le code, fait tourner Vitest et Smoke, commit, et met à jour le fichier en `RESOLVED`.
