@@ -26,10 +26,10 @@ Face à la saturation des ATS par les candidatures générées par LLM (**+182 %
 
 ## 🏛️ Architecture & Invariants Produit
 
-- **Architecture Hybride (80 % déterministe / 20 % IA) :** Les moteurs de calcul, les validateurs de règles, le Blindage et la densité sont des **fonctions pures locales (0 token)**. Zéro modèle probabiliste dans le chemin critique d'évaluation : le risque d'hallucination de compétences est mathématiquement nul.
-- **Conformité Native EU AI Act :** Conçu pour respecter les exigences des systèmes de recrutement classés "Haut Risque" :
-  - **Article 14 (Supervision humaine effective) :** Les métriques restent transparentes et auditables par un humain.
-  - **Article 86 (Droit à l'explicabilité) :** Zéro boîte noire de scoring prédictif opaque protégeant les entreprises contre le risque de ruine juridique.
+- **Architecture Hybride (80 % déterministe / 20 % IA) :** Les moteurs de calcul, les validateurs de règles, le Blindage et la densité sont des **fonctions pures locales (0 token)**. Zéro modèle probabiliste dans le chemin critique d'évaluation : aucune probabilité dans la note finale, calculable à la main.
+- **Dérisquage Réglementaire EU AI Act (Auditabilité & Explicabilité) :** Conçu pour répondre aux obligations d'auditabilité des systèmes de recrutement classés "Haut Risque" (Annexe III) :
+  - **Article 14 (Supervision humaine effective) :** Les métriques restent transparentes, auditables et opposables par un humain.
+  - **Article 86 (Droit à l'explicabilité) :** Zéro boîte noire de scoring prédictif opaque protégeant les entreprises contre le risque d'exposition juridique.
 - **Découplage Clinique Moteur vs Narration :** L'utilisateur interagit avec une structure narrative intuitive (ATMT : Accroche, Tension, Méthode, Transfert). Le moteur sous-jacent applique un modèle de contrainte distinct (Blindage 4 cases). Les deux couches ne se polluent jamais.
 - **Arbitrages de Renoncement Documentés :**
   - Suppression de 3 mois de développement front sur le dashboard propriétaire au profit d'une injection native par webhooks dans l'ATS (éviter le syndrome du "4ᵉ onglet" pour les managers).
@@ -40,7 +40,7 @@ Face à la saturation des ATS par les candidatures générées par LLM (**+182 %
 ## 📊 Métriques d'Invariance & Qualité Logicielle
 
 - **13 pièces de spécifications cliniques** et registres d'arbitrage produit (contrats de données prêts pour passation dev V2)
-- **258 tests Jest automatisés** (smoke tests & harnais de non-régression à 0 hallucination) + 10 unit tests
+- **Suite d'invariance de 258 assertions automatisées** (`smoke.mjs`) et **27 tests unitaires sous Vitest** couvrant le critical path
 - **4 surfaces métier unifiées** (Éclaireur, Forge, Trempe, Échoppe)
 - **4 arbitrages majeurs de suppression** (Kill List documentée : suppression des crédits, des toggles et du dashboard RH)
 - **10 rôles professionnels × 4 secteurs** modélisés
@@ -55,7 +55,7 @@ Face à la saturation des ATS par les candidatures générées par LLM (**+182 %
 - **Validation & Sécurité :** Zod (schémas d'API stricts), Rate limiting (Upstash Redis)
 - **Paiements :** Stripe API
 - **IA (Dernier kilomètre uniquement) :** Google Gen AI API (Gemini 1.5 Flash sur le scan initial de l'Éclaireur)
-- **Qualité & Tests :** Jest, ESLint, Prettier
+- **Qualité & Tests :** Vitest, ESLint, Prettier
 
 ---
 
