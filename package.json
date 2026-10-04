@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
+    "test:report": "vitest run --reporter=json --outputFile=tests/.vitest-last-run.json",
     "test:watch": "vitest",
     "lint": "eslint components/ lib/ app/",
     "format": "prettier --write components/ lib/ app/ --ignore-unknown",

@@ -137,6 +137,7 @@ Trois filtres nommés s'appliquent aux outputs générés :
 ## Tests
 - Smoke tests : `npm run smoke` (258 tests structurels)
 - Unit tests : `npm test` (Vitest)
+- Rapport machine JSON : `npm run test:report` → `tests/.vitest-last-run.json`
 - QA agent : `npm run qa` (15 checks post-merge)
 - Lint : `npx eslint .`
 - Types : pas de TypeScript, pas de typecheck
@@ -150,6 +151,8 @@ Trois filtres nommés s'appliquent aux outputs générés :
 - Stripe webhook : production uniquement (pas localhost)
 
 Tu n'as pas le droit de modifier les fichiers dans tests/. Tu peux les lire. Tu ne peux pas les modifier, les créer, ni les supprimer. Si un test échoue, tu corriges ton implémentation, pas le test. Si la spec a changé et qu'un test est obsolète, tu le signales et tu attends mon approbation avant de toucher au test.
+
+**Obligation de Preuve Machine (Anti-Faux Positifs) :** Avant de formuler la moindre affirmation sur l'état ou la couverture des tests, tu as l'obligation matérielle de lire `tests/.vitest-last-run.json`. Ce fichier contient la vérité machine de la dernière exécution (numPassedTests, numFailedTests, testResults). Zéro affirmation de test manquant ou ouvert sans avoir vérifié ce fichier au préalable.
 
 ## Protocole d'Audit & Handoff vers Antigravity (Blackboard)
 Quand tu audites le code ou les specs et détectes une faille, un manque d'assertion ou un refactoring nécessaire :
