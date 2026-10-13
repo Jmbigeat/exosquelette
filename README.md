@@ -1,7 +1,7 @@
-# ABNEG@TION — Système d'Évaluation & Matrice de Preuves RH
+# ABNEG@TION — Système d'Évaluation & Matrice de Qualification RH
 
 > **Concept-car logiciel & banc d'essai R&D conçu par Jean-Mikaël Bigeat (Product Manager — Talent Assessment & AI Systems).**  
-> *« Le candidat ne déclare plus. Il prouve. »*
+> *« Remplacer le flou déclaratif par des affirmations précises, exposées à la contradiction et prêtes pour la vérification humaine. »*
 
 ---
 
@@ -9,18 +9,18 @@
 
 Face à la saturation des ATS par les candidatures générées par LLM (**+182 % de volume par embauche** selon l'étude Ashby sur 109M de candidatures tech), 95 % des CV sont devenus du déclaratif pur sans valeur de signal.
 
-**Abneg@tion** inverse cette dynamique : plutôt que d'amplifier le bruit par de l'IA générative complaisante, l'outil décompose le vécu professionnel du candidat en **preuves de compétences vérifiables**, audite leur consistance sous contrainte et élimine les hallucinations algorithmiques.
+**Abneg@tion** inverse cette dynamique : plutôt que d'amplifier le bruit par de l'IA générative complaisante, l'outil décompose le vécu professionnel du candidat en **affirmations précises et testables**, éprouve leur solidité face à la contradiction et garantit zéro hallucination sur le score (le LLM ne touche jamais à la notation).
 
 ---
 
 ## ⚙️ Ce que fait l'outil (4 surfaces, 1 pipeline)
 
 1. **L'Éclaireur (Couche 0) :** Analyse sémantique de l'offre d'emploi cible. Détecte le rôle, extrait le KPI implicite du recruteur et cartographie les « cauchemars opérationnels » (les risques réels que l'employeur redoute sans les expliciter dans l'annonce).
-2. **La Forge (Couche Moteur) :** Extraction et structuration des briques d'expérience. Chaque brique est soumise au **Blindage déterministe sur 4 axes** : *Chiffre vérifiable*, *Décision personnelle*, *Influence prouvée*, *Transférabilité argumentée*.
-   - **Le Stress Test :** Attaque chaque preuve sous 4 angles contradictoires calibrés par rôle et séniorité.
-   - **Le Duel :** Épreuve textuelle contradictoire de 90 secondes confrontant le candidat à un sparring-partner adverse pour tester la tenue de ses preuves sous pression.
-3. **La Trempe :** Transformation des preuves validées en artefacts de positionnement (articles de fond et posts d'autorité sédimentés, scorés par 8 heuristiques).
-4. **L'Échoppe (Spécification prête) :** Espace recruteurs inversé. Matching direct par profil d'anomalie couverte et déclenchement du One-Pager opposable.
+2. **La Forge (Couche Moteur) :** Extraction et structuration des briques d'expérience. Chaque brique est soumise au **Blindage déterministe sur 4 axes** : *Chiffre vérifiable*, *Décision personnelle*, *Impact documenté*, *Transférabilité argumentée*.
+   - **Le Stress Test :** Attaque chaque affirmation sous 4 angles contradictoires calibrés par rôle et séniorité.
+   - **Le Duel :** Épreuve textuelle contradictoire de 90 secondes confrontant le candidat à un sparring-partner adverse pour tester la solidité de ses arguments face à l'objection.
+3. **La Trempe :** Transformation des briques qualifiées en artefacts de positionnement (articles de fond et posts d'autorité sédimentés, scorés par 8 heuristiques).
+4. **L'Échoppe (Spécification prête) :** Espace recruteurs inversé. Matching direct par profil d'anomalie couverte et déclenchement du One-Pager de synthèse (statuts S1 Formulé et S2 Exposé).
 
 ---
 
@@ -29,7 +29,7 @@ Face à la saturation des ATS par les candidatures générées par LLM (**+182 %
 - **Architecture Hybride (80 % déterministe / 20 % IA) :** Les moteurs de calcul, les validateurs de règles, le Blindage et la densité sont des **fonctions pures locales (0 token)**. Zéro modèle probabiliste dans le chemin critique d'évaluation : aucune probabilité dans la note finale, calculable à la main.
 - **Dérisquage Réglementaire EU AI Act (Auditabilité & Explicabilité) :** Conçu pour répondre aux obligations d'auditabilité des systèmes de recrutement classés "Haut Risque" (Annexe III) :
   - **Article 14 (Supervision humaine effective) :** Les métriques restent transparentes, auditables et opposables par un humain.
-  - **Article 86 (Droit à l'explicabilité) :** Zéro boîte noire de scoring prédictif opaque protégeant les entreprises contre le risque d'exposition juridique.
+  - **Article 86 (Droit à l'explicabilité) :** Chaque refus ou notation cite la règle déterministe exacte qui l'a produite. Zéro boîte noire de scoring prédictif opaque protégeant les employeurs contre le risque d'exposition juridique.
 - **Découplage Clinique Moteur vs Narration :** L'utilisateur interagit avec une structure narrative intuitive (ATMT : Accroche, Tension, Méthode, Transfert). Le moteur sous-jacent applique un modèle de contrainte distinct (Blindage 4 cases). Les deux couches ne se polluent jamais.
 - **Arbitrages de Renoncement Documentés :**
   - Suppression de 3 mois de développement front sur le dashboard propriétaire au profit d'une injection native par webhooks dans l'ATS (éviter le syndrome du "4ᵉ onglet" pour les managers).
