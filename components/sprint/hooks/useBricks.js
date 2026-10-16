@@ -183,6 +183,7 @@ export function useBricks(initialState, targetRoleId, offersArray) {
       fields: seed.structuredFields || null,
       type: "brick",
       corrected: true,
+      userEdited: true,
       sideProject: seed.sideProject || false,
       originalText: seed.originalText || null,
     };
@@ -239,6 +240,7 @@ export function useBricks(initialState, targetRoleId, offersArray) {
       usedIn: ["CV", "Simulateur", "Posts"],
       status: "validated",
       owned: true,
+      userEdited: true,
       brickType: "preuve",
       brickCategory: category || "chiffre",
       type: brickSourceType || "brick",
@@ -259,9 +261,10 @@ export function useBricks(initialState, targetRoleId, offersArray) {
   }
 
   function handleBrickUpdate(updatedBrick) {
+    var stamped = Object.assign({}, updatedBrick, { userEdited: true });
     setBricks(function (prev) {
       return prev.map(function (b) {
-        return b.id === updatedBrick.id ? updatedBrick : b;
+        return b.id === stamped.id ? stamped : b;
       });
     });
   }

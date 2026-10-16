@@ -107,14 +107,21 @@ assert("hasNumbers('abc 42') = true", analysis.hasNumbers("abc 42") === true);
 assert("formatCost(1500) returns string", typeof scoring.formatCost(1500) === "string");
 assert("formatCost(250000) contains K", scoring.formatCost(250000).indexOf("K") !== -1 || scoring.formatCost(250000).indexOf("k") !== -1 || scoring.formatCost(250000).indexOf("250") !== -1);
 
-// assessBrickArmor — empty brick
+// assessBrickArmor — empty brick & unedited scan brick (Option A lock)
 var emptyArmor = scoring.assessBrickArmor({});
-assert("assessBrickArmor({}) returns vulnerable", emptyArmor.status === "vulnerable");
-assert("assessBrickArmor({}) depth = 0", emptyArmor.depth === 0);
+var uneditedScanArmor = scoring.assessBrickArmor({
+  text: "J'ai réduit le churn de 15% en 6 mois. Décision validée par le board. Équipe de 8 mobilisée. Process déployé.",
+  fromScan: true,
+  userEdited: false,
+});
+assert("assessBrickArmor({}) and unedited fromScan return vulnerable", emptyArmor.status === "vulnerable" && uneditedScanArmor.status === "vulnerable");
+assert("assessBrickArmor({}) and unedited fromScan depth = 0", emptyArmor.depth === 0 && uneditedScanArmor.depth === 0);
 
-// assessBrickArmor — rich brick
+// assessBrickArmor — rich brick (or userEdited scan brick)
 var richArmor = scoring.assessBrickArmor({
-  text: "J'ai réduit le churn de 15% en 6 mois. Décision validée par le board. Équipe de 8 mobilisée. Process déployé et reproductible."
+  text: "J'ai réduit le churn de 15% en 6 mois. Décision validée par le board. Équipe de 8 mobilisée. Process déployé et reproductible.",
+  fromScan: true,
+  userEdited: true,
 });
 assert("assessBrickArmor rich brick depth >= 3", richArmor.depth >= 3);
 

@@ -54,6 +54,25 @@ if [ -n "$DEAD" ]; then
   ERRORS=$((ERRORS + 1))
 fi
 
+# Check 5: Unit tests (Vitest) & Smoke assertions (smoke.mjs)
+npx vitest run --silent >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "✗ TESTS UNITAIRES VITEST EN ÉCHEC :"
+  echo "  → Lance 'npx vitest run' pour diagnostiquer."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
+node tests/smoke.mjs >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "✗ SMOKE ASSERTIONS (tests/smoke.mjs) EN ÉCHEC :"
+  echo "  → Lance 'node tests/smoke.mjs' pour diagnostiquer."
+  echo ""
+  ERRORS=$((ERRORS + 1))
+fi
+
 if [ $ERRORS -gt 0 ]; then
   echo "═══ COMMIT BLOQUÉ — $ERRORS problème(s) détecté(s) ═══"
   echo "Corrige et recommence. Pour bypass (urgence) : git commit --no-verify"

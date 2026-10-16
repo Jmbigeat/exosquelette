@@ -300,7 +300,7 @@
 **Exports :** aucun (git hook)
 
 ### `scripts/hooks/pre-commit`
-**Rôle :** Blocks unicode escapes, console.log, dangerouslySetInnerHTML, dead features.
+**Rôle :** Blocks unicode escapes, console.log, dangerouslySetInnerHTML, dead features (Sprint Éclair / RAC), and runs Vitest unit tests + smoke.mjs assertions before commit.
 **Exports :** aucun (git hook)
 
 ### `scripts/install-hooks.sh`

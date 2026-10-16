@@ -63,7 +63,7 @@ export async function POST(req) {
     var prompt = `Tu es un expert en recrutement et positionnement de carrière.
 
 Le client a colle son CV/profil et des offres cibles. Ton travail :
-1. Identifier 3-5 briques de preuve probables (réalisations chiffrées, décisions, influences)
+1. Identifier 3-5 pistes d'épisodes probables déjà présentes dans le CV (sans jamais inventer ni extrapoler de chiffre absent du CV ; ces pistes sont de simples brouillons à 0 point tant que le candidat ne les a pas réécrites dans la Forge)
 2. Identifier 2-3 KPIs caches dans les offres (ce que le recruteur cherche sans le dire)
 3. Identifier les compétences clés croisées entre le profil et les offres
 4. Détecter les décalages (ce que le profil montre vs ce que les offres demandent)
@@ -80,7 +80,7 @@ ROLE DETECTE OU CHOISI : ${roleId}
 Reponds en JSON strict, sans backticks, sans preamble. Format :
 {
   "bricks": [
-    { "text": "description de la brique hypothetique", "kpi": "nom du KPI", "category": "chiffre|decision|influence", "confidence": "haute|moyenne", "sideProject": false }
+    { "text": "piste d'episode extraite du CV (brouillon hors score)", "kpi": "nom du KPI", "category": "chiffre|decision|influence", "confidence": "haute|moyenne", "sideProject": false }
   ],
   "hiddenKpis": [
     { "name": "nom du KPI", "why": "pourquoi c'est cache dans l'offre" }
@@ -101,11 +101,16 @@ Reponds en JSON strict, sans backticks, sans preamble. Format :
       })
       .join("");
 
-    // Parse JSON from response
+    // Parse JSON from response and enforce Option A lock (fromScan: true, userEdited: false -> 0 score until candidate rewrites in Forge)
     var clean = text.replace(/```json|```/g, "").trim();
-    var parsed = JSON.parse(clean);
+    var parsedJson = JSON.parse(clean);
+    if (parsedJson && Array.isArray(parsedJson.bricks)) {
+      parsedJson.bricks = parsedJson.bricks.map(function (b) {
+        return Object.assign({}, b, { fromScan: true, userEdited: false });
+      });
+    }
 
-    return NextResponse.json(parsed);
+    return NextResponse.json(parsedJson);
   } catch (err) {
     console.error("Scan error:", err);
     return NextResponse.json({ error: "Erreur lors du scan" }, { status: 500 });
